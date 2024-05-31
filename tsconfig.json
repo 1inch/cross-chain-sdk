@@ -1,0 +1,12 @@
+{
+  "extends": "@1inch/tsconfig",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "lib": [
+      "ES2021"
+    ],
+    "target": "ES2021",
+  },
+  "include": ["./src"]
+}
