@@ -5,6 +5,7 @@ on:
 
 jobs:
   check:
+    name: Lint, Types & Tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -21,11 +22,6 @@ jobs:
           node-version: 18
           cache: pnpm
 
-      - name: Auth in GitHub private registry npm
-        run: |
-          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" > .npmrc
-          echo "@1inch:registry=https://npm.pkg.github.com" >> .npmrc
-
       - name: Install Dependencies
         run: pnpm install
 
@@ -37,3 +33,6 @@ jobs:
 
       - name: Unit tests
         run: pnpm test
+
+      - name: Security
+        run: pnpm audit
