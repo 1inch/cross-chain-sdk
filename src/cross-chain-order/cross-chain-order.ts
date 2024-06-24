@@ -83,18 +83,6 @@ export class CrossChainOrder {
         return this.inner.auctionEndTime
     }
 
-    get isBitInvalidatorMode(): boolean {
-        return this.inner.isBitInvalidatorMode
-    }
-
-    get partialFillAllowed(): boolean {
-        return this.inner.partialFillAllowed
-    }
-
-    get multipleFillsAllowed(): boolean {
-        return this.inner.multipleFillsAllowed
-    }
-
     get nonce(): bigint {
         return this.inner.nonce
     }
