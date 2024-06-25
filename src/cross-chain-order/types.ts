@@ -28,7 +28,7 @@ export type CrossChainOrderInfo = {
     maker: Address
     salt?: bigint
     /**
-     * Destination chain address
+     * Destination chain receiver address
      *
      * If not set, then `maker` used
      */
