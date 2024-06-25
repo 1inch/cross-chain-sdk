@@ -29,7 +29,7 @@
     "@1inch/byte-utils": "2.3.0",
     "@1inch/fusion-sdk": "2.1.5-rc.0",
     "axios": "1.7.2",
-    "ethers": "6.13.0"
+    "ethers": "6.13.1"
   },
   "devDependencies": {
     "@1inch/eslint-config": "latest",

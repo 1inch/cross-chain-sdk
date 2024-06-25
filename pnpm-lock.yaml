@@ -10,7 +10,7 @@ dependencies:
     version: 2.3.0
   '@1inch/fusion-sdk':
     specifier: 2.1.5-rc.0
-    version: 2.1.5-rc.0(axios@1.7.2)
+    version: 2.1.5-rc.0(assert@2.1.0)(axios@1.7.2)
   assert:
     specifier: ^2.0.0
     version: 2.1.0
@@ -18,8 +18,8 @@ dependencies:
     specifier: 1.7.2
     version: 1.7.2
   ethers:
-    specifier: 6.13.0
-    version: 6.13.0
+    specifier: 6.13.1
+    version: 6.13.1
 
 devDependencies:
   '@1inch/eslint-config':
@@ -131,7 +131,7 @@ packages:
       typescript: 4.9.4
     dev: true
 
-  /@1inch/fusion-sdk@2.1.5-rc.0(axios@1.7.2):
+  /@1inch/fusion-sdk@2.1.5-rc.0(assert@2.1.0)(axios@1.7.2):
     resolution: {integrity: sha512-6HFAS96PmOpem2AksHl2FfED+eX1x2K7np5IbOQaze+aIj5pAOE9JjbCyq+BehgaygGmbz2eP6WNoAr9HEvWZg==}
     peerDependencies:
       assert: ^2.0.0
@@ -143,7 +143,8 @@ packages:
         optional: true
     dependencies:
       '@1inch/byte-utils': 2.3.0
-      '@1inch/limit-order-sdk': 4.9.2(axios@1.7.2)
+      '@1inch/limit-order-sdk': 4.9.2(assert@2.1.0)(axios@1.7.2)
+      assert: 2.1.0
       axios: 1.7.2
       ethers: 6.13.1
       tslib: 2.6.3
@@ -153,7 +154,7 @@ packages:
       - utf-8-validate
     dev: false
 
-  /@1inch/limit-order-sdk@4.9.2(axios@1.7.2):
+  /@1inch/limit-order-sdk@4.9.2(assert@2.1.0)(axios@1.7.2):
     resolution: {integrity: sha512-PXQFZ0waj+ZYjKCPZMDTsqOOrmponDDPBxfkaYArqjeuJ1wop2XtBvGboToNb7Ui/nYq8juyMp6lciETydXQKA==}
     engines: {node: '>=18.16.0'}
     peerDependencies:
@@ -166,6 +167,7 @@ packages:
         optional: true
     dependencies:
       '@1inch/byte-utils': 2.2.1
+      assert: 2.1.0
       axios: 1.7.2
       ethers: 6.13.1
     transitivePeerDependencies:
@@ -2328,22 +2330,6 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: true
 
-  /ethers@6.13.0:
-    resolution: {integrity: sha512-+yyQQQWEntY5UVbCv++guA14RRVFm1rSnO1GoLFdrK7/XRWMoktNgyG9UjwxrQqGBfGyFKknNZ81YpUS2emCgg==}
-    engines: {node: '>=14.0.0'}
-    dependencies:
-      '@adraffy/ens-normalize': 1.10.1
-      '@noble/curves': 1.2.0
-      '@noble/hashes': 1.3.2
-      '@types/node': 18.15.13
-      aes-js: 4.0.0-beta.5
-      tslib: 2.4.0
-      ws: 8.5.0
-    transitivePeerDependencies:
-      - bufferutil
-      - utf-8-validate
-    dev: false
-
   /ethers@6.13.1:
     resolution: {integrity: sha512-hdJ2HOxg/xx97Lm9HdCWk949BfYqYWpyw4//78SiwOLgASyfrNszfMUNB2joKjvGUdwhHfaiMMFFwacVVoLR9A==}
     engines: {node: '>=14.0.0'}
@@ -4379,19 +4365,6 @@ packages:
     peerDependencies:
       bufferutil: ^4.0.1
       utf-8-validate: '>=5.0.2'
-    peerDependenciesMeta:
-      bufferutil:
-        optional: true
-      utf-8-validate:
-        optional: true
-    dev: false
-
-  /ws@8.5.0:
-    resolution: {integrity: sha512-BWX0SWVgLPzYwF8lTzEy1egjhS4S4OEAHfsO8o65WOVsrnSRGaSiUaa9e0ggGlkMTtBlmOpEXiie9RUcBO86qg==}
-    engines: {node: '>=10.0.0'}
-    peerDependencies:
-      bufferutil: ^4.0.1
-      utf-8-validate: ^5.0.2
     peerDependenciesMeta:
       bufferutil:
         optional: true
