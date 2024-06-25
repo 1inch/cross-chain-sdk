@@ -244,8 +244,10 @@ export class CrossChainOrder {
 
     /**
      * Check if the auction has exclusive resolver, and it is in the exclusivity period
+     *
+     * @param time timestamp to check, `now()` by default
      */
-    public isExclusivityPeriod(time?: bigint): boolean {
+    public isExclusivityPeriod(time = now()): boolean {
         return this.inner.isExclusivityPeriod(time)
     }
 }

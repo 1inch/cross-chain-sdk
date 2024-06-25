@@ -20,6 +20,7 @@ export class InnerOrder extends FusionOrder {
             extension.postInteractionData,
             {
                 ...extra,
+                // for now not allowed, will add in future releases
                 allowMultipleFills: false,
                 allowPartialFills: false
             },
