@@ -177,12 +177,12 @@ export class CrossChainOrder {
         return this.inner.build()
     }
 
-    public getOrderHash(chainId: number): string {
-        return this.inner.getOrderHash(chainId)
+    public getOrderHash(srcChainId: number): string {
+        return this.inner.getOrderHash(srcChainId)
     }
 
-    public getTypedData(chainId: number): EIP712TypedData {
-        return this.inner.getTypedData(chainId)
+    public getTypedData(srcChainId: number): EIP712TypedData {
+        return this.inner.getTypedData(srcChainId)
     }
 
     public getCalculator(): AuctionCalculator {
