@@ -1,7 +1,7 @@
 {
   "extends": "@1inch/tsconfig",
   "compilerOptions": {
-    "moduleResolution": "NodeNext",
+    "moduleResolution": "Node",
     "outDir": "./dist",
     "rootDir": "./src",
     "lib": ["ES2021"],
