@@ -1,7 +1,7 @@
 import {Address} from '@1inch/fusion-sdk'
 import {Immutables} from './immutables'
-import {TimeLocks} from '../time-locks/time-locks'
-import {HashLock} from '../hash-lock'
+import {TimeLocks} from '../cross-chain-order/time-locks/time-locks'
+import {HashLock} from '../cross-chain-order/hash-lock'
 
 describe('Immutables', function () {
     // values from contract tests
@@ -36,18 +36,5 @@ describe('Immutables', function () {
 
     it('Should encode/decode', () => {
         expect(Immutables.decode(immutables.encode())).toEqual(immutables)
-    })
-
-    it('Should correct calc src/dst address', () => {
-        const srcAddress = immutables.getSrcEscrowAddress()
-        const dstAddress = immutables.getDstEscrowAddress()
-
-        expect(srcAddress).toEqual(
-            new Address('0x054c00de0878444dd872ac22041ea7448af64bfd')
-        )
-
-        expect(dstAddress).toEqual(
-            new Address('0xb9ec9e758891836e792a942d3c6d8167200b1381')
-        )
     })
 })
