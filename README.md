@@ -1,5 +1,5 @@
-# Lib
-Lib desc
+# Atomic Swap SDK
+Sdk for creating atomic swaps through 1inch
 
 ## Installation
 
@@ -7,7 +7,7 @@ Add to `package.json`
 ```json
 {
   "dependencies": {
-    "@1inch/lib": "https://github.com/1inch/lib#latest"
+    "@1inch/atomic-swap-sdk": "latest"
   }
 }
 ```
