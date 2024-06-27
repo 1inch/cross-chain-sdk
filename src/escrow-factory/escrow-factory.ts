@@ -1,10 +1,7 @@
 import {Address} from '@1inch/fusion-sdk'
 import {getCreate2Address, keccak256} from 'ethers'
-import {trim0x} from '@1inch/byte-utils'
-import {
-    ESCROW_DST_IMPLEMENTATION_ADDRESS,
-    ESCROW_SRC_IMPLEMENTATION_ADDRESS
-} from '../deployments'
+import {getBytesCount, isHexBytes, trim0x} from '@1inch/byte-utils'
+import assert from 'assert'
 
 export class EscrowFactory {
     constructor(public readonly address: Address) {}
@@ -19,39 +16,30 @@ export class EscrowFactory {
     }
 
     /**
-     * Calculate address of source escrow contract (source chain)
+     * Calculate address of escrow contract
+     *
+     * @return escrow address at same the chain as `implementationAddress`
      */
-    public getSrcEscrowAddress(
+    public getEscrowAddress(
         /**
          * @see Immutables.hash
          */
         immutablesHash: string,
-        srcImplementation = ESCROW_SRC_IMPLEMENTATION_ADDRESS
+        /**
+         * Address of escrow implementation at a desired chain
+         */
+        implementationAddress: Address
     ): Address {
-        return new Address(
-            getCreate2Address(
-                this.address.toString(),
-                immutablesHash,
-                EscrowFactory.calcProxyBytecodeHash(srcImplementation)
-            )
+        assert(
+            isHexBytes(immutablesHash) && getBytesCount(immutablesHash) === 32n,
+            'invalid hash'
         )
-    }
 
-    /**
-     * Calculate address of destination escrow contract (destination chain)
-     */
-    public getDstEscrowAddress(
-        /**
-         * @see Immutables.hash
-         */
-        immutablesHash: string,
-        dstImplementation = ESCROW_DST_IMPLEMENTATION_ADDRESS
-    ): Address {
         return new Address(
             getCreate2Address(
                 this.address.toString(),
                 immutablesHash,
-                EscrowFactory.calcProxyBytecodeHash(dstImplementation)
+                EscrowFactory.calcProxyBytecodeHash(implementationAddress)
             )
         )
     }
