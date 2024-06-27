@@ -1,18 +1,25 @@
 import {BitMask, BN, UINT_32_MAX} from '@1inch/byte-utils'
 import assert from 'assert'
+import {SrcTimeLocks} from './src-time-locks'
+import {DstTimeLocks} from './dst-time-locks'
 
 /**
  * Contains the duration of each stage of swap for source and destination chain
  *
  * Source chain intervals layout
- * | finality lock | resolver withdraw | public withdraw | resolver cancellation | public cancellation |
+ * | finality lock | private withdrawal | public withdrawal | private cancellation | public cancellation |
  * ^deployedAt
  *
  * Destination chain intervals layout
- * | finality lock | resolver withdraw | public withdraw | resolver cancellation |
+ * | finality lock | private withdrawal | public withdrawal | private cancellation |
  * ^deployedAt
+ *
+ * @see SrcTimeLocks
+ * @see DstTimeLocks
  */
 export class TimeLocks {
+    static DEFAULT_RESCUE_DELAY = 604800n // 7 days
+
     static Web3Type = 'uint256'
 
     protected constructor(
@@ -86,42 +93,7 @@ export class TimeLocks {
         )
     }
 
-    public get srcWithdrawal(): bigint {
-        return this.deployedAt + this._srcWithdrawal
-    }
-
-    public get srcPublicWithdrawal(): bigint {
-        return this.deployedAt + this._srcPublicWithdrawal
-    }
-
-    public get srcCancellation(): bigint {
-        return this.deployedAt + this._srcCancellation
-    }
-
-    public get srcPublicCancellation(): bigint {
-        return this.deployedAt + this._srcPublicCancellation
-    }
-
-    public get dstWithdrawal(): bigint {
-        return this.deployedAt + this._dstWithdrawal
-    }
-
-    public get dstPublicWithdrawal(): bigint {
-        return this.deployedAt + this._dstPublicWithdrawal
-    }
-
-    public get dstCancellation(): bigint {
-        return this.deployedAt + this._dstCancellation
-    }
-
     public static new(params: {
-        /**
-         * Network: Source, Destination
-         * By default, is 0n
-         *
-         * Set onchain when escrow deployed
-         */
-        deployedAt?: bigint
         /**
          * Network: Source
          * Delay from `deployedAt` at which ends `finality lock` and starts `private withdrawal` */
@@ -152,7 +124,7 @@ export class TimeLocks {
         dstCancellation: bigint
     }): TimeLocks {
         return new TimeLocks(
-            params.deployedAt || 0n,
+            0n,
             params.srcWithdrawal,
             params.srcPublicWithdrawal,
             params.srcCancellation,
@@ -186,5 +158,24 @@ export class TimeLocks {
             this._dstPublicWithdrawal,
             this._dstCancellation
         ].reduceRight((acc, el) => (acc << 32n) | el)
+    }
+
+    public toSrcTimeLocks(deployedAt = this.deployedAt): SrcTimeLocks {
+        return SrcTimeLocks.new({
+            deployedAt,
+            withdrawal: this._srcWithdrawal,
+            publicWithdrawal: this._srcPublicWithdrawal,
+            cancellation: this._srcCancellation,
+            publicCancellation: this._srcPublicCancellation
+        })
+    }
+
+    public toDstTimeLocks(deployedAt = this.deployedAt): DstTimeLocks {
+        return DstTimeLocks.new({
+            deployedAt,
+            withdrawal: this._dstWithdrawal,
+            publicWithdrawal: this._dstPublicWithdrawal,
+            cancellation: this._dstCancellation
+        })
     }
 }

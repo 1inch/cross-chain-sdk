@@ -1,6 +1,6 @@
 import {Address, FusionExtension, NetworkEnum} from '@1inch/fusion-sdk'
 import {EscrowExtension} from './escrow-extension'
-import {TimeLocks} from './time-locks'
+import {TimeLocks} from './time-locks/time-locks'
 import {HashLock} from './hash-lock'
 
 describe('EscrowExtension', () => {
@@ -19,7 +19,15 @@ describe('EscrowExtension', () => {
             Address.fromBigInt(1n),
             100n,
             200n,
-            TimeLocks.fromBigInt(1n)
+            TimeLocks.new({
+                srcWithdrawal: 1n,
+                srcPublicWithdrawal: 2n,
+                srcCancellation: 3n,
+                srcPublicCancellation: 4n,
+                dstWithdrawal: 1n,
+                dstPublicWithdrawal: 2n,
+                dstCancellation: 3n
+            })
         )
 
         expect(EscrowExtension.decode(ext.build().encode())).toEqual(ext)

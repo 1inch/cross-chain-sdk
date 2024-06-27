@@ -8,7 +8,7 @@ import {
 import {CrossChainOrder} from './cross-chain-order'
 import {CrossChainOrderInfo, EscrowParams} from './types'
 import {HashLock} from './hash-lock'
-import {TimeLocks} from './time-locks'
+import {TimeLocks} from './time-locks/time-locks'
 
 describe('CrossChainOrder', () => {
     it('Should encode/decode order', () => {
@@ -35,11 +35,10 @@ describe('CrossChainOrder', () => {
                 srcWithdrawal: 1n,
                 srcPublicWithdrawal: 2n,
                 srcCancellation: 3n,
-                dstPublicWithdrawal: 4n,
-                dstCancellation: 5n,
-                deployedAt: 6n,
-                dstWithdrawal: 7n,
-                srcPublicCancellation: 8n
+                srcPublicCancellation: 4n,
+                dstWithdrawal: 1n,
+                dstPublicWithdrawal: 2n,
+                dstCancellation: 3n
             })
         }
         const order = CrossChainOrder.new(

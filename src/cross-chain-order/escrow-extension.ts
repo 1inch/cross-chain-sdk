@@ -10,7 +10,7 @@ import {
 import {AbiCoder} from 'ethers'
 import {BitMask, BN, trim0x, UINT_128_MAX} from '@1inch/byte-utils'
 import assert from 'assert'
-import {TimeLocks} from './time-locks'
+import {TimeLocks} from './time-locks/time-locks'
 import {HashLock} from './hash-lock'
 
 /**
