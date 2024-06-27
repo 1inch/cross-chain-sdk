@@ -18,7 +18,7 @@ export class EscrowFactory {
     /**
      * Calculate address of escrow contract
      *
-     * @return escrow address at same the chain as `implementationAddress`
+     * @return escrow address at same the chain as `this.address`
      */
     public getEscrowAddress(
         /**
@@ -26,7 +26,7 @@ export class EscrowFactory {
          */
         immutablesHash: string,
         /**
-         * Address of escrow implementation at a desired chain
+         * Address of escrow implementation at the same chain as `this.address`
          */
         implementationAddress: Address
     ): Address {
