@@ -12,9 +12,9 @@ import {
     now
 } from '@1inch/fusion-sdk'
 import {CrossChainOrderInfo, Details, EscrowParams, Extra} from './types'
-import {TRUE_ERC20} from './contants'
 import {InnerOrder} from './inner-order'
 import {EscrowExtension} from './escrow-extension'
+import {TRUE_ERC20} from '../deployments'
 
 export class CrossChainOrder {
     private inner: InnerOrder

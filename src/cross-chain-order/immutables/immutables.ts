@@ -8,7 +8,7 @@ import {
     ESCROW_DST_IMPLEMENTATION_ADDRESS,
     ESCROW_FACTORY_ADDRESS,
     ESCROW_SRC_IMPLEMENTATION_ADDRESS
-} from '../contants'
+} from '../../deployments'
 
 /**
  * Contract representation of class
