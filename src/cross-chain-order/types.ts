@@ -5,7 +5,7 @@ import {
     IntegratorFee
 } from '@1inch/fusion-sdk'
 import {HashLock} from './hash-lock'
-import {TimeLocks} from './time-locks/time-locks'
+import {TimeLocks} from './time-locks'
 import {SupportedChain} from '../chains'
 
 export type CrossChainOrderInfo = {
