@@ -1,6 +1,6 @@
 {
   "name": "@1inch/atomic-swap-sdk",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Sdk for creating atomic swaps through 1inch",
   "author": "@1inch",
   "main": "dist/index.js",
