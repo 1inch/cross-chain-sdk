@@ -27,6 +27,10 @@ export class CrossChainOrder {
         this.inner = new InnerOrder(extension, orderInfo, extra)
     }
 
+    get escrowExtension(): EscrowExtension {
+        return this.inner.escrowExtension
+    }
+
     get extension(): Extension {
         return this.inner.extension
     }
