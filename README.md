@@ -1,4 +1,4 @@
-# Atomic Swap SDK
+# Cross Chain SDK
 Sdk for creating atomic swaps through 1inch
 
 ## Installation
@@ -7,7 +7,7 @@ Add to `package.json`
 ```json
 {
   "dependencies": {
-    "@1inch/atomic-swap-sdk": "latest"
+    "@1inch/cross-chain-sdk": "latest"
   }
 }
 ```
