@@ -9,7 +9,8 @@ import {
     MakerTraits,
     ZX,
     SettlementPostInteractionData,
-    now
+    now,
+    NetworkEnum
 } from '@1inch/fusion-sdk'
 import {CrossChainOrderInfo, Details, EscrowParams, Extra} from './types'
 import {InnerOrder} from './inner-order'
@@ -25,6 +26,10 @@ export class CrossChainOrder {
         extra?: Extra
     ) {
         this.inner = new InnerOrder(extension, orderInfo, extra)
+    }
+
+    get dstChainId(): NetworkEnum {
+        return this.inner.escrowExtension.dstChainId
     }
 
     get escrowExtension(): EscrowExtension {
