@@ -7,6 +7,11 @@ export {
     Extension,
     randBigInt,
     AuctionDetails,
+    SettlementPostInteractionData,
+    Interaction,
+    EIP712TypedData,
+    AuctionCalculator,
+    AmountMode,
     LimitOrderContract
 } from '@1inch/fusion-sdk'
 export * from './cross-chain-order'
