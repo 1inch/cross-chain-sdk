@@ -12,10 +12,12 @@ import {
     now,
     NetworkEnum
 } from '@1inch/fusion-sdk'
+import assert from 'assert'
 import {CrossChainOrderInfo, Details, EscrowParams, Extra} from './types'
 import {InnerOrder} from './inner-order'
 import {EscrowExtension} from './escrow-extension'
 import {TRUE_ERC20} from '../deployments'
+import {isSupportedChain} from '../chains'
 
 export class CrossChainOrder {
     private inner: InnerOrder
@@ -127,6 +129,21 @@ export class CrossChainOrder {
             escrowParams.srcSafetyDeposit,
             escrowParams.dstSafetyDeposit,
             escrowParams.timeLocks
+        )
+
+        assert(
+            isSupportedChain(escrowParams.srcChainId),
+            `Not supported chain ${escrowParams.srcChainId}`
+        )
+
+        assert(
+            isSupportedChain(escrowParams.dstChainId),
+            `Not supported chain ${escrowParams.dstChainId}`
+        )
+
+        assert(
+            escrowParams.srcChainId !== escrowParams.dstChainId,
+            'Chains must be different'
         )
 
         return new CrossChainOrder(

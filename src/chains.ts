@@ -18,3 +18,6 @@ type UnsupportedChain = Exclude<
 >
 
 export type SupportedChain = Exclude<NetworkEnum, UnsupportedChain>
+
+export const isSupportedChain = (chain: unknown): chain is SupportedChain =>
+    SupportedChains.includes(chain as number)
