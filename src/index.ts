@@ -12,7 +12,9 @@ export {
     EIP712TypedData,
     AuctionCalculator,
     AmountMode,
-    LimitOrderContract
+    LimitOrderContract,
+    calcTakingAmount,
+    calcMakingAmount
 } from '@1inch/fusion-sdk'
 export * from './cross-chain-order'
 export * from './escrow-factory'
