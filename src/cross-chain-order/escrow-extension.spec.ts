@@ -1,7 +1,8 @@
 import {Address, FusionExtension, NetworkEnum} from '@1inch/fusion-sdk'
 import {EscrowExtension} from './escrow-extension'
-import {TimeLocks} from './time-locks/time-locks'
+import {TimeLocks} from './time-locks'
 import {HashLock} from './hash-lock'
+import {getRandomBytes32} from '../utils/get-random-bytes-32'
 
 describe('EscrowExtension', () => {
     it('Should build/decode', () => {
@@ -14,7 +15,7 @@ describe('EscrowExtension', () => {
             fusionExt.auctionDetails,
             fusionExt.postInteractionData,
             fusionExt.makerPermit,
-            HashLock.fromSecret('0xff'),
+            HashLock.forSingleFill(getRandomBytes32()),
             NetworkEnum.ARBITRUM,
             Address.fromBigInt(1n),
             100n,
