@@ -41,7 +41,8 @@
     "@openzeppelin/merkle-tree": "1.0.7",
     "axios": "1.7.2",
     "ecies-25519": "1.3.1",
-    "ethers": "6.13.1"
+    "ethers": "6.13.1",
+    "tslib": "2.6.3"
   },
   "devDependencies": {
     "@1inch/eslint-config": "^1.5.1",
