@@ -82,7 +82,11 @@ describe('CrossChainOrder', () => {
             takingAmount: 90_000000n
         }
 
-        const secrets = [getRandomBytes32(), getRandomBytes32()]
+        const secrets = [
+            getRandomBytes32(),
+            getRandomBytes32(),
+            getRandomBytes32()
+        ]
         const leaves = HashLock.getMerkleLeaves(secrets)
 
         const escrowParams: EscrowParams = {
@@ -115,7 +119,8 @@ describe('CrossChainOrder', () => {
                 whitelist: [{address: Address.fromBigInt(100n), allowFrom: 0n}]
             },
             {
-                nonce: 1n
+                nonce: 1n,
+                allowMultipleFills: true
             }
         )
 
