@@ -46,10 +46,13 @@ export class HashLock {
 
     public static forMultipleFills(leaves: MerkleLeaf[]): HashLock {
         assert(leaves.length > 1, 'leaves array must be greater than 1')
-        const root = BN.fromHex(SimpleMerkleTree.of(leaves).root)
-        root.setMask(new BitMask(241n, 256n), BigInt(leaves.length))
+        const root = SimpleMerkleTree.of(leaves).root
+        const rootWithCount = BN.fromHex(root).setMask(
+            new BitMask(241n, 256n),
+            BigInt(leaves.length)
+        )
 
-        return new HashLock(root.toHex(32))
+        return new HashLock(rootWithCount.toHex(64))
     }
 
     public toString(): string {

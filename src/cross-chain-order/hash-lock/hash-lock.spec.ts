@@ -1,3 +1,4 @@
+import {getBytesCount} from '@1inch/byte-utils'
 import {HashLock} from './hash-lock'
 
 describe('HashLock', () => {
@@ -20,7 +21,21 @@ describe('HashLock', () => {
 
         const leaves = HashLock.getMerkleLeaves(secrets)
         expect(HashLock.forMultipleFills(leaves).toString()).toEqual(
-            '0x160a450ad51097012ff74f91e1ff6fb3f5bd8e8e2cd6a91a513f03bcb89a76f7'
+            '0x0006450ad51097012ff74f91e1ff6fb3f5bd8e8e2cd6a91a513f03bcb89a76f7'
         )
+    })
+
+    it('should be bytes32', () => {
+        const secrets = [
+            'dfd91427333147c1b8f21cedff291d78',
+            '11592c2f40444f65b3201875485dcaa0',
+            'f47a5f87e7e04b4baaef84006b0368f5'
+        ]
+
+        const leaves = HashLock.getMerkleLeaves(secrets)
+
+        expect(
+            getBytesCount(HashLock.forMultipleFills(leaves).toString())
+        ).toEqual(32n)
     })
 })
