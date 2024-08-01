@@ -55,6 +55,10 @@ export class HashLock {
     public toString(): string {
         return this.value
     }
+
+    public eq(other: HashLock): boolean {
+        return this.value === other.value
+    }
 }
 
 type MerkleLeaf = string & {_tag: 'MerkleLeaf'}
