@@ -14,7 +14,14 @@ export {
     AmountMode,
     LimitOrderContract,
     calcTakingAmount,
-    calcMakingAmount
+    calcMakingAmount,
+    PrivateKeyProviderConnector,
+    Web3ProviderConnector,
+    BlockchainProviderConnector,
+    HttpProviderConnector,
+    AxiosProviderConnector,
+    WsProviderConnector,
+    WebsocketClient
 } from '@1inch/fusion-sdk'
 export * from './cross-chain-order'
 export * from './escrow-factory'
