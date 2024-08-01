@@ -50,6 +50,8 @@ export type Extra = {
     orderExpirationDelay?: bigint
     enablePermit2?: boolean
     source?: string
+    allowMultipleFills?: boolean
+    allowPartialFills?: boolean
 }
 
 export type Details = {

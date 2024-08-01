@@ -18,12 +18,7 @@ export class InnerOrder extends FusionOrder {
             orderInfo,
             extension.auctionDetails,
             extension.postInteractionData,
-            {
-                ...extra,
-                // for now not allowed, will add in future releases
-                allowMultipleFills: false,
-                allowPartialFills: false
-            },
+            extra,
             extension
         )
 
