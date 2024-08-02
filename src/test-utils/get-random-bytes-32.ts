@@ -1,6 +1,6 @@
 import {randomBytes} from 'ethers'
-import {add0x} from '@1inch/byte-utils'
+import {uint8ArrayToHex} from '@1inch/byte-utils'
 
 export function getRandomBytes32(): string {
-    return add0x(Buffer.from(randomBytes(32)).toString('hex'))
+    return uint8ArrayToHex(randomBytes(32))
 }
