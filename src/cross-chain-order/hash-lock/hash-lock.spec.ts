@@ -5,7 +5,7 @@ describe('HashLock', () => {
     it('should create single fill HashLock', () => {
         expect(
             HashLock.forSingleFill(
-                'S\x1D\x1D-zYO\x1C~A;\x07L{i1aHk\\I]EwH\x14J\x01y\\jE'
+                '0x531d1d2d7a594f1c7e413b074c7b693161486b5c495d457748144a01795c6a45'
             ).toString()
         ).toEqual(
             '0x9f65fdcf781d4320c2dde70da02a1fe916d595dc1817149cc4758fd6a4bfd830'
@@ -14,9 +14,9 @@ describe('HashLock', () => {
 
     it('should create multiple fill HashLock', () => {
         const secrets = [
-            'S\x1D\x1D-zYO\x1C~A;\x07L{i1aHk\\I]EwH\x14J\x01y\\jE',
-            'ex\x12\x13kP\x00e\x1D^\x18QmvK^f\x1Ah\x1Cv\r<<L\x15u\x10 ux#',
-            "b\x07\x1A2#Q(\x1F\x04uev'\f6*n[9^;\x0Fh\x02\x7F#\x11AU\\=C"
+            '0x531d1d2d7a594f1c7e413b074c7b693161486b5c495d457748144a01795c6a45',
+            '0x657812136b5000651d5e18516d764b5e661a681c760d3c3c4c15751020757823',
+            '0x62071a322351281f04756576270c362a6e5b395e3b0f68027f231141555c3d43'
         ]
 
         const leaves = HashLock.getMerkleLeaves(secrets)
@@ -27,9 +27,9 @@ describe('HashLock', () => {
 
     it('should be bytes32', () => {
         const secrets = [
-            'dfd91427333147c1b8f21cedff291d78',
-            '11592c2f40444f65b3201875485dcaa0',
-            'f47a5f87e7e04b4baaef84006b0368f5'
+            '0x6466643931343237333333313437633162386632316365646666323931643738',
+            '0x3131353932633266343034343466363562333230313837353438356463616130',
+            '0x6634376135663837653765303462346261616566383430303662303336386635'
         ]
 
         const leaves = HashLock.getMerkleLeaves(secrets)
