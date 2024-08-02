@@ -2,7 +2,7 @@ import {Address, FusionExtension, NetworkEnum} from '@1inch/fusion-sdk'
 import {EscrowExtension} from './escrow-extension'
 import {TimeLocks} from './time-locks'
 import {HashLock} from './hash-lock'
-import {getRandomBytes32} from '../utils/get-random-bytes-32'
+import {getRandomBytes32} from '../test-utils/get-random-bytes-32'
 
 describe('EscrowExtension', () => {
     it('Should build/decode', () => {
@@ -46,9 +46,9 @@ describe('EscrowExtension', () => {
             fusionExt.makerPermit,
             HashLock.forMultipleFills(
                 HashLock.getMerkleLeaves([
-                    'dfd91427333147c1b8f21cedff291d78',
-                    '11592c2f40444f65b3201875485dcaa0',
-                    'f47a5f87e7e04b4baaef84006b0368f5'
+                    '0x6466643931343237333333313437633162386632316365646666323931643738',
+                    '0x3131353932633266343034343466363562333230313837353438356463616130',
+                    '0x6634376135663837653765303462346261616566383430303662303336386635'
                 ])
             ),
             NetworkEnum.ARBITRUM,

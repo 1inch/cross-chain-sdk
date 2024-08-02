@@ -1,4 +1,4 @@
-import {id, solidityPackedKeccak256} from 'ethers'
+import {keccak256, solidityPackedKeccak256} from 'ethers'
 import {SimpleMerkleTree} from '@openzeppelin/merkle-tree'
 import {BitMask, BN, getBytesCount, isHexBytes} from '@1inch/byte-utils'
 import assert from 'assert'
@@ -13,9 +13,12 @@ export class HashLock {
     }
 
     public static hashSecret(secret: string): string {
-        assert(secret.length === 32, 'secret length must be 32')
+        assert(
+            isHexBytes(secret) && getBytesCount(secret) === 32n,
+            'secret length must be 32 bytes hex encoded'
+        )
 
-        return id(secret)
+        return keccak256(secret)
     }
 
     public static getMerkleLeaves(secrets: string[]): MerkleLeaf[] {
