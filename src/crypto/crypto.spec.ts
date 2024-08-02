@@ -1,5 +1,6 @@
 import * as ecies25519 from 'ecies-25519'
-import {add0x} from '@1inch/byte-utils'
+import {uint8ArrayToHex} from '@1inch/byte-utils'
+import {toUtf8Bytes} from 'ethers'
 import {PrivateKey} from './private-key'
 import {PublicKey} from './public-key'
 
@@ -10,7 +11,7 @@ describe('Crypto', () => {
         const privateKey = new PrivateKey(keyPair.privateKey)
         const publicKey = new PublicKey(keyPair.publicKey)
 
-        const message = add0x(Buffer.from('hello 1inch').toString('hex'))
+        const message = uint8ArrayToHex(toUtf8Bytes('hello 1inch'))
 
         const encrypted = await publicKey.encrypt(message)
         const decrypted = await privateKey.decrypt(encrypted)
