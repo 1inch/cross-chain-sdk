@@ -17,11 +17,10 @@ describe('Immutables', function () {
         taker: Address.fromBigInt(
             366443055401047251047893360440697731881434542072n
         ),
-        takerAsset:
-            Address.fromBigInt(
-                1405310203571408291950365054053061012934685786634n
-            ),
-        takerAmount: 150000000000000000n,
+        token: Address.fromBigInt(
+            1405310203571408291950365054053061012934685786634n
+        ),
+        amount: 150000000000000000n,
         safetyDeposit: 30000000000000000n,
         timeLocks:
             TimeLocks.fromBigInt(

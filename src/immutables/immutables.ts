@@ -40,8 +40,8 @@ export class Immutables {
         public readonly hashLock: HashLock,
         public readonly maker: Address,
         public readonly taker: Address,
-        public readonly takerAsset: Address,
-        public readonly takerAmount: bigint,
+        public readonly token: Address,
+        public readonly amount: bigint,
         public readonly safetyDeposit: bigint, // todo: separate class
         public readonly timeLocks: TimeLocks
     ) {}
@@ -51,8 +51,8 @@ export class Immutables {
         hashLock: HashLock
         maker: Address
         taker: Address
-        takerAsset: Address
-        takerAmount: bigint
+        token: Address
+        amount: bigint
         safetyDeposit: bigint
         timeLocks: TimeLocks
     }): Immutables {
@@ -61,8 +61,8 @@ export class Immutables {
             params.hashLock,
             params.maker,
             params.taker,
-            params.takerAsset,
-            params.takerAmount,
+            params.token,
+            params.amount,
             params.safetyDeposit,
             params.timeLocks
         )
@@ -105,8 +105,8 @@ export class Immutables {
             hashlock: this.hashLock.toString(),
             maker: this.maker.toString(),
             taker: this.taker.toString(),
-            token: this.takerAsset.toString(),
-            amount: this.takerAmount.toString(),
+            token: this.token.toString(),
+            amount: this.amount.toString(),
             safetyDeposit: this.safetyDeposit.toString(),
             timelocks: this.timeLocks.build().toString()
         }
