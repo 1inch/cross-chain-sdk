@@ -1,5 +1,6 @@
 import {randomBytes} from 'ethers'
+import {add0x} from '@1inch/byte-utils'
 
 export function getRandomBytes32(): string {
-    return [...randomBytes(32)].map((_, i) => String.fromCharCode(i)).join('')
+    return add0x(Buffer.from(randomBytes(32)).toString('hex'))
 }
