@@ -9,7 +9,7 @@ import {CrossChainOrder} from './cross-chain-order'
 import {CrossChainOrderInfo, EscrowParams} from './types'
 import {HashLock} from './hash-lock'
 import {TimeLocks} from './time-locks'
-import {getRandomBytes32} from '../utils/get-random-bytes-32'
+import {getRandomBytes32} from '../test-utils/get-random-bytes-32'
 
 describe('CrossChainOrder', () => {
     it('Should encode/decode order', () => {
