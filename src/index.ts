@@ -1,20 +1,24 @@
 export {
+    EIP712TypedData,
     LimitOrderV4Struct,
     Address,
-    now,
     NetworkEnum,
     MakerTraits,
     Extension,
-    randBigInt,
     AuctionDetails,
     SettlementPostInteractionData,
     Interaction,
-    EIP712TypedData,
     AuctionCalculator,
-    AmountMode,
+    // Execution
     LimitOrderContract,
+    TakerTraits,
+    AmountMode,
+    // helpers
     calcTakingAmount,
     calcMakingAmount,
+    now,
+    randBigInt,
+    // connectors
     PrivateKeyProviderConnector,
     Web3ProviderConnector,
     BlockchainProviderConnector,
