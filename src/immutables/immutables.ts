@@ -2,6 +2,7 @@ import {Address} from '@1inch/fusion-sdk'
 import {AbiCoder, keccak256} from 'ethers'
 import {isHexBytes} from '@1inch/byte-utils'
 import assert from 'assert'
+import {DstImmutablesComplement} from './dst-immutables-complement'
 import {HashLock} from '../cross-chain-order/hash-lock'
 import {TimeLocks} from '../cross-chain-order/time-locks'
 
@@ -90,6 +91,10 @@ export class Immutables {
             BigInt(data.safetyDeposit),
             TimeLocks.fromBigInt(BigInt(data.timelocks))
         )
+    }
+
+    public withComplement(dstComplement: DstImmutablesComplement): Immutables {
+        return Immutables.new({...this, ...dstComplement})
     }
 
     /**

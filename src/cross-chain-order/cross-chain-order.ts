@@ -17,7 +17,8 @@ import {CrossChainOrderInfo, Details, EscrowParams, Extra} from './types'
 import {InnerOrder} from './inner-order'
 import {EscrowExtension} from './escrow-extension'
 import {TRUE_ERC20} from '../deployments'
-import {isSupportedChain} from '../chains'
+import {isSupportedChain, SupportedChain} from '../chains'
+import {Immutables} from '../immutables'
 
 export class CrossChainOrder {
     private inner: InnerOrder
@@ -275,5 +276,27 @@ export class CrossChainOrder {
      */
     public isExclusivityPeriod(time = now()): boolean {
         return this.inner.isExclusivityPeriod(time)
+    }
+
+    /**
+     * @param srcChainId
+     * @param taker executor of fillOrder* transaction
+     * @param amount making amount (make sure same amount passed to contact fillOrder method)
+     */
+    public toSrcImmutables(
+        srcChainId: SupportedChain,
+        taker: Address,
+        amount: bigint
+    ): Immutables {
+        return Immutables.new({
+            hashLock: this.escrowExtension.hashLock,
+            safetyDeposit: this.escrowExtension.srcSafetyDeposit,
+            taker,
+            maker: this.maker,
+            orderHash: this.getOrderHash(srcChainId),
+            amount,
+            timeLocks: this.escrowExtension.timeLocks,
+            token: this.makerAsset
+        })
     }
 }
