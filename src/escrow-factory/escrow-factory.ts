@@ -86,6 +86,10 @@ export class EscrowFactory {
          */
         blockTime: bigint,
         /**
+         * Taker from `DstEscrowCreated` event
+         */
+        taker: Address,
+        /**
          * Address of escrow implementation at the same chain as `this.address`
          */
         implementationAddress: Address
@@ -93,6 +97,7 @@ export class EscrowFactory {
         return this.getEscrowAddress(
             srcImmutables
                 .withComplement(complement)
+                .withTaker(taker)
                 .withDeployedAt(blockTime)
                 .hash(),
             implementationAddress

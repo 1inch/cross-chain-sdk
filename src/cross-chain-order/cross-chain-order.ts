@@ -289,7 +289,7 @@ export class CrossChainOrder {
         amount: bigint
     ): Immutables {
         return Immutables.new({
-            hashLock: this.escrowExtension.hashLock,
+            hashLock: this.escrowExtension.hashLockInfo,
             safetyDeposit: this.escrowExtension.srcSafetyDeposit,
             taker,
             maker: this.maker,

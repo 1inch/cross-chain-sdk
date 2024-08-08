@@ -106,6 +106,10 @@ export class Immutables {
         return this
     }
 
+    public withTaker(taker: Address): Immutables {
+        return Immutables.new({...this, taker})
+    }
+
     /**
      * Return keccak256 hash of instance
      */
