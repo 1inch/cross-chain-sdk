@@ -39,7 +39,7 @@ export class EscrowExtension extends FusionExtension {
         auctionDetails: AuctionDetails,
         postInteractionData: SettlementPostInteractionData,
         makerPermit: Interaction | undefined,
-        public readonly hashLock: HashLock,
+        public readonly hashLockInfo: HashLock,
         public readonly dstChainId: NetworkEnum,
         public readonly dstToken: Address,
         public readonly srcSafetyDeposit: bigint,
@@ -141,7 +141,7 @@ export class EscrowExtension extends FusionExtension {
         return AbiCoder.defaultAbiCoder().encode(
             EscrowExtension.EXTRA_DATA_TYPES,
             [
-                this.hashLock.toString(),
+                this.hashLockInfo.toString(),
                 this.dstChainId,
                 this.dstToken.toString(),
                 (this.srcSafetyDeposit << 128n) | this.dstSafetyDeposit,
