@@ -2,6 +2,8 @@ import {Address} from '@1inch/fusion-sdk'
 import {getCreate2Address, keccak256} from 'ethers'
 import {getBytesCount, isHexBytes, trim0x} from '@1inch/byte-utils'
 import assert from 'assert'
+import {Immutables} from '../immutables'
+import {DstImmutablesComplement} from '../immutables/dst-immutables-complement'
 
 export class EscrowFactory {
     constructor(public readonly address: Address) {}
@@ -41,6 +43,59 @@ export class EscrowFactory {
                 immutablesHash,
                 EscrowFactory.calcProxyBytecodeHash(implementationAddress)
             )
+        )
+    }
+
+    /**
+     * Calculates source escrow address for given params
+     *
+     * Make sure you call it on source chain escrow factory
+     */
+    public getSrcEscrowAddress(
+        /**
+         * From `SrcEscrowCreated` event (with correct timeLock.deployedAt)
+         */
+        srcImmutables: Immutables,
+        /**
+         * Address of escrow implementation at the same chain as `this.address`
+         */
+        implementationAddress: Address
+    ): Address {
+        return this.getEscrowAddress(
+            srcImmutables.hash(),
+            implementationAddress
+        )
+    }
+
+    /**
+     * Calculates destination escrow address for given params
+     *
+     * Make sure you call it on destination chain escrow factory
+     */
+    public getDstEscrowAddress(
+        /**
+         * From `SrcEscrowCreated` event
+         */
+        srcImmutables: Immutables,
+        /**
+         * From `SrcEscrowCreated` event
+         */
+        complement: DstImmutablesComplement,
+        /**
+         * Block time when event `DstEscrowCreated` produced
+         */
+        blockTime: bigint,
+        /**
+         * Address of escrow implementation at the same chain as `this.address`
+         */
+        implementationAddress: Address
+    ): Address {
+        return this.getEscrowAddress(
+            srcImmutables
+                .withComplement(complement)
+                .withDeployedAt(blockTime)
+                .hash(),
+            implementationAddress
         )
     }
 }

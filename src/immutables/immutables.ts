@@ -40,10 +40,13 @@ export class Immutables {
         public readonly orderHash: string,
         public readonly hashLock: HashLock,
         public readonly maker: Address,
+        /**
+         * Address who can withdraw funds, also to this address funds will be transferred in case of public withdrawal
+         */
         public readonly taker: Address,
         public readonly token: Address,
         public readonly amount: bigint,
-        public readonly safetyDeposit: bigint, // todo: separate class
+        public readonly safetyDeposit: bigint,
         public readonly timeLocks: TimeLocks
     ) {}
 
@@ -95,6 +98,12 @@ export class Immutables {
 
     public withComplement(dstComplement: DstImmutablesComplement): Immutables {
         return Immutables.new({...this, ...dstComplement})
+    }
+
+    public withDeployedAt(time: bigint): this {
+        this.timeLocks.setDeployedAt(time)
+
+        return this
     }
 
     /**

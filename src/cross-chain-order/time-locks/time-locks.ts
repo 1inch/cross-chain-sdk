@@ -23,7 +23,7 @@ export class TimeLocks {
     static Web3Type = 'uint256'
 
     protected constructor(
-        public readonly deployedAt: bigint,
+        private _deployedAt: bigint,
         private readonly _srcWithdrawal: bigint,
         private readonly _srcPublicWithdrawal: bigint,
         private readonly _srcCancellation: bigint,
@@ -33,7 +33,7 @@ export class TimeLocks {
         private readonly _dstCancellation: bigint
     ) {
         assert(
-            deployedAt <= UINT_32_MAX,
+            _deployedAt <= UINT_32_MAX,
             'deployedAt can not be > uint32 max value'
         )
 
@@ -91,6 +91,10 @@ export class TimeLocks {
             _dstCancellation <= UINT_32_MAX,
             'dstCancellation can not be > uint32 max value'
         )
+    }
+
+    public get deployedAt(): bigint {
+        return this._deployedAt
     }
 
     public static new(params: {
@@ -158,6 +162,12 @@ export class TimeLocks {
             this._dstPublicWithdrawal,
             this._dstCancellation
         ].reduceRight((acc, el) => (acc << 32n) | el)
+    }
+
+    public setDeployedAt(time: bigint): this {
+        this._deployedAt = time
+
+        return this
     }
 
     public toSrcTimeLocks(deployedAt = this.deployedAt): SrcTimeLocks {
