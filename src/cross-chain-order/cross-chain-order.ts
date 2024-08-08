@@ -48,11 +48,11 @@ export class CrossChainOrder {
     }
 
     get takerAsset(): Address {
-        return this.inner.takerAsset
+        return this.inner.escrowExtension.dstToken
     }
 
     get makerAsset(): Address {
-        return this.inner.escrowExtension.dstToken
+        return this.inner.makerAsset
     }
 
     get takingAmount(): bigint {
