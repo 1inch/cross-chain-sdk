@@ -110,4 +110,22 @@ describe('TimeLocks', () => {
             DstStage.PrivateCancellation
         )
     })
+
+    it('Should set deployedAt', () => {
+        const timeLock = TimeLocks.new({
+            srcWithdrawal: 0n, // no finality lock for test
+            srcPublicWithdrawal: 120n, // 2m for private withdrawal
+            srcCancellation: 121n, // 1sec public withdrawal
+            srcPublicCancellation: 122n, // 1sec private cancellation
+            dstWithdrawal: 0n, // no finality lock for test
+            dstPublicWithdrawal: 120n, // 2m private withdrawal
+            dstCancellation: 121n // 1sec public withdrawal
+        })
+
+        timeLock.setDeployedAt(0x66b5e815n)
+
+        expect(timeLock.build().toString(16)).toEqual(
+            '66b5e8150000007900000078000000000000007a000000790000007800000000'
+        )
+    })
 })

@@ -4,7 +4,6 @@ import {TimeLocks} from '../cross-chain-order/time-locks/time-locks'
 import {HashLock} from '../cross-chain-order/hash-lock'
 
 describe('Immutables', function () {
-    // values from contract tests
     const immutables = Immutables.new({
         orderHash:
             '0x47bb61560b511b196788026f8de50c213051732f2c4abfeb855f1bdf0825aa1f',
@@ -22,14 +21,19 @@ describe('Immutables', function () {
         ),
         amount: 150000000000000000n,
         safetyDeposit: 30000000000000000n,
-        timeLocks:
-            TimeLocks.fromBigInt(
-                24263952003825210752747571682508896791736523869669408224653997988904961n
-            )
+        timeLocks: TimeLocks.new({
+            srcWithdrawal: 120n,
+            srcPublicWithdrawal: 500n,
+            srcCancellation: 1020n,
+            srcPublicCancellation: 1530n,
+            dstWithdrawal: 300n,
+            dstPublicWithdrawal: 540n,
+            dstCancellation: 900n
+        }).setDeployedAt(1n)
     })
     it('Should calc correct hash of immutables', function () {
         expect(immutables.hash()).toEqual(
-            '0xa0064b1f7adf195756a63a5df5d7ce6dc9fc327e7a6b0ecdd6758ac791460abd'
+            '0x447dfe500c4f14a12f9f7d7029c2f0db155248ea905cfea12296ea6f05e6fe58'
         )
     })
 
