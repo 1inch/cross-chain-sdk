@@ -23,14 +23,14 @@ export class TimeLocks {
     static Web3Type = 'uint256'
 
     protected constructor(
-        private _deployedAt: bigint,
         private readonly _srcWithdrawal: bigint,
         private readonly _srcPublicWithdrawal: bigint,
         private readonly _srcCancellation: bigint,
         private readonly _srcPublicCancellation: bigint,
         private readonly _dstWithdrawal: bigint,
         private readonly _dstPublicWithdrawal: bigint,
-        private readonly _dstCancellation: bigint
+        private readonly _dstCancellation: bigint,
+        private _deployedAt: bigint
     ) {
         assert(
             _deployedAt <= UINT_32_MAX,
@@ -128,14 +128,14 @@ export class TimeLocks {
         dstCancellation: bigint
     }): TimeLocks {
         return new TimeLocks(
-            0n,
             params.srcWithdrawal,
             params.srcPublicWithdrawal,
             params.srcCancellation,
             params.srcPublicCancellation,
             params.dstWithdrawal,
             params.dstPublicWithdrawal,
-            params.dstCancellation
+            params.dstCancellation,
+            0n
         )
     }
 
@@ -146,7 +146,7 @@ export class TimeLocks {
             return valBN.getMask(
                 new BitMask(BigInt(i) * 32n, BigInt(i + 1) * 32n)
             ).value
-        }) as [bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint] // ts cannot infer that we have exactly 8 elements in the array after map
+        }) as [bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint] // ts can not infer that result is 8 elements
 
         return new TimeLocks(...params)
     }
@@ -154,14 +154,14 @@ export class TimeLocks {
     public build(): bigint {
         return [
             this.deployedAt,
-            this._srcWithdrawal,
-            this._srcPublicWithdrawal,
-            this._srcCancellation,
-            this._srcPublicCancellation,
-            this._dstWithdrawal,
+            this._dstCancellation,
             this._dstPublicWithdrawal,
-            this._dstCancellation
-        ].reduceRight((acc, el) => (acc << 32n) | el)
+            this._dstWithdrawal,
+            this._srcPublicCancellation,
+            this._srcCancellation,
+            this._srcPublicWithdrawal,
+            this._srcWithdrawal
+        ].reduce((acc, el) => (acc << 32n) | el)
     }
 
     public setDeployedAt(time: bigint): this {
