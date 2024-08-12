@@ -4,12 +4,12 @@ import {TupleToUnion} from './type-utils'
 export const SupportedChains = [
     NetworkEnum.ETHEREUM,
     NetworkEnum.POLYGON,
-    NetworkEnum.OPTIMISM,
     NetworkEnum.BINANCE,
+    NetworkEnum.OPTIMISM,
     NetworkEnum.ARBITRUM,
     NetworkEnum.AVALANCHE,
     NetworkEnum.GNOSIS,
-    NetworkEnum.FANTOM
+    NetworkEnum.COINBASE
 ] as const
 
 type UnsupportedChain = Exclude<
