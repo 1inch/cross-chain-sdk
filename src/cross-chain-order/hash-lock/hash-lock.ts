@@ -31,6 +31,10 @@ export class HashLock {
         )
     }
 
+    public static getProof(leaves: MerkleLeaf[], idx: number): MerkleLeaf[] {
+        return SimpleMerkleTree.of(leaves).getProof(idx) as MerkleLeaf[]
+    }
+
     public static fromString(value: string): HashLock {
         assert(
             isHexBytes(value) && getBytesCount(value) === 32n,
@@ -70,4 +74,4 @@ export class HashLock {
     }
 }
 
-type MerkleLeaf = string & {_tag: 'MerkleLeaf'}
+export type MerkleLeaf = string & {_tag: 'MerkleLeaf'}

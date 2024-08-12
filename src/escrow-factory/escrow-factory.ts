@@ -1,9 +1,9 @@
-import {Address} from '@1inch/fusion-sdk'
-import {getCreate2Address, keccak256} from 'ethers'
+import {Address, Interaction} from '@1inch/fusion-sdk'
+import {AbiCoder, getCreate2Address, keccak256} from 'ethers'
 import {getBytesCount, isHexBytes, trim0x} from '@1inch/byte-utils'
 import assert from 'assert'
-import {Immutables} from '../immutables'
-import {DstImmutablesComplement} from '../immutables/dst-immutables-complement'
+import {Immutables, DstImmutablesComplement} from '../immutables'
+import {MerkleLeaf} from '../cross-chain-order/hash-lock/hash-lock'
 
 export class EscrowFactory {
     constructor(public readonly address: Address) {}
@@ -101,6 +101,26 @@ export class EscrowFactory {
                 .withDeployedAt(blockTime)
                 .hash(),
             implementationAddress
+        )
+    }
+
+    public getMultipleFillInteraction(
+        proof: MerkleLeaf[],
+        idx: number,
+        secretHash: string
+    ): Interaction {
+        return new Interaction(
+            this.address,
+            AbiCoder.defaultAbiCoder().encode(
+                [
+                    `(
+                        bytes32[] proof,
+                        uint256 idx,
+                        bytes32 secretHash,
+                    )`
+                ],
+                [{proof, idx, secretHash}]
+            )
         )
     }
 }
