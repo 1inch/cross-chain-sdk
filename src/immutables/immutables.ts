@@ -113,6 +113,14 @@ export class Immutables {
         return Immutables.new({...this, taker})
     }
 
+    public withHashLock(hashLock: HashLock): Immutables {
+        return Immutables.new({...this, hashLock})
+    }
+
+    public withAmount(amount: bigint): Immutables {
+        return Immutables.new({...this, amount})
+    }
+
     /**
      * Return keccak256 hash of instance
      */

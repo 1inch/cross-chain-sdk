@@ -282,14 +282,25 @@ export class CrossChainOrder {
      * @param srcChainId
      * @param taker executor of fillOrder* transaction
      * @param amount making amount (make sure same amount passed to contact fillOrder method)
+     * @param hashLock leaf of a merkle tree for multiple fill
      */
     public toSrcImmutables(
         srcChainId: SupportedChain,
         taker: Address,
-        amount: bigint
+        amount: bigint,
+        hashLock = this.escrowExtension.hashLockInfo
     ): Immutables {
+        const isPartialFill = amount !== this.makingAmount
+        const isLeafHashLock = hashLock !== this.escrowExtension.hashLockInfo
+
+        if (isPartialFill && !isLeafHashLock) {
+            throw new Error(
+                'Provide leaf of merkle tree as HashLock for partial fell'
+            )
+        }
+
         return Immutables.new({
-            hashLock: this.escrowExtension.hashLockInfo,
+            hashLock,
             safetyDeposit: this.escrowExtension.srcSafetyDeposit,
             taker,
             maker: this.maker,
