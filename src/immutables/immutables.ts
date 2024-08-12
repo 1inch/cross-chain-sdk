@@ -100,10 +100,13 @@ export class Immutables {
         return Immutables.new({...this, ...dstComplement})
     }
 
-    public withDeployedAt(time: bigint): this {
-        this.timeLocks.setDeployedAt(time)
-
-        return this
+    public withDeployedAt(time: bigint): Immutables {
+        return Immutables.new({
+            ...this,
+            timeLocks: TimeLocks.fromBigInt(
+                this.timeLocks.build()
+            ).setDeployedAt(time)
+        })
     }
 
     public withTaker(taker: Address): Immutables {
