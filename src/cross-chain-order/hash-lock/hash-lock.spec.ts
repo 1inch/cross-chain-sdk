@@ -38,4 +38,19 @@ describe('HashLock', () => {
             getBytesCount(HashLock.forMultipleFills(leaves).toString())
         ).toEqual(32n)
     })
+
+    it('should return proof', () => {
+        const secrets = [
+            '0x6466643931343237333333313437633162386632316365646666323931643738',
+            '0x3131353932633266343034343466363562333230313837353438356463616130',
+            '0x6634376135663837653765303462346261616566383430303662303336386635'
+        ]
+
+        const leaves = HashLock.getMerkleLeaves(secrets)
+
+        expect(HashLock.getProof(leaves, 0)).toEqual([
+            '0x3009d711fa0454e4a4f0d553fcfa67f20e0d67571d7e06f2105814c6b123ba55',
+            '0x70e897a17a55b03df83541f6420507b3482da14f2489ef7ea4d9a94cf30d1c06'
+        ])
+    })
 })
