@@ -2,15 +2,15 @@ import {Address, NetworkEnum} from '@1inch/fusion-sdk'
 
 export const TRUE_ERC20 = {
     // TODO: add correct addresses
-    [NetworkEnum.ETHEREUM]: Address.fromBigInt(0n),
-    [NetworkEnum.POLYGON]: Address.fromBigInt(0n),
-    [NetworkEnum.OPTIMISM]: Address.fromBigInt(0n),
-    [NetworkEnum.BINANCE]: Address.fromBigInt(0n),
-    [NetworkEnum.AVALANCHE]: Address.fromBigInt(0n),
-    [NetworkEnum.COINBASE]: Address.fromBigInt(0n),
-    [NetworkEnum.FANTOM]: Address.fromBigInt(0n),
-    [NetworkEnum.GNOSIS]: Address.fromBigInt(0n),
-    [NetworkEnum.ARBITRUM]: Address.fromBigInt(0n)
+    [NetworkEnum.ETHEREUM]: Address.fromBigInt(500n),
+    [NetworkEnum.POLYGON]: Address.fromBigInt(500n),
+    [NetworkEnum.OPTIMISM]: Address.fromBigInt(500n),
+    [NetworkEnum.BINANCE]: Address.fromBigInt(500n),
+    [NetworkEnum.AVALANCHE]: Address.fromBigInt(500n),
+    [NetworkEnum.COINBASE]: Address.fromBigInt(500n),
+    [NetworkEnum.FANTOM]: Address.fromBigInt(500n),
+    [NetworkEnum.GNOSIS]: Address.fromBigInt(500n),
+    [NetworkEnum.ARBITRUM]: Address.fromBigInt(500n)
 }
 
 // todo: update with real contract addresses
