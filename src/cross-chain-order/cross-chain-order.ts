@@ -195,7 +195,9 @@ export class CrossChainOrder {
                         ? undefined
                         : Interaction.decode(extension.makerPermit).data,
                 unwrapWETH: makerTraits.isNativeUnwrapEnabled(),
-                orderExpirationDelay
+                orderExpirationDelay,
+                allowMultipleFills: makerTraits.isMultipleFillsAllowed(),
+                allowPartialFills: makerTraits.isPartialFillAllowed()
             }
         )
     }
