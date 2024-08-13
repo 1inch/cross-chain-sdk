@@ -25,7 +25,7 @@ export class HashLock {
         return secrets.map(
             (s, idx) =>
                 solidityPackedKeccak256(
-                    ['uint256', 'bytes32'],
+                    ['uint64', 'bytes32'],
                     [idx, HashLock.hashSecret(s)]
                 ) as MerkleLeaf
         )
