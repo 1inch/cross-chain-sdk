@@ -58,7 +58,7 @@ export class HashLock {
         )
         const root = SimpleMerkleTree.of(leaves).root
         const rootWithCount = BN.fromHex(root).setMask(
-            new BitMask(241n, 256n),
+            new BitMask(240n, 256n),
             BigInt(leaves.length - 1)
         )
 
