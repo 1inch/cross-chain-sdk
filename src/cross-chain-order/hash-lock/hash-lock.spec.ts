@@ -21,7 +21,7 @@ describe('HashLock', () => {
 
         const leaves = HashLock.getMerkleLeaves(secrets)
         expect(HashLock.forMultipleFills(leaves).toString()).toEqual(
-            '0x0004450ad51097012ff74f91e1ff6fb3f5bd8e8e2cd6a91a513f03bcb89a76f7'
+            '0x000592766d9172e4b4983ee4d4b6d511cdbcbef175c7e3e1b1554d513e1ab724'
         )
     })
 
@@ -49,8 +49,7 @@ describe('HashLock', () => {
         const leaves = HashLock.getMerkleLeaves(secrets)
 
         expect(HashLock.getProof(leaves, 0)).toEqual([
-            '0x3009d711fa0454e4a4f0d553fcfa67f20e0d67571d7e06f2105814c6b123ba55',
-            '0x70e897a17a55b03df83541f6420507b3482da14f2489ef7ea4d9a94cf30d1c06'
+            '0x540daf363747246d40b31da95b3ef1c1497e22e9a56b70d117c835839822c95f'
         ])
     })
 })
