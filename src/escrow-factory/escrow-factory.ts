@@ -1,6 +1,6 @@
 import {Address, Interaction} from '@1inch/fusion-sdk'
 import {AbiCoder, getCreate2Address, keccak256} from 'ethers'
-import {getBytesCount, isHexBytes, trim0x} from '@1inch/byte-utils'
+import {add0x, getBytesCount, isHexBytes, trim0x} from '@1inch/byte-utils'
 import assert from 'assert'
 import {Immutables, DstImmutablesComplement} from '../immutables'
 import {MerkleLeaf} from '../cross-chain-order/hash-lock/hash-lock'
@@ -109,18 +109,19 @@ export class EscrowFactory {
         idx: number,
         secretHash: string
     ): Interaction {
-        return new Interaction(
-            this.address,
-            AbiCoder.defaultAbiCoder().encode(
-                [
-                    `(
+        const data = AbiCoder.defaultAbiCoder().encode(
+            [
+                `(
                         bytes32[] proof,
                         uint256 idx,
                         bytes32 secretHash,
                     )`
-                ],
-                [{proof, idx, secretHash}]
-            )
+            ],
+            [{proof, idx, secretHash}]
         )
+
+        const dataNoOffset = add0x(data.slice(66))
+
+        return new Interaction(this.address, dataNoOffset)
     }
 }
