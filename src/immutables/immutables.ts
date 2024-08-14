@@ -96,6 +96,10 @@ export class Immutables {
         )
     }
 
+    public toJSON(): ImmutablesData {
+        return this.build()
+    }
+
     public withComplement(dstComplement: DstImmutablesComplement): Immutables {
         return Immutables.new({...this, ...dstComplement})
     }
