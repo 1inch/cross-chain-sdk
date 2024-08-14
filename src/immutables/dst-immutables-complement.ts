@@ -21,4 +21,18 @@ export class DstImmutablesComplement {
             params.safetyDeposit
         )
     }
+
+    public toJSON(): {
+        maker: string
+        amount: string
+        token: string
+        safetyDeposit: string
+    } {
+        return {
+            maker: this.maker.toString(),
+            amount: this.amount.toString(),
+            token: this.token.toString(),
+            safetyDeposit: this.safetyDeposit.toString()
+        }
+    }
 }
