@@ -1,2 +1,2 @@
-export {Immutables} from './immutables'
+export {Immutables, ImmutablesData} from './immutables'
 export {DstImmutablesComplement} from './dst-immutables-complement'
