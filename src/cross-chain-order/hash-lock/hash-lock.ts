@@ -65,6 +65,15 @@ export class HashLock {
         return new HashLock(rootWithCount.toHex(64))
     }
 
+    /**
+     * Only use if HashLockInfo is for multiple fill order
+     * Otherwise trash will be returned
+     *
+     */
+    public getPartsCount(): bigint {
+        return new BN(BigInt(this.value)).getMask(new BitMask(240n, 256n)).value
+    }
+
     public toString(): string {
         return this.value
     }
