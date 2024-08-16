@@ -4,7 +4,7 @@
         "outDir": "./dist/cjs",
         "module": "CommonJS",
         "moduleResolution": "Node",
-        "declaration": false,
+        "declaration": true,
         "composite": false,
         "resolveJsonModule": true,
         "importHelpers": true,
