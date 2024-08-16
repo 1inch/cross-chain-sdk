@@ -312,4 +312,21 @@ export class CrossChainOrder {
             token: this.makerAsset
         })
     }
+
+    public getMultipleFillIdx(
+        fillAmount: bigint,
+        remainingAmount = this.makingAmount
+    ): number {
+        assert(
+            this.inner.multipleFillsAllowed,
+            'Multiple fills disabled for order'
+        )
+        const partsCount = this.escrowExtension.hashLockInfo.getPartsCount()
+
+        if (remainingAmount === fillAmount) {
+            return Number(partsCount) + 1
+        }
+
+        return Number((partsCount * (fillAmount - 1n)) / this.makingAmount)
+    }
 }

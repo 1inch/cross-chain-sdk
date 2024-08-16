@@ -3,7 +3,8 @@
     "compilerOptions": {
         "outDir": "./dist/cjs",
         "module": "CommonJS",
-        "declaration": false,
+        "moduleResolution": "Node",
+        "declaration": true,
         "composite": false,
         "resolveJsonModule": true,
         "importHelpers": true,
