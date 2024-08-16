@@ -319,7 +319,7 @@ export class CrossChainOrder {
     ): number {
         assert(
             this.inner.multipleFillsAllowed,
-            'Order does not allowed multiple fills'
+            'Multiple fills disabled for order'
         )
         const partsCount = this.escrowExtension.hashLockInfo.getPartsCount()
 
