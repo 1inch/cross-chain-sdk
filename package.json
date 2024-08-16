@@ -1,11 +1,11 @@
 {
   "name": "@1inch/cross-chain-sdk",
-  "version": "0.0.33",
+  "version": "0.0.36",
   "description": "Sdk for creating atomic swaps through 1inch",
   "author": "@1inch",
   "exports": {
     ".": {
-      "types": "./dist/types/index.d.ts",
+      "types": "./dist/types/src/index.d.ts",
       "import": "./dist/esm/index.js",
       "require": "./dist/cjs/index.js",
       "node": "./dist/cjs/index.js",
