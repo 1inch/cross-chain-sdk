@@ -151,6 +151,10 @@ export class TimeLocks {
         return new TimeLocks(...params)
     }
 
+    public toJSON(): string {
+        return '0x' + this.build().toString(16)
+    }
+
     public build(): bigint {
         return [
             this.deployedAt,
