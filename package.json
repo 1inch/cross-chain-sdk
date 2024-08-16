@@ -5,7 +5,7 @@
   "author": "@1inch",
   "exports": {
     ".": {
-      "types": "./dist/types/index.d.ts",
+      "types": "./dist/types/src/index.d.ts",
       "import": "./dist/esm/index.js",
       "require": "./dist/cjs/index.js",
       "node": "./dist/cjs/index.js",
