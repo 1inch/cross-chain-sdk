@@ -31,7 +31,7 @@ import {
 } from '../api/orders'
 import {CrossChainOrder} from '../cross-chain-order'
 
-export class FusionSDK {
+export class SDK {
     public readonly api: FusionApi
 
     constructor(private readonly config: CrossChainSDKConfigParams) {

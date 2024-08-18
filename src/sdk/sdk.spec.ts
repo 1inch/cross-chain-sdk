@@ -4,7 +4,7 @@ import {
     Web3Like,
     Web3ProviderConnector
 } from '@1inch/fusion-sdk'
-import {FusionSDK} from './sdk'
+import {SDK} from './sdk'
 
 function createHttpProviderFake<T>(mock: T): HttpProviderConnector {
     return {
@@ -62,7 +62,7 @@ describe(__filename, () => {
         }
 
         const httpProvider = createHttpProviderFake(expected)
-        const sdk = new FusionSDK({
+        const sdk = new SDK({
             url,
             httpProvider,
             blockchainProvider: web3ProviderConnector
@@ -80,7 +80,7 @@ describe(__filename, () => {
 
         const expected = undefined
         const httpProvider = createHttpProviderFake(expected)
-        const sdk = new FusionSDK({
+        const sdk = new SDK({
             url,
             httpProvider,
             blockchainProvider: web3ProviderConnector
