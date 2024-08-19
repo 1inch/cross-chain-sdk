@@ -57,12 +57,12 @@ export class DstTimeLocks extends BaseTimeLock {
         assert(
             deployedAt > _publicWithdrawal,
             `deployedAt timestamp can not be less than publicWithdrawal delay,`
-            + `deployedAt: ${deployedAt}, withdrawal: ${_publicWithdrawal}`
+            + `deployedAt: ${deployedAt}, publicWithdrawal: ${_publicWithdrawal}`
         )
         assert(
             deployedAt > _cancellation,
             `deployedAt timestamp can not be less than cancellation delay,`
-            + `deployedAt: ${deployedAt}, withdrawal: ${_cancellation}`
+            + `deployedAt: ${deployedAt}, cancellation: ${_cancellation}`
         )
     }
 
