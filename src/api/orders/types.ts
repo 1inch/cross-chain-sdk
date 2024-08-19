@@ -1,7 +1,8 @@
-import {LimitOrderV4Struct, NetworkEnum} from '@1inch/fusion-sdk'
+import {LimitOrderV4Struct} from '@1inch/fusion-sdk'
 import {PaginationOutput} from '../types'
 import {AuctionPoint} from '../quoter'
 import {PaginationParams} from '../pagination'
+import {SupportedChain} from '../../chains'
 
 export type OrdersApiConfig = {
     url: string
@@ -9,8 +10,8 @@ export type OrdersApiConfig = {
 }
 
 export type ActiveOrdersRequestParams = PaginationParams & {
-    srcChainId?: NetworkEnum
-    dstChainId?: NetworkEnum
+    srcChainId?: SupportedChain
+    dstChainId?: SupportedChain
 }
 
 export type ActiveOrder = {
@@ -23,8 +24,8 @@ export type ActiveOrder = {
     remainingMakerAmount: string
     order: LimitOrderV4Struct
     extension: string
-    srcChainId: NetworkEnum
-    dstChainId: NetworkEnum
+    srcChainId: SupportedChain
+    dstChainId: SupportedChain
     isMakerContract: boolean
 }
 
