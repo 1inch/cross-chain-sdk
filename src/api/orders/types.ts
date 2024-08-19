@@ -25,6 +25,7 @@ export type ActiveOrder = {
     extension: string
     srcChainId: NetworkEnum
     dstChainId: NetworkEnum
+    isMakerContract: boolean
 }
 
 export type ActiveOrdersResponse = PaginationOutput<ActiveOrder>
