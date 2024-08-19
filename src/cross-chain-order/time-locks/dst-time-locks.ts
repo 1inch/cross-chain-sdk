@@ -51,15 +51,18 @@ export class DstTimeLocks extends BaseTimeLock {
         // technically it is valid for smart-contract, but delay as big as timestamp make no sense in terms of user order
         assert(
             deployedAt > _withdrawal,
-            `deployedAt timestamp can not be less than withdrawal delay, deployedAt: ${deployedAt}, withdrawal: ${_withdrawal}`
+            `deployedAt timestamp can not be less than withdrawal delay,`
+            + `deployedAt: ${deployedAt}, withdrawal: ${_withdrawal}`
         )
         assert(
             deployedAt > _publicWithdrawal,
-            `deployedAt timestamp can not be less than publicWithdrawal delay, deployedAt: ${deployedAt}, withdrawal: ${_publicWithdrawal}`
+            `deployedAt timestamp can not be less than publicWithdrawal delay,`
+            + `deployedAt: ${deployedAt}, withdrawal: ${_publicWithdrawal}`
         )
         assert(
             deployedAt > _cancellation,
-            `deployedAt timestamp can not be less than cancellation delay, deployedAt: ${deployedAt}, withdrawal: ${_cancellation}`
+            `deployedAt timestamp can not be less than cancellation delay,`
+            + `deployedAt: ${deployedAt}, withdrawal: ${_cancellation}`
         )
     }
 
