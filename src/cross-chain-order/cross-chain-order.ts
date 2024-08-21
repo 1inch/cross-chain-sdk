@@ -99,6 +99,10 @@ export class CrossChainOrder {
         return this.inner.nonce
     }
 
+    get isPartialFillEnabled(): boolean {
+        return !this.inner.isBitInvalidatorMode
+    }
+
     /**
      * Create new CrossChainOrder
      */

@@ -1,9 +1,4 @@
-import {
-    Address,
-    encodeCancelOrder,
-    MakerTraits,
-    NetworkEnum
-} from '@1inch/fusion-sdk'
+import {Address, encodeCancelOrder, MakerTraits} from '@1inch/fusion-sdk'
 import {
     OrderInfo,
     OrderParams,
@@ -17,9 +12,7 @@ import {
     Quote,
     QuoterRequest,
     RelayerRequest,
-    QuoterCustomPresetRequest
-} from '../api'
-import {
+    QuoterCustomPresetRequest,
     ActiveOrdersRequest,
     ActiveOrdersRequestParams,
     ActiveOrdersResponse,
@@ -28,8 +21,9 @@ import {
     OrdersByMakerResponse,
     OrderStatusRequest,
     OrderStatusResponse
-} from '../api/orders'
+} from '../api'
 import {CrossChainOrder} from '../cross-chain-order'
+import {SupportedChain} from '../chains'
 
 export class SDK {
     public readonly api: FusionApi
@@ -42,11 +36,10 @@ export class SDK {
         })
     }
 
-    async getActiveOrders({
-        page,
-        limit
-    }: ActiveOrdersRequestParams = {}): Promise<ActiveOrdersResponse> {
-        const request = new ActiveOrdersRequest({page, limit})
+    async getActiveOrders(
+        params: ActiveOrdersRequestParams = {}
+    ): Promise<ActiveOrdersResponse> {
+        const request = new ActiveOrdersRequest(params)
 
         return this.api.getActiveOrders(request)
     }
@@ -57,20 +50,20 @@ export class SDK {
         return this.api.getOrderStatus(request)
     }
 
-    async getOrdersByMaker({
-        limit,
-        page,
-        address
-    }: OrdersByMakerParams): Promise<OrdersByMakerResponse> {
-        const request = new OrdersByMakerRequest({limit, page, address})
+    async getOrdersByMaker(
+        params: OrdersByMakerParams
+    ): Promise<OrdersByMakerResponse> {
+        const request = new OrdersByMakerRequest(params)
 
         return this.api.getOrdersByMaker(request)
     }
 
     async getQuote(params: QuoteParams): Promise<Quote> {
         const request = new QuoterRequest({
-            fromTokenAddress: params.fromTokenAddress,
-            toTokenAddress: params.toTokenAddress,
+            srcChain: params.srcChainId,
+            dstChain: params.dstChainId,
+            srcTokenAddress: params.srcTokenAddress,
+            dstTokenAddress: params.dstTokenAddress,
             amount: params.amount,
             walletAddress:
                 params.walletAddress || Address.ZERO_ADDRESS.toString(),
@@ -89,8 +82,10 @@ export class SDK {
         body: QuoteCustomPresetParams
     ): Promise<Quote> {
         const paramsRequest = new QuoterRequest({
-            fromTokenAddress: params.fromTokenAddress,
-            toTokenAddress: params.toTokenAddress,
+            srcChain: params.srcChainId,
+            dstChain: params.dstChainId,
+            srcTokenAddress: params.srcTokenAddress,
+            dstTokenAddress: params.dstTokenAddress,
             amount: params.amount,
             walletAddress:
                 params.walletAddress || Address.ZERO_ADDRESS.toString(),
@@ -116,6 +111,7 @@ export class SDK {
         }
 
         const order = quote.createOrder({
+            hashLock: params.hashLock,
             receiver: params.receiver
                 ? new Address(params.receiver)
                 : undefined,
@@ -124,8 +120,8 @@ export class SDK {
             takingFeeReceiver: params.fee?.takingFeeReceiver,
             allowPartialFills: params.allowPartialFills,
             allowMultipleFills: params.allowMultipleFills,
-            srcChainId: params.srcChainId,
-            dstChainId: params.dstChainId
+            permit: params.permit,
+            isPermit2: params.isPermit2
         })
 
         const hash = order.getOrderHash(params.srcChainId)
@@ -134,12 +130,41 @@ export class SDK {
     }
 
     public async submitOrder(
-        srcChainId: NetworkEnum,
+        srcChainId: SupportedChain,
         order: CrossChainOrder,
-        quoteId: string
+        quoteId: string,
+        merkleLeaves?: string[],
+        secretHashes?: string[]
     ): Promise<OrderInfo> {
         if (!this.config.blockchainProvider) {
             throw new Error('blockchainProvider has not set to config')
+        }
+
+        const secretCount =
+            order.escrowExtension.hashLockInfo.getPartsCount() + 1n
+
+        if (order.isPartialFillEnabled) {
+            if (!merkleLeaves || !secretHashes) {
+                throw new Error(
+                    'with enabled partial fills you need to provide merkleLeaves and secretHashes'
+                )
+            }
+
+            if (merkleLeaves.length !== secretHashes.length) {
+                throw new Error(
+                    'merkleLeaves and secretHashes length should be equal'
+                )
+            }
+
+            if (merkleLeaves.length !== Number(secretCount)) {
+                throw new Error(
+                    'merkleLeaves and secretHashes length should be equal to number of secrets'
+                )
+            }
+        } else if (merkleLeaves?.length || secretHashes?.length) {
+            throw new Error(
+                'with disabled partial fills you do not need to provide merkleLeaves and secretHashes'
+            )
         }
 
         const orderStruct = order.build()
@@ -150,10 +175,13 @@ export class SDK {
         )
 
         const relayerRequest = new RelayerRequest({
+            srcChainId,
             order: orderStruct,
             signature,
             quoteId,
-            extension: order.extension.encode()
+            extension: order.extension.encode(),
+            merkleLeaves,
+            secretHashes
         })
 
         await this.api.submitOrder(relayerRequest)
@@ -191,10 +219,14 @@ export class SDK {
         )
     }
 
-    private async getQuoteResult(params: OrderParams): Promise<Quote> {
+    private async getQuoteResult(
+        params: Omit<OrderParams, 'hashLock'>
+    ): Promise<Quote> {
         const quoterRequest = new QuoterRequest({
-            fromTokenAddress: params.fromTokenAddress,
-            toTokenAddress: params.toTokenAddress,
+            srcChain: params.srcChainId,
+            dstChain: params.dstChainId,
+            srcTokenAddress: params.srcTokenAddress,
+            dstTokenAddress: params.dstTokenAddress,
             amount: params.amount,
             walletAddress: params.walletAddress,
             permit: params.permit,

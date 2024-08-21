@@ -1,9 +1,9 @@
-import {Address, NetworkEnum} from '@1inch/fusion-sdk'
+import {Address} from '@1inch/fusion-sdk'
 import {PresetEnum} from '../types'
+import {HashLock} from '../../../cross-chain-order'
 
-export type FusionOrderParamsData = {
-    srcChainId: NetworkEnum
-    dstChainId: NetworkEnum
+export type CrossChainOrderParamsData = {
+    hashLock: HashLock
     preset?: PresetEnum
     receiver?: Address
     nonce?: bigint

@@ -1,4 +1,3 @@
-/* eslint-disable max-lines-per-function */
 import {HttpProviderConnector, NetworkEnum} from '@1inch/fusion-sdk'
 import {
     ActiveOrdersResponse,
