@@ -45,7 +45,7 @@
     "tslib": "2.6.3"
   },
   "devDependencies": {
-    "@1inch/eslint-config": "3",
+    "@1inch/eslint-config": "3.0.6",
     "@eslint/compat": "1.1.0",
     "@eslint/eslintrc": "^3.1.0",
     "@eslint/js": "^9.5.0",
