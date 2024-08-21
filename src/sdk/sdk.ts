@@ -20,7 +20,8 @@ import {
     OrdersByMakerRequest,
     OrdersByMakerResponse,
     OrderStatusRequest,
-    OrderStatusResponse
+    OrderStatusResponse,
+    ReadyToAcceptSecretFills
 } from '../api'
 import {CrossChainOrder} from '../cross-chain-order'
 import {SupportedChain} from '../chains'
@@ -56,6 +57,16 @@ export class SDK {
         const request = new OrdersByMakerRequest(params)
 
         return this.api.getOrdersByMaker(request)
+    }
+
+    async getReadyToAcceptSecretFills(
+        orderHash: string
+    ): Promise<ReadyToAcceptSecretFills> {
+        return this.api.getReadyToAcceptSecretFills(orderHash)
+    }
+
+    async submitSecret(orderHash: string, secret: string): Promise<void> {
+        return this.api.submitSecret(orderHash, secret)
     }
 
     async getQuote(params: QuoteParams): Promise<Quote> {

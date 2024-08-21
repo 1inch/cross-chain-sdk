@@ -14,7 +14,8 @@ import {
     OrdersByMakerRequest,
     OrderStatusRequest,
     OrderStatusResponse,
-    OrdersByMakerResponse
+    OrdersByMakerResponse,
+    ReadyToAcceptSecretFills
 } from './orders'
 
 export class FusionApi {
@@ -79,11 +80,21 @@ export class FusionApi {
         return this.ordersApi.getOrdersByMaker(params)
     }
 
+    getReadyToAcceptSecretFills(
+        orderHash: string
+    ): Promise<ReadyToAcceptSecretFills> {
+        return this.ordersApi.getReadyToAcceptSecretFills(orderHash)
+    }
+
     submitOrder(params: RelayerRequest): Promise<void> {
         return this.relayerApi.submit(params)
     }
 
     submitOrderBatch(params: RelayerRequest[]): Promise<void> {
         return this.relayerApi.submitBatch(params)
+    }
+
+    submitSecret(orderHash: string, secret: string): Promise<void> {
+        return this.relayerApi.submitSecret(orderHash, secret)
     }
 }
