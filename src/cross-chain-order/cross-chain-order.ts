@@ -198,7 +198,6 @@ export class CrossChainOrder {
                     extension.makerPermit === ZX
                         ? undefined
                         : Interaction.decode(extension.makerPermit).data,
-                unwrapWETH: makerTraits.isNativeUnwrapEnabled(),
                 orderExpirationDelay,
                 allowMultipleFills: makerTraits.isMultipleFillsAllowed(),
                 allowPartialFills: makerTraits.isPartialFillAllowed()
