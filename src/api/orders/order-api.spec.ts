@@ -2,9 +2,14 @@
 import {HttpProviderConnector, NetworkEnum} from '@1inch/fusion-sdk'
 import {
     ActiveOrdersResponse,
+    EscrowEventAction,
+    EscrowEventSide,
+    FillStatus,
     OrdersByMakerResponse,
     OrderStatus,
-    OrderStatusResponse
+    OrderStatusResponse,
+    ReadyToAcceptSecretFills,
+    ValidationStatus
 } from './types'
 import {OrdersApi} from './orders.api'
 import {
@@ -114,7 +119,7 @@ describe(__filename, () => {
 
             expect(response).toEqual(expected)
             expect(httpProvider.get).toHaveBeenLastCalledWith(
-                `${url}/v2.0/order/active/?page=1&limit=2`
+                `${url}/v1.0/order/active/?page=1&limit=2`
             )
         })
 
@@ -197,7 +202,7 @@ describe(__filename, () => {
 
             expect(response).toEqual(expected)
             expect(httpProvider.get).toHaveBeenLastCalledWith(
-                `${url}/v2.0/order/active/?`
+                `${url}/v1.0/order/active/?`
             )
         })
     })
@@ -223,7 +228,7 @@ describe(__filename, () => {
                 auctionStartDate: 1713866825,
                 auctionDuration: 360,
                 initialRateBump: 654927,
-                status: OrderStatus.Filled,
+                status: OrderStatus.Executed,
                 extension:
                     '0x0000006f0000004a0000004a0000004a0000004a000000250000000000000000fb2809a5314473e1165f6b58018e20ed8f07b840000000000000006627884900016809fe4ffb2809a5314473e1165f6b58018e20ed8f07b840000000000000006627884900016809fe4ffb2809a5314473e1165f6b58018e20ed8f07b8406627883dd1a23c3abeed63c51b86000008',
                 createdAt: '2024-04-23T10:06:58.807Z',
@@ -231,9 +236,36 @@ describe(__filename, () => {
                 toTokenToUsdPrice: '0.99699437304091353962',
                 fills: [
                     {
+                        status: FillStatus.Executed,
                         txHash: '0x346d2098059da884c61dfb95c357f11abbf51466c7903fe9c0d5a3d8471b8549',
                         filledMakerAmount: '40000000000000000',
-                        filledAuctionTakerAmount: '120997216'
+                        filledAuctionTakerAmount: '120997216',
+                        escrowEvents: [
+                            {
+                                transactionHash: '0x2345',
+                                action: EscrowEventAction.SrcEscrowCreated,
+                                blockTimestamp: 123,
+                                side: EscrowEventSide.Src
+                            },
+                            {
+                                transactionHash: '0x4234',
+                                action: EscrowEventAction.DstEscrowCreated,
+                                blockTimestamp: 124,
+                                side: EscrowEventSide.Dst
+                            },
+                            {
+                                transactionHash: '0x6454',
+                                action: EscrowEventAction.Withdrawn,
+                                side: EscrowEventSide.Dst,
+                                blockTimestamp: 125
+                            },
+                            {
+                                transactionHash: '0x4354',
+                                action: EscrowEventAction.Withdrawn,
+                                side: EscrowEventSide.Src,
+                                blockTimestamp: 126
+                            }
+                        ]
                     }
                 ],
                 isNativeCurrency: false
@@ -253,7 +285,7 @@ describe(__filename, () => {
 
             expect(response).toEqual(expected)
             expect(httpProvider.get).toHaveBeenLastCalledWith(
-                `${url}/v2.0/order/status/${orderHash}`
+                `${url}/v1.0/order/status/${orderHash}`
             )
         })
     })
@@ -271,6 +303,8 @@ describe(__filename, () => {
                 },
                 items: [
                     {
+                        srcChainId: NetworkEnum.ETHEREUM,
+                        dstChainId: NetworkEnum.ARBITRUM,
                         orderHash:
                             '0x32b666e75a34bd97844017747a3222b0422b5bbce15f1c06913678fcbff84571',
                         makerAsset:
@@ -279,9 +313,11 @@ describe(__filename, () => {
                             '0xdac17f958d2ee523a2206206994597c13d831ec7',
                         makerAmount: '30000000',
                         minTakerAmount: '23374478',
+                        approximateTakingAmount: '24000000',
                         createdAt: '2024-04-23T11:36:45.980Z',
                         fills: [],
                         status: OrderStatus.Pending,
+                        validation: ValidationStatus.Valid,
                         cancelTx: null,
                         isNativeCurrency: false,
                         auctionStartDate: 1713872226,
@@ -292,7 +328,8 @@ describe(__filename, () => {
                                 coefficient: 2805816,
                                 delay: 60
                             }
-                        ]
+                        ],
+                        cancelable: true
                     },
                     {
                         orderHash:
@@ -303,21 +340,53 @@ describe(__filename, () => {
                             '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
                         makerAmount: '40000000000000000',
                         minTakerAmount: '119048031',
+                        approximateTakingAmount: '120000000',
                         createdAt: '2024-04-23T10:06:58.807Z',
                         fills: [
                             {
+                                status: FillStatus.Executed,
                                 txHash: '0x346d2098059da884c61dfb95c357f11abbf51466c7903fe9c0d5a3d8471b8549',
                                 filledMakerAmount: '40000000000000000',
-                                filledAuctionTakerAmount: '120997216'
+                                filledAuctionTakerAmount: '120997216',
+                                escrowEvents: [
+                                    {
+                                        transactionHash: '0x2345',
+                                        action: EscrowEventAction.SrcEscrowCreated,
+                                        blockTimestamp: 123,
+                                        side: EscrowEventSide.Src
+                                    },
+                                    {
+                                        transactionHash: '0x4234',
+                                        action: EscrowEventAction.DstEscrowCreated,
+                                        blockTimestamp: 124,
+                                        side: EscrowEventSide.Dst
+                                    },
+                                    {
+                                        transactionHash: '0x6454',
+                                        action: EscrowEventAction.Withdrawn,
+                                        side: EscrowEventSide.Dst,
+                                        blockTimestamp: 125
+                                    },
+                                    {
+                                        transactionHash: '0x4354',
+                                        action: EscrowEventAction.Withdrawn,
+                                        side: EscrowEventSide.Src,
+                                        blockTimestamp: 126
+                                    }
+                                ]
                             }
                         ],
-                        status: OrderStatus.Filled,
+                        status: OrderStatus.Executed,
+                        validation: ValidationStatus.Valid,
                         cancelTx: null,
                         isNativeCurrency: false,
                         auctionStartDate: 1713866825,
                         auctionDuration: 360,
                         initialRateBump: 654927,
-                        points: null
+                        points: null,
+                        srcChainId: NetworkEnum.ETHEREUM,
+                        dstChainId: NetworkEnum.ARBITRUM,
+                        cancelable: false
                     }
                 ]
             }
@@ -340,7 +409,7 @@ describe(__filename, () => {
 
             expect(response).toEqual(expected)
             expect(httpProvider.get).toHaveBeenLastCalledWith(
-                `${url}/v2.0/order/maker/${address}/?limit=1&page=1`
+                `${url}/v1.0/order/maker/${address}/?limit=1&page=1`
             )
         })
 
@@ -356,6 +425,8 @@ describe(__filename, () => {
                 },
                 items: [
                     {
+                        srcChainId: NetworkEnum.ETHEREUM,
+                        dstChainId: NetworkEnum.ARBITRUM,
                         orderHash:
                             '0x32b666e75a34bd97844017747a3222b0422b5bbce15f1c06913678fcbff84571',
                         makerAsset:
@@ -364,9 +435,11 @@ describe(__filename, () => {
                             '0xdac17f958d2ee523a2206206994597c13d831ec7',
                         makerAmount: '30000000',
                         minTakerAmount: '23374478',
+                        approximateTakingAmount: '24000000',
                         createdAt: '2024-04-23T11:36:45.980Z',
                         fills: [],
                         status: OrderStatus.Pending,
+                        validation: ValidationStatus.Valid,
                         cancelTx: null,
                         isNativeCurrency: false,
                         auctionStartDate: 1713872226,
@@ -377,9 +450,12 @@ describe(__filename, () => {
                                 coefficient: 2805816,
                                 delay: 60
                             }
-                        ]
+                        ],
+                        cancelable: true
                     },
                     {
+                        srcChainId: NetworkEnum.ETHEREUM,
+                        dstChainId: NetworkEnum.ARBITRUM,
                         orderHash:
                             '0x726c96911b867c84880fcacbd4e26205ecee58be72b31e2969987880b53f35f2',
                         makerAsset:
@@ -388,21 +464,51 @@ describe(__filename, () => {
                             '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
                         makerAmount: '40000000000000000',
                         minTakerAmount: '119048031',
+                        approximateTakingAmount: '120000000',
                         createdAt: '2024-04-23T10:06:58.807Z',
                         fills: [
                             {
+                                status: FillStatus.Executed,
                                 txHash: '0x346d2098059da884c61dfb95c357f11abbf51466c7903fe9c0d5a3d8471b8549',
                                 filledMakerAmount: '40000000000000000',
-                                filledAuctionTakerAmount: '120997216'
+                                filledAuctionTakerAmount: '120997216',
+                                escrowEvents: [
+                                    {
+                                        transactionHash: '0x2345',
+                                        action: EscrowEventAction.SrcEscrowCreated,
+                                        blockTimestamp: 123,
+                                        side: EscrowEventSide.Src
+                                    },
+                                    {
+                                        transactionHash: '0x4234',
+                                        action: EscrowEventAction.DstEscrowCreated,
+                                        blockTimestamp: 124,
+                                        side: EscrowEventSide.Dst
+                                    },
+                                    {
+                                        transactionHash: '0x6454',
+                                        action: EscrowEventAction.Withdrawn,
+                                        side: EscrowEventSide.Dst,
+                                        blockTimestamp: 125
+                                    },
+                                    {
+                                        transactionHash: '0x4354',
+                                        action: EscrowEventAction.Withdrawn,
+                                        side: EscrowEventSide.Src,
+                                        blockTimestamp: 126
+                                    }
+                                ]
                             }
                         ],
-                        status: OrderStatus.Filled,
+                        status: OrderStatus.Executed,
+                        validation: ValidationStatus.Valid,
                         cancelTx: null,
                         isNativeCurrency: false,
                         auctionStartDate: 1713866825,
                         auctionDuration: 360,
                         initialRateBump: 654927,
-                        points: null
+                        points: null,
+                        cancelable: true
                     }
                 ]
             }
@@ -424,7 +530,39 @@ describe(__filename, () => {
 
             expect(response).toEqual(expected)
             expect(httpProvider.get).toHaveBeenLastCalledWith(
-                `${url}/v2.0/order/maker/${address}/?`
+                `${url}/v1.0/order/maker/${address}/?`
+            )
+        })
+    })
+
+    describe('getReadyToAcceptSecretFills', () => {
+        it('success', async () => {
+            const url = 'https://test.com/orders'
+
+            const expected: ReadyToAcceptSecretFills = {
+                fills: [
+                    {
+                        idx: 0,
+                        srcEscrowDeployTxHash: '0x123',
+                        dstEscrowDeployTxHash: '0x456'
+                    }
+                ]
+            }
+            const httpProvider = createHttpProviderFake(expected)
+            const api = new OrdersApi(
+                {
+                    url
+                },
+                httpProvider
+            )
+
+            const orderHash =
+                '0x035b5c86d29c154e1e677ef1237de6792ff18d5c92964222ee768c77148e0fb7'
+            const response = await api.getReadyToAcceptSecretFills(orderHash)
+
+            expect(response).toEqual(expected)
+            expect(httpProvider.get).toHaveBeenLastCalledWith(
+                `${url}/v1.0/order/ready-to-accept-secret-fills/${orderHash}`
             )
         })
     })

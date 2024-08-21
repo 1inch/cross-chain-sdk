@@ -5,7 +5,8 @@ import {
     OrdersByMakerParams,
     OrderStatusParams
 } from './types'
-import {PaginationParams, PaginationRequest} from '../pagination'
+import {PaginationRequest} from '../pagination'
+import {SupportedChain} from '../../chains'
 
 export class ActiveOrdersRequest {
     public readonly pagination: PaginationRequest
@@ -49,19 +50,59 @@ export class OrdersByMakerRequest {
 
     public readonly pagination: PaginationRequest
 
+    public readonly srcChain?: SupportedChain
+
+    public readonly dstChain?: SupportedChain
+
+    public readonly srcToken?: string
+
+    public readonly dstToken?: string
+
+    public readonly withToken?: string
+
+    public readonly timestampFrom?: number
+
+    public readonly timestampTo?: number
+
     constructor(params: OrdersByMakerParams) {
         this.address = params.address
         this.pagination = new PaginationRequest(params.page, params.limit)
+        this.srcChain = params.srcChain
+        this.dstChain = params.dstChain
+        this.srcToken = params.srcToken
+        this.dstToken = params.dstToken
+        this.withToken = params.withToken
+        this.timestampFrom = params.timestampFrom
+        this.timestampTo = params.timestampTo
 
         if (!isValidAddress(this.address)) {
             throw Error(`${this.address} is invalid address`)
         }
+
+        if (this.srcToken && !isValidAddress(this.srcToken)) {
+            throw Error(`${this.srcToken} is invalid address`)
+        }
+
+        if (this.dstToken && !isValidAddress(this.dstToken)) {
+            throw Error(`${this.dstToken} is invalid address`)
+        }
+
+        if (this.withToken && !isValidAddress(this.withToken)) {
+            throw Error(`${this.withToken} is invalid address`)
+        }
     }
 
-    buildQueryParams(): PaginationParams {
+    buildQueryParams(): Omit<OrdersByMakerParams, 'address'> {
         return {
             limit: this.pagination.limit,
-            page: this.pagination.page
+            page: this.pagination.page,
+            srcChain: this.srcChain,
+            dstChain: this.dstChain,
+            srcToken: this.srcToken,
+            dstToken: this.dstToken,
+            withToken: this.withToken,
+            timestampFrom: this.timestampFrom,
+            timestampTo: this.timestampTo
         }
     }
 }
