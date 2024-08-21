@@ -67,7 +67,7 @@ export class HashLock {
 
     /**
      * Only use if HashLockInfo is for multiple fill order
-     * Otherwise trash will be returned
+     * Otherwise garbage will be returned
      *
      */
     public getPartsCount(): bigint {

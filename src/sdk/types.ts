@@ -1,11 +1,11 @@
 import {
     BlockchainProviderConnector,
     HttpProviderConnector,
-    LimitOrderV4Struct,
-    NetworkEnum
+    LimitOrderV4Struct
 } from '@1inch/fusion-sdk'
 import {CustomPreset, PresetEnum} from '../api'
-import {CrossChainOrder} from '../cross-chain-order'
+import {CrossChainOrder, HashLock} from '../cross-chain-order'
+import {SupportedChain} from '../chains'
 
 export type CrossChainSDKConfigParams = {
     url: string
@@ -15,8 +15,10 @@ export type CrossChainSDKConfigParams = {
 }
 
 export type QuoteParams = {
-    fromTokenAddress: string
-    toTokenAddress: string
+    srcChainId: SupportedChain
+    dstChainId: SupportedChain
+    srcTokenAddress: string
+    dstTokenAddress: string
     amount: string
     walletAddress?: string
     enableEstimate?: boolean
@@ -31,10 +33,13 @@ export type QuoteCustomPresetParams = {
 }
 
 export type OrderParams = {
-    fromTokenAddress: string
-    toTokenAddress: string
+    srcChainId: SupportedChain
+    dstChainId: SupportedChain
+    srcTokenAddress: string
+    dstTokenAddress: string
     amount: string
     walletAddress: string
+    hashLock: HashLock
     permit?: string // without the first 20 bytes of token address
     receiver?: string // by default: walletAddress (makerAddress)
     preset?: PresetEnum // by default: recommended preset
@@ -57,9 +62,6 @@ export type OrderParams = {
      * true by default
      */
     allowMultipleFills?: boolean
-
-    srcChainId: NetworkEnum
-    dstChainId: NetworkEnum
 }
 
 export type TakingFeeInfo = {

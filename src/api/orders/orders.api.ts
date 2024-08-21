@@ -8,12 +8,13 @@ import {
     ActiveOrdersResponse,
     OrdersApiConfig,
     OrdersByMakerResponse,
-    OrderStatusResponse
+    OrderStatusResponse,
+    ReadyToAcceptSecretFills
 } from './types'
 import {concatQueryParams} from '../params'
 
 export class OrdersApi {
-    private static Version = 'v2.0'
+    private static Version = 'v1.0'
 
     constructor(
         private readonly config: OrdersApiConfig,
@@ -42,6 +43,14 @@ export class OrdersApi {
     ): Promise<OrdersByMakerResponse> {
         const qp = concatQueryParams(params.buildQueryParams())
         const url = `${this.config.url}/${OrdersApi.Version}/order/maker/${params.address}/${qp}`
+
+        return this.httpClient.get(url)
+    }
+
+    async getReadyToAcceptSecretFills(
+        orderHash: string
+    ): Promise<ReadyToAcceptSecretFills> {
+        const url = `${this.config.url}/${OrdersApi.Version}/order/ready-to-accept-secret-fills/${orderHash}`
 
         return this.httpClient.get(url)
     }

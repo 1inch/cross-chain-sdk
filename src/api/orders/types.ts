@@ -35,16 +35,64 @@ export type OrderStatusParams = {
     orderHash: string
 }
 
+export enum ValidationStatus {
+    Valid = 'valid',
+    OrderPredicateReturnedFalse = 'order predicate returned false',
+    NotEnoughAllowance = 'not enough balance',
+    NotEnoughBalance = 'not enough allowance',
+    InvalidPermitSignature = 'invalid permit signature',
+    InvalidPermitSpender = 'invalid permit spender',
+    InvalidPermitSigner = 'invalid permit signer',
+    InvalidSignature = 'invalid signature',
+    FailedToParsePermitDetails = 'failed to parse permit details',
+    UnknownPermitVersion = 'unknown permit version',
+    WrongEpochManagerAndBitInvalidator = 'wrong epoch manager and bit invalidator',
+    FailedToDecodeRemainingMakerAmount = 'failed to decode remaining',
+    UnknownFailure = 'unknown failure'
+}
+
+export enum FillStatus {
+    Pending = 'pending',
+    Executed = 'executed',
+    Refunding = 'refunding',
+    Refunded = 'refunded'
+}
+
 export enum OrderStatus {
     Pending = 'pending',
-    Filled = 'filled'
-    //todo: add all statuses
+    Executed = 'executed',
+    Expired = 'expired',
+    Cancelled = 'cancelled',
+    Refunding = 'refunding',
+    Refunded = 'refunded'
 }
 
 export type Fill = {
+    status: FillStatus
     txHash: string
     filledMakerAmount: string
     filledAuctionTakerAmount: string
+    escrowEvents: EscrowEventData[]
+}
+
+export enum EscrowEventSide {
+    Src = 'src',
+    Dst = 'dst'
+}
+
+export enum EscrowEventAction {
+    SrcEscrowCreated = 'src_escrow_created',
+    DstEscrowCreated = 'dst_escrow_created',
+    Withdrawn = 'withdrawn',
+    FundsRescued = 'funds_rescued',
+    EscrowCancelled = 'escrow_cancelled'
+}
+
+export type EscrowEventData = {
+    transactionHash: string
+    side: EscrowEventSide
+    action: EscrowEventAction
+    blockTimestamp: number
 }
 
 export type OrderStatusResponse = {
@@ -65,15 +113,24 @@ export type OrderStatusResponse = {
 
 export type OrdersByMakerParams = {
     address: string
+    srcChain?: SupportedChain
+    dstChain?: SupportedChain
+    srcToken?: string
+    dstToken?: string
+    withToken?: string
+    timestampFrom?: number
+    timestampTo?: number
 } & PaginationParams
 
 export type OrderFillsByMakerOutput = {
     orderHash: string
+    validation: ValidationStatus
     status: OrderStatus
     makerAsset: string
+    takerAsset: string
     makerAmount: string
     minTakerAmount: string
-    takerAsset: string
+    approximateTakingAmount: string
     cancelTx: string | null
     fills: Fill[]
     points: AuctionPoint[] | null
@@ -81,7 +138,20 @@ export type OrderFillsByMakerOutput = {
     auctionDuration: number
     initialRateBump: number
     isNativeCurrency: boolean
+    srcChainId: SupportedChain
+    dstChainId: SupportedChain
     createdAt: string
+    cancelable: boolean
 }
 
 export type OrdersByMakerResponse = PaginationOutput<OrderFillsByMakerOutput>
+
+export type ReadyToAcceptSecretFill = {
+    idx: number
+    srcEscrowDeployTxHash: string
+    dstEscrowDeployTxHash: string
+}
+
+export type ReadyToAcceptSecretFills = {
+    fills: ReadyToAcceptSecretFill[]
+}

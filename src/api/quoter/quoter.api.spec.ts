@@ -1,4 +1,4 @@
-import {HttpProviderConnector} from '@1inch/fusion-sdk'
+import {HttpProviderConnector, NetworkEnum} from '@1inch/fusion-sdk'
 import {QuoterApi} from './quoter.api'
 import {QuoterRequest} from './quoter.request'
 import {Quote} from './quote'
@@ -20,105 +20,121 @@ describe('Quoter API', () => {
     })
 
     const params = QuoterRequest.new({
-        fromTokenAddress: '0x6b175474e89094c44da98b954eedeac495271d0f',
-        toTokenAddress: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-        amount: '1000000000000000000000',
+        srcChain: NetworkEnum.ETHEREUM,
+        dstChain: NetworkEnum.POLYGON,
+        srcTokenAddress: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+        dstTokenAddress: '0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
+        amount: '100000000000000000',
         walletAddress: '0x00000000219ab540356cbb839cbe05303d7705fa'
     })
 
-    const ResponseMock = {
-        fromTokenAmount: '1000000000000000000000',
-        recommended_preset: PresetEnum.medium,
-        feeToken: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+    const ResponseMock: QuoterResponse = {
+        quoteId: '27d54fa5-9e57-47dc-af27-8ed150a7ca75',
+        srcTokenAmount: '100000000000000000',
+        dstTokenAmount: '256915982',
         presets: {
             fast: {
                 auctionDuration: 180,
-                startAuctionIn: 36,
-                bankFee: '0',
-                initialRateBump: 200461,
-                auctionStartAmount: '626771998563995046',
-                auctionEndAmount: '614454580595911348',
-                tokenFee: '9183588477842300',
+                startAuctionIn: 24,
+                initialRateBump: 84909,
+                auctionStartAmount: '257797497',
+                startAmount: '256915967',
+                auctionEndAmount: '255626994',
+                exclusiveResolver: null,
+                costInDstToken: '881530',
                 points: [
                     {
-                        delay: 24,
-                        coefficient: 50461
+                        delay: 120,
+                        coefficient: 63932
+                    },
+                    {
+                        delay: 60,
+                        coefficient: 34485
                     }
                 ],
-                allowPartialFills: true,
-                allowMultipleFills: true,
-                exclusiveResolver: null,
+                allowPartialFills: false,
+                allowMultipleFills: false,
                 gasCost: {
-                    gasBumpEstimate: 0,
-                    gasPriceEstimate: '0'
-                }
+                    gasBumpEstimate: 34485,
+                    gasPriceEstimate: '1171'
+                },
+                secretsCount: 1
             },
             medium: {
-                auctionDuration: 180,
-                startAuctionIn: 12,
-                bankFee: '0',
-                initialRateBump: 210661,
-                auctionStartAmount: '627398742236202876',
-                auctionEndAmount: '614454580595911348',
-                tokenFee: '9183588477842300',
+                auctionDuration: 360,
+                startAuctionIn: 24,
+                initialRateBump: 84909,
+                auctionStartAmount: '257797497',
+                startAmount: '256915967',
+                auctionEndAmount: '255626994',
+                exclusiveResolver: null,
+                costInDstToken: '881530',
                 points: [
                     {
-                        delay: 24,
-                        coefficient: 50461
+                        delay: 360,
+                        coefficient: 34485
                     }
                 ],
-                allowPartialFills: true,
-                allowMultipleFills: true,
-                exclusiveResolver: null,
+                allowPartialFills: false,
+                allowMultipleFills: false,
                 gasCost: {
-                    gasBumpEstimate: 0,
-                    gasPriceEstimate: '0'
-                }
+                    gasBumpEstimate: 34485,
+                    gasPriceEstimate: '1171'
+                },
+                secretsCount: 1
             },
             slow: {
                 auctionDuration: 600,
-                startAuctionIn: 12,
-                bankFee: '0',
-                initialRateBump: 302466,
-                auctionStartAmount: '633039742513363640',
-                auctionEndAmount: '614454580595911348',
-                tokenFee: '9183588477842300',
+                startAuctionIn: 24,
+                initialRateBump: 84909,
+                auctionStartAmount: '257797497',
+                startAmount: '256915967',
+                auctionEndAmount: '255626994',
+                exclusiveResolver: null,
+                costInDstToken: '881530',
                 points: [
                     {
-                        delay: 24,
-                        coefficient: 50461
+                        delay: 600,
+                        coefficient: 34485
                     }
                 ],
-                allowPartialFills: true,
-                allowMultipleFills: true,
-                exclusiveResolver: null,
+                allowPartialFills: false,
+                allowMultipleFills: false,
                 gasCost: {
-                    gasBumpEstimate: 0,
-                    gasPriceEstimate: '0'
-                }
+                    gasBumpEstimate: 34485,
+                    gasPriceEstimate: '1171'
+                },
+                secretsCount: 1
             }
         },
-        toTokenAmount: '626772029219852913',
+        timeLocks: {
+            srcWithdrawal: 36,
+            srcPublicWithdrawal: 336,
+            srcCancellation: 492,
+            srcPublicCancellation: 612,
+            dstWithdrawal: 180,
+            dstPublicWithdrawal: 300,
+            dstCancellation: 420
+        },
+        srcEscrowFactory: '0x0000000000000000000000000000000000000000',
+        dstEscrowFactory: '0x0000000000000000000000000000000000000000',
+        srcSafetyDeposit: '141752059440000',
+        dstSafetyDeposit: '20474999822640000',
+        whitelist: ['0x7246999fd1bab15b4ac7d1a23c3abeed63c51b86'],
+        recommendedPreset: PresetEnum.fast,
         prices: {
             usd: {
-                fromToken: '0.99326233048693179928',
-                toToken: '1618.25668999999970765202'
+                srcToken: '2577.6314',
+                dstToken: '0.9996849753143391'
             }
         },
         volume: {
             usd: {
-                fromToken: '993.26233048693179928',
-                toToken: '1014.278029389902274042'
+                srcToken: '257.76',
+                dstToken: '257.72'
             }
-        },
-        quoteId: null,
-        settlementAddress: '0xa88800cd213da5ae406ce248380802bd53b47647',
-        whitelist: [
-            '0x84d99aa569d93a9ca187d83734c8c4a519c4e9b1',
-            '0xcfa62f77920d6383be12c91c71bd403599e1116f'
-        ],
-        bankFee: 0
-    } as QuoterResponse
+        }
+    }
 
     const QuoterResponseMock = new Quote(params, ResponseMock)
 
@@ -134,7 +150,7 @@ describe('Quoter API', () => {
 
         expect(res).toStrictEqual(QuoterResponseMock)
         expect(httpProvider.get).toHaveBeenCalledWith(
-            'https://test.com/quoter/v2.0/quote/receive/?fromTokenAddress=0x6b175474e89094c44da98b954eedeac495271d0f&toTokenAddress=0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2&amount=1000000000000000000000&walletAddress=0x00000000219ab540356cbb839cbe05303d7705fa&source=sdk'
+            'https://test.com/quoter/v1.0/quote/receive/?srcChain=1&dstChain=137&srcTokenAddress=0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2&dstTokenAddress=0x2791bca1f2de4661ed88a30c99a7a9449aa84174&amount=100000000000000000&walletAddress=0x00000000219ab540356cbb839cbe05303d7705fa&source=sdk'
         )
     })
 
@@ -147,9 +163,11 @@ describe('Quoter API', () => {
         )
 
         const params = QuoterRequest.new({
-            fromTokenAddress: '0x6b175474e89094c44da98b954eedeac495271d0f',
-            toTokenAddress: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-            amount: '1000000000000000000000',
+            srcChain: NetworkEnum.ETHEREUM,
+            dstChain: NetworkEnum.POLYGON,
+            srcTokenAddress: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+            dstTokenAddress: '0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
+            amount: '100000000000000000',
             walletAddress: '0x00000000219ab540356cbb839cbe05303d7705fa',
             fee: 1,
             source: '0x6b175474e89094c44da98b954eedeac495271d0f'
@@ -159,7 +177,7 @@ describe('Quoter API', () => {
         const res = await quoter.getQuote(params)
         expect(res).toStrictEqual(QuoterResponseMock)
         expect(httpProvider.get).toHaveBeenCalledWith(
-            'https://test.com/quoter/v2.0/quote/receive/?fromTokenAddress=0x6b175474e89094c44da98b954eedeac495271d0f&toTokenAddress=0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2&amount=1000000000000000000000&walletAddress=0x00000000219ab540356cbb839cbe05303d7705fa&fee=1&source=0x6b175474e89094c44da98b954eedeac495271d0f'
+            'https://test.com/quoter/v1.0/quote/receive/?srcChain=1&dstChain=137&srcTokenAddress=0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2&dstTokenAddress=0x2791bca1f2de4661ed88a30c99a7a9449aa84174&amount=100000000000000000&walletAddress=0x00000000219ab540356cbb839cbe05303d7705fa&fee=1&source=0x6b175474e89094c44da98b954eedeac495271d0f'
         )
     })
 
@@ -172,9 +190,11 @@ describe('Quoter API', () => {
         )
 
         const params = QuoterRequest.new({
-            fromTokenAddress: '0x6b175474e89094c44da98b954eedeac495271d0f',
-            toTokenAddress: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-            amount: '1000000000000000000000',
+            srcChain: NetworkEnum.ETHEREUM,
+            dstChain: NetworkEnum.POLYGON,
+            srcTokenAddress: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+            dstTokenAddress: '0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
+            amount: '100000000000000000',
             walletAddress: '0x00000000219ab540356cbb839cbe05303d7705fa',
             fee: 1,
             source: '0x6b175474e89094c44da98b954eedeac495271d0f'
@@ -196,7 +216,7 @@ describe('Quoter API', () => {
         const res = await quoter.getQuoteWithCustomPreset(params, body)
         expect(res).toStrictEqual(QuoterResponseMock)
         expect(httpProvider.post).toHaveBeenCalledWith(
-            'https://test.com/quoter/v2.0/quote/receive/?fromTokenAddress=0x6b175474e89094c44da98b954eedeac495271d0f&toTokenAddress=0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2&amount=1000000000000000000000&walletAddress=0x00000000219ab540356cbb839cbe05303d7705fa&fee=1&source=0x6b175474e89094c44da98b954eedeac495271d0f',
+            'https://test.com/quoter/v1.0/quote/receive/?srcChain=1&dstChain=137&srcTokenAddress=0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2&dstTokenAddress=0x2791bca1f2de4661ed88a30c99a7a9449aa84174&amount=100000000000000000&walletAddress=0x00000000219ab540356cbb839cbe05303d7705fa&fee=1&source=0x6b175474e89094c44da98b954eedeac495271d0f',
             body.build()
         )
     })

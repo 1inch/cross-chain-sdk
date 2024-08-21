@@ -36,8 +36,6 @@ export type CrossChainOrderInfo = {
 }
 
 export type Extra = {
-    unwrapWETH?: boolean
-
     /**
      * Max size is 40bit
      */

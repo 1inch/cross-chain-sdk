@@ -1,6 +1,10 @@
+import {SupportedChain} from '../../chains'
+
 export type QuoterRequestParams = {
-    fromTokenAddress: string
-    toTokenAddress: string
+    srcChain: SupportedChain
+    dstChain: SupportedChain
+    srcTokenAddress: string
+    dstTokenAddress: string
     amount: string
     walletAddress: string
     enableEstimate?: boolean
@@ -20,16 +24,29 @@ export type QuoterApiConfig = {
 }
 
 export type QuoterResponse = {
-    fromTokenAmount: string
-    feeToken: string
+    quoteId: string | null
+    srcTokenAmount: string
+    dstTokenAmount: string
     presets: QuoterPresets
-    recommended_preset: PresetEnum
-    toTokenAmount: string
+    srcEscrowFactory: string
+    dstEscrowFactory: string
+    recommendedPreset: PresetEnum
     prices: Cost
     volume: Cost
-    settlementAddress: string
     whitelist: string[]
-    quoteId: string | null
+    timeLocks: TimeLocksRaw
+    srcSafetyDeposit: string
+    dstSafetyDeposit: string
+}
+
+export type TimeLocksRaw = {
+    srcWithdrawal: number
+    srcPublicWithdrawal: number
+    srcCancellation: number
+    srcPublicCancellation: number
+    dstWithdrawal: number
+    dstPublicWithdrawal: number
+    dstCancellation: number
 }
 
 export type QuoterPresets = {
@@ -42,11 +59,11 @@ export type QuoterPresets = {
 export type PresetData = {
     auctionDuration: number
     startAuctionIn: number
-    bankFee: string
     initialRateBump: number
     auctionStartAmount: string
+    startAmount: string
     auctionEndAmount: string
-    tokenFee: string
+    costInDstToken: string
     points: AuctionPoint[]
     allowPartialFills: boolean
     allowMultipleFills: boolean
@@ -55,6 +72,7 @@ export type PresetData = {
         gasPriceEstimate: string
     }
     exclusiveResolver: string | null
+    secretsCount: number
 }
 
 export type AuctionPoint = {
@@ -64,8 +82,8 @@ export type AuctionPoint = {
 
 export type Cost = {
     usd: {
-        fromToken: string
-        toToken: string
+        srcToken: string
+        dstToken: string
     }
 }
 

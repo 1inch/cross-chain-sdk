@@ -6,23 +6,18 @@ import {
     CHAIN_TO_WRAPPER,
     randBigInt
 } from '@1inch/fusion-sdk'
-import {FusionOrderParams} from './order-params'
-import {FusionOrderParamsData} from './types'
-import {Cost, PresetEnum, QuoterResponse} from '../types'
+import {CrossChainOrderParamsData} from './types'
+import {Cost, PresetEnum, QuoterResponse, TimeLocksRaw} from '../types'
 import {Preset} from '../preset'
 import {QuoterRequest} from '../quoter.request'
-import {CrossChainOrder} from '../../../cross-chain-order'
+import {CrossChainOrder, TimeLocks} from '../../../cross-chain-order'
 
 export class Quote {
-    /**
-     * Fusion extension address
-     * @see https://github.com/1inch/limit-order-settlement
-     */
-    public readonly settlementAddress: Address
+    public readonly quoteId: string | null
 
-    public readonly fromTokenAmount: bigint
+    public readonly srcTokenAmount: bigint
 
-    public readonly feeToken: string
+    public readonly dstTokenAmount: bigint
 
     public readonly presets: {
         [PresetEnum.fast]: Preset
@@ -31,24 +26,30 @@ export class Quote {
         [PresetEnum.custom]?: Preset
     }
 
-    public readonly recommendedPreset: PresetEnum
+    public readonly srcEscrowFactory: Address
 
-    public readonly toTokenAmount: string
+    public readonly dstEscrowFactory: Address
+
+    public readonly timeLocks: TimeLocksRaw
+
+    public readonly srcSafetyDeposit: bigint
+
+    public readonly dstSafetyDeposit: bigint
+
+    public readonly whitelist: Address[]
+
+    public readonly recommendedPreset: PresetEnum
 
     public readonly prices: Cost
 
     public readonly volume: Cost
 
-    public readonly whitelist: Address[]
-
-    public readonly quoteId: string | null
-
     constructor(
         private readonly params: QuoterRequest,
         response: QuoterResponse
     ) {
-        this.fromTokenAmount = BigInt(response.fromTokenAmount)
-        this.feeToken = response.feeToken
+        this.srcTokenAmount = BigInt(response.srcTokenAmount)
+        this.dstTokenAmount = BigInt(response.dstTokenAmount)
         this.presets = {
             [PresetEnum.fast]: new Preset(response.presets.fast),
             [PresetEnum.medium]: new Preset(response.presets.medium),
@@ -57,77 +58,81 @@ export class Quote {
                 ? new Preset(response.presets.custom)
                 : undefined
         }
-        this.toTokenAmount = response.toTokenAmount
+        this.timeLocks = response.timeLocks
+        this.srcSafetyDeposit = BigInt(response.srcSafetyDeposit)
+        this.dstSafetyDeposit = BigInt(response.dstSafetyDeposit)
         this.prices = response.prices
         this.volume = response.volume
         this.quoteId = response.quoteId
         this.whitelist = response.whitelist.map((a) => new Address(a))
-        this.recommendedPreset = response.recommended_preset
-        this.settlementAddress = new Address(response.settlementAddress)
+        this.recommendedPreset = response.recommendedPreset
+        this.srcEscrowFactory = new Address(response.srcEscrowFactory)
+        this.dstEscrowFactory = new Address(response.dstEscrowFactory)
     }
 
-    createOrder(
-        paramsData: Omit<FusionOrderParamsData, 'permit' | 'isPermit2'>
-    ): CrossChainOrder {
-        const params = FusionOrderParams.new({
-            preset: paramsData?.preset || this.recommendedPreset,
-            receiver: paramsData?.receiver,
-            permit: this.params.permit,
-            isPermit2: this.params.isPermit2,
-            nonce: paramsData?.nonce,
-            srcChainId: paramsData.srcChainId,
-            dstChainId: paramsData.dstChainId
-        })
-
-        const preset = this.getPreset(params.preset)
+    createOrder(params: CrossChainOrderParamsData): CrossChainOrder {
+        const preset = this.getPreset(params?.preset || this.recommendedPreset)
 
         const auctionDetails = preset.createAuctionDetails(
             params.delayAuctionStartTimeBy
         )
 
         const allowPartialFills =
-            paramsData?.allowPartialFills ?? preset.allowPartialFills
+            params?.allowPartialFills ?? preset.allowPartialFills
         const allowMultipleFills =
-            paramsData?.allowMultipleFills ?? preset.allowMultipleFills
+            params?.allowMultipleFills ?? preset.allowMultipleFills
         const isNonceRequired = !allowPartialFills || !allowMultipleFills
 
         const nonce = isNonceRequired
             ? (params.nonce ?? randBigInt(UINT_40_MAX))
             : params.nonce
 
-        const takerAsset = this.params.toTokenAddress.isNative()
-            ? CHAIN_TO_WRAPPER[paramsData.dstChainId]
-            : this.params.toTokenAddress
+        const takerAsset = this.params.dstTokenAddress.isNative()
+            ? CHAIN_TO_WRAPPER[this.params.dstChain]
+            : this.params.dstTokenAddress
 
         return CrossChainOrder.new(
-            this.settlementAddress,
+            this.srcEscrowFactory,
             {
-                makerAsset: this.params.fromTokenAddress,
+                makerAsset: this.params.srcTokenAddress,
                 takerAsset: takerAsset,
-                makingAmount: this.fromTokenAmount,
+                makingAmount: this.srcTokenAmount,
                 takingAmount: preset.auctionEndAmount,
                 maker: this.params.walletAddress,
                 receiver: params.receiver
             },
             {
-                // todo: pass data
-                hashLock: {} as any,
-                srcChainId: 1,
-                dstChainId: 1,
-                srcSafetyDeposit: 1n,
-                dstSafetyDeposit: 1n,
-                timeLocks: {} as any
+                hashLock: params.hashLock,
+                srcChainId: this.params.srcChain,
+                dstChainId: this.params.dstChain,
+                srcSafetyDeposit: this.srcSafetyDeposit,
+                dstSafetyDeposit: this.dstSafetyDeposit,
+                timeLocks: TimeLocks.new({
+                    srcWithdrawal: BigInt(this.timeLocks.srcWithdrawal),
+                    srcPublicWithdrawal: BigInt(
+                        this.timeLocks.srcPublicWithdrawal
+                    ),
+                    srcCancellation: BigInt(this.timeLocks.srcCancellation),
+                    srcPublicCancellation: BigInt(
+                        this.timeLocks.srcPublicCancellation
+                    ),
+                    dstWithdrawal: BigInt(this.timeLocks.dstWithdrawal),
+                    dstPublicWithdrawal: BigInt(
+                        this.timeLocks.dstPublicWithdrawal
+                    ),
+                    dstCancellation: BigInt(this.timeLocks.dstCancellation)
+                })
             },
             {
                 auction: auctionDetails,
                 fees: {
                     integratorFee: {
                         ratio: bpsToRatioFormat(this.params.fee) || 0n,
-                        receiver: paramsData?.takingFeeReceiver
-                            ? new Address(paramsData?.takingFeeReceiver)
+                        receiver: params?.takingFeeReceiver
+                            ? new Address(params?.takingFeeReceiver)
                             : Address.ZERO_ADDRESS
                     },
-                    bankFee: preset.bankFee
+                    bankFee: 0n
                 },
                 whitelist: this.getWhitelist(
                     auctionDetails.startTime,
@@ -136,11 +141,10 @@ export class Quote {
             },
             {
                 nonce,
-                unwrapWETH: this.params.toTokenAddress.isNative(),
                 permit: params.permit,
                 allowPartialFills,
                 allowMultipleFills,
-                orderExpirationDelay: paramsData?.orderExpirationDelay,
+                orderExpirationDelay: params?.orderExpirationDelay,
                 source: this.params.source,
                 enablePermit2: params.isPermit2
             }

@@ -99,6 +99,10 @@ export class CrossChainOrder {
         return this.inner.nonce
     }
 
+    get isPartialFillEnabled(): boolean {
+        return !this.inner.isBitInvalidatorMode
+    }
+
     /**
      * Create new CrossChainOrder
      */
@@ -194,7 +198,6 @@ export class CrossChainOrder {
                     extension.makerPermit === ZX
                         ? undefined
                         : Interaction.decode(extension.makerPermit).data,
-                unwrapWETH: makerTraits.isNativeUnwrapEnabled(),
                 orderExpirationDelay,
                 allowMultipleFills: makerTraits.isMultipleFillsAllowed(),
                 allowPartialFills: makerTraits.isPartialFillAllowed()

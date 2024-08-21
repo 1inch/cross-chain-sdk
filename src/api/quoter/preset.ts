@@ -6,15 +6,16 @@ export class Preset {
 
     public readonly startAuctionIn: bigint
 
-    public readonly bankFee: bigint
-
     public readonly initialRateBump: number
 
     public readonly auctionStartAmount: bigint
 
-    public readonly auctionEndAmount: bigint
+    // auctionStartAmount taking into account gas bump
+    public readonly startAmount: bigint
 
-    public readonly tokenFee: bigint
+    public readonly costInDstToken: bigint
+
+    public readonly auctionEndAmount: bigint
 
     public readonly points: AuctionPoint[]
 
@@ -29,14 +30,17 @@ export class Preset {
 
     public readonly allowMultipleFills: boolean
 
+    public readonly secretsCount: number
+
     constructor(preset: PresetData) {
+        this.startAmount = BigInt(preset.startAmount)
+        this.secretsCount = preset.secretsCount
+        this.costInDstToken = BigInt(preset.costInDstToken)
         this.auctionDuration = BigInt(preset.auctionDuration)
         this.startAuctionIn = BigInt(preset.startAuctionIn)
-        this.bankFee = BigInt(preset.bankFee)
         this.initialRateBump = preset.initialRateBump
         this.auctionStartAmount = BigInt(preset.auctionStartAmount)
         this.auctionEndAmount = BigInt(preset.auctionEndAmount)
-        this.tokenFee = BigInt(preset.tokenFee)
         this.points = preset.points
         this.gasCostInfo = {
             gasPriceEstimate: BigInt(preset.gasCost?.gasPriceEstimate || 0n),

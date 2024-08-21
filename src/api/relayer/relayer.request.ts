@@ -1,5 +1,6 @@
 import {LimitOrderV4Struct} from '@1inch/fusion-sdk'
 import {RelayerRequestParams} from './types'
+import {SupportedChain} from '../../chains'
 
 export class RelayerRequest {
     public readonly order: LimitOrderV4Struct
@@ -10,11 +11,20 @@ export class RelayerRequest {
 
     public readonly extension: string
 
+    public readonly srcChainId: SupportedChain
+
+    public readonly merkleLeaves?: string[]
+
+    public readonly secretHashes?: string[]
+
     constructor(params: RelayerRequestParams) {
         this.order = params.order
         this.signature = params.signature
         this.quoteId = params.quoteId
         this.extension = params.extension
+        this.srcChainId = params.srcChainId
+        this.merkleLeaves = params.merkleLeaves
+        this.secretHashes = params.secretHashes
     }
 
     static new(params: RelayerRequestParams): RelayerRequest {
@@ -26,7 +36,10 @@ export class RelayerRequest {
             order: this.order,
             signature: this.signature,
             quoteId: this.quoteId,
-            extension: this.extension
+            extension: this.extension,
+            srcChainId: this.srcChainId,
+            merkleLeaves: this.merkleLeaves,
+            secretHashes: this.secretHashes
         }
     }
 }
