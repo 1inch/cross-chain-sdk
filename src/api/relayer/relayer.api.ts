@@ -3,7 +3,7 @@ import {RelayerRequest} from './relayer.request'
 import {RelayerApiConfig} from './types'
 
 export class RelayerApi {
-    private static Version = 'v2.0'
+    private static Version = 'v1.0'
 
     constructor(
         private readonly config: RelayerApiConfig,
@@ -20,5 +20,14 @@ export class RelayerApi {
         const url = `${this.config.url}/${RelayerApi.Version}/order/submit/many`
 
         return this.httpClient.post(url, params)
+    }
+
+    submitSecret(orderHash: string, secret: string): Promise<void> {
+        const url = `${this.config.url}/${RelayerApi.Version}/order/submit/secret`
+
+        return this.httpClient.post(url, {
+            orderHash,
+            secret
+        })
     }
 }

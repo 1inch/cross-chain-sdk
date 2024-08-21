@@ -1,7 +1,8 @@
-import {HttpProviderConnector} from '@1inch/fusion-sdk'
+import {HttpProviderConnector, NetworkEnum} from '@1inch/fusion-sdk'
 import {RelayerApi} from './relayer.api'
 import {RelayerRequest} from './relayer.request'
 import {RelayerRequestParams} from './types'
+import {getRandomBytes32} from '../../test-utils/get-random-bytes-32'
 
 describe('Relayer API', () => {
     const httpProvider: HttpProviderConnector = {
@@ -32,6 +33,7 @@ describe('Relayer API', () => {
                 takingAmount: '1420000000',
                 makerTraits: '0'
             },
+            srcChainId: NetworkEnum.ETHEREUM,
             signature: '0x123signature-here789',
             quoteId: '9a43c86d-f3d7-45b9-8cb6-803d2bdfa08b',
             extension: '0x'
@@ -42,12 +44,12 @@ describe('Relayer API', () => {
         await relayer.submit(params)
 
         expect(httpProvider.post).toHaveBeenCalledWith(
-            'https://test.com/relayer/v2.0/order/submit',
+            'https://test.com/relayer/v1.0/order/submit',
             orderData
         )
     })
 
-    it('should submit two orders order', async () => {
+    it('should submit two orders', async () => {
         const relayer = new RelayerApi(
             {
                 url: 'https://test.com/relayer'
@@ -66,9 +68,20 @@ describe('Relayer API', () => {
                 takingAmount: '1420000000',
                 makerTraits: '0'
             },
+            srcChainId: NetworkEnum.ETHEREUM,
             signature: '0x123signature-here789',
             quoteId: '9a43c86d-f3d7-45b9-8cb6-803d2bdfa08b',
-            extension: '0x'
+            extension: '0x',
+            secretHashes: [
+                getRandomBytes32(),
+                getRandomBytes32(),
+                getRandomBytes32()
+            ],
+            merkleLeaves: [
+                getRandomBytes32(),
+                getRandomBytes32(),
+                getRandomBytes32()
+            ]
         }
 
         const orderData2: RelayerRequestParams = {
@@ -82,6 +95,7 @@ describe('Relayer API', () => {
                 takingAmount: '1420000000',
                 makerTraits: '0'
             },
+            srcChainId: NetworkEnum.ETHEREUM,
             signature: '0x123signature-2-here789',
             quoteId: '1a36c861-ffd7-45b9-1cb6-403d3bdfa084',
             extension: '0x'
@@ -95,8 +109,30 @@ describe('Relayer API', () => {
         await relayer.submitBatch(params)
 
         expect(httpProvider.post).toHaveBeenCalledWith(
-            'https://test.com/relayer/v2.0/order/submit/many',
+            'https://test.com/relayer/v1.0/order/submit/many',
             params
+        )
+    })
+
+    it('should submit secret', async () => {
+        const relayer = new RelayerApi(
+            {
+                url: 'https://test.com/relayer'
+            },
+            httpProvider
+        )
+
+        const orderHash = '0xorder_hash'
+        const secret = '0xsecret'
+
+        await relayer.submitSecret(orderHash, secret)
+
+        expect(httpProvider.post).toHaveBeenCalledWith(
+            'https://test.com/relayer/v1.0/order/submit/secret',
+            {
+                orderHash,
+                secret
+            }
         )
     })
 })
