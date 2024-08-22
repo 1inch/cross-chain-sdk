@@ -7,6 +7,8 @@ import {
     OrdersByMakerResponse,
     OrderStatus,
     OrderStatusResponse,
+    OrderType,
+    PublishedSecretsResponse,
     ReadyToAcceptSecretFills,
     ValidationStatus
 } from './types'
@@ -562,6 +564,33 @@ describe(__filename, () => {
             expect(response).toEqual(expected)
             expect(httpProvider.get).toHaveBeenLastCalledWith(
                 `${url}/v1.0/order/ready-to-accept-secret-fills/${orderHash}`
+            )
+        })
+    })
+
+    describe('getPublishedSecrets', () => {
+        it('success', async () => {
+            const url = 'https://test.com/orders'
+
+            const expected: PublishedSecretsResponse = {
+                orderType: OrderType.SingleFill,
+                secrets: []
+            }
+            const httpProvider = createHttpProviderFake(expected)
+            const api = new OrdersApi(
+                {
+                    url
+                },
+                httpProvider
+            )
+
+            const orderHash =
+                '0x035b5c86d29c154e1e677ef1237de6792ff18d5c92964222ee768c77148e0fb7'
+            const response = await api.getPublishedSecrets(orderHash)
+
+            expect(response).toEqual(expected)
+            expect(httpProvider.get).toHaveBeenLastCalledWith(
+                `${url}/v1.0/order/secrets/${orderHash}`
             )
         })
     })
