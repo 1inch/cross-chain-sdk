@@ -15,7 +15,8 @@ import {
     OrderStatusRequest,
     OrderStatusResponse,
     OrdersByMakerResponse,
-    ReadyToAcceptSecretFills
+    ReadyToAcceptSecretFills,
+    PublishedSecretsResponse
 } from './orders'
 
 export class FusionApi {
@@ -84,6 +85,10 @@ export class FusionApi {
         orderHash: string
     ): Promise<ReadyToAcceptSecretFills> {
         return this.ordersApi.getReadyToAcceptSecretFills(orderHash)
+    }
+
+    getPublishedSecrets(orderHash: string): Promise<PublishedSecretsResponse> {
+        return this.ordersApi.getPublishedSecrets(orderHash)
     }
 
     submitOrder(params: RelayerRequest): Promise<void> {

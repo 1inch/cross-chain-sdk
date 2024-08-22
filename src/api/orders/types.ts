@@ -155,3 +155,35 @@ export type ReadyToAcceptSecretFill = {
 export type ReadyToAcceptSecretFills = {
     fills: ReadyToAcceptSecretFill[]
 }
+
+export enum OrderType {
+    SingleFill = 'SingleFill',
+    MultipleFills = 'MultipleFills'
+}
+
+export type ChainImmutables = {
+    orderHash: string
+    hashlock: string
+    maker: string
+    taker: string
+    token: string
+    amount: string
+    safetyDeposit: string
+    timelocks: string
+}
+
+export type PublicSecret = {
+    idx: number
+    secret: string
+    srcImmutables: ChainImmutables
+    dstImmutables: ChainImmutables
+}
+
+export type PublishedSecretsResponse = {
+    orderType: OrderType
+    secrets: PublicSecret[]
+
+    // empty for OrderType.SingleFill
+    merkleLeaves?: string[]
+    secretHashes?: string[]
+}
