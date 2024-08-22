@@ -1,6 +1,6 @@
 {
   "name": "@1inch/cross-chain-sdk",
-  "version": "0.0.46",
+  "version": "0.0.47",
   "description": "Sdk for creating atomic swaps through 1inch",
   "author": "@1inch",
   "exports": {
