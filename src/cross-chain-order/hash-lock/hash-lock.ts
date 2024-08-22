@@ -31,7 +31,7 @@ export class HashLock {
         )
     }
 
-    public static getProof(leaves: MerkleLeaf[], idx: number): MerkleLeaf[] {
+    public static getProof(leaves: string[], idx: number): MerkleLeaf[] {
         return SimpleMerkleTree.of(leaves).getProof(idx) as MerkleLeaf[]
     }
 

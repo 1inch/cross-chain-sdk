@@ -103,7 +103,6 @@ export class CrossChainOrder {
         return this.inner.partialFillAllowed
     }
 
-
     get multipleFillsAllowed(): boolean {
         return this.inner.multipleFillsAllowed
     }
