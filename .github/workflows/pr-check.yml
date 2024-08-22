@@ -35,4 +35,4 @@ jobs:
         run: pnpm test
 
       - name: Security
-        run:  pnpm audit --audit-level moderate # low excluded because of elliptic package problems
+        run:  pnpm audit --audit-level high

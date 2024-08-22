@@ -10,6 +10,7 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
+    "removeComments": false,
     "baseUrl": "./src"
   },
   "include": ["./src/**/*.ts", "./src/**/*.json"]
