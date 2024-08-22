@@ -151,13 +151,13 @@ export class SDK {
             throw new Error('blockchainProvider has not set to config')
         }
 
-        const secretCount =
-            order.escrowExtension.hashLockInfo.getPartsCount() + 1n
 
-        if (order.isPartialFillEnabled) {
+        if (order.multipleFillsAllowed) {
+            const secretCount = order.escrowExtension.hashLockInfo.getPartsCount() + 1n
+
             if (!merkleLeaves || !secretHashes) {
                 throw new Error(
-                    'with enabled partial fills you need to provide merkleLeaves and secretHashes'
+                    'with multiple fills you need to provide merkleLeaves and secretHashes'
                 )
             }
 
