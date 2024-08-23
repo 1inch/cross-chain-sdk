@@ -1,9 +1,9 @@
 import {
     OnGetActiveOrdersCb,
     OnGetAllowedMethodsCb,
-    OnPongCb,
-    RpcEventType
-} from './types'
+    OnPongCb
+} from '@1inch/fusion-sdk'
+import {RpcEventType} from './types'
 import {PaginationParams, PaginationRequest} from '../api/pagination'
 import {WsProviderConnector} from '../connector/ws'
 
@@ -17,7 +17,7 @@ export class RpcWebsocketApi {
     onPong(cb: OnPongCb): void {
         this.provider.onMessage((data: RpcEventType) => {
             if (data.method === 'ping') {
-                cb(data.data)
+                cb(data.result)
             }
         })
     }
@@ -38,7 +38,7 @@ export class RpcWebsocketApi {
     onGetActiveOrders(cb: OnGetActiveOrdersCb): void {
         this.provider.onMessage((data: RpcEventType) => {
             if (data.method === 'getActiveOrders') {
-                cb(data.data)
+                cb(data.result)
             }
         })
     }
@@ -50,7 +50,7 @@ export class RpcWebsocketApi {
     onGetAllowedMethods(cb: OnGetAllowedMethodsCb): void {
         this.provider.onMessage((data: RpcEventType) => {
             if (data.method === 'getAllowedMethods') {
-                cb(data.data)
+                cb(data.result)
             }
         })
     }

@@ -1,34 +1,26 @@
 import {WebSocket, WebSocketServer} from 'ws'
-import {NetworkEnum} from '@1inch/fusion-sdk'
-import {WebSocketApi} from './ws-api'
 import {
-    GetActiveOrdersRpcEvent,
     GetAllowMethodsRpcEvent,
+    NetworkEnum,
     OrderBalanceOrAllowanceChangeEvent,
-    OrderCancelledEvent,
-    OrderCreatedEvent,
-    OrderEventType,
     OrderFilledEvent,
     OrderFilledPartiallyEvent,
     OrderInvalidEvent,
     PingRpcEvent
-} from './types'
+} from '@1inch/fusion-sdk'
+import {WebSocketApi} from './ws-api'
 import {castUrl} from './url'
+import {
+    GetActiveOrdersRpcEvent,
+    OrderCancelledEvent,
+    OrderCreatedEvent,
+    OrderEventType
+} from './types'
 import {WebsocketClient} from '../connector'
 
 jest.setTimeout(5 * 60 * 1000)
 
 describe(__filename, () => {
-    const availableEventsTypes = [
-        'order_created',
-        'order_invalid',
-        'order_balance_or_allowance_change',
-        'order_filled',
-        'order_filled_partially',
-        'order_cancelled',
-        'secret_shared'
-    ] as const
-
     describe('base', () => {
         it('should be possible to subscribe to message', (done) => {
             const message = {id: 1}
@@ -102,7 +94,7 @@ describe(__filename, () => {
             const port = 8080
 
             const url = `ws://localhost:${port}/ws`
-            const wss = new WebSocketServer({port, path: '/ws/v2.0/1'})
+            const wss = new WebSocketServer({port, path: '/ws/v1.0/1'})
 
             wss.on('connection', (ws: WebSocket) => {
                 for (const m of [message]) {
@@ -147,7 +139,7 @@ describe(__filename, () => {
             const port = 8080
 
             const url = `ws://localhost:${port}/ws`
-            const wss = new WebSocketServer({port, path: '/ws/v2.0/1'})
+            const wss = new WebSocketServer({port, path: '/ws/v1.0/1'})
 
             wss.on('connection', (ws: WebSocket) => {
                 for (const m of [message]) {
@@ -177,7 +169,7 @@ describe(__filename, () => {
             const port = 8080
 
             const url = `ws://localhost:${port}/ws`
-            const wss = new WebSocketServer({port, path: '/ws/v2.0/1'})
+            const wss = new WebSocketServer({port, path: '/ws/v1.0/1'})
 
             wss.on('connection', (ws: WebSocket) => {
                 for (const m of [message]) {
@@ -186,7 +178,7 @@ describe(__filename, () => {
             })
 
             const castedUrl = castUrl(url)
-            const urlWithNetwork = `${castedUrl}/v2.0/1`
+            const urlWithNetwork = `${castedUrl}/v1.0/1`
             const provider = new WebsocketClient({url: urlWithNetwork})
 
             const wsSdk = new WebSocketApi(provider)
@@ -210,7 +202,7 @@ describe(__filename, () => {
             const port = 8080
 
             const url = `ws://localhost:${port}/ws`
-            const wss = new WebSocketServer({port, path: '/ws/v2.0/1'})
+            const wss = new WebSocketServer({port, path: '/ws/v1.0/1'})
 
             wss.on('connection', (ws: WebSocket) => {
                 for (const m of [message]) {
@@ -219,7 +211,7 @@ describe(__filename, () => {
             })
 
             const castedUrl = castUrl(url)
-            const urlWithNetwork = `${castedUrl}/v2.0/1`
+            const urlWithNetwork = `${castedUrl}/v1.0/1`
             const provider = new WebsocketClient({
                 url: urlWithNetwork,
                 authKey: ''
@@ -266,9 +258,7 @@ describe(__filename, () => {
         it('can ping pong ', (done) => {
             const response: PingRpcEvent = {
                 method: 'ping',
-                data: {
-                    timestampUtcMs: Date.now()
-                }
+                result: 'pong'
             }
             const {url, wss} = createWebsocketRpcServerMock((ws, data) => {
                 const parsedData = JSON.parse(data)
@@ -289,7 +279,7 @@ describe(__filename, () => {
             })
 
             wsSdk.rpc.onPong((data) => {
-                expect(data).toEqual(response.data)
+                expect(data).toEqual(response.result)
                 wsSdk.close()
                 wss.close()
                 done()
@@ -299,7 +289,7 @@ describe(__filename, () => {
         it('can retrieve allowed rpc methods ', (done) => {
             const response: GetAllowMethodsRpcEvent = {
                 method: 'getAllowedMethods',
-                data: ['ping', 'getAllowedMethods', 'getActiveOrders']
+                result: ['ping', 'getAllowedMethods', 'getActiveOrders']
             }
             const {url, wss} = createWebsocketRpcServerMock((ws, data) => {
                 const parsedData = JSON.parse(data)
@@ -320,7 +310,7 @@ describe(__filename, () => {
             })
 
             wsSdk.rpc.onGetAllowedMethods((data) => {
-                expect(data).toEqual(response.data)
+                expect(data).toEqual(response.result)
                 wsSdk.close()
                 wss.close()
                 done()
@@ -330,7 +320,7 @@ describe(__filename, () => {
         it('getActiveOrders success', (done) => {
             const response: GetActiveOrdersRpcEvent = {
                 method: 'getActiveOrders',
-                data: {
+                result: {
                     items: [],
                     meta: {
                         totalItems: 0,
@@ -359,7 +349,7 @@ describe(__filename, () => {
             })
 
             wsSdk.rpc.onGetActiveOrders((data) => {
-                expect(data).toEqual(response.data)
+                expect(data).toEqual(response.result)
                 wsSdk.close()
                 wss.close()
                 done()
@@ -369,7 +359,7 @@ describe(__filename, () => {
         it('getActiveOrders throws error', (done) => {
             const response: GetActiveOrdersRpcEvent = {
                 method: 'getActiveOrders',
-                data: {
+                result: {
                     items: [],
                     meta: {
                         totalItems: 0,
@@ -408,8 +398,8 @@ describe(__filename, () => {
     describe('order', () => {
         it('can subscribe to order events', (done) => {
             const message1: OrderCreatedEvent = {
-                type: 'order_created',
-                data: {
+                event: 'order_created',
+                result: {
                     quoteId: 'b77da8b7-a4bb-4563-b917-03522aa609e3',
                     orderHash:
                         '0xb9522c23c8667c5e76bf0b855ffabbaebca282f8e396d788c2df75e91a0391d2-5705f2156ef5b2db36c160b36f31ce4',
@@ -443,17 +433,15 @@ describe(__filename, () => {
                         '0x7972c1498893bb9b88baddc9decb78d8defdcc7a182a72edd8724498c75f088d',
                         '0x6d5b8f0b1f8a28564ff65e5f9c4d8a8a6babfb318bca6ecc9d872a3abe8a4ea0'
                     ]
-                },
-                availableEvents: availableEventsTypes
+                }
             }
 
             const message2: OrderInvalidEvent = {
-                type: 'order_invalid',
-                data: {
+                event: 'order_invalid',
+                result: {
                     orderHash:
                         '0x1beee023ab933cf5446c298eaddb61c0-5705f2156ef5b2db36c160b36f31ce4'
-                },
-                availableEvents: availableEventsTypes
+                }
             }
 
             const messages = [message1, message1, message2]
@@ -482,8 +470,8 @@ describe(__filename, () => {
 
         it('can subscribe to order created events', (done) => {
             const message1: OrderCreatedEvent = {
-                type: 'order_created',
-                data: {
+                event: 'order_created',
+                result: {
                     quoteId: 'b77da8b7-a4bb-4563-b917-03522aa609e3',
                     orderHash:
                         '0xb9522c23c8667c5e76bf0b855ffabbaebca282f8e396d788c2df75e91a0391d2-5705f2156ef5b2db36c160b36f31ce4',
@@ -517,17 +505,15 @@ describe(__filename, () => {
                         '0x7972c1498893bb9b88baddc9decb78d8defdcc7a182a72edd8724498c75f088d',
                         '0x6d5b8f0b1f8a28564ff65e5f9c4d8a8a6babfb318bca6ecc9d872a3abe8a4ea0'
                     ]
-                },
-                availableEvents: availableEventsTypes
+                }
             }
 
             const message2: OrderInvalidEvent = {
-                type: 'order_invalid',
-                data: {
+                event: 'order_invalid',
+                result: {
                     orderHash:
                         '0x1beee023ab933cf5446c298eaddb61c0-5705f2156ef5b2db36c160b36f31ce4'
-                },
-                availableEvents: availableEventsTypes
+                }
             }
 
             const messages = [message2, message1, message1]
@@ -557,8 +543,8 @@ describe(__filename, () => {
 
         it('can subscribe to order invalid events', (done) => {
             const message1: OrderCreatedEvent = {
-                type: 'order_created',
-                data: {
+                event: 'order_created',
+                result: {
                     quoteId: 'b77da8b7-a4bb-4563-b917-03522aa609e3',
                     orderHash:
                         '0xb9522c23c8667c5e76bf0b855ffabbaebca282f8e396d788c2df75e91a0391d2-5705f2156ef5b2db36c160b36f31ce4',
@@ -592,17 +578,15 @@ describe(__filename, () => {
                         '0x7972c1498893bb9b88baddc9decb78d8defdcc7a182a72edd8724498c75f088d',
                         '0x6d5b8f0b1f8a28564ff65e5f9c4d8a8a6babfb318bca6ecc9d872a3abe8a4ea0'
                     ]
-                },
-                availableEvents: availableEventsTypes
+                }
             }
 
             const message2: OrderInvalidEvent = {
-                type: 'order_invalid',
-                data: {
+                event: 'order_invalid',
+                result: {
                     orderHash:
                         '0x1beee023ab933cf5446c298eaddb61c0-5705f2156ef5b2db36c160b36f31ce4'
-                },
-                availableEvents: availableEventsTypes
+                }
             }
 
             const messages = [message1, message1, message2]
@@ -632,8 +616,8 @@ describe(__filename, () => {
 
         it('can subscribe to order_balance_or_allowance_change events', (done) => {
             const message1: OrderCreatedEvent = {
-                type: 'order_created',
-                data: {
+                event: 'order_created',
+                result: {
                     quoteId: 'b77da8b7-a4bb-4563-b917-03522aa609e3',
                     orderHash:
                         '0xb9522c23c8667c5e76bf0b855ffabbaebca282f8e396d788c2df75e91a0391d2-5705f2156ef5b2db36c160b36f31ce4',
@@ -659,20 +643,18 @@ describe(__filename, () => {
                     isMakerContract: false,
                     merkleLeaves: [],
                     secretHashes: []
-                },
-                availableEvents: availableEventsTypes
+                }
             }
 
             const message2: OrderBalanceOrAllowanceChangeEvent = {
-                type: 'order_balance_or_allowance_change',
-                data: {
+                event: 'order_balance_or_allowance_change',
+                result: {
                     orderHash:
                         '0x1beee023ab933cf5446c298eaddb61c0-5705f2156ef5b2db36c160b36f31ce4',
                     remainingMakerAmount: '57684207067582695',
                     balance: '57684207067582695',
                     allowance: '0'
-                },
-                availableEvents: availableEventsTypes
+                }
             }
 
             const messages = [message1, message1, message2]
@@ -702,8 +684,8 @@ describe(__filename, () => {
 
         it('can subscribe to order filled events', (done) => {
             const message1: OrderCreatedEvent = {
-                type: 'order_created',
-                data: {
+                event: 'order_created',
+                result: {
                     quoteId: 'b77da8b7-a4bb-4563-b917-03522aa609e3',
                     orderHash:
                         '0xb9522c23c8667c5e76bf0b855ffabbaebca282f8e396d788c2df75e91a0391d2-5705f2156ef5b2db36c160b36f31ce4',
@@ -737,17 +719,15 @@ describe(__filename, () => {
                         '0x7972c1498893bb9b88baddc9decb78d8defdcc7a182a72edd8724498c75f088d',
                         '0x6d5b8f0b1f8a28564ff65e5f9c4d8a8a6babfb318bca6ecc9d872a3abe8a4ea0'
                     ]
-                },
-                availableEvents: availableEventsTypes
+                }
             }
 
             const message2: OrderFilledEvent = {
-                type: 'order_filled',
-                data: {
+                event: 'order_filled',
+                result: {
                     orderHash:
                         '0x1beee023ab933cf5446c298eaddb61c0-5705f2156ef5b2db36c160b36f31ce4'
-                },
-                availableEvents: availableEventsTypes
+                }
             }
 
             const messages = [message1, message1, message2]
@@ -777,8 +757,8 @@ describe(__filename, () => {
 
         it('can subscribe to order filled partially events', (done) => {
             const message1: OrderCreatedEvent = {
-                type: 'order_created',
-                data: {
+                event: 'order_created',
+                result: {
                     quoteId: 'b77da8b7-a4bb-4563-b917-03522aa609e3',
                     orderHash:
                         '0xb9522c23c8667c5e76bf0b855ffabbaebca282f8e396d788c2df75e91a0391d2-5705f2156ef5b2db36c160b36f31ce4',
@@ -812,18 +792,16 @@ describe(__filename, () => {
                         '0x7972c1498893bb9b88baddc9decb78d8defdcc7a182a72edd8724498c75f088d',
                         '0x6d5b8f0b1f8a28564ff65e5f9c4d8a8a6babfb318bca6ecc9d872a3abe8a4ea0'
                     ]
-                },
-                availableEvents: availableEventsTypes
+                }
             }
 
             const message2: OrderFilledPartiallyEvent = {
-                type: 'order_filled_partially',
-                data: {
+                event: 'order_filled_partially',
+                result: {
                     orderHash:
                         '0x1beee023ab933cf5446c298eaddb61c0-5705f2156ef5b2db36c160b36f31ce4',
                     remainingMakerAmount: '57684207067582695'
-                },
-                availableEvents: availableEventsTypes
+                }
             }
 
             const messages = [message1, message1, message2]
@@ -853,8 +831,8 @@ describe(__filename, () => {
 
         it('can subscribe to order cancelled events', (done) => {
             const message1: OrderCreatedEvent = {
-                type: 'order_created',
-                data: {
+                event: 'order_created',
+                result: {
                     srcChainId: 1,
                     dstChainId: 56,
                     orderHash:
@@ -890,18 +868,16 @@ describe(__filename, () => {
                         '0x7972c1498893bb9b88baddc9decb78d8defdcc7a182a72edd8724498c75f088d',
                         '0x6d5b8f0b1f8a28564ff65e5f9c4d8a8a6babfb318bca6ecc9d872a3abe8a4ea0'
                     ]
-                },
-                availableEvents: availableEventsTypes
+                }
             }
 
             const message2: OrderCancelledEvent = {
-                type: 'order_cancelled',
-                data: {
+                event: 'order_cancelled',
+                result: {
                     orderHash:
                         '0x1beee023ab933cf5446c298eaddb61c0-5705f2156ef5b2db36c160b36f31ce4',
                     remainingMakerAmount: '30000000000000000000'
-                },
-                availableEvents: availableEventsTypes
+                }
             }
 
             const messages = [message1, message1, message2]
@@ -931,13 +907,15 @@ describe(__filename, () => {
     })
 })
 
-function createWebsocketRpcServerMock(cb: (ws: WebSocket, data: any) => void): {
+function createWebsocketRpcServerMock(
+    cb: (ws: WebSocket, result: any) => void
+): {
     url: string
     wss: WebSocketServer
 } {
     const port = 8080
     const returnUrl = `ws://localhost:${port}/ws`
-    const wss = new WebSocketServer({port, path: '/ws/v2.0/1'})
+    const wss = new WebSocketServer({port, path: '/ws/v1.0/1'})
 
     wss.on('connection', (ws: WebSocket) => {
         ws.on('message', (data) => cb(ws, data))
@@ -953,7 +931,7 @@ function createWebsocketServerMock(messages: any[]): {
     const port = 8080
 
     const returnUrl = `ws://localhost:${port}/ws`
-    const wss = new WebSocketServer({port, path: '/ws/v2.0/1'})
+    const wss = new WebSocketServer({port, path: '/ws/v1.0/1'})
 
     wss.on('connection', (ws: WebSocket) => {
         for (const message of messages) {

@@ -1,6 +1,7 @@
+import {WsApiConfigWithNetwork} from '@1inch/fusion-sdk'
 import {ActiveOrdersWebSocketApi} from './active-websocket-orders-api'
 import {RpcWebsocketApi} from './rpc-websocket-api'
-import {WebSocketEvent, WsApiConfigWithNetwork} from './types'
+import {WebSocketEvent} from './types'
 import {castUrl} from './url'
 import {
     AnyFunction,
@@ -11,7 +12,7 @@ import {
 } from '../connector/ws'
 
 export class WebSocketApi {
-    private static Version = 'v2.0'
+    private static Version = 'v1.0'
 
     public readonly rpc: RpcWebsocketApi
 

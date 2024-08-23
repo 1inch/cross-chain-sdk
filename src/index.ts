@@ -23,7 +23,11 @@ export {
     Web3ProviderConnector,
     BlockchainProviderConnector,
     HttpProviderConnector,
-    WsProviderConnector
+    WsProviderConnector,
+    RpcMethod,
+    RpcEvent,
+    PingRpcEvent,
+    GetAllowMethodsRpcEvent
 } from '@1inch/fusion-sdk'
 export * from './cross-chain-order'
 export * from './escrow-factory'

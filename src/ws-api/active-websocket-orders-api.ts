@@ -1,12 +1,14 @@
+import {
+    OnOrderFilledCb,
+    OnOrderFilledPartiallyCb,
+    OnOrderInvalidCb,
+    OnOrderNotEnoughBalanceOrAllowanceCb
+} from '@1inch/fusion-sdk'
 import {orderEvents} from './constants'
 import {
     OnOrderCancelledCb,
     OnOrderCb,
     OnOrderCreatedCb,
-    OnOrderFilledCb,
-    OnOrderFilledPartiallyCb,
-    OnOrderInvalidCb,
-    OnOrderNotEnoughBalanceOrAllowanceCb,
     OrderEventType
 } from './types'
 import {WsProviderConnector} from '../connector/ws'
@@ -20,7 +22,7 @@ export class ActiveOrdersWebSocketApi {
 
     onOrder(cb: OnOrderCb): void {
         this.provider.onMessage((data: OrderEventType) => {
-            if (orderEvents.includes(data.type)) {
+            if (orderEvents.includes(data.event)) {
                 cb(data)
             }
         })
@@ -28,7 +30,7 @@ export class ActiveOrdersWebSocketApi {
 
     onOrderCreated(cb: OnOrderCreatedCb): void {
         this.provider.onMessage((data: OrderEventType) => {
-            if (data.type === 'order_created') {
+            if (data.event === 'order_created') {
                 cb(data)
             }
         })
@@ -36,7 +38,7 @@ export class ActiveOrdersWebSocketApi {
 
     onOrderInvalid(cb: OnOrderInvalidCb): void {
         this.provider.onMessage((data: OrderEventType) => {
-            if (data.type === 'order_invalid') {
+            if (data.event === 'order_invalid') {
                 cb(data)
             }
         })
@@ -46,7 +48,7 @@ export class ActiveOrdersWebSocketApi {
         cb: OnOrderNotEnoughBalanceOrAllowanceCb
     ): void {
         this.provider.onMessage((data: OrderEventType) => {
-            if (data.type === 'order_balance_or_allowance_change') {
+            if (data.event === 'order_balance_or_allowance_change') {
                 cb(data)
             }
         })
@@ -54,7 +56,7 @@ export class ActiveOrdersWebSocketApi {
 
     onOrderFilled(cb: OnOrderFilledCb): void {
         this.provider.onMessage((data: OrderEventType) => {
-            if (data.type === 'order_filled') {
+            if (data.event === 'order_filled') {
                 cb(data)
             }
         })
@@ -62,7 +64,7 @@ export class ActiveOrdersWebSocketApi {
 
     onOrderCancelled(cb: OnOrderCancelledCb): void {
         this.provider.onMessage((data: OrderEventType) => {
-            if (data.type === 'order_cancelled') {
+            if (data.event === 'order_cancelled') {
                 cb(data)
             }
         })
@@ -70,7 +72,7 @@ export class ActiveOrdersWebSocketApi {
 
     onOrderFilledPartially(cb: OnOrderFilledPartiallyCb): void {
         this.provider.onMessage((data: OrderEventType) => {
-            if (data.type === 'order_filled_partially') {
+            if (data.event === 'order_filled_partially') {
                 cb(data)
             }
         })
