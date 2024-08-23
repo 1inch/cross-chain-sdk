@@ -64,6 +64,8 @@ export type OnOrderCreatedCb = (data: OrderCreatedEvent) => any
 
 export type OnOrderCancelledCb = (data: OrderCancelledEvent) => any
 
+export type OnOrderSecretSharedCb = (data: OrderSecretSharedEvent) => any
+
 export type RpcEventType =
     | PingRpcEvent
     | GetAllowMethodsRpcEvent

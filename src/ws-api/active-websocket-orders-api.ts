@@ -2,16 +2,17 @@ import {
     OnOrderFilledCb,
     OnOrderFilledPartiallyCb,
     OnOrderInvalidCb,
-    OnOrderNotEnoughBalanceOrAllowanceCb
+    OnOrderNotEnoughBalanceOrAllowanceCb,
+    WsProviderConnector
 } from '@1inch/fusion-sdk'
 import {orderEvents} from './constants'
 import {
     OnOrderCancelledCb,
     OnOrderCb,
     OnOrderCreatedCb,
+    OnOrderSecretSharedCb,
     OrderEventType
 } from './types'
-import {WsProviderConnector} from '../connector/ws'
 
 export class ActiveOrdersWebSocketApi {
     public readonly provider!: WsProviderConnector
@@ -73,6 +74,14 @@ export class ActiveOrdersWebSocketApi {
     onOrderFilledPartially(cb: OnOrderFilledPartiallyCb): void {
         this.provider.onMessage((data: OrderEventType) => {
             if (data.event === 'order_filled_partially') {
+                cb(data)
+            }
+        })
+    }
+
+    onOrderSecretShared(cb: OnOrderSecretSharedCb): void {
+        this.provider.onMessage((data: OrderEventType) => {
+            if (data.event === 'secret_shared') {
                 cb(data)
             }
         })

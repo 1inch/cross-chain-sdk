@@ -1,11 +1,11 @@
 import {
     OnGetActiveOrdersCb,
     OnGetAllowedMethodsCb,
-    OnPongCb
+    OnPongCb,
+    WsProviderConnector
 } from '@1inch/fusion-sdk'
 import {RpcEventType} from './types'
 import {PaginationParams, PaginationRequest} from '../api/pagination'
-import {WsProviderConnector} from '../connector/ws'
 
 export class RpcWebsocketApi {
     public readonly provider: WsProviderConnector

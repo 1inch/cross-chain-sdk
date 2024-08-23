@@ -6,17 +6,18 @@ import {
     OrderFilledEvent,
     OrderFilledPartiallyEvent,
     OrderInvalidEvent,
-    PingRpcEvent
+    PingRpcEvent,
+    WebsocketClient
 } from '@1inch/fusion-sdk'
+import {castUrl} from '@1inch/fusion-sdk/dist/ws-api/url'
 import {WebSocketApi} from './ws-api'
-import {castUrl} from './url'
 import {
     GetActiveOrdersRpcEvent,
     OrderCancelledEvent,
     OrderCreatedEvent,
-    OrderEventType
+    OrderEventType,
+    OrderSecretSharedEvent
 } from './types'
-import {WebsocketClient} from '../connector'
 
 jest.setTimeout(5 * 60 * 1000)
 
@@ -892,6 +893,105 @@ describe(__filename, () => {
 
             const resArray: OrderEventType[] = []
             wsSdk.order.onOrderCancelled((data) => {
+                resArray.push(data)
+            })
+
+            wsSdk.onMessage(() => {
+                if (resArray.length === 1) {
+                    expect(resArray).toEqual(expectedMessages)
+                    wsSdk.close()
+                    wss.close()
+                    done()
+                }
+            })
+        })
+
+        it('can subscribe to order secret shared events', (done) => {
+            const message1: OrderCreatedEvent = {
+                event: 'order_created',
+                result: {
+                    srcChainId: 1,
+                    dstChainId: 56,
+                    orderHash:
+                        '0xb9522c23c8667c5e76bf0b855ffabbaebca282f8e396d788c2df75e91a0391d2-5705f2156ef5b2db36c160b36f31ce4',
+                    order: {
+                        salt: '9445680545936410419330284706951757224702878670220689583677680607556412140293',
+                        maker: '0x6edc317f3208b10c46f4ff97faa04dd632487408',
+                        receiver: '0x0000000000000000000000000000000000000000',
+                        makerAsset:
+                            '0x6b175474e89094c44da98b954eedeac495271d0f',
+                        takerAsset:
+                            '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+                        makerTraits:
+                            '62419173104490761595518734106557662061518414611782227068396304425790442831872',
+                        makingAmount: '30000000000000000000',
+                        takingAmount: '7516665910385115'
+                    },
+                    extension:
+                        '0x000000cb0000005e0000005e0000005e0000005e0000002f0000000000000000fb2809a5314473e1165f6b58018e20ed8f07b84000000000000000662fba0700025829a7fd01ec57001827bba60018fb2809a5314473e1165f6b58018e20ed8f07b84000000000000000662fba0700025829a7fd01ec57001827bba60018fb2809a5314473e1165f6b58018e20ed8f07b840662fb9efb09498030ae3416b66dc00007bf29735c20c566e5a0c0000950fa635aec75b30781a0000d18bd45f0b94f54a968f000076d49414ad2b8371a4220000a59ca88d5813e693528f000038700d5181a674fdb9a2000038',
+
+                    signature:
+                        '0xb51731d6e62754ae75d11d13983c19b25fcc1a43fc327710a26ae291fde3d33f52dee7a4c0154256f6bb272260170128242034a89f44e7e887d1bb54a746a5941b',
+
+                    isMakerContract: true,
+                    quoteId: 'b77da8b7-a4bb-4563-b917-03522aa609e3',
+                    merkleLeaves: [
+                        '0x71ad135b040d726eb59a9f718db4d9c9ab93eee0aa072a92569f24ac2f4e314a',
+                        '0xfe9789f805bd764824c94a1d764776c3177f92c9ee3d3a1c074c314d2af30bd7',
+                        '0x00b2a24fd759c4093935c5268b5cc187b9b15bf287230439453e65e67191902e'
+                    ],
+                    secretHashes: [
+                        '0x2048b38093dc53876b2bbd230ee8999791153db01de425112f449d018094e116',
+                        '0x7972c1498893bb9b88baddc9decb78d8defdcc7a182a72edd8724498c75f088d',
+                        '0x6d5b8f0b1f8a28564ff65e5f9c4d8a8a6babfb318bca6ecc9d872a3abe8a4ea0'
+                    ]
+                }
+            }
+
+            const message2: OrderSecretSharedEvent = {
+                event: 'secret_shared',
+                result: {
+                    idx: 0,
+                    secret: '0x2048b380',
+                    srcImmutables: {
+                        orderHash:
+                            '0x1beee023ab933cf5446c298eaddb61c05705f2156ef5b2db36c160b36f31ce4',
+                        hashlock:
+                            '0x2048b38093dc53876b2bbd230ee8999791153db01de425112f449d018094e116',
+                        maker: '0x6edc317f3208b10c46f4ff97faa04dd632487408',
+                        taker: '0x6edc317f3208b10c46f4ff97faa04dd632487409',
+                        token: '0x6b175474e89094c44da98b954eedeac495271d0f',
+                        amount: '30000000000000000000',
+                        safetyDeposit: '20000000000000000000',
+                        timelocks: '0x11111111'
+                    },
+                    dstImmutables: {
+                        orderHash:
+                            '0x1beee023ab933cf5446c298eaddb61c05705f2156ef5b2db36c160b36f31ce5',
+                        hashlock:
+                            '0x2048b38093dc53876b2bbd230ee8999791153db01de425112f449d018094e117',
+                        maker: '0x6edc317f3208b10c46f4ff97faa04dd632487409',
+                        taker: '0x6edc317f3208b10c46f4ff97faa04dd632487400',
+                        token: '0x6b175474e89094c44da98b954eedeac495271d0e',
+                        amount: '30000000000000000001',
+                        safetyDeposit: '20000000000000000001',
+                        timelocks: '0x111111112'
+                    }
+                }
+            }
+
+            const messages = [message1, message1, message2]
+            const expectedMessages = [message2]
+            const {url, wss} = createWebsocketServerMock(messages)
+
+            const wsSdk = new WebSocketApi({
+                url,
+                network: NetworkEnum.ETHEREUM,
+                authKey: ''
+            })
+
+            const resArray: OrderEventType[] = []
+            wsSdk.order.onOrderSecretShared((data) => {
                 resArray.push(data)
             })
 
