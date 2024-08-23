@@ -136,9 +136,6 @@ packages:
     engines: {node: '>=18.16.0'}
     peerDependencies:
       assert: ^2.0.0
-    peerDependenciesMeta:
-      assert:
-        optional: true
 
   '@1inch/eslint-config@3.0.6':
     resolution: {integrity: sha512-apfoU2TFLhpBYcVzPJlU80a8WRuMheGA3tDhd27w4X5nkKvA3wZH9vX61NAgJ+0aDNbACd1VDQ2lAcU3xseLfw==, tarball: https://npm.pkg.github.com/download/@1inch/eslint-config/3.0.6/1f938de42af87ffb89875537c3d2171848c3bffb}
@@ -167,11 +164,6 @@ packages:
     peerDependencies:
       assert: ^2.0.0
       axios: '>=1 <2'
-    peerDependenciesMeta:
-      assert:
-        optional: true
-      axios:
-        optional: true
 
   '@1inch/limit-order-sdk@4.9.2':
     resolution: {integrity: sha512-PXQFZ0waj+ZYjKCPZMDTsqOOrmponDDPBxfkaYArqjeuJ1wop2XtBvGboToNb7Ui/nYq8juyMp6lciETydXQKA==, tarball: https://npm.pkg.github.com/download/@1inch/limit-order-sdk/4.9.2/4a6dbb37a4d43a75809789fd4c2476e335e30e2b}
@@ -179,11 +171,6 @@ packages:
     peerDependencies:
       assert: ^2.0.0
       axios: '>=1 <2'
-    peerDependenciesMeta:
-      assert:
-        optional: true
-      axios:
-        optional: true
 
   '@1inch/tsconfig@1.0.7':
     resolution: {integrity: sha512-uPV9toGicSHysWJANdVZTzEOX+ePKLNQybWKMKOtVBJRpHZmLGq9il5FgUOyIFXlTHBDDQXjrAwgKBhZ5mlMuw==, tarball: https://npm.pkg.github.com/download/@1inch/tsconfig/1.0.7/948920928f70c706075b76ee401fe1ab628a4a59}
@@ -207,8 +194,8 @@ packages:
     resolution: {integrity: sha512-BBt3opiCOxUr9euZ5/ro/Xv8/V7yJ5bjYMqG/C1YAo8MIKAnumZalCN+msbci3Pigy4lIQfPUpfMM27HMGaYEA==}
     engines: {node: '>=6.9.0'}
 
-  '@babel/generator@7.25.4':
-    resolution: {integrity: sha512-NFtZmZsyzDPJnk9Zg3BbTfKKc9UlHYzD0E//p2Z3B9nCwwtJW9T0gVbCz8+fBngnn4zf1Dr3IK8PHQQHq0lDQw==}
+  '@babel/generator@7.25.5':
+    resolution: {integrity: sha512-abd43wyLfbWoxC6ahM8xTkqLpGB2iWBVyuKC9/srhFunCd1SDNrV1s72bBpK4hLj8KLzHBBcOblvLQZBNw9r3w==}
     engines: {node: '>=6.9.0'}
 
   '@babel/helper-compilation-targets@7.25.2':
@@ -2537,7 +2524,7 @@ snapshots:
   '@1inch/byte-utils@2.3.0': {}
 
   '@1inch/byte-utils@2.6.0(assert@2.1.0)':
-    optionalDependencies:
+    dependencies:
       assert: 2.1.0
 
   '@1inch/eslint-config@3.0.6(fdu2mpimk256a4uot5gtfjjqlq)':
@@ -2566,12 +2553,11 @@ snapshots:
     dependencies:
       '@1inch/byte-utils': 2.3.0
       '@1inch/limit-order-sdk': 4.9.2(assert@2.1.0)(axios@1.7.4)
+      assert: 2.1.0
+      axios: 1.7.4
       ethers: 6.13.1
       tslib: 2.6.3
       ws: 8.18.0
-    optionalDependencies:
-      assert: 2.1.0
-      axios: 1.7.4
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -2579,10 +2565,9 @@ snapshots:
   '@1inch/limit-order-sdk@4.9.2(assert@2.1.0)(axios@1.7.4)':
     dependencies:
       '@1inch/byte-utils': 2.2.1
-      ethers: 6.13.1
-    optionalDependencies:
       assert: 2.1.0
       axios: 1.7.4
+      ethers: 6.13.1
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -2609,7 +2594,7 @@ snapshots:
     dependencies:
       '@ampproject/remapping': 2.3.0
       '@babel/code-frame': 7.24.7
-      '@babel/generator': 7.25.4
+      '@babel/generator': 7.25.5
       '@babel/helper-compilation-targets': 7.25.2
       '@babel/helper-module-transforms': 7.25.2(@babel/core@7.25.2)
       '@babel/helpers': 7.25.0
@@ -2625,7 +2610,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@babel/generator@7.25.4':
+  '@babel/generator@7.25.5':
     dependencies:
       '@babel/types': 7.25.4
       '@jridgewell/gen-mapping': 0.3.5
@@ -2782,7 +2767,7 @@ snapshots:
   '@babel/traverse@7.25.4':
     dependencies:
       '@babel/code-frame': 7.24.7
-      '@babel/generator': 7.25.4
+      '@babel/generator': 7.25.5
       '@babel/parser': 7.25.4
       '@babel/template': 7.25.0
       '@babel/types': 7.25.4
@@ -4812,7 +4797,7 @@ snapshots:
   jest-snapshot@29.7.0:
     dependencies:
       '@babel/core': 7.25.2
-      '@babel/generator': 7.25.4
+      '@babel/generator': 7.25.5
       '@babel/plugin-syntax-jsx': 7.24.7(@babel/core@7.25.2)
       '@babel/plugin-syntax-typescript': 7.25.4(@babel/core@7.25.2)
       '@babel/types': 7.25.4
