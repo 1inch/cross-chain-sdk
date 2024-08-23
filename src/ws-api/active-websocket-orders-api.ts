@@ -1,0 +1,78 @@
+import {orderEvents} from './constants'
+import {
+    OnOrderCancelledCb,
+    OnOrderCb,
+    OnOrderCreatedCb,
+    OnOrderFilledCb,
+    OnOrderFilledPartiallyCb,
+    OnOrderInvalidCb,
+    OnOrderNotEnoughBalanceOrAllowanceCb,
+    OrderEventType
+} from './types'
+import {WsProviderConnector} from '../connector/ws'
+
+export class ActiveOrdersWebSocketApi {
+    public readonly provider!: WsProviderConnector
+
+    constructor(provider: WsProviderConnector) {
+        this.provider = provider
+    }
+
+    onOrder(cb: OnOrderCb): void {
+        this.provider.onMessage((data: OrderEventType) => {
+            if (orderEvents.includes(data.type)) {
+                cb(data)
+            }
+        })
+    }
+
+    onOrderCreated(cb: OnOrderCreatedCb): void {
+        this.provider.onMessage((data: OrderEventType) => {
+            if (data.type === 'order_created') {
+                cb(data)
+            }
+        })
+    }
+
+    onOrderInvalid(cb: OnOrderInvalidCb): void {
+        this.provider.onMessage((data: OrderEventType) => {
+            if (data.type === 'order_invalid') {
+                cb(data)
+            }
+        })
+    }
+
+    onOrderBalanceOrAllowanceChange(
+        cb: OnOrderNotEnoughBalanceOrAllowanceCb
+    ): void {
+        this.provider.onMessage((data: OrderEventType) => {
+            if (data.type === 'order_balance_or_allowance_change') {
+                cb(data)
+            }
+        })
+    }
+
+    onOrderFilled(cb: OnOrderFilledCb): void {
+        this.provider.onMessage((data: OrderEventType) => {
+            if (data.type === 'order_filled') {
+                cb(data)
+            }
+        })
+    }
+
+    onOrderCancelled(cb: OnOrderCancelledCb): void {
+        this.provider.onMessage((data: OrderEventType) => {
+            if (data.type === 'order_cancelled') {
+                cb(data)
+            }
+        })
+    }
+
+    onOrderFilledPartially(cb: OnOrderFilledPartiallyCb): void {
+        this.provider.onMessage((data: OrderEventType) => {
+            if (data.type === 'order_filled_partially') {
+                cb(data)
+            }
+        })
+    }
+}
