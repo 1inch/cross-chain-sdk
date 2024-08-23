@@ -1,6 +1,6 @@
 import {ActiveOrdersWebSocketApi} from './active-websocket-orders-api'
 import {RpcWebsocketApi} from './rpc-websocket-api'
-import {WsApiConfigWithNetwork} from './types'
+import {WebSocketEvent, WsApiConfigWithNetwork} from './types'
 import {castUrl} from './url'
 import {
     AnyFunction,
@@ -50,11 +50,11 @@ export class WebSocketApi {
         this.provider.init()
     }
 
-    on(event: string, cb: AnyFunctionWithThis): void {
+    on(event: WebSocketEvent, cb: AnyFunctionWithThis): void {
         this.provider.on(event, cb)
     }
 
-    off(event: string, cb: AnyFunctionWithThis): void {
+    off(event: WebSocketEvent, cb: AnyFunctionWithThis): void {
         this.provider.off(event, cb)
     }
 

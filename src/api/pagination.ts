@@ -9,11 +9,11 @@ export class PaginationRequest {
     limit: number | undefined
 
     constructor(page: number | undefined, limit: number | undefined) {
-        if (this.limit != null && (this.limit < 1 || this.limit > 500)) {
+        if (limit != undefined && (limit < 1 || limit > 500)) {
             throw Error('limit should be in range between 1 and 500')
         }
 
-        if (this.page != null && this.page < 1) {
+        if (page != undefined && page < 1) {
             throw Error(`page should be >= 1`)
         }
 

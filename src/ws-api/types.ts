@@ -129,3 +129,5 @@ export type OnGetAllowedMethodsCb = (
 ) => any
 
 export type OnGetActiveOrdersCb = (data: GetActiveOrdersRpcEvent['data']) => any
+
+export type WebSocketEvent = 'close' | 'error' | 'message' | 'open'
