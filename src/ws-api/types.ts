@@ -40,7 +40,6 @@ export type OrderCreatedEvent = Event<
 export type OrderBalanceOrAllowanceChangeEvent = Event<
     'order_balance_or_allowance_change',
     {
-        // TODO check, no emit  !!
         orderHash: string
         remainingMakerAmount: string
         balance: string
@@ -51,7 +50,6 @@ export type OrderBalanceOrAllowanceChangeEvent = Event<
 export type OrderInvalidEvent = Event<
     'order_invalid',
     {
-        // TODO check, no emit  !!
         orderHash: string
     }
 >

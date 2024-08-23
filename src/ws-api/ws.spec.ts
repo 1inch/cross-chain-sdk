@@ -87,8 +87,7 @@ describe(__filename, () => {
         xit('should be possible to subscribe to error', (done) => {
             const wsSdk = new WebSocketApi({
                 url: 'ws://localhost:2345',
-                network: NetworkEnum.ETHEREUM,
-                authKey: 'qqqqq'
+                network: NetworkEnum.ETHEREUM
             })
 
             wsSdk.on('error', (error) => {
