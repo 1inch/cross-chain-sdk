@@ -331,7 +331,7 @@ export class CrossChainOrder {
         const partsCount = this.escrowExtension.hashLockInfo.getPartsCount()
 
         if (remainingAmount === fillAmount) {
-            return Number(partsCount) + 1
+            return Number(partsCount)
         }
 
         return Number((partsCount * (fillAmount - 1n)) / this.makingAmount)
