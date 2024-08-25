@@ -6,12 +6,11 @@ import {
     OrderFilledEvent,
     OrderFilledPartiallyEvent,
     OrderInvalidEvent,
-    PingRpcEvent,
-    RpcEvent
+    PingRpcEvent
 } from '@1inch/fusion-sdk'
 import {Jsonify} from 'type-fest'
 import {PaginationOutput} from '../api/types'
-import {ActiveOrder} from '../api/orders'
+import {ActiveOrder, OrderType, PublicSecret} from '../api/orders'
 import {Immutables} from '../immutables'
 import {SupportedChain} from '../chains'
 
@@ -66,14 +65,46 @@ export type OnOrderCancelledCb = (data: OrderCancelledEvent) => any
 
 export type OnOrderSecretSharedCb = (data: OrderSecretSharedEvent) => any
 
+export type OnGetSecretsCb = (data: GetSecretsRpcEvent['result']) => any
+
 export type RpcEventType =
     | PingRpcEvent
     | GetAllowMethodsRpcEvent
     | GetActiveOrdersRpcEvent
+    | GetSecretsRpcEvent
+
+export type RpcMethod =
+    | 'getAllowedMethods'
+    | 'ping'
+    | 'getActiveOrders'
+    | 'getSecrets'
+
+export type RpcEvent<T extends RpcMethod, K> = {
+    method: T
+    result: K
+}
 
 export type GetActiveOrdersRpcEvent = RpcEvent<
     'getActiveOrders',
     PaginationOutput<ActiveOrder>
+>
+
+export type SerializableTo<To> =
+    | {
+          toJSON(): Jsonify<To>
+      }
+    | {[key in keyof To]: SerializableTo<To[key]>}
+
+export type ResolverDataOutput = {
+    orderType: OrderType
+    secrets: PublicSecret[]
+    merkleLeaves: string[]
+    secretHashes: string[]
+}
+
+export type GetSecretsRpcEvent = RpcEvent<
+    'getSecrets',
+    SerializableTo<ResolverDataOutput> | {error: string}
 >
 
 export type WebSocketEvent = 'close' | 'error' | 'message' | 'open'

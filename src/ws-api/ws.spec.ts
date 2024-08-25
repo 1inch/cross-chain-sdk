@@ -13,14 +13,17 @@ import {castUrl} from '@1inch/fusion-sdk/dist/ws-api/url'
 import {WebSocketApi} from './ws-api'
 import {
     GetActiveOrdersRpcEvent,
+    GetSecretsRpcEvent,
     OrderCancelledEvent,
     OrderCreatedEvent,
     OrderEventType,
     OrderSecretSharedEvent
 } from './types'
+import {OrderType} from '../api'
 
 jest.setTimeout(5 * 60 * 1000)
 
+// eslint-disable-next-line max-lines-per-function
 describe(__filename, () => {
     describe('base', () => {
         it('should be possible to subscribe to message', (done) => {
@@ -387,6 +390,113 @@ describe(__filename, () => {
             wsSdk.onOpen(() => {
                 try {
                     wsSdk.rpc.getActiveOrders({page: -1})
+                } catch (error) {
+                    wsSdk.close()
+                    wss.close()
+                    done()
+                }
+            })
+        })
+
+        it('getSecrets success', (done) => {
+            const response: GetSecretsRpcEvent = {
+                method: 'getSecrets',
+                result: {
+                    orderType: OrderType.SingleFill,
+                    secrets: [
+                        {
+                            idx: 1,
+                            secret: '0x71ad135b040d726eb59a9f718db4d9c9ab93eee0aa072a92569f24ac2f4e314a',
+                            srcImmutables: {
+                                orderHash:
+                                    '0x71ad135b040d726eb59a9f718db4d9c9ab93eee0aa072a92569f24ac2f4e314a',
+                                hashlock:
+                                    '0x71ad135b040d726eb59a9f718db4d9c9ab93eee0aa072a92569f',
+                                maker: '0x71ad135b040d726eb59a9f718db4d9c9ab93eee0aa072a92569f24ac2f4e314b',
+                                taker: '0x71ad135b040d726eb59a9f718db4d9c9ab93eee0aa072a92569f24ac2f4e314c',
+                                token: '0x71ad135b040d726eb59a9f718db4d9c9ab93eee0aa072a92569f24ac2f4e314d',
+                                amount: '10000000000',
+                                safetyDeposit: '100000000000000',
+                                timelocks:
+                                    '0x3000000020000000100000004000000030000000200000001'
+                            },
+                            dstImmutables: {
+                                orderHash:
+                                    '0x71ad135b040d726eb59a9f718db4d9c9ab93eee0aa072a92569f24ac2f4e314a',
+                                hashlock:
+                                    '0x71ad135b040d726eb59a9f718db4d9c9ab93eee0aa072a92569f',
+                                maker: '0x71ad135b040d726eb59a9f718db4d9c9ab93eee0aa072a92569f24ac2f4e314b',
+                                taker: '0x71ad135b040d726eb59a9f718db4d9c9ab93eee0aa072a92569f24ac2f4e314c',
+                                token: '0x71ad135b040d726eb59a9f718db4d9c9ab93eee0aa072a92569f24ac2f4e314d',
+                                amount: '10000000000',
+                                safetyDeposit: '100000000000000',
+                                timelocks:
+                                    '0x3000000020000000100000004000000030000000200000001'
+                            }
+                        }
+                    ],
+                    merkleLeaves: [
+                        '0x71ad135b040d726eb59a9f718db4d9c9ab93eee0aa072a92569f24ac2f4e314a',
+                        '0xfe9789f805bd764824c94a1d764776c3177f92c9ee3d3a1c074c314d2af30bd7',
+                        '0x00b2a24fd759c4093935c5268b5cc187b9b15bf287230439453e65e67191902e'
+                    ],
+                    secretHashes: [
+                        '0x2048b38093dc53876b2bbd230ee8999791153db01de425112f449d018094e116',
+                        '0x7972c1498893bb9b88baddc9decb78d8defdcc7a182a72edd8724498c75f088d',
+                        '0x6d5b8f0b1f8a28564ff65e5f9c4d8a8a6babfb318bca6ecc9d872a3abe8a4ea0'
+                    ]
+                }
+            }
+            const {url, wss} = createWebsocketRpcServerMock((ws, data) => {
+                const parsedData = JSON.parse(data)
+
+                if (parsedData.method === 'getSecrets') {
+                    ws.send(JSON.stringify(response))
+                }
+            })
+
+            const wsSdk = new WebSocketApi({
+                url,
+                network: NetworkEnum.ETHEREUM,
+                authKey: ''
+            })
+
+            wsSdk.onOpen(() => {
+                wsSdk.rpc.getSecrets()
+            })
+
+            wsSdk.rpc.onGetSecrets((data) => {
+                expect(data).toEqual(response.result)
+                wsSdk.close()
+                wss.close()
+                done()
+            })
+        })
+
+        it('getSecrets throws error', (done) => {
+            const response: GetSecretsRpcEvent = {
+                method: 'getSecrets',
+                result: {
+                    error: 'error'
+                }
+            }
+            const {url, wss} = createWebsocketRpcServerMock((ws, data) => {
+                const parsedData = JSON.parse(data)
+
+                if (parsedData.method === 'getSecrets') {
+                    ws.send(JSON.stringify(response))
+                }
+            })
+
+            const wsSdk = new WebSocketApi({
+                url,
+                network: NetworkEnum.ETHEREUM,
+                authKey: ''
+            })
+
+            wsSdk.onOpen(() => {
+                try {
+                    wsSdk.rpc.getSecrets({page: -1})
                 } catch (error) {
                     wsSdk.close()
                     wss.close()

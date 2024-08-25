@@ -4,7 +4,7 @@ import {
     OnPongCb,
     WsProviderConnector
 } from '@1inch/fusion-sdk'
-import {RpcEventType} from './types'
+import {OnGetSecretsCb, RpcEventType} from './types'
 import {PaginationParams, PaginationRequest} from '../api/pagination'
 
 export class RpcWebsocketApi {
@@ -38,6 +38,23 @@ export class RpcWebsocketApi {
     onGetActiveOrders(cb: OnGetActiveOrdersCb): void {
         this.provider.onMessage((data: RpcEventType) => {
             if (data.method === 'getActiveOrders') {
+                cb(data.result)
+            }
+        })
+    }
+
+    getSecrets({limit, page}: PaginationParams = {}): void {
+        const paginationRequest = new PaginationRequest(page, limit)
+
+        this.provider.send({
+            method: 'getSecrets',
+            param: paginationRequest
+        })
+    }
+
+    onGetSecrets(cb: OnGetSecretsCb): void {
+        this.provider.onMessage((data: RpcEventType) => {
+            if (data.method === 'getSecrets') {
                 cb(data.result)
             }
         })
