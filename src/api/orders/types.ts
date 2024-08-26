@@ -28,7 +28,6 @@ export type ActiveOrder = {
     dstChainId: SupportedChain
     isMakerContract: boolean
     secretHashes: string[]
-    merkleLeaves: string[]
 }
 
 export type ActiveOrdersResponse = PaginationOutput<ActiveOrder>
