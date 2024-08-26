@@ -8,7 +8,6 @@ import {
     PingRpcEvent,
     WebsocketClient
 } from '@1inch/fusion-sdk'
-import {castUrl} from '@1inch/fusion-sdk/dist/ws-api/url'
 import {WebSocketApi} from './ws-api'
 import {
     EventType,
@@ -23,6 +22,7 @@ import {
     RpcMethod,
     WebSocketEvent
 } from './types'
+import {castUrl} from './url'
 import {OrderType} from '../api'
 
 jest.setTimeout(5 * 60 * 1000)

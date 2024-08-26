@@ -6,10 +6,10 @@ import {
     WsApiConfigWithNetwork,
     WsProviderConnector
 } from '@1inch/fusion-sdk'
-import {castUrl} from '@1inch/fusion-sdk/dist/ws-api/url'
 import {ActiveOrdersWebSocketApi} from './active-websocket-orders-api'
 import {RpcWebsocketApi} from './rpc-websocket-api'
 import {WebSocketEvent} from './types'
+import {castUrl} from './url'
 
 export class WebSocketApi {
     private static Version = 'v1.0'
