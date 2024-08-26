@@ -70,6 +70,11 @@ describe(__filename, () => {
                             '0x2048b38093dc53876b2bbd230ee8999791153db01de425112f449d018094e116',
                             '0x7972c1498893bb9b88baddc9decb78d8defdcc7a182a72edd8724498c75f088d',
                             '0x6d5b8f0b1f8a28564ff65e5f9c4d8a8a6babfb318bca6ecc9d872a3abe8a4ea0'
+                        ],
+                        merkleLeaves: [
+                            '0x71ad135b040d726eb59a9f718db4d9c9ab93eee0aa072a92569f24ac2f4e314a',
+                            '0xfe9789f805bd764824c94a1d764776c3177f92c9ee3d3a1c074c314d2af30bd7',
+                            '0x00b2a24fd759c4093935c5268b5cc187b9b15bf287230439453e65e67191902e'
                         ]
                     },
                     {
@@ -105,6 +110,11 @@ describe(__filename, () => {
                             '0x2048b38093dc53876b2bbd230ee8999791153db01de425112f449d018094e116',
                             '0x7972c1498893bb9b88baddc9decb78d8defdcc7a182a72edd8724498c75f088d',
                             '0x6d5b8f0b1f8a28564ff65e5f9c4d8a8a6babfb318bca6ecc9d872a3abe8a4ea0'
+                        ],
+                        merkleLeaves: [
+                            '0x71ad135b040d726eb59a9f718db4d9c9ab93eee0aa072a92569f24ac2f4e314a',
+                            '0xfe9789f805bd764824c94a1d764776c3177f92c9ee3d3a1c074c314d2af30bd7',
+                            '0x00b2a24fd759c4093935c5268b5cc187b9b15bf287230439453e65e67191902e'
                         ]
                     }
                 ],
