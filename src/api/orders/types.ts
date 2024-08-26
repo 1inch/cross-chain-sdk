@@ -27,7 +27,7 @@ export type ActiveOrder = {
     srcChainId: SupportedChain
     dstChainId: SupportedChain
     isMakerContract: boolean
-    secrets: PublicSecret[]
+    secretHashes: string[]
 }
 
 export type ActiveOrdersResponse = PaginationOutput<ActiveOrder>
