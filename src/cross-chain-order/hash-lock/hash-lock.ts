@@ -22,11 +22,19 @@ export class HashLock {
     }
 
     public static getMerkleLeaves(secrets: string[]): MerkleLeaf[] {
-        return secrets.map(
+        return HashLock.getMerkleLeavesFromSecretHashes(
+            secrets.map(HashLock.hashSecret)
+        )
+    }
+
+    public static getMerkleLeavesFromSecretHashes(
+        secretHashes: string[]
+    ): MerkleLeaf[] {
+        return secretHashes.map(
             (s, idx) =>
                 solidityPackedKeccak256(
                     ['uint64', 'bytes32'],
-                    [idx, HashLock.hashSecret(s)]
+                    [idx, s]
                 ) as MerkleLeaf
         )
     }
