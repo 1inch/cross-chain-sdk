@@ -124,7 +124,7 @@ importers:
 packages:
 
   '@1inch/byte-utils@2.2.1':
-    resolution: {integrity: sha512-ESIUUGcRu8cL+rFEJedSLOMMXUmLC3A0zyHcWH1fxLAzUsY+bdjqUX/jWQIbOqg+k1XKyXBu6vkREDna3JCp6w==, tarball: https://npm.pkg.github.com/download/@1inch/byte-utils/2.2.1/e542fa675fd034378e35b995823abd74f755888d}
+    resolution: {integrity: sha512-ESIUUGcRu8cL+rFEJedSLOMMXUmLC3A0zyHcWH1fxLAzUsY+bdjqUX/jWQIbOqg+k1XKyXBu6vkREDna3JCp6w==}
     engines: {node: '>=18.16.0'}
 
   '@1inch/byte-utils@2.3.0':
