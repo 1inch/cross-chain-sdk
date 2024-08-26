@@ -2,7 +2,6 @@ import {
     OnOrderFilledCb,
     OnOrderFilledPartiallyCb,
     OnOrderInvalidCb,
-    OnOrderNotEnoughBalanceOrAllowanceCb,
     WsProviderConnector
 } from '@1inch/fusion-sdk'
 import {orderEvents} from './constants'
@@ -11,6 +10,8 @@ import {
     OnOrderCancelledCb,
     OnOrderCb,
     OnOrderCreatedCb,
+    OnOrderNotEnoughAllowanceCb,
+    OnOrderNotEnoughBalanceCb,
     OnOrderSecretSharedCb,
     OrderEventType
 } from './types'
@@ -46,11 +47,17 @@ export class ActiveOrdersWebSocketApi {
         })
     }
 
-    onOrderBalanceOrAllowanceChange(
-        cb: OnOrderNotEnoughBalanceOrAllowanceCb
-    ): void {
+    onOrderBalanceChange(cb: OnOrderNotEnoughBalanceCb): void {
         this.provider.onMessage((data: OrderEventType) => {
-            if (data.event === EventType.OrderBalanceOrAllowanceChange) {
+            if (data.event === EventType.OrderBalanceChange) {
+                cb(data)
+            }
+        })
+    }
+
+    onOrderAllowanceChange(cb: OnOrderNotEnoughAllowanceCb): void {
+        this.provider.onMessage((data: OrderEventType) => {
+            if (data.event === EventType.OrderAllowanceChange) {
                 cb(data)
             }
         })

@@ -2,7 +2,6 @@ import {WebSocket, WebSocketServer} from 'ws'
 import {
     GetAllowMethodsRpcEvent,
     NetworkEnum,
-    OrderBalanceOrAllowanceChangeEvent,
     OrderFilledEvent,
     OrderFilledPartiallyEvent,
     OrderInvalidEvent,
@@ -15,6 +14,8 @@ import {
     EventType,
     GetActiveOrdersRpcEvent,
     GetSecretsRpcEvent,
+    OrderAllowanceChangeEvent,
+    OrderBalanceChangeEvent,
     OrderCancelledEvent,
     OrderCreatedEvent,
     OrderEventType,
@@ -732,7 +733,7 @@ describe(__filename, () => {
             })
         })
 
-        it('can subscribe to order_balance_or_allowance_change events', (done) => {
+        it('can subscribe to order_balance_change events', (done) => {
             const message1: OrderCreatedEvent = {
                 event: EventType.OrderCreated,
                 result: {
@@ -764,14 +765,13 @@ describe(__filename, () => {
                 }
             }
 
-            const message2: OrderBalanceOrAllowanceChangeEvent = {
-                event: EventType.OrderBalanceOrAllowanceChange,
+            const message2: OrderBalanceChangeEvent = {
+                event: EventType.OrderBalanceChange,
                 result: {
                     orderHash:
                         '0x1beee023ab933cf5446c298eaddb61c0-5705f2156ef5b2db36c160b36f31ce4',
                     remainingMakerAmount: '57684207067582695',
-                    balance: '57684207067582695',
-                    allowance: '0'
+                    balance: '57684207067582695'
                 }
             }
 
@@ -786,7 +786,74 @@ describe(__filename, () => {
             })
 
             const resArray: OrderEventType[] = []
-            wsSdk.order.onOrderBalanceOrAllowanceChange((data) => {
+            wsSdk.order.onOrderBalanceChange((data) => {
+                resArray.push(data)
+            })
+
+            wsSdk.onMessage(() => {
+                if (resArray.length === 1) {
+                    expect(resArray).toEqual(expectedMessages)
+                    wsSdk.close()
+                    wss.close()
+                    done()
+                }
+            })
+        })
+
+        it('can subscribe to order_allowance_change events', (done) => {
+            const message1: OrderCreatedEvent = {
+                event: EventType.OrderCreated,
+                result: {
+                    quoteId: 'b77da8b7-a4bb-4563-b917-03522aa609e3',
+                    orderHash:
+                        '0xb9522c23c8667c5e76bf0b855ffabbaebca282f8e396d788c2df75e91a0391d2-5705f2156ef5b2db36c160b36f31ce4',
+                    order: {
+                        salt: '9445680545936410419330284706951757224702878670220689583677680607556412140293',
+                        maker: '0x6edc317f3208b10c46f4ff97faa04dd632487408',
+                        receiver: '0x0000000000000000000000000000000000000000',
+                        makerAsset:
+                            '0x6b175474e89094c44da98b954eedeac495271d0f',
+                        takerAsset:
+                            '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+                        makerTraits:
+                            '62419173104490761595518734106557662061518414611782227068396304425790442831872',
+                        makingAmount: '30000000000000000000',
+                        takingAmount: '7516665910385115'
+                    },
+                    signature:
+                        '0xb51731d6e62754ae75d11d13983c19b25fcc1a43fc327710a26ae291fde3d33f52dee7a4c0154256f6bb272260170128242034a89f44e7e887d1bb54a746a5941b',
+                    extension:
+                        '0x000000cb0000005e0000005e0000005e0000005e0000002f0000000000000000fb2809a5314473e1165f6b58018e20ed8f07b84000000000000000662fba0700025829a7fd01ec57001827bba60018fb2809a5314473e1165f6b58018e20ed8f07b84000000000000000662fba0700025829a7fd01ec57001827bba60018fb2809a5314473e1165f6b58018e20ed8f07b840662fb9efb09498030ae3416b66dc00007bf29735c20c566e5a0c0000950fa635aec75b30781a0000d18bd45f0b94f54a968f000076d49414ad2b8371a4220000a59ca88d5813e693528f000038700d5181a674fdb9a2000038',
+                    srcChainId: NetworkEnum.ETHEREUM,
+                    dstChainId: NetworkEnum.ETHEREUM,
+                    isMakerContract: false,
+                    merkleLeaves: [],
+                    secretHashes: []
+                }
+            }
+
+            const message2: OrderAllowanceChangeEvent = {
+                event: EventType.OrderAllowanceChange,
+                result: {
+                    orderHash:
+                        '0x1beee023ab933cf5446c298eaddb61c0-5705f2156ef5b2db36c160b36f31ce4',
+                    remainingMakerAmount: '57684207067582695',
+                    allowance: '10'
+                }
+            }
+
+            const messages = [message1, message1, message2]
+            const expectedMessages = [message2]
+            const {url, wss} = createWebsocketServerMock(messages)
+
+            const wsSdk = new WebSocketApi({
+                url,
+                network: NetworkEnum.ETHEREUM,
+                authKey: ''
+            })
+
+            const resArray: OrderEventType[] = []
+            wsSdk.order.onOrderAllowanceChange((data) => {
                 resArray.push(data)
             })
 
