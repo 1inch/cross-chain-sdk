@@ -19,7 +19,8 @@ import {
     OrderCreatedEvent,
     OrderEventType,
     OrderSecretSharedEvent,
-    RpcMethod
+    RpcMethod,
+    WebSocketEvent
 } from './types'
 import {OrderType} from '../api'
 
@@ -73,7 +74,7 @@ describe(__filename, () => {
                 authKey: ''
             })
 
-            wsSdk.on('open', function (this: WebSocket) {
+            wsSdk.on(WebSocketEvent.Open, function (this: WebSocket) {
                 expect(this).toBeInstanceOf(WebSocket)
                 this.close()
                 wss.close()
@@ -88,7 +89,7 @@ describe(__filename, () => {
                 network: NetworkEnum.ETHEREUM
             })
 
-            wsSdk.on('error', (error) => {
+            wsSdk.on(WebSocketEvent.Error, (error) => {
                 expect(error.message).toContain('ECONNREFUSED')
                 wsSdk.close()
                 done()

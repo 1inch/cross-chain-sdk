@@ -118,4 +118,9 @@ export type GetSecretsRpcEvent = RpcEvent<
     SerializableTo<ResolverDataOutput> | {error: string}
 >
 
-export type WebSocketEvent = 'close' | 'error' | 'message' | 'open'
+export enum WebSocketEvent {
+    Close = 'close',
+    Error = 'error',
+    Message = 'message',
+    Open = 'open'
+}
