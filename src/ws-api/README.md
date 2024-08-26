@@ -52,7 +52,7 @@ const wsSdk = new WebSocketApi(provider)
 **With new static method:**
 
 ```typescript
-import {WebSocketApi, NetworkEnum} from '@1inch/fusion-sdk'
+import {WebSocketApi, NetworkEnum} from '@1inch/cross-chain-sdk'
 
 const ws = WebSocketApi.new({
     url: 'wss://api.1inch.dev/fusion/ws',
@@ -65,7 +65,7 @@ const ws = WebSocketApi.new({
 By default, when user creates an instance of WebSocketApi, it automatically opens websocket connection which might be a problem for some use cases
 
 ```typescript
-import {WebSocketApi, NetworkEnum} from '@1inch/fusion-sdk'
+import {WebSocketApi, NetworkEnum} from '@1inch/cross-chain-sdk'
 
 const ws = new WebSocketApi({
     url: 'wss://api.1inch.dev/fusion/ws',
