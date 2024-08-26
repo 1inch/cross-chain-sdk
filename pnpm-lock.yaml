@@ -138,7 +138,7 @@ packages:
       assert: ^2.0.0
 
   '@1inch/eslint-config@3.0.6':
-    resolution: {integrity: sha512-apfoU2TFLhpBYcVzPJlU80a8WRuMheGA3tDhd27w4X5nkKvA3wZH9vX61NAgJ+0aDNbACd1VDQ2lAcU3xseLfw==, tarball: https://npm.pkg.github.com/download/@1inch/eslint-config/3.0.6/1f938de42af87ffb89875537c3d2171848c3bffb}
+    resolution: {integrity: sha512-apfoU2TFLhpBYcVzPJlU80a8WRuMheGA3tDhd27w4X5nkKvA3wZH9vX61NAgJ+0aDNbACd1VDQ2lAcU3xseLfw==}
     peerDependencies:
       '@eslint/compat': ^1.1.0
       '@eslint/eslintrc': ^3.1.0
@@ -160,20 +160,20 @@ packages:
       typescript: ^5.5.2
 
   '@1inch/fusion-sdk@2.1.5-rc.0':
-    resolution: {integrity: sha512-6HFAS96PmOpem2AksHl2FfED+eX1x2K7np5IbOQaze+aIj5pAOE9JjbCyq+BehgaygGmbz2eP6WNoAr9HEvWZg==, tarball: https://npm.pkg.github.com/download/@1inch/fusion-sdk/2.1.5-rc.0/b5870395135388e823957d547d8f6659dda874a8}
+    resolution: {integrity: sha512-6HFAS96PmOpem2AksHl2FfED+eX1x2K7np5IbOQaze+aIj5pAOE9JjbCyq+BehgaygGmbz2eP6WNoAr9HEvWZg==}
     peerDependencies:
       assert: ^2.0.0
       axios: '>=1 <2'
 
   '@1inch/limit-order-sdk@4.9.2':
-    resolution: {integrity: sha512-PXQFZ0waj+ZYjKCPZMDTsqOOrmponDDPBxfkaYArqjeuJ1wop2XtBvGboToNb7Ui/nYq8juyMp6lciETydXQKA==, tarball: https://npm.pkg.github.com/download/@1inch/limit-order-sdk/4.9.2/4a6dbb37a4d43a75809789fd4c2476e335e30e2b}
+    resolution: {integrity: sha512-PXQFZ0waj+ZYjKCPZMDTsqOOrmponDDPBxfkaYArqjeuJ1wop2XtBvGboToNb7Ui/nYq8juyMp6lciETydXQKA==}
     engines: {node: '>=18.16.0'}
     peerDependencies:
       assert: ^2.0.0
       axios: '>=1 <2'
 
   '@1inch/tsconfig@1.0.7':
-    resolution: {integrity: sha512-uPV9toGicSHysWJANdVZTzEOX+ePKLNQybWKMKOtVBJRpHZmLGq9il5FgUOyIFXlTHBDDQXjrAwgKBhZ5mlMuw==, tarball: https://npm.pkg.github.com/download/@1inch/tsconfig/1.0.7/948920928f70c706075b76ee401fe1ab628a4a59}
+    resolution: {integrity: sha512-uPV9toGicSHysWJANdVZTzEOX+ePKLNQybWKMKOtVBJRpHZmLGq9il5FgUOyIFXlTHBDDQXjrAwgKBhZ5mlMuw==}
 
   '@adraffy/ens-normalize@1.10.1':
     resolution: {integrity: sha512-96Z2IP3mYmF1Xg2cDm8f1gWGf/HUVedQ3FMifV4kG/PQ4yEP51xDtRAEfhVNt5f/uzpNkZHwWQuUcu6D6K+Ekw==}
