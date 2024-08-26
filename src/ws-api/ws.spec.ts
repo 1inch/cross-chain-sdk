@@ -12,12 +12,14 @@ import {
 import {castUrl} from '@1inch/fusion-sdk/dist/ws-api/url'
 import {WebSocketApi} from './ws-api'
 import {
+    EventType,
     GetActiveOrdersRpcEvent,
     GetSecretsRpcEvent,
     OrderCancelledEvent,
     OrderCreatedEvent,
     OrderEventType,
-    OrderSecretSharedEvent
+    OrderSecretSharedEvent,
+    RpcMethod
 } from './types'
 import {OrderType} from '../api'
 
@@ -261,13 +263,13 @@ describe(__filename, () => {
     describe('rpc', () => {
         it('can ping pong ', (done) => {
             const response: PingRpcEvent = {
-                method: 'ping',
+                method: RpcMethod.Ping,
                 result: 'pong'
             }
             const {url, wss} = createWebsocketRpcServerMock((ws, data) => {
                 const parsedData = JSON.parse(data)
 
-                if (parsedData.method === 'ping') {
+                if (parsedData.method === RpcMethod.Ping) {
                     ws.send(JSON.stringify(response))
                 }
             })
@@ -292,13 +294,17 @@ describe(__filename, () => {
 
         it('can retrieve allowed rpc methods ', (done) => {
             const response: GetAllowMethodsRpcEvent = {
-                method: 'getAllowedMethods',
-                result: ['ping', 'getAllowedMethods', 'getActiveOrders']
+                method: RpcMethod.GetAllowedMethods,
+                result: [
+                    RpcMethod.Ping,
+                    RpcMethod.GetAllowedMethods,
+                    RpcMethod.GetActiveOrders
+                ]
             }
             const {url, wss} = createWebsocketRpcServerMock((ws, data) => {
                 const parsedData = JSON.parse(data)
 
-                if (parsedData.method === 'getAllowedMethods') {
+                if (parsedData.method === RpcMethod.GetAllowedMethods) {
                     ws.send(JSON.stringify(response))
                 }
             })
@@ -323,7 +329,7 @@ describe(__filename, () => {
 
         it('getActiveOrders success', (done) => {
             const response: GetActiveOrdersRpcEvent = {
-                method: 'getActiveOrders',
+                method: RpcMethod.GetActiveOrders,
                 result: {
                     items: [],
                     meta: {
@@ -337,7 +343,7 @@ describe(__filename, () => {
             const {url, wss} = createWebsocketRpcServerMock((ws, data) => {
                 const parsedData = JSON.parse(data)
 
-                if (parsedData.method === 'getActiveOrders') {
+                if (parsedData.method === RpcMethod.GetActiveOrders) {
                     ws.send(JSON.stringify(response))
                 }
             })
@@ -362,7 +368,7 @@ describe(__filename, () => {
 
         it('getActiveOrders throws error', (done) => {
             const response: GetActiveOrdersRpcEvent = {
-                method: 'getActiveOrders',
+                method: RpcMethod.GetActiveOrders,
                 result: {
                     items: [],
                     meta: {
@@ -376,7 +382,7 @@ describe(__filename, () => {
             const {url, wss} = createWebsocketRpcServerMock((ws, data) => {
                 const parsedData = JSON.parse(data)
 
-                if (parsedData.method === 'getActiveOrders') {
+                if (parsedData.method === RpcMethod.GetActiveOrders) {
                     ws.send(JSON.stringify(response))
                 }
             })
@@ -400,7 +406,7 @@ describe(__filename, () => {
 
         it('getSecrets success', (done) => {
             const response: GetSecretsRpcEvent = {
-                method: 'getSecrets',
+                method: RpcMethod.GetSecrets,
                 result: {
                     orderType: OrderType.SingleFill,
                     secrets: [
@@ -450,7 +456,7 @@ describe(__filename, () => {
             const {url, wss} = createWebsocketRpcServerMock((ws, data) => {
                 const parsedData = JSON.parse(data)
 
-                if (parsedData.method === 'getSecrets') {
+                if (parsedData.method === RpcMethod.GetSecrets) {
                     ws.send(JSON.stringify(response))
                 }
             })
@@ -475,7 +481,7 @@ describe(__filename, () => {
 
         it('getSecrets throws error', (done) => {
             const response: GetSecretsRpcEvent = {
-                method: 'getSecrets',
+                method: RpcMethod.GetSecrets,
                 result: {
                     error: 'error'
                 }
@@ -483,7 +489,7 @@ describe(__filename, () => {
             const {url, wss} = createWebsocketRpcServerMock((ws, data) => {
                 const parsedData = JSON.parse(data)
 
-                if (parsedData.method === 'getSecrets') {
+                if (parsedData.method === RpcMethod.GetSecrets) {
                     ws.send(JSON.stringify(response))
                 }
             })
@@ -509,7 +515,7 @@ describe(__filename, () => {
     describe('order', () => {
         it('can subscribe to order events', (done) => {
             const message1: OrderCreatedEvent = {
-                event: 'order_created',
+                event: EventType.OrderCreated,
                 result: {
                     quoteId: 'b77da8b7-a4bb-4563-b917-03522aa609e3',
                     orderHash:
@@ -548,7 +554,7 @@ describe(__filename, () => {
             }
 
             const message2: OrderInvalidEvent = {
-                event: 'order_invalid',
+                event: EventType.OrderInvalid,
                 result: {
                     orderHash:
                         '0x1beee023ab933cf5446c298eaddb61c0-5705f2156ef5b2db36c160b36f31ce4'
@@ -581,7 +587,7 @@ describe(__filename, () => {
 
         it('can subscribe to order created events', (done) => {
             const message1: OrderCreatedEvent = {
-                event: 'order_created',
+                event: EventType.OrderCreated,
                 result: {
                     quoteId: 'b77da8b7-a4bb-4563-b917-03522aa609e3',
                     orderHash:
@@ -620,7 +626,7 @@ describe(__filename, () => {
             }
 
             const message2: OrderInvalidEvent = {
-                event: 'order_invalid',
+                event: EventType.OrderInvalid,
                 result: {
                     orderHash:
                         '0x1beee023ab933cf5446c298eaddb61c0-5705f2156ef5b2db36c160b36f31ce4'
@@ -654,7 +660,7 @@ describe(__filename, () => {
 
         it('can subscribe to order invalid events', (done) => {
             const message1: OrderCreatedEvent = {
-                event: 'order_created',
+                event: EventType.OrderCreated,
                 result: {
                     quoteId: 'b77da8b7-a4bb-4563-b917-03522aa609e3',
                     orderHash:
@@ -693,7 +699,7 @@ describe(__filename, () => {
             }
 
             const message2: OrderInvalidEvent = {
-                event: 'order_invalid',
+                event: EventType.OrderInvalid,
                 result: {
                     orderHash:
                         '0x1beee023ab933cf5446c298eaddb61c0-5705f2156ef5b2db36c160b36f31ce4'
@@ -727,7 +733,7 @@ describe(__filename, () => {
 
         it('can subscribe to order_balance_or_allowance_change events', (done) => {
             const message1: OrderCreatedEvent = {
-                event: 'order_created',
+                event: EventType.OrderCreated,
                 result: {
                     quoteId: 'b77da8b7-a4bb-4563-b917-03522aa609e3',
                     orderHash:
@@ -758,7 +764,7 @@ describe(__filename, () => {
             }
 
             const message2: OrderBalanceOrAllowanceChangeEvent = {
-                event: 'order_balance_or_allowance_change',
+                event: EventType.OrderBalanceOrAllowanceChange,
                 result: {
                     orderHash:
                         '0x1beee023ab933cf5446c298eaddb61c0-5705f2156ef5b2db36c160b36f31ce4',
@@ -795,7 +801,7 @@ describe(__filename, () => {
 
         it('can subscribe to order filled events', (done) => {
             const message1: OrderCreatedEvent = {
-                event: 'order_created',
+                event: EventType.OrderCreated,
                 result: {
                     quoteId: 'b77da8b7-a4bb-4563-b917-03522aa609e3',
                     orderHash:
@@ -834,7 +840,7 @@ describe(__filename, () => {
             }
 
             const message2: OrderFilledEvent = {
-                event: 'order_filled',
+                event: EventType.OrderFilled,
                 result: {
                     orderHash:
                         '0x1beee023ab933cf5446c298eaddb61c0-5705f2156ef5b2db36c160b36f31ce4'
@@ -868,7 +874,7 @@ describe(__filename, () => {
 
         it('can subscribe to order filled partially events', (done) => {
             const message1: OrderCreatedEvent = {
-                event: 'order_created',
+                event: EventType.OrderCreated,
                 result: {
                     quoteId: 'b77da8b7-a4bb-4563-b917-03522aa609e3',
                     orderHash:
@@ -907,7 +913,7 @@ describe(__filename, () => {
             }
 
             const message2: OrderFilledPartiallyEvent = {
-                event: 'order_filled_partially',
+                event: EventType.OrderFilledPartially,
                 result: {
                     orderHash:
                         '0x1beee023ab933cf5446c298eaddb61c0-5705f2156ef5b2db36c160b36f31ce4',
@@ -942,7 +948,7 @@ describe(__filename, () => {
 
         it('can subscribe to order cancelled events', (done) => {
             const message1: OrderCreatedEvent = {
-                event: 'order_created',
+                event: EventType.OrderCreated,
                 result: {
                     srcChainId: 1,
                     dstChainId: 56,
@@ -983,7 +989,7 @@ describe(__filename, () => {
             }
 
             const message2: OrderCancelledEvent = {
-                event: 'order_cancelled',
+                event: EventType.OrderCancelled,
                 result: {
                     orderHash:
                         '0x1beee023ab933cf5446c298eaddb61c0-5705f2156ef5b2db36c160b36f31ce4',
@@ -1018,7 +1024,7 @@ describe(__filename, () => {
 
         it('can subscribe to order secret shared events', (done) => {
             const message1: OrderCreatedEvent = {
-                event: 'order_created',
+                event: EventType.OrderCreated,
                 result: {
                     srcChainId: 1,
                     dstChainId: 56,
@@ -1059,7 +1065,7 @@ describe(__filename, () => {
             }
 
             const message2: OrderSecretSharedEvent = {
-                event: 'secret_shared',
+                event: EventType.OrderSecretShared,
                 result: {
                     idx: 0,
                     secret: '0x2048b380',

@@ -24,8 +24,6 @@ export {
     BlockchainProviderConnector,
     HttpProviderConnector,
     WsProviderConnector,
-    RpcMethod,
-    RpcEvent,
     PingRpcEvent,
     GetAllowMethodsRpcEvent
 } from '@1inch/fusion-sdk'

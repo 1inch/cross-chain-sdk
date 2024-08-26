@@ -23,8 +23,18 @@ export type OrderEventType =
     | OrderCancelledEvent
     | OrderSecretSharedEvent
 
+export enum EventType {
+    OrderCreated = 'order_created',
+    OrderInvalid = 'order_invalid',
+    OrderBalanceOrAllowanceChange = 'order_balance_or_allowance_change',
+    OrderFilled = 'order_filled',
+    OrderFilledPartially = 'order_filled_partially',
+    OrderCancelled = 'order_cancelled',
+    OrderSecretShared = 'secret_shared'
+}
+
 export type OrderCreatedEvent = Event<
-    'order_created',
+    EventType.OrderCreated,
     {
         srcChainId: SupportedChain
         dstChainId: SupportedChain
@@ -40,7 +50,7 @@ export type OrderCreatedEvent = Event<
 >
 
 export type OrderCancelledEvent = Event<
-    'order_cancelled',
+    EventType.OrderCancelled,
     {
         orderHash: string
         remainingMakerAmount: string
@@ -48,7 +58,7 @@ export type OrderCancelledEvent = Event<
 >
 
 export type OrderSecretSharedEvent = Event<
-    'secret_shared',
+    EventType.OrderSecretShared,
     {
         idx: number
         secret: string
@@ -73,11 +83,12 @@ export type RpcEventType =
     | GetActiveOrdersRpcEvent
     | GetSecretsRpcEvent
 
-export type RpcMethod =
-    | 'getAllowedMethods'
-    | 'ping'
-    | 'getActiveOrders'
-    | 'getSecrets'
+export enum RpcMethod {
+    GetAllowedMethods = 'getAllowedMethods',
+    Ping = 'ping',
+    GetActiveOrders = 'getActiveOrders',
+    GetSecrets = 'getSecrets'
+}
 
 export type RpcEvent<T extends RpcMethod, K> = {
     method: T
@@ -85,7 +96,7 @@ export type RpcEvent<T extends RpcMethod, K> = {
 }
 
 export type GetActiveOrdersRpcEvent = RpcEvent<
-    'getActiveOrders',
+    RpcMethod.GetActiveOrders,
     PaginationOutput<ActiveOrder>
 >
 
@@ -103,7 +114,7 @@ export type ResolverDataOutput = {
 }
 
 export type GetSecretsRpcEvent = RpcEvent<
-    'getSecrets',
+    RpcMethod.GetSecrets,
     SerializableTo<ResolverDataOutput> | {error: string}
 >
 

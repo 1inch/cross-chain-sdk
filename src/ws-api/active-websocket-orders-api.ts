@@ -7,6 +7,7 @@ import {
 } from '@1inch/fusion-sdk'
 import {orderEvents} from './constants'
 import {
+    EventType,
     OnOrderCancelledCb,
     OnOrderCb,
     OnOrderCreatedCb,
@@ -31,7 +32,7 @@ export class ActiveOrdersWebSocketApi {
 
     onOrderCreated(cb: OnOrderCreatedCb): void {
         this.provider.onMessage((data: OrderEventType) => {
-            if (data.event === 'order_created') {
+            if (data.event === EventType.OrderCreated) {
                 cb(data)
             }
         })
@@ -39,7 +40,7 @@ export class ActiveOrdersWebSocketApi {
 
     onOrderInvalid(cb: OnOrderInvalidCb): void {
         this.provider.onMessage((data: OrderEventType) => {
-            if (data.event === 'order_invalid') {
+            if (data.event === EventType.OrderInvalid) {
                 cb(data)
             }
         })
@@ -49,7 +50,7 @@ export class ActiveOrdersWebSocketApi {
         cb: OnOrderNotEnoughBalanceOrAllowanceCb
     ): void {
         this.provider.onMessage((data: OrderEventType) => {
-            if (data.event === 'order_balance_or_allowance_change') {
+            if (data.event === EventType.OrderBalanceOrAllowanceChange) {
                 cb(data)
             }
         })
@@ -57,7 +58,7 @@ export class ActiveOrdersWebSocketApi {
 
     onOrderFilled(cb: OnOrderFilledCb): void {
         this.provider.onMessage((data: OrderEventType) => {
-            if (data.event === 'order_filled') {
+            if (data.event === EventType.OrderFilled) {
                 cb(data)
             }
         })
@@ -65,7 +66,7 @@ export class ActiveOrdersWebSocketApi {
 
     onOrderCancelled(cb: OnOrderCancelledCb): void {
         this.provider.onMessage((data: OrderEventType) => {
-            if (data.event === 'order_cancelled') {
+            if (data.event === EventType.OrderCancelled) {
                 cb(data)
             }
         })
@@ -73,7 +74,7 @@ export class ActiveOrdersWebSocketApi {
 
     onOrderFilledPartially(cb: OnOrderFilledPartiallyCb): void {
         this.provider.onMessage((data: OrderEventType) => {
-            if (data.event === 'order_filled_partially') {
+            if (data.event === EventType.OrderFilledPartially) {
                 cb(data)
             }
         })
@@ -81,7 +82,7 @@ export class ActiveOrdersWebSocketApi {
 
     onOrderSecretShared(cb: OnOrderSecretSharedCb): void {
         this.provider.onMessage((data: OrderEventType) => {
-            if (data.event === 'secret_shared') {
+            if (data.event === EventType.OrderSecretShared) {
                 cb(data)
             }
         })
