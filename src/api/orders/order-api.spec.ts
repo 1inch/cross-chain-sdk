@@ -65,7 +65,37 @@ describe(__filename, () => {
                         dstChainId: NetworkEnum.ARBITRUM,
                         extension:
                             '0x000000830000005e0000005e0000005e0000005e0000002f0000000000000000fb2809a5314473e1165f6b58018e20ed8f07b8400c956a00003e1b662a59940000b40ecaaa002b1d00540e41ea003cfb2809a5314473e1165f6b58018e20ed8f07b8400c956a00003e1b662a59940000b40ecaaa002b1d00540e41ea003cfb2809a5314473e1165f6b58018e20ed8f07b840662a597cd1a23c3abeed63c51b86000008',
-                        isMakerContract: false
+                        isMakerContract: false,
+                        secrets: [
+                            {
+                                idx: 1,
+                                secret: '0xdb475911f2d1c5df6b1fb959777ddd01c89d881175a3b9693ec884f18dcb5734',
+                                srcImmutables: {
+                                    orderHash:
+                                        '0x1beee023ab933cf5446c298eaddb61c05705f2156ef5b2db36c160b36f31ce4',
+                                    hashlock:
+                                        '0x2048b38093dc53876b2bbd230ee8999791153db01de425112f449d018094e116',
+                                    maker: '0x6edc317f3208b10c46f4ff97faa04dd632487408',
+                                    taker: '0x6edc317f3208b10c46f4ff97faa04dd632487409',
+                                    token: '0x6b175474e89094c44da98b954eedeac495271d0f',
+                                    amount: '30000000000000000000',
+                                    safetyDeposit: '20000000000000000000',
+                                    timelocks: '0x11111111'
+                                },
+                                dstImmutables: {
+                                    orderHash:
+                                        '0x1beee023ab933cf5446c298eaddb61c05705f2156ef5b2db36c160b36f31ce5',
+                                    hashlock:
+                                        '0x2048b38093dc53876b2bbd230ee8999791153db01de425112f449d018094e117',
+                                    maker: '0x6edc317f3208b10c46f4ff97faa04dd632487409',
+                                    taker: '0x6edc317f3208b10c46f4ff97faa04dd632487400',
+                                    token: '0x6b175474e89094c44da98b954eedeac495271d0e',
+                                    amount: '30000000000000000001',
+                                    safetyDeposit: '20000000000000000001',
+                                    timelocks: '0x111111112'
+                                }
+                            }
+                        ]
                     },
                     {
                         quoteId: '8343588a-da1e-407f-b41f-aa86f0ec4266',
@@ -95,7 +125,37 @@ describe(__filename, () => {
                         dstChainId: NetworkEnum.ARBITRUM,
                         extension:
                             '0x00000079000000540000005400000054000000540000002a0000000000000000fb2809a5314473e1165f6b58018e20ed8f07b840423b06000034016627b1dc0000b444e602447208003cfb2809a5314473e1165f6b58018e20ed8f07b840423b06000034016627b1dc0000b444e602447208003cfb2809a5314473e1165f6b58018e20ed8f07b8406627b1c4d1a23c3abeed63c51b86000008',
-                        isMakerContract: true
+                        isMakerContract: true,
+                        secrets: [
+                            {
+                                idx: 1,
+                                secret: '0xdb475911f2d1c5df6b1fb959777ddd01c89d881175a3b9693ec884f18dcb5734',
+                                srcImmutables: {
+                                    orderHash:
+                                        '0x1beee023ab933cf5446c298eaddb61c05705f2156ef5b2db36c160b36f31ce4',
+                                    hashlock:
+                                        '0x2048b38093dc53876b2bbd230ee8999791153db01de425112f449d018094e116',
+                                    maker: '0x6edc317f3208b10c46f4ff97faa04dd632487408',
+                                    taker: '0x6edc317f3208b10c46f4ff97faa04dd632487409',
+                                    token: '0x6b175474e89094c44da98b954eedeac495271d0f',
+                                    amount: '30000000000000000000',
+                                    safetyDeposit: '20000000000000000000',
+                                    timelocks: '0x11111111'
+                                },
+                                dstImmutables: {
+                                    orderHash:
+                                        '0x1beee023ab933cf5446c298eaddb61c05705f2156ef5b2db36c160b36f31ce5',
+                                    hashlock:
+                                        '0x2048b38093dc53876b2bbd230ee8999791153db01de425112f449d018094e117',
+                                    maker: '0x6edc317f3208b10c46f4ff97faa04dd632487409',
+                                    taker: '0x6edc317f3208b10c46f4ff97faa04dd632487400',
+                                    token: '0x6b175474e89094c44da98b954eedeac495271d0e',
+                                    amount: '30000000000000000001',
+                                    safetyDeposit: '20000000000000000001',
+                                    timelocks: '0x111111112'
+                                }
+                            }
+                        ]
                     }
                 ],
                 meta: {
