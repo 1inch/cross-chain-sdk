@@ -96,6 +96,10 @@ export type OnOrderSecretSharedCb = (data: OrderSecretSharedEvent) => any
 
 export type OnGetSecretsCb = (data: GetSecretsRpcEvent['result']) => any
 
+export type OnGetActiveOrdersCb = (
+    data: GetActiveOrdersRpcEvent['result']
+) => any
+
 export type OnOrderNotEnoughBalanceCb = (data: OrderBalanceChangeEvent) => any
 
 export type OnOrderNotEnoughAllowanceCb = (
