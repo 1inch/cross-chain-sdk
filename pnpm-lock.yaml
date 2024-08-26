@@ -128,11 +128,11 @@ packages:
     engines: {node: '>=18.16.0'}
 
   '@1inch/byte-utils@2.3.0':
-    resolution: {integrity: sha512-SKRlhemGFKc+15uTgSzsEs0T4WTpVv7lwcWdMTtUdf7tXDVCz+Dvr36pLk4UJxeKW/HqHCQXv9w1rF+yCgG4Tw==, tarball: https://npm.pkg.github.com/download/@1inch/byte-utils/2.3.0/08342ba6fd2559af550140b96f6c3320b218d9b5}
+    resolution: {integrity: sha512-SKRlhemGFKc+15uTgSzsEs0T4WTpVv7lwcWdMTtUdf7tXDVCz+Dvr36pLk4UJxeKW/HqHCQXv9w1rF+yCgG4Tw==}
     engines: {node: '>=18.16.0'}
 
   '@1inch/byte-utils@2.6.0':
-    resolution: {integrity: sha512-9BifLBEFmuqVpI3kAKI6Qefzfxk3UcEEy7PoqXt5lBOdjE1ChZdhkc/BO11Ie44QdmAeH0Rm7Jao4wcb8lHoag==, tarball: https://npm.pkg.github.com/download/@1inch/byte-utils/2.6.0/e30bf56d722cd0982d2591f9ac3158b63bebeafa}
+    resolution: {integrity: sha512-9BifLBEFmuqVpI3kAKI6Qefzfxk3UcEEy7PoqXt5lBOdjE1ChZdhkc/BO11Ie44QdmAeH0Rm7Jao4wcb8lHoag==}
     engines: {node: '>=18.16.0'}
     peerDependencies:
       assert: ^2.0.0
