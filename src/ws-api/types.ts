@@ -13,24 +13,6 @@ import {ActiveOrder, OrderType, PublicSecret} from '../api/orders'
 import {Immutables} from '../immutables'
 import {SupportedChain} from '../chains'
 
-export type OrderBalanceChangeEvent = Event<
-    EventType.OrderBalanceChange,
-    {
-        orderHash: string
-        remainingMakerAmount: string
-        balance: string
-    }
->
-
-export type OrderAllowanceChangeEvent = Event<
-    EventType.OrderAllowanceChange,
-    {
-        orderHash: string
-        remainingMakerAmount: string
-        allowance: string
-    }
->
-
 export type OrderEventType =
     | OrderCreatedEvent
     | OrderInvalidEvent
@@ -65,6 +47,24 @@ export type OrderCreatedEvent = Event<
         quoteId: string
         merkleLeaves: string[]
         secretHashes: string[]
+    }
+>
+
+export type OrderBalanceChangeEvent = Event<
+    EventType.OrderBalanceChange,
+    {
+        orderHash: string
+        remainingMakerAmount: string
+        balance: string
+    }
+>
+
+export type OrderAllowanceChangeEvent = Event<
+    EventType.OrderAllowanceChange,
+    {
+        orderHash: string
+        remainingMakerAmount: string
+        allowance: string
     }
 >
 

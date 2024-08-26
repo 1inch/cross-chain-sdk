@@ -99,13 +99,13 @@ const ws = new WebSocketApi({
     network: NetworkEnum.ETHEREUM
 })
 
-ws.on('error', console.error)
+ws.on(WebSocketEvent.Error, console.error)
 
-ws.on('open', function open() {
+ws.on(WebSocketEvent.Open, function open() {
     ws.send('something')
 })
 
-ws.on('message', function message(data) {
+ws.on(WebSocketEvent.Message, function message(data) {
     console.log('received: %s', data)
 })
 ```
@@ -129,9 +129,9 @@ const ws = new WebSocketApi({
     network: NetworkEnum.ETHEREUM
 })
 
-ws.on('error', console.error)
+ws.on(WebSocketEvent.Error, console.error)
 
-ws.on('open', function open() {
+ws.on(WebSocketEvent.Open, function open() {
     ws.send('something')
 })
 
@@ -139,9 +139,9 @@ function message(data) {
     console.log('received: %s', data)
 }
 
-ws.on('message', message)
+ws.on(WebSocketEvent.Message, message)
 
-ws.off('message', message)
+ws.off(WebSocketEvent.Message, message)
 ```
 
 ### onOpen
@@ -565,15 +565,30 @@ ws.rpc.onGetActiveOrders((data) => {
 ### OrderEventType
 
 ```typescript
+import {OrderType} from './types'
+
 type Event<K extends string, T> = {event: K; data: T}
 
-type OrderEventType =
+export type OrderEventType =
     | OrderCreatedEvent
     | OrderInvalidEvent
-    | OrderBalanceOrAllowanceChangeEvent
+    | OrderBalanceChangeEvent
+    | OrderAllowanceChangeEvent
     | OrderFilledEvent
     | OrderFilledPartiallyEvent
     | OrderCancelledEvent
+    | OrderSecretSharedEvent
+
+export enum EventType {
+    OrderCreated = 'order_created',
+    OrderInvalid = 'order_invalid',
+    OrderBalanceChange = 'order_balance_change',
+    OrderAllowanceChange = 'order_allowance_change',
+    OrderFilled = 'order_filled',
+    OrderFilledPartially = 'order_filled_partially',
+    OrderCancelled = 'order_cancelled',
+    OrderSecretShared = 'secret_shared'
+}
 
 type OrderCreatedEvent = Event<
     'order_created',
@@ -588,40 +603,80 @@ type OrderCreatedEvent = Event<
     }
 >
 
-type OrderBalanceOrAllowanceChangeEvent = Event<
-    'order_balance_or_allowance_change',
+export type OrderCreatedEvent = Event<
+    EventType.OrderCreated,
+    {
+        srcChainId: SupportedChain
+        dstChainId: SupportedChain
+        orderHash: string
+        order: LimitOrderV4Struct
+        extension: string
+        signature: string
+        isMakerContract: boolean
+        quoteId: string
+        merkleLeaves: string[]
+        secretHashes: string[]
+    }
+>
+
+export type OrderBalanceChangeEvent = Event<
+    EventType.OrderBalanceChange,
     {
         orderHash: string
         remainingMakerAmount: string
         balance: string
+    }
+>
+
+export type OrderAllowanceChangeEvent = Event<
+    EventType.OrderAllowanceChange,
+    {
+        orderHash: string
+        remainingMakerAmount: string
         allowance: string
     }
 >
 
 type OrderInvalidEvent = Event<
-    'order_invalid',
+    EventType.OrderInvalid,
     {
         orderHash: string
     }
 >
 
-type OrderCancelledEvent = Event<
-    'order_cancelled',
+export type OrderCancelledEvent = Event<
+    EventType.OrderCancelled,
     {
         orderHash: string
+        remainingMakerAmount: string
     }
 >
 
-type OrderFilledEvent = Event<'order_filled', {orderHash: string}>
+type OrderFilledEvent = Event<EventType.OrderFilled, {orderHash: string}>
 
 type OrderFilledPartiallyEvent = Event<
-    'order_filled_partially',
+    EventType.OrderFilledPartially,
     {orderHash: string; remainingMakerAmount: string}
+>
+
+export type OrderSecretSharedEvent = Event<
+    EventType.OrderSecretShared,
+    {
+        idx: number
+        secret: string
+        srcImmutables: Jsonify<Immutables>
+        dstImmutables: Jsonify<Immutables>
+    }
 >
 ```
 
 ### RpcMethod
 
 ```typescript
-type RpcMethod = 'getAllowedMethods' | 'ping'
+export enum RpcMethod {
+    GetAllowedMethods = 'getAllowedMethods',
+    Ping = 'ping',
+    GetActiveOrders = 'getActiveOrders',
+    GetSecrets = 'getSecrets'
+}
 ```
