@@ -44,7 +44,7 @@ describe('Relayer API', () => {
         await relayer.submit(params)
 
         expect(httpProvider.post).toHaveBeenCalledWith(
-            'https://test.com/relayer/v1.0/order/submit',
+            'https://test.com/relayer/v1.0/submit',
             orderData
         )
     })
@@ -104,7 +104,7 @@ describe('Relayer API', () => {
         await relayer.submitBatch(params)
 
         expect(httpProvider.post).toHaveBeenCalledWith(
-            'https://test.com/relayer/v1.0/order/submit/many',
+            'https://test.com/relayer/v1.0/submit/many',
             params
         )
     })
@@ -123,7 +123,7 @@ describe('Relayer API', () => {
         await relayer.submitSecret(orderHash, secret)
 
         expect(httpProvider.post).toHaveBeenCalledWith(
-            'https://test.com/relayer/v1.0/order/submit/secret',
+            'https://test.com/relayer/v1.0/submit/secret',
             {
                 orderHash,
                 secret
