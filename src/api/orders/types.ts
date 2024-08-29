@@ -185,6 +185,5 @@ export type PublishedSecretsResponse = {
     secrets: PublicSecret[]
 
     // empty for OrderType.SingleFill
-    merkleLeaves?: string[]
     secretHashes?: string[]
 }

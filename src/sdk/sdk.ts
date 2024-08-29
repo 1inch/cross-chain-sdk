@@ -151,38 +151,29 @@ export class SDK {
         srcChainId: SupportedChain,
         order: CrossChainOrder,
         quoteId: string,
-        merkleLeaves?: string[],
         secretHashes?: string[]
     ): Promise<OrderInfo> {
         if (!this.config.blockchainProvider) {
             throw new Error('blockchainProvider has not set to config')
         }
 
-        if (order.multipleFillsAllowed) {
+        if (order.multipleFillsAllowed && !secretHashes) {
+            throw new Error(
+                'with multiple fills you need to provide secretHashes'
+            )
+        } else if (!order.multipleFillsAllowed && secretHashes) {
+            throw new Error(
+                'with disabled multiple fills you dont need to provide secretHashes'
+            )
+        } else if (order.multipleFillsAllowed && secretHashes) {
             const secretCount =
                 order.escrowExtension.hashLockInfo.getPartsCount() + 1n
 
-            if (!merkleLeaves || !secretHashes) {
+            if (secretHashes.length !== Number(secretCount)) {
                 throw new Error(
-                    'with multiple fills you need to provide merkleLeaves and secretHashes'
+                    'secretHashes length should be equal to number of secrets'
                 )
             }
-
-            if (merkleLeaves.length !== secretHashes.length) {
-                throw new Error(
-                    'merkleLeaves and secretHashes length should be equal'
-                )
-            }
-
-            if (merkleLeaves.length !== Number(secretCount)) {
-                throw new Error(
-                    'merkleLeaves and secretHashes length should be equal to number of secrets'
-                )
-            }
-        } else if (merkleLeaves?.length || secretHashes?.length) {
-            throw new Error(
-                'with disabled partial fills you do not need to provide merkleLeaves and secretHashes'
-            )
         }
 
         const orderStruct = order.build()
@@ -198,7 +189,6 @@ export class SDK {
             signature,
             quoteId,
             extension: order.extension.encode(),
-            merkleLeaves,
             secretHashes
         })
 

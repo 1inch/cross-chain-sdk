@@ -13,8 +13,6 @@ export class RelayerRequest {
 
     public readonly srcChainId: SupportedChain
 
-    public readonly merkleLeaves?: string[]
-
     public readonly secretHashes?: string[]
 
     constructor(params: RelayerRequestParams) {
@@ -23,7 +21,6 @@ export class RelayerRequest {
         this.quoteId = params.quoteId
         this.extension = params.extension
         this.srcChainId = params.srcChainId
-        this.merkleLeaves = params.merkleLeaves
         this.secretHashes = params.secretHashes
     }
 
@@ -38,7 +35,6 @@ export class RelayerRequest {
             quoteId: this.quoteId,
             extension: this.extension,
             srcChainId: this.srcChainId,
-            merkleLeaves: this.merkleLeaves,
             secretHashes: this.secretHashes
         }
     }

@@ -7,7 +7,6 @@ export type RelayerRequestParams = {
     signature: string
     quoteId: string
     extension: string
-    merkleLeaves?: string[]
     secretHashes?: string[]
 }
 

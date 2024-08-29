@@ -76,11 +76,6 @@ describe('Relayer API', () => {
                 getRandomBytes32(),
                 getRandomBytes32(),
                 getRandomBytes32()
-            ],
-            merkleLeaves: [
-                getRandomBytes32(),
-                getRandomBytes32(),
-                getRandomBytes32()
             ]
         }
 
