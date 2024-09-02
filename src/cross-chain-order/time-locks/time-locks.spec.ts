@@ -128,4 +128,27 @@ describe('TimeLocks', () => {
             '66b5e8150000007900000078000000000000007a000000790000007800000000'
         )
     })
+
+    it('should create from durations', () => {
+        const fromOffsets = TimeLocks.new({
+            srcWithdrawal: 1n,
+            srcPublicWithdrawal: 2n,
+            srcCancellation: 3n,
+            srcPublicCancellation: 4n,
+            dstWithdrawal: 1n,
+            dstPublicWithdrawal: 2n,
+            dstCancellation: 3n
+        })
+        const fromDurations = TimeLocks.fromDurations({
+            dstFinalityLock: 1n,
+            dstPrivateWithdrawal: 1n,
+            dstPublicWithdrawal: 1n,
+            srcFinalityLock: 1n,
+            srcPrivateCancellation: 1n,
+            srcPrivateWithdrawal: 1n,
+            srcPublicWithdrawal: 1n
+        })
+
+        expect(fromOffsets).toStrictEqual(fromDurations)
+    })
 })

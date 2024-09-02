@@ -139,6 +139,34 @@ export class TimeLocks {
         )
     }
 
+    public static fromDurations(durations: {
+        srcFinalityLock: bigint
+        srcPrivateWithdrawal: bigint
+        srcPublicWithdrawal: bigint
+        srcPrivateCancellation: bigint
+        dstFinalityLock: bigint
+        dstPrivateWithdrawal: bigint
+        dstPublicWithdrawal: bigint
+    }): TimeLocks {
+        return new TimeLocks(
+            durations.srcFinalityLock,
+            durations.srcFinalityLock + durations.srcPrivateWithdrawal,
+            durations.srcFinalityLock +
+                durations.srcPrivateWithdrawal +
+                durations.srcPublicWithdrawal,
+            durations.srcFinalityLock +
+                durations.srcPrivateWithdrawal +
+                durations.srcPublicWithdrawal +
+                durations.srcPrivateCancellation,
+            durations.dstFinalityLock,
+            durations.dstFinalityLock + durations.dstPrivateWithdrawal,
+            durations.dstFinalityLock +
+                durations.dstPrivateWithdrawal +
+                durations.dstPublicWithdrawal,
+            0n
+        )
+    }
+
     public static fromBigInt(val: bigint): TimeLocks {
         const valBN = new BN(val)
 
