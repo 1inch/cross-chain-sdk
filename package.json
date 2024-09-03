@@ -3,6 +3,9 @@
   "version": "0.0.55",
   "description": "Sdk for creating atomic swaps through 1inch",
   "author": "@1inch",
+  "module": "./dist/esm/index.js",
+  "main": "./dist/cjs/index.js",
+  "types": "./dist/types/src/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/types/src/index.d.ts",
