@@ -82,22 +82,22 @@ export class SrcTimeLocks extends BaseTimeLock {
         )
     }
 
-    /** Delay from `deployedAt` at which ends `finality lock` and starts `private withdrawal` */
+    /** Timestamp at which ends `finality lock` and starts `private withdrawal` */
     public get privateWithdrawal(): bigint {
         return this.deployedAt + this._withdrawal
     }
 
-    /** Delay from `deployedAt` at which ends `private withdrawal` and starts `public withdrawal` */
+    /** Timestamp at which ends `private withdrawal` and starts `public withdrawal` */
     public get publicWithdrawal(): bigint {
         return this.deployedAt + this._publicWithdrawal
     }
 
-    /** Delay from `deployedAt` at which ends `public withdrawal` and starts `private cancellation` */
+    /** Timestamp at which ends `public withdrawal` and starts `private cancellation` */
     public get privateCancellation(): bigint {
         return this.deployedAt + this._cancellation
     }
 
-    /** Delay from `deployedAt` at which ends `private cancellation` and starts `public cancellation` */
+    /** Timestamp at which ends `private cancellation` and starts `public cancellation` */
     public get publicCancellation(): bigint {
         return this.deployedAt + this._publicCancellation
     }
