@@ -48,7 +48,11 @@ export class Immutables {
         public readonly amount: bigint,
         public readonly safetyDeposit: bigint,
         public readonly timeLocks: TimeLocks
-    ) {}
+    ) {
+        if (this.token.isZero()) {
+            this.token = Address.NATIVE_CURRENCY
+        }
+    }
 
     public static new(params: {
         orderHash: string
@@ -133,12 +137,14 @@ export class Immutables {
     }
 
     public build(): ImmutablesData {
+        const token = this.token.isNative() ? Address.ZERO_ADDRESS : this.token
+
         return {
             orderHash: this.orderHash,
             hashlock: this.hashLock.toString(),
             maker: this.maker.toString(),
             taker: this.taker.toString(),
-            token: this.token.toString(),
+            token: token.toString(),
             amount: this.amount.toString(),
             safetyDeposit: this.safetyDeposit.toString(),
             timelocks: this.timeLocks.build().toString()
