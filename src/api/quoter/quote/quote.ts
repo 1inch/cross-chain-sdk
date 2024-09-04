@@ -87,7 +87,7 @@ export class Quote {
             : params.nonce
 
         const takerAsset = this.params.dstTokenAddress.isNative()
-            ? Address.ZERO_ADDRESS
+            ? Address.NATIVE_CURRENCY
             : this.params.dstTokenAddress
 
         return CrossChainOrder.new(

@@ -50,6 +50,10 @@ export class EscrowExtension extends FusionExtension {
         assert(srcSafetyDeposit <= UINT_128_MAX)
 
         super(address, auctionDetails, postInteractionData, makerPermit)
+
+        if (this.dstToken.isZero()) {
+            this.dstToken = Address.NATIVE_CURRENCY
+        }
     }
 
     /**
@@ -138,12 +142,16 @@ export class EscrowExtension extends FusionExtension {
     }
 
     private encodeExtraData(): string {
+        const dstToken = this.dstToken.isNative()
+            ? Address.ZERO_ADDRESS
+            : this.dstToken
+
         return AbiCoder.defaultAbiCoder().encode(
             EscrowExtension.EXTRA_DATA_TYPES,
             [
                 this.hashLockInfo.toString(),
                 this.dstChainId,
-                this.dstToken.toString(),
+                dstToken.toString(),
                 (this.srcSafetyDeposit << 128n) | this.dstSafetyDeposit,
                 this.timeLocks.build()
             ]
