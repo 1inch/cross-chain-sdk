@@ -3,7 +3,6 @@ import {
     Address,
     AuctionWhitelistItem,
     bpsToRatioFormat,
-    CHAIN_TO_WRAPPER,
     randBigInt
 } from '@1inch/fusion-sdk'
 import {CrossChainOrderParamsData} from './types'
@@ -88,7 +87,7 @@ export class Quote {
             : params.nonce
 
         const takerAsset = this.params.dstTokenAddress.isNative()
-            ? CHAIN_TO_WRAPPER[this.params.dstChain]
+            ? Address.ZERO_ADDRESS
             : this.params.dstTokenAddress
 
         return CrossChainOrder.new(
