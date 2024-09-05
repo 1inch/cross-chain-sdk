@@ -202,5 +202,5 @@ export type ReadyToExecutePublicAction = {
 }
 
 export type ReadyToExecutePublicActions = {
-    actions: ReadyToAcceptSecretFill[]
+    actions: ReadyToExecutePublicAction[]
 }
