@@ -187,3 +187,20 @@ export type PublishedSecretsResponse = {
     // empty for OrderType.SingleFill
     secretHashes?: string[]
 }
+
+export enum PublicAction {
+    Withdraw = 'withdraw',
+    Cancel = 'cancel'
+}
+
+export type ReadyToExecutePublicAction = {
+    action: PublicAction
+    immutables: ChainImmutables
+    chainId: SupportedChain
+    escrow: string
+    secret?: string
+}
+
+export type ReadyToExecutePublicActions = {
+    actions: ReadyToAcceptSecretFill[]
+}

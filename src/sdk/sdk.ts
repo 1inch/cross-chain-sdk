@@ -22,7 +22,8 @@ import {
     OrderStatusRequest,
     OrderStatusResponse,
     ReadyToAcceptSecretFills,
-    PublishedSecretsResponse
+    PublishedSecretsResponse,
+    ReadyToExecutePublicActions
 } from '../api'
 import {CrossChainOrder} from '../cross-chain-order'
 import {SupportedChain} from '../chains'
@@ -64,6 +65,10 @@ export class SDK {
         orderHash: string
     ): Promise<ReadyToAcceptSecretFills> {
         return this.api.getReadyToAcceptSecretFills(orderHash)
+    }
+
+    async getReadyToExecutePublicActions(): Promise<ReadyToExecutePublicActions> {
+        return this.api.getReadyToExecutePublicActions()
     }
 
     async getPublishedSecrets(

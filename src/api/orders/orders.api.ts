@@ -10,7 +10,8 @@ import {
     OrdersByMakerResponse,
     OrderStatusResponse,
     PublishedSecretsResponse,
-    ReadyToAcceptSecretFills
+    ReadyToAcceptSecretFills,
+    ReadyToExecutePublicActions
 } from './types'
 import {concatQueryParams} from '../params'
 
@@ -52,6 +53,12 @@ export class OrdersApi {
         orderHash: string
     ): Promise<ReadyToAcceptSecretFills> {
         const url = `${this.config.url}/${OrdersApi.Version}/order/ready-to-accept-secret-fills/${orderHash}`
+
+        return this.httpClient.get(url)
+    }
+
+    async getReadyToExecutePublicActions(): Promise<ReadyToExecutePublicActions> {
+        const url = `${this.config.url}/${OrdersApi.Version}/order/ready-to-execute-public-actions`
 
         return this.httpClient.get(url)
     }

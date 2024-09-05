@@ -16,7 +16,8 @@ import {
     OrderStatusResponse,
     OrdersByMakerResponse,
     ReadyToAcceptSecretFills,
-    PublishedSecretsResponse
+    PublishedSecretsResponse,
+    ReadyToExecutePublicActions
 } from './orders'
 
 export class FusionApi {
@@ -85,6 +86,10 @@ export class FusionApi {
         orderHash: string
     ): Promise<ReadyToAcceptSecretFills> {
         return this.ordersApi.getReadyToAcceptSecretFills(orderHash)
+    }
+
+    getReadyToExecutePublicActions(): Promise<ReadyToExecutePublicActions> {
+        return this.ordersApi.getReadyToExecutePublicActions()
     }
 
     getPublishedSecrets(orderHash: string): Promise<PublishedSecretsResponse> {
