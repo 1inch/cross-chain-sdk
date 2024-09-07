@@ -38,18 +38,18 @@ export type OrderStatusParams = {
 
 export enum ValidationStatus {
     Valid = 'valid',
-    OrderPredicateReturnedFalse = 'order predicate returned false',
-    NotEnoughAllowance = 'not enough balance',
-    NotEnoughBalance = 'not enough allowance',
-    InvalidPermitSignature = 'invalid permit signature',
-    InvalidPermitSpender = 'invalid permit spender',
-    InvalidPermitSigner = 'invalid permit signer',
-    InvalidSignature = 'invalid signature',
-    FailedToParsePermitDetails = 'failed to parse permit details',
-    UnknownPermitVersion = 'unknown permit version',
-    WrongEpochManagerAndBitInvalidator = 'wrong epoch manager and bit invalidator',
-    FailedToDecodeRemainingMakerAmount = 'failed to decode remaining',
-    UnknownFailure = 'unknown failure'
+    OrderPredicateReturnedFalse = 'order-predicate-returned-false',
+    NotEnoughBalance = 'not-enough-balance',
+    NotEnoughAllowance = 'not-enough-allowance',
+    InvalidPermitSignature = 'invalid-permit-signature',
+    InvalidPermitSpender = 'invalid-permit-spender',
+    InvalidPermitSigner = 'invalid-permit-signer',
+    InvalidSignature = 'invalid-signature',
+    FailedToParsePermitDetails = 'failed-to-parse-permit-details',
+    UnknownPermitVersion = 'unknown-permit-version',
+    WrongEpochManagerAndBitInvalidator = 'wrong-epoch-manager-and-bit-invalidator',
+    FailedToDecodeRemainingMakerAmount = 'failed-to-decode-remaining',
+    UnknownFailure = 'unknown-failure'
 }
 
 export enum FillStatus {
