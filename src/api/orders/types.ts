@@ -22,6 +22,8 @@ export type ActiveOrder = {
     auctionStartDate: string
     auctionEndDate: string
     remainingMakerAmount: string
+    makerBalance: string
+    makerAllowance: string
     order: LimitOrderV4Struct
     extension: string
     srcChainId: SupportedChain
