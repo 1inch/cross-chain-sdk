@@ -47,6 +47,8 @@ describe(__filename, () => {
                         auctionStartDate: '2024-04-25T13:24:36.000Z',
                         auctionEndDate: '2024-04-25T13:27:36.000Z',
                         remainingMakerAmount: '33058558528525703',
+                        makerBalance: '33058558528525703',
+                        makerAllowance: '33058558528525703',
                         order: {
                             salt: '102412815596156525137376967412477025111761562902072504909418068904100646989168',
                             maker: '0xe2668d9bef0a686c9874882f7037758b5b520e5c',
@@ -82,6 +84,8 @@ describe(__filename, () => {
                         auctionStartDate: '2023-01-31T10:58:11.000Z',
                         auctionEndDate: '2023-01-31T11:01:11.000Z',
                         remainingMakerAmount: '470444951856649710700841',
+                        makerBalance: '470444951856649710700841',
+                        makerAllowance: '470444951856649710700841',
                         order: {
                             salt: '102412815605188492728297784997818915205705878873010401762040598952855113412064',
                             maker: '0xdc8152a435d76fc89ced8255e28f690962c27e52',
@@ -147,6 +151,8 @@ describe(__filename, () => {
                         auctionStartDate: '2024-04-25T13:24:36.000Z',
                         auctionEndDate: '2024-04-25T13:27:36.000Z',
                         remainingMakerAmount: '33058558528525703',
+                        makerBalance: '33058558528525703',
+                        makerAllowance: '33058558528525703',
                         order: {
                             salt: '102412815596156525137376967412477025111761562902072504909418068904100646989168',
                             maker: '0xe2668d9bef0a686c9874882f7037758b5b520e5c',
@@ -174,6 +180,8 @@ describe(__filename, () => {
                         auctionStartDate: '2023-01-31T10:58:11.000Z',
                         auctionEndDate: '2023-01-31T11:01:11.000Z',
                         remainingMakerAmount: '470444951856649710700841',
+                        makerBalance: '470444951856649710700841',
+                        makerAllowance: '470444951856649710700841',
                         order: {
                             salt: '102412815605188492728297784997818915205705878873010401762040598952855113412064',
                             maker: '0xdc8152a435d76fc89ced8255e28f690962c27e52',
