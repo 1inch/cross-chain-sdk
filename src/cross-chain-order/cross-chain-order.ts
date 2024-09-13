@@ -336,9 +336,9 @@ export class CrossChainOrder {
             this.makingAmount
 
         if (remainingAmount === fillAmount) {
-            return Number(calculatedIndex + 2n)
+            return Number(calculatedIndex + 1n)
         }
 
-        return Number(calculatedIndex + 1n)
+        return Number(calculatedIndex)
     }
 }
