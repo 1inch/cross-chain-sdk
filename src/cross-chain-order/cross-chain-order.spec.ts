@@ -35,6 +35,36 @@ describe('CrossChainOrder', () => {
         expect(o.build()).toStrictEqual(rawOrder)
     })
 
+    it('Should getMultipleFillIdx', () => {
+        const rawOrder = {
+            salt: '102412815605163333306499942368781310361338818117812724107394620400737590471129',
+            maker: '0x6edc317f3208b10c46f4ff97faa04dd632487408',
+            receiver: '0x0000000000000000000000000000000000000000',
+            makerAsset: '0xaf88d065e77c8cc2239327c5edb3a432268e5831',
+            takerAsset: '0xda0000d4000015a526378bb6fafc650cea5966f8',
+            makerTraits:
+                '33471150795161712739625987854073848363835857029316554794001693971572152336384',
+            makingAmount: '80000000',
+            takingAmount: '79314404'
+        }
+        const extension =
+            '0x000001230000005e0000005e0000005e0000005e0000002f0000000000000000a7bcb4eac8964306f9e3764f67db6a7af6ddf99a000d3d0000000a66e4706f0000b400d19a00b1f30078000d3d003ca7bcb4eac8964306f9e3764f67db6a7af6ddf99a000d3d0000000a66e4706f0000b400d19a00b1f30078000d3d003ca7bcb4eac8964306f9e3764f67db6a7af6ddf99a66e4705e555d67e125f8769284ba00000800516df7f436cd4aa9c714cf8dafd978cba12632f5c696ca464804b2d7ea6ae00000000000000000000000000000000000000000000000000000000000000064000000000000000000000000ddafbb505ad214d7b80b1f830fccc89b60fb7a8300000000000000000000046398184200000000000000000000017f9c78c235900000000000000150000000d80000002400000228000001b0000001140000003c'
+
+        const o = CrossChainOrder.fromDataAndExtension(
+            rawOrder,
+            Extension.decode(extension)
+        )
+
+        const idx = o.getMultipleFillIdx(20004415n)
+        expect(idx).toStrictEqual(20)
+
+        const idx2 = o.getMultipleFillIdx(20004415n, o.makingAmount - 20004415n)
+        expect(idx2).toStrictEqual(40)
+
+        const idx3 = o.getMultipleFillIdx(o.makingAmount)
+        expect(idx3).toStrictEqual(81)
+    })
+
     it('Should encode/decode order', () => {
         const factoryAddress = Address.fromBigInt(1n)
         const orderData: CrossChainOrderInfo = {
