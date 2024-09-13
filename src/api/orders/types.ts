@@ -14,6 +14,10 @@ export type ActiveOrdersRequestParams = PaginationParams & {
     dstChainId?: SupportedChain
 }
 
+export type FillInfo = {
+    txHash: string
+}
+
 export type ActiveOrder = {
     quoteId: string
     orderHash: string
@@ -30,6 +34,7 @@ export type ActiveOrder = {
     dstChainId: SupportedChain
     isMakerContract: boolean
     secretHashes?: string[]
+    fills: FillInfo[]
 }
 
 export type ActiveOrdersResponse = PaginationOutput<ActiveOrder>
