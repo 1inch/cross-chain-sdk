@@ -126,11 +126,12 @@ export class SDK {
         return this.api.getQuoteWithCustomPreset(paramsRequest, bodyRequest)
     }
 
-    async createOrder(params: OrderParams): Promise<PreparedOrder> {
-        const quote = await this.getQuoteResult(params)
-
+    async createOrder(
+        quote: Quote,
+        params: OrderParams
+    ): Promise<PreparedOrder> {
         if (!quote.quoteId) {
-            throw new Error('quoter has not returned quoteId')
+            throw new Error('request quote with enableEstimate=true')
         }
 
         const order = quote.createOrder({
@@ -141,13 +142,11 @@ export class SDK {
             preset: params.preset,
             nonce: params.nonce,
             takingFeeReceiver: params.fee?.takingFeeReceiver,
-            allowPartialFills: params.allowPartialFills,
-            allowMultipleFills: params.allowMultipleFills,
             permit: params.permit,
             isPermit2: params.isPermit2
         })
 
-        const hash = order.getOrderHash(params.srcChainId)
+        const hash = order.getOrderHash(quote.srcChainId)
 
         return {order, hash, quoteId: quote.quoteId}
     }
@@ -156,19 +155,15 @@ export class SDK {
         srcChainId: SupportedChain,
         order: CrossChainOrder,
         quoteId: string,
-        secretHashes?: string[]
+        secretHashes: string[]
     ): Promise<OrderInfo> {
         if (!this.config.blockchainProvider) {
             throw new Error('blockchainProvider has not set to config')
         }
 
-        if (order.multipleFillsAllowed && !secretHashes) {
+        if (!order.multipleFillsAllowed && secretHashes.length > 1) {
             throw new Error(
-                'with multiple fills you need to provide secretHashes'
-            )
-        } else if (!order.multipleFillsAllowed && secretHashes) {
-            throw new Error(
-                'with disabled multiple fills you dont need to provide secretHashes'
+                'with disabled multiple fills you provided secretHashes > 1'
             )
         } else if (order.multipleFillsAllowed && secretHashes) {
             const secretCount =
@@ -208,10 +203,15 @@ export class SDK {
         }
     }
 
-    async placeOrder(params: OrderParams): Promise<OrderInfo> {
-        const {order, quoteId} = await this.createOrder(params)
+    async placeOrder(quote: Quote, params: OrderParams): Promise<OrderInfo> {
+        const {order, quoteId} = await this.createOrder(quote, params)
 
-        return this.submitOrder(params.srcChainId, order, quoteId)
+        return this.submitOrder(
+            quote.srcChainId,
+            order,
+            quoteId,
+            params.secretHashes
+        )
     }
 
     async buildCancelOrderCallData(orderHash: string): Promise<string> {
@@ -229,39 +229,6 @@ export class SDK {
         return encodeCancelOrder(
             orderHash,
             new MakerTraits(BigInt(order.makerTraits))
-        )
-    }
-
-    private async getQuoteResult(
-        params: Omit<OrderParams, 'hashLock'>
-    ): Promise<Quote> {
-        const quoterRequest = new QuoterRequest({
-            srcChain: params.srcChainId,
-            dstChain: params.dstChainId,
-            srcTokenAddress: params.srcTokenAddress,
-            dstTokenAddress: params.dstTokenAddress,
-            amount: params.amount,
-            walletAddress: params.walletAddress,
-            permit: params.permit,
-            enableEstimate: true,
-            fee: params.fee?.takingFeeBps,
-            source: params.source,
-            isPermit2: params.isPermit2
-        })
-
-        if (!params.customPreset) {
-            return this.api.getQuote(quoterRequest)
-        }
-
-        const quoterWithCustomPresetBodyRequest = new QuoterCustomPresetRequest(
-            {
-                customPreset: params.customPreset
-            }
-        )
-
-        return this.api.getQuoteWithCustomPreset(
-            quoterRequest,
-            quoterWithCustomPresetBodyRequest
         )
     }
 }

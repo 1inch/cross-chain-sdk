@@ -10,6 +10,7 @@ import {Cost, PresetEnum, QuoterResponse, TimeLocksRaw} from '../types'
 import {Preset} from '../preset'
 import {QuoterRequest} from '../quoter.request'
 import {CrossChainOrder, TimeLocks} from '../../../cross-chain-order'
+import {SupportedChain} from '../../../chains'
 
 export class Quote {
     public readonly quoteId: string | null
@@ -69,6 +70,14 @@ export class Quote {
         this.dstEscrowFactory = new Address(response.dstEscrowFactory)
     }
 
+    get srcChainId(): SupportedChain {
+        return this.params.srcChain
+    }
+
+    get dstChainId(): SupportedChain {
+        return this.params.dstChain
+    }
+
     createOrder(params: CrossChainOrderParamsData): CrossChainOrder {
         const preset = this.getPreset(params?.preset || this.recommendedPreset)
 
@@ -76,10 +85,8 @@ export class Quote {
             params.delayAuctionStartTimeBy
         )
 
-        const allowPartialFills =
-            params?.allowPartialFills ?? preset.allowPartialFills
-        const allowMultipleFills =
-            params?.allowMultipleFills ?? preset.allowMultipleFills
+        const allowPartialFills = preset.allowPartialFills
+        const allowMultipleFills = preset.allowMultipleFills
         const isNonceRequired = !allowPartialFills || !allowMultipleFills
 
         const nonce = isNonceRequired
@@ -150,7 +157,7 @@ export class Quote {
         )
     }
 
-    getPreset(type = PresetEnum.fast): Preset {
+    getPreset(type = this.recommendedPreset): Preset {
         return this.presets[type] as Preset
     }
 
