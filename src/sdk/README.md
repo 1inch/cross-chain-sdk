@@ -169,7 +169,9 @@ const params = {
   dstChainId: NetworkEnum.GNOSIS,
   srcTokenAddress: '0x6b175474e89094c44da98b954eedeac495271d0f',
   dstTokenAddress: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
-  amount: '1000000000000000000000'
+  amount: '1000000000000000000000',
+  enableEstimate: true,
+  walletAddress: makerAddress
 }
 
 const quote = await sdk.getQuote(params)
