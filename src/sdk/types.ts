@@ -33,13 +33,9 @@ export type QuoteCustomPresetParams = {
 }
 
 export type OrderParams = {
-    srcChainId: SupportedChain
-    dstChainId: SupportedChain
-    srcTokenAddress: string
-    dstTokenAddress: string
-    amount: string
     walletAddress: string
     hashLock: HashLock
+    secretHashes: string[]
     permit?: string // without the first 20 bytes of token address
     receiver?: string // by default: walletAddress (makerAddress)
     preset?: PresetEnum // by default: recommended preset
@@ -53,15 +49,6 @@ export type OrderParams = {
     source?: string
     isPermit2?: boolean
     customPreset?: CustomPreset
-    /**
-     * true by default
-     */
-    allowPartialFills?: boolean
-
-    /**
-     * true by default
-     */
-    allowMultipleFills?: boolean
 }
 
 export type TakingFeeInfo = {

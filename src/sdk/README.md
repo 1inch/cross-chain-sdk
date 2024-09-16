@@ -1,16 +1,15 @@
 # SDK
 
-**Description:** provides high level functionality to working with fusion mode
+**Description:** provides high level functionality to working with fusion plus mode
 
 ## Real world example
 
 ```typescript
-import {FusionSDK, NetworkEnum} from '@1inch/fusion-sdk'
+import {SDK, NetworkEnum} from '@1inch/cross-chain-sdk'
 
 async function main() {
-    const sdk = new FusionSDK({
-        url: 'https://api.1inch.dev/fusion',
-        network: NetworkEnum.ETHEREUM,
+    const sdk = new SDK({
+        url: 'https://api.1inch.dev/fusion-plus',
         authKey: 'your-auth-key'
     })
 
@@ -22,7 +21,7 @@ main()
 
 ## Creation
 
-**Constructor arguments:** params: FusionSDKConfigParams
+**Constructor arguments:** params: CrossChainSDKConfigParams
 
 ```typescript
 interface HttpProviderConnector {
@@ -40,9 +39,8 @@ interface BlockchainProviderConnector {
     ethCall(contractAddress: string, callData: string): Promise<string>
 }
 
-type FusionSDKConfigParams = {
+type CrossChainSDKConfigParams = {
     url: string
-    network: NetworkEnum
     blockchainProvider?: BlockchainProviderConnector
     httpProvider?: HttpProviderConnector // by default we are using axios
 }
@@ -76,10 +74,10 @@ class CustomHttpProvider implements HttpProviderConnector {
 **Example:**
 
 ```typescript
-import {FusionSDK, NetworkEnum} from '@1inch/fusion-sdk'
-const sdk = new FusionSDK({
-    url: 'https://api.1inch.dev/fusion',
-    network: NetworkEnum.ETHEREUM
+import {SDK, NetworkEnum} from '@1inch/cross-chain-sdk'
+const sdk = new SDK({
+    url: 'https://api.1inch.dev/fusion-plus',
+    authKey: 'your-auth-key'
 })
 const orders = await sdk.getActiveOrders({page: 1, limit: 2})
 ```
@@ -95,10 +93,10 @@ const orders = await sdk.getActiveOrders({page: 1, limit: 2})
 **Example:**
 
 ```typescript
-import {FusionSDK, NetworkEnum} from '@1inch/fusion-sdk'
+import {SDK, NetworkEnum} from '@1inch/cross-chain-sdk'
 const sdk = new FusionSDK({
-    url: 'https://api.1inch.dev/fusion',
-    network: NetworkEnum.ETHEREUM
+    url: 'https://api.1inch.dev/fusion-plus',
+    authKey: 'your-auth-key'
 })
 
 const orders = await sdk.getOrdersByMaker({
@@ -119,96 +117,88 @@ const orders = await sdk.getOrdersByMaker({
 **Example:**
 
 ```typescript
-import {FusionSDK, NetworkEnum, QuoteParams} from '@1inch/fusion-sdk'
+import {SDK, NetworkEnum, QuoteParams} from '@1inch/cross-chain-sdk'
 const sdk = new FusionSDK({
-    url: 'https://api.1inch.dev/fusion',
-    network: NetworkEnum.ETHEREUM
+    url: 'https://api.1inch.dev/fusion-plus',
+    authKey: 'your-auth-key'
 })
 
 const params = {
-    fromTokenAddress: '0x6b175474e89094c44da98b954eedeac495271d0f',
-    toTokenAddress: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+    srcChainId: NetworkEnum.ETHEREUM,
+    dstChainId: NetworkEnum.GNOSIS,
+    srcTokenAddress: '0x6b175474e89094c44da98b954eedeac495271d0f',
+    dstTokenAddress: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
     amount: '1000000000000000000000'
 }
 
 const quote = await sdk.getQuote(params)
 ```
 
-### getQuoteWithCustomPreset
-
-**Description**: Get quote details with custom preset
-
-**Arguments:**
-
--   [0] params: QuoteParams
--   [1] body params: QuoteCustomPresetParams
-
-```typescript
-import {FusionSDK, NetworkEnum, QuoteParams} from '@1inch/fusion-sdk'
-const sdk = new FusionSDK({
-    url: 'https://api.1inch.dev/fusion',
-    network: NetworkEnum.ETHEREUM
-})
-
-const params = {
-    fromTokenAddress: '0x6b175474e89094c44da98b954eedeac495271d0f',
-    toTokenAddress: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-    amount: '1000000000000000000000'
-}
-
-const body = {
-    customPreset: {
-        auctionDuration: 180,
-        auctionStartAmount: '100000',
-        auctionEndAmount: '50000',
-        // you can pass points to get custom non linear curve
-        points: [
-            {toTokenAmount: '90000', delay: 20}, // auctionStartAmount >= toTokenAmount >= auctionEndAmount
-            {toTokenAmount: '70000', delay: 40}
-        ]
-    }
-}
-
-const quote = await sdk.getQuoteWithCustomPreset(params, body)
-```
-
 ### placeOrder
 
-**Description:** used to create a fusion order
+**Description:** used to create a cross chain order by given quote
 
 **Arguments:**
 
--   [0] params: OrderParams
+-   [0] quote: Quote
+-   [1] params: OrderParams
 
 **Example:**
 
 ```typescript
+import { getRandomBytes32, SDK, HashLock, PrivateKeyProviderConnector, NetworkEnum } from "@1inch/cross-chain-sdk";
+
 const makerPrivateKey = '0x123....'
 const makerAddress = '0x123....'
 
 const nodeUrl = '....'
 
 const blockchainProvider = new PrivateKeyProviderConnector(
-    makerPrivateKey,
-    new Web3(nodeUrl)
+  makerPrivateKey,
+  new Web3(nodeUrl)
 )
 
-const sdk = new FusionSDK({
-    url: 'https://api.1inch.dev/fusion',
-    network: 1,
-    blockchainProvider
+const sdk = new SDK({
+  url: 'https://api.1inch.dev/fusion',
+  authKey: 'your-auth-key',
+  blockchainProvider
 })
 
-sdk.placeOrder({
-    fromTokenAddress: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2', // WETH
-    toTokenAddress: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48', // USDC
-    amount: '50000000000000000', // 0.05 ETH
-    walletAddress: makerAddress,
-    // fee is an optional field
-    fee: {
-        takingFeeBps: 100, // 1% as we use bps format, 1% is equal to 100bps
-        takingFeeReceiver: '0x0000000000000000000000000000000000000000' //  fee receiver address
-    }
+const params = {
+  srcChainId: NetworkEnum.ETHEREUM,
+  dstChainId: NetworkEnum.GNOSIS,
+  srcTokenAddress: '0x6b175474e89094c44da98b954eedeac495271d0f',
+  dstTokenAddress: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+  amount: '1000000000000000000000'
+}
+
+const quote = await sdk.getQuote(params)
+
+const secretsCount = quote.getPreset().secretsCount
+
+const secrets = Array.from({length: secretsCount}).map(() => getRandomBytes32())
+const secretHashes = secrets.map((x) => HashLock.hashSecret(x))
+
+const hashLock =
+  secretsCount === 1
+    ? HashLock.forSingleFill(secrets[0])
+    : HashLock.forMultipleFills(
+      secretHashes.map((secretHash, i) =>
+        solidityPackedKeccak256(['uint64', 'bytes32'], [i, secretHash.toString()])
+      ) as (string & {
+        _tag: 'MerkleLeaf'
+      })[]
+    )
+
+sdk.placeOrder(quote, {
+  walletAddress: makerAddress,
+  hashLock,
+  secretHashes,
+  // fee is an optional field
+  fee: {
+    takingFeeBps: 100, // 1% as we use bps format, 1% is equal to 100bps
+    takingFeeReceiver: '0x0000000000000000000000000000000000000000' //  fee receiver address
+  }
 }).then(console.log)
 ```
 
