@@ -346,13 +346,13 @@ ws.order.onOrderInvalid((data) => {
 })
 ```
 
-### onOrderBalanceOrAllowanceChange
+### onOrderBalanceChange
 
-**Description:** subscribe to order_balance_or_allowance_change events
+**Description:** subscribe to order_balance_change events
 
 **Arguments:**
 
--   [0] cb: (data: OrderBalanceOrAllowanceChangeEvent) => void
+-   [0] cb: (data: OrderBalanceChangeEvent) => void
 
 **Example:**
 
@@ -364,7 +364,30 @@ const ws = new WebSocketApi({
     network: NetworkEnum.ETHEREUM
 })
 
-ws.order.onOrderBalanceOrAllowanceChange((data) => {
+ws.order.onOrderBalanceChange((data) => {
+    // do something
+})
+```
+
+### onOrderAllowanceChange
+
+**Description:** subscribe to order_allowance_change events
+
+**Arguments:**
+
+-   [0] cb: (data: OrderAllowanceChangeEvent) => void
+
+**Example:**
+
+```typescript
+import {WebSocketApi, NetworkEnum} from '@1inch/fusion-sdk'
+
+const ws = new WebSocketApi({
+    url: 'wss://api.1inch.dev/fusion/ws',
+    network: NetworkEnum.ETHEREUM
+})
+
+ws.order.onOrderAllowanceChange((data) => {
     // do something
 })
 ```
