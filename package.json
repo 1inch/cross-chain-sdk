@@ -23,7 +23,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "ssh://git@github.com:1inch/atomic-swap-sdk.git"
+    "url": "ssh://git@github.com:1inch/cross-chain-sdk.git"
   },
   "scripts": {
     "build": "npm run build:esm && npm run build:cjs && npm run build:types",
