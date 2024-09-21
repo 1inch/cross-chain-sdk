@@ -189,7 +189,7 @@ export class SDK {
             signature,
             quoteId,
             extension: order.extension.encode(),
-            secretHashes
+            secretHashes: secretHashes.length === 1 ? undefined : secretHashes
         })
 
         await this.api.submitOrder(relayerRequest)
