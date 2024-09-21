@@ -7,35 +7,35 @@ on:
   workflow_dispatch:
 
 jobs:
-#  publish-to-npm:
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Checkout
-#        uses: actions/checkout@v3
-#
-#      - name: Install pnpm
-#        uses: pnpm/action-setup@v2
-#        with:
-#          version: 9
-#
-#      - uses: actions/setup-node@v3
-#        with:
-#          node-version: 20
-#          registry-url: 'https://registry.npmjs.org'
-#          scope: ${{ github.repository_owner }}
-#          cache: pnpm
-#
-#      - name: Install dependencies
-#        run: pnpm install --frozen-lockfile
-#
-#      - name: Build
-#        run: pnpm build
-#
-#      - name: Publish 🚀
-#        run: pnpm publish --no-git-checks --access=public
-#        working-directory: dist
-#        env:
-#          NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+  publish-to-npm:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          registry-url: 'https://registry.npmjs.org'
+          scope: ${{ github.repository_owner }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm build
+
+      - name: Publish 🚀
+        run: pnpm publish --no-git-checks --access=public
+        working-directory: dist
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
 
   publish-to-github:
     runs-on: ubuntu-latest
