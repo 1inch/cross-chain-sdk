@@ -75,6 +75,14 @@ export enum OrderStatus {
     Refunded = 'refunded'
 }
 
+export type DetailedFill = {
+    status: FillStatus
+    txHash: string
+    filledMakerAmount: string
+    filledAuctionTakerAmount: string
+    escrowEvents: DetailedEscrowEventData[]
+}
+
 export type Fill = {
     status: FillStatus
     txHash: string
@@ -96,6 +104,14 @@ export enum EscrowEventAction {
     EscrowCancelled = 'escrow_cancelled'
 }
 
+export type DetailedEscrowEventData = {
+    transactionHash: string
+    escrow: string
+    side: EscrowEventSide
+    action: EscrowEventAction
+    blockTimestamp: number
+}
+
 export type EscrowEventData = {
     transactionHash: string
     side: EscrowEventSide
@@ -109,7 +125,7 @@ export type OrderStatusResponse = {
     extension: string
     points: AuctionPoint[] | null
     cancelTx: string | null
-    fills: Fill[]
+    fills: DetailedFill[]
     createdAt: string
     auctionStartDate: number
     auctionDuration: number

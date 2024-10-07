@@ -264,24 +264,28 @@ describe(__filename, () => {
                         escrowEvents: [
                             {
                                 transactionHash: '0x2345',
+                                escrow: '0x123',
                                 action: EscrowEventAction.SrcEscrowCreated,
                                 blockTimestamp: 123,
                                 side: EscrowEventSide.Src
                             },
                             {
                                 transactionHash: '0x4234',
+                                escrow: '0x234',
                                 action: EscrowEventAction.DstEscrowCreated,
                                 blockTimestamp: 124,
                                 side: EscrowEventSide.Dst
                             },
                             {
                                 transactionHash: '0x6454',
+                                escrow: '0x123',
                                 action: EscrowEventAction.Withdrawn,
                                 side: EscrowEventSide.Dst,
                                 blockTimestamp: 125
                             },
                             {
                                 transactionHash: '0x4354',
+                                escrow: '0x234',
                                 action: EscrowEventAction.Withdrawn,
                                 side: EscrowEventSide.Src,
                                 blockTimestamp: 126
