@@ -13,7 +13,7 @@ export class EscrowFactoryFacade {
         /**
          * chain id
          */
-        chainId: number,
+        chainId: NetworkEnum,
         /**
          * @see Immutables.hash
          */
@@ -41,7 +41,7 @@ export class EscrowFactoryFacade {
         /**
          * chain id
          */
-        chainId: number,
+        chainId: NetworkEnum,
         /**
          * From `SrcEscrowCreated` event (with correct timeLock.deployedAt)
          */
@@ -69,7 +69,7 @@ export class EscrowFactoryFacade {
         /**
          * chain id
          */
-        chainId: number,
+        chainId: NetworkEnum,
         /**
          * From `SrcEscrowCreated` event
          */
