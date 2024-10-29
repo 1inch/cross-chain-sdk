@@ -18,6 +18,96 @@ export class EscrowFactory {
     }
 
     /**
+     * Calculate address of escrow contract in ZkSync Era
+     *
+     * @return escrow address at same the chain as `this.address`
+     */
+    public getZkEscrowAddress(
+        /**
+         * @see Immutables.hash
+         */
+        immutablesHash: string,
+        /**
+         * Address of escrow implementation at the same chain as `this.address`
+         */
+        implementationAddress: Address
+    ): Address {
+        assert(
+            isHexBytes(immutablesHash) && getBytesCount(immutablesHash) === 32n,
+            'invalid hash'
+        )
+
+        const bytecodeHash = EscrowFactory.calcProxyBytecodeHash(
+            implementationAddress
+        )
+        const srcInputHash = keccak256(implementationAddress.toString())
+        const create2Prefix =
+            '0x2020dba91b30cc0006188af794c2fb30dd8520db7e2c088b7fc7c103c00ca494'
+
+        const concatenatedData = `${create2Prefix}${trim0x(this.address.toString())}${trim0x(immutablesHash)}${trim0x(bytecodeHash)}${trim0x(srcInputHash)}`
+
+        return new Address(add0x(keccak256(concatenatedData).slice(-40)))
+    }
+
+    /**
+     * Calculates source escrow address for given params
+     *
+     * Make sure you call it on source chain escrow factory
+     */
+    public getZkSrcEscrowAddress(
+        /**
+         * From `SrcEscrowCreated` event (with correct timeLock.deployedAt)
+         */
+        srcImmutables: Immutables,
+        /**
+         * Address of escrow implementation at the same chain as `this.address`
+         */
+        implementationAddress: Address
+    ): Address {
+        return this.getZkEscrowAddress(
+            srcImmutables.hash(),
+            implementationAddress
+        )
+    }
+
+    /**
+     * Calculates destination escrow address for given params
+     *
+     * Make sure you call it on destination chain escrow factory
+     */
+    public getZkDstEscrowAddress(
+        /**
+         * From `SrcEscrowCreated` event
+         */
+        srcImmutables: Immutables,
+        /**
+         * From `SrcEscrowCreated` event
+         */
+        complement: DstImmutablesComplement,
+        /**
+         * Block time when event `DstEscrowCreated` produced
+         */
+        blockTime: bigint,
+        /**
+         * Taker from `DstEscrowCreated` event
+         */
+        taker: Address,
+        /**
+         * Address of escrow implementation at the same chain as `this.address`
+         */
+        implementationAddress: Address
+    ): Address {
+        return this.getEscrowAddress(
+            srcImmutables
+                .withComplement(complement)
+                .withTaker(taker)
+                .withDeployedAt(blockTime)
+                .hash(),
+            implementationAddress
+        )
+    }
+
+    /**
      * Calculate address of escrow contract
      *
      * @return escrow address at same the chain as `this.address`
