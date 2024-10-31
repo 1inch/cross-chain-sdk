@@ -11,7 +11,7 @@ export class EscrowFactory {
     /**
      * See https://github.com/1inch/cross-chain-swap/blob/03d99b9604d8f7a5a396720fbe1059f7d94db762/contracts/libraries/ProxyHashLib.sol#L14
      */
-    private static calcProxyBytecodeHash(impl: Address): string {
+    protected static calcProxyBytecodeHash(impl: Address): string {
         return keccak256(
             `0x3d602d80600a3d3981f3363d3d373d3d3d363d73${trim0x(impl.toString())}5af43d82803e903d91602b57fd5bf3`
         )
