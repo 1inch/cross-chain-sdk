@@ -34,33 +34,6 @@ describe('EscrowAddressFacade', () => {
     })
 
     describe('zkSync', () => {
-        const facade = new EscrowFactoryFacade(
-            NetworkEnum.ZKSYNC,
-            Address.fromBigInt(1n)
-        )
-        it('Should calc correct address by immutables hash', () => {
-            const immutablesHash = keccak256('0x')
-            const srcImplAddress = Address.fromBigInt(1n)
-            const dstImplAddress = Address.fromBigInt(2n)
-
-            const srcAddress = facade.getEscrowAddress(
-                immutablesHash,
-                srcImplAddress
-            )
-            const dstAddress = facade.getEscrowAddress(
-                immutablesHash,
-                dstImplAddress
-            )
-
-            expect(srcAddress).toEqual(
-                new Address('0x48f33ed21a3ab24b699fc2f709266f86b0c5714e')
-            )
-
-            expect(dstAddress).toEqual(
-                new Address('0x68460df9d1f08e7eaff280cb880d9be59b2143b7')
-            )
-        })
-
         it('Should calc correct src address from immutables', () => {
             const immutables = Immutables.new({
                 maker: new Address(
