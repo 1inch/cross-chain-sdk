@@ -1,19 +1,33 @@
-import {Address, NetworkEnum} from '@1inch/fusion-sdk'
+import {Address, Interaction, NetworkEnum} from '@1inch/fusion-sdk'
 import {EscrowFactory} from './escrow-factory'
+import {EscrowFactoryZksync} from './escrow-factory-zksync'
 import {DstImmutablesComplement, Immutables} from '../immutables'
+import {MerkleLeaf} from '../cross-chain-order/hash-lock/hash-lock'
 
-export class EscrowFactoryFacade {
+export class EscrowFactoryFacade implements EscrowFactory {
     private factory: EscrowFactory
 
-    constructor(factoryAddress: Address) {
-        this.factory = new EscrowFactory(factoryAddress)
+    constructor(chainId: NetworkEnum, factoryAddress: Address) {
+        this.factory = EscrowFactoryFacade.getFactory(chainId, factoryAddress)
     }
 
-    public getEscrowAddressByChain(
-        /**
-         * chain id
-         */
+    get address(): Address {
+        return this.factory.address
+    }
+
+    public static getFactory(
         chainId: NetworkEnum,
+        factoryAddress: Address
+    ): EscrowFactory {
+        switch (chainId) {
+            case NetworkEnum.ZKSYNC:
+                return new EscrowFactoryZksync(factoryAddress)
+            default:
+                return new EscrowFactory(factoryAddress)
+        }
+    }
+
+    public getEscrowAddress(
         /**
          * @see Immutables.hash
          */
@@ -23,25 +37,13 @@ export class EscrowFactoryFacade {
          */
         implementationAddress: Address
     ): Address {
-        switch (chainId) {
-            case NetworkEnum.ZKSYNC:
-                return this.factory.getZkEscrowAddress(
-                    immutablesHash,
-                    implementationAddress
-                )
-            default:
-                return this.factory.getEscrowAddress(
-                    immutablesHash,
-                    implementationAddress
-                )
-        }
+        return this.factory.getEscrowAddress(
+            immutablesHash,
+            implementationAddress
+        )
     }
 
-    public getSrcEscrowAddressByChain(
-        /**
-         * chain id
-         */
-        chainId: NetworkEnum,
+    public getSrcEscrowAddress(
         /**
          * From `SrcEscrowCreated` event (with correct timeLock.deployedAt)
          */
@@ -51,25 +53,13 @@ export class EscrowFactoryFacade {
          */
         implementationAddress: Address
     ): Address {
-        switch (chainId) {
-            case NetworkEnum.ZKSYNC:
-                return this.factory.getZkSrcEscrowAddress(
-                    srcImmutables,
-                    implementationAddress
-                )
-            default:
-                return this.factory.getSrcEscrowAddress(
-                    srcImmutables,
-                    implementationAddress
-                )
-        }
+        return this.factory.getSrcEscrowAddress(
+            srcImmutables,
+            implementationAddress
+        )
     }
 
-    public getDstEscrowAddressByChain(
-        /**
-         * chain id
-         */
-        chainId: NetworkEnum,
+    public getDstEscrowAddress(
         /**
          * From `SrcEscrowCreated` event
          */
@@ -91,23 +81,20 @@ export class EscrowFactoryFacade {
          */
         implementationAddress: Address
     ): Address {
-        switch (chainId) {
-            case NetworkEnum.ZKSYNC:
-                return this.factory.getZkDstEscrowAddress(
-                    srcImmutables,
-                    complement,
-                    blockTime,
-                    taker,
-                    implementationAddress
-                )
-            default:
-                return this.factory.getDstEscrowAddress(
-                    srcImmutables,
-                    complement,
-                    blockTime,
-                    taker,
-                    implementationAddress
-                )
-        }
+        return this.getDstEscrowAddress(
+            srcImmutables,
+            complement,
+            blockTime,
+            taker,
+            implementationAddress
+        )
+    }
+
+    public getMultipleFillInteraction(
+        proof: MerkleLeaf[],
+        idx: number,
+        secretHash: string
+    ): Interaction {
+        return this.factory.getMultipleFillInteraction(proof, idx, secretHash)
     }
 }
