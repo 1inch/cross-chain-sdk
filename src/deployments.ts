@@ -11,7 +11,8 @@ export const TRUE_ERC20 = {
     [NetworkEnum.COINBASE]: TrueERC20,
     [NetworkEnum.FANTOM]: TrueERC20,
     [NetworkEnum.GNOSIS]: TrueERC20,
-    [NetworkEnum.ARBITRUM]: TrueERC20
+    [NetworkEnum.ARBITRUM]: TrueERC20,
+    [NetworkEnum.ZKSYNC]: TrueERC20
 }
 
 const ESCROW_FACTORY_ADDRESS = new Address(
