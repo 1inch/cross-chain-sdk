@@ -81,7 +81,7 @@ export class EscrowFactoryFacade implements EscrowFactory {
          */
         implementationAddress: Address
     ): Address {
-        return this.getDstEscrowAddress(
+        return this.factory.getDstEscrowAddress(
             srcImmutables,
             complement,
             blockTime,
