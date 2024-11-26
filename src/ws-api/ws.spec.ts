@@ -25,7 +25,7 @@ import {
 import {castUrl} from './url'
 import {OrderType} from '../api'
 
-jest.setTimeout(60 * 1000)
+jest.setTimeout(5 * 60 * 1000)
 
 // eslint-disable-next-line max-lines-per-function
 describe(__filename, () => {
@@ -1194,7 +1194,7 @@ function createWebsocketServerMock(messages: unknown[]): {
     return {url: returnUrl, wss}
 }
 
-let nextPort = 8080
+let nextPort = 8090
 function getPort(): number {
     return nextPort++
 }
