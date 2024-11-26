@@ -8,7 +8,7 @@
 import {WebSocketApi, NetworkEnum} from '@1inch/fusion-sdk'
 
 const wsSdk = new WebSocketApi({
-    url: 'wss://api.1inch.dev/fusion/ws',
+    url: 'wss://api.1inch.dev/fusion-plus/ws',
     network: NetworkEnum.ETHEREUM,
     authKey: 'your-auth-key'
 })
