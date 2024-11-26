@@ -4,6 +4,9 @@ Sdk for creating atomic swaps through 1inch
 ## Resources
 - [Dev portal](https://portal.1inch.dev/documentation/apis/swap/fusion-plus/introduction)
 
+## Docs
+- [WebSocket](https://github.com/1inch/cross-chain-sdk/tree/master/src/ws-api)
+
 # Installation
 
 `npm install @1inch/cross-chain-sdk`
