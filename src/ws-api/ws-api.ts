@@ -4,7 +4,8 @@ import {
     OnMessageCb,
     WebsocketClient,
     WsApiConfigWithNetwork,
-    WsProviderConnector
+    WsProviderConnector,
+    WsApiConfig
 } from '@1inch/fusion-sdk'
 import {ActiveOrdersWebSocketApi} from './active-websocket-orders-api'
 import {RpcWebsocketApi} from './rpc-websocket-api'
@@ -20,13 +21,13 @@ export class WebSocketApi {
 
     public readonly provider: WsProviderConnector
 
-    constructor(
-        configOrProvider: WsApiConfigWithNetwork | WsProviderConnector
-    ) {
-        if (instanceOfWsApiConfigWithNetwork(configOrProvider)) {
+    constructor(configOrProvider: WsApiConfig | WsProviderConnector) {
+        if (instanceOfWsApiConfig(configOrProvider)) {
             const url = castUrl(configOrProvider.url)
-            const urlWithNetwork = `${url}/${WebSocketApi.Version}/${configOrProvider.network}`
-            const configWithUrl = {...configOrProvider, url: urlWithNetwork}
+            const configWithUrl = {
+                ...configOrProvider,
+                url: `${url}/${WebSocketApi.Version}`
+            }
             const provider = new WebsocketClient(configWithUrl)
 
             this.provider = provider
@@ -84,8 +85,8 @@ export class WebSocketApi {
     }
 }
 
-function instanceOfWsApiConfigWithNetwork(
-    val: WsApiConfigWithNetwork | WsProviderConnector
-): val is WsApiConfigWithNetwork {
-    return 'url' in val && 'network' in val
+function instanceOfWsApiConfig(
+    val: WsApiConfig | WsProviderConnector
+): val is WsApiConfig {
+    return !('send' in val)
 }
