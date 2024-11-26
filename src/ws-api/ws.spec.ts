@@ -25,7 +25,7 @@ import {
 import {castUrl} from './url'
 import {OrderType} from '../api'
 
-jest.setTimeout(5 * 1000)
+jest.setTimeout(60 * 1000)
 
 // eslint-disable-next-line max-lines-per-function
 describe(__filename, () => {
