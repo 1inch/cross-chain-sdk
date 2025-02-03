@@ -10,7 +10,8 @@ export const SupportedChains = [
     NetworkEnum.AVALANCHE,
     NetworkEnum.GNOSIS,
     NetworkEnum.COINBASE,
-    NetworkEnum.ZKSYNC
+    NetworkEnum.ZKSYNC,
+    NetworkEnum.LINEA
 ] as const
 
 type UnsupportedChain = Exclude<
