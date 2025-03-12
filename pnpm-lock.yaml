@@ -6,6 +6,7 @@ settings:
 
 overrides:
   cross-spawn@>=7.0.0 <7.0.5: '>=7.0.5'
+  elliptic@<=6.6.0: '>=6.6.1'
 
 importers:
 
@@ -16,7 +17,7 @@ importers:
         version: 2.6.0(assert@2.1.0)
       '@1inch/fusion-sdk':
         specifier: 2.1.8-rc.0
-        version: 2.1.8-rc.0(assert@2.1.0)(axios@1.7.4)
+        version: 2.1.8-rc.0(assert@2.1.0)(axios@1.8.2)
       '@openzeppelin/merkle-tree':
         specifier: 1.0.7
         version: 1.0.7
@@ -24,8 +25,8 @@ importers:
         specifier: ^2.0.0
         version: 2.1.0
       axios:
-        specifier: 1.7.4
-        version: 1.7.4
+        specifier: 1.8.2
+        version: 1.8.2
       ecies-25519:
         specifier: 1.3.1
         version: 1.3.1
@@ -936,8 +937,8 @@ packages:
     resolution: {integrity: sha512-wvUjBtSGN7+7SjNpq/9M2Tg350UZD3q62IFZLbRAR1bSMlCo1ZaeW+BJ+D090e4hIIZLBcTDWe4Mh4jvUDajzQ==}
     engines: {node: '>= 0.4'}
 
-  axios@1.7.4:
-    resolution: {integrity: sha512-DukmaFRnY6AzAALSH4J2M3k6PkaC+MfaAGdEERRWcC9q3/TWQwLpHR8ZRLKTdQ3aBDL64EdluRDjJqKw+BPZEw==}
+  axios@1.8.2:
+    resolution: {integrity: sha512-ls4GYBm5aig9vWx8AWDSGLpnpDQRtWAfrjU+EuytuODrFBkqesN2RkOQCBzrA1RQNHw1SmRMSDDDSwzNAYQ6Rg==}
 
   babel-jest@29.7.0:
     resolution: {integrity: sha512-BrvGY3xZSwEcCzKvKsCi2GgHqDqsYkOP4/by5xCgIwGXQxIEh+8ew3gmrE1y7XRR6LHZIj6yLYnUi/mm2KXKBg==}
@@ -1164,8 +1165,8 @@ packages:
   electron-to-chromium@1.5.90:
     resolution: {integrity: sha512-C3PN4aydfW91Natdyd449Kw+BzhLmof6tzy5W1pFC5SpQxVXT+oyiyOG9AgYYSN9OdA/ik3YkCrpwqI8ug5Tug==}
 
-  elliptic@6.5.4:
-    resolution: {integrity: sha512-iLhC6ULemrljPZb+QutR5TQGB+pdW6KGD5RSegS+8sorOZT+rdQFbsQFJgvN3eRqNALqJer4oQ16YvJHlU8hzQ==}
+  elliptic@6.6.1:
+    resolution: {integrity: sha512-RaddvvMatK2LJHqFJ+YA4WysVN5Ita9E35botqIYspQ4TkRAlCicdzKOjlyv/1Za5RyTNn7di//eEV0uTAfe3g==}
 
   emittery@0.13.1:
     resolution: {integrity: sha512-DeWwawk6r5yR9jFgnDKYt4sLS0LmHJJi3ZOnb5/JdbYwj3nW+FxQnHIjhBKz8YLC7oRNPVM9NQ47I3CVx34eqQ==}
@@ -2624,27 +2625,27 @@ snapshots:
       semver: 7.7.0
       typescript: 5.5.2
 
-  '@1inch/fusion-sdk@2.1.8-rc.0(assert@2.1.0)(axios@1.7.4)':
+  '@1inch/fusion-sdk@2.1.8-rc.0(assert@2.1.0)(axios@1.8.2)':
     dependencies:
       '@1inch/byte-utils': 2.3.0
-      '@1inch/limit-order-sdk': 4.11.5(assert@2.1.0)(axios@1.7.4)
+      '@1inch/limit-order-sdk': 4.11.5(assert@2.1.0)(axios@1.8.2)
       ethers: 6.13.1
       tslib: 2.6.3
       ws: 8.18.0
     optionalDependencies:
       assert: 2.1.0
-      axios: 1.7.4
+      axios: 1.8.2
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
 
-  '@1inch/limit-order-sdk@4.11.5(assert@2.1.0)(axios@1.7.4)':
+  '@1inch/limit-order-sdk@4.11.5(assert@2.1.0)(axios@1.8.2)':
     dependencies:
       '@1inch/byte-utils': 3.0.0(assert@2.1.0)
       ethers: 6.13.5
     optionalDependencies:
       assert: 2.1.0
-      axios: 1.7.4
+      axios: 1.8.2
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -2978,7 +2979,7 @@ snapshots:
       '@ethersproject/logger': 5.7.0
       '@ethersproject/properties': 5.7.0
       bn.js: 5.2.1
-      elliptic: 6.5.4
+      elliptic: 6.6.1
       hash.js: 1.1.7
 
   '@ethersproject/strings@5.7.0':
@@ -3643,7 +3644,7 @@ snapshots:
     dependencies:
       possible-typed-array-names: 1.0.0
 
-  axios@1.7.4:
+  axios@1.8.2:
     dependencies:
       follow-redirects: 1.15.9
       form-data: 4.0.1
@@ -3897,7 +3898,7 @@ snapshots:
 
   electron-to-chromium@1.5.90: {}
 
-  elliptic@6.5.4:
+  elliptic@6.6.1:
     dependencies:
       bn.js: 4.12.1
       brorand: 1.1.0
