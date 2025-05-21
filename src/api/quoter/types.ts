@@ -37,6 +37,7 @@ export type QuoterResponse = {
     timeLocks: TimeLocksRaw
     srcSafetyDeposit: string
     dstSafetyDeposit: string
+    autoK: number
 }
 
 export type TimeLocksRaw = {
