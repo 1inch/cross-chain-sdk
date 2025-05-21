@@ -44,6 +44,8 @@ export class Quote {
 
     public readonly volume: Cost
 
+    public readonly slippage: number
+
     constructor(
         private readonly params: QuoterRequest,
         response: QuoterResponse
@@ -66,6 +68,7 @@ export class Quote {
         this.quoteId = response.quoteId
         this.whitelist = response.whitelist.map((a) => new Address(a))
         this.recommendedPreset = response.recommendedPreset
+        this.slippage = response.autoK
         this.srcEscrowFactory = new Address(response.srcEscrowFactory)
         this.dstEscrowFactory = new Address(response.dstEscrowFactory)
     }
