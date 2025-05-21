@@ -32,6 +32,7 @@ describe('Quoter API', () => {
         quoteId: '27d54fa5-9e57-47dc-af27-8ed150a7ca75',
         srcTokenAmount: '100000000000000000',
         dstTokenAmount: '256915982',
+        autoK: 1,
         presets: {
             fast: {
                 auctionDuration: 180,
