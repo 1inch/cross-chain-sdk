@@ -29,6 +29,7 @@ export {
 export {NetworkEnum} from './chains'
 // todo: export evm/solana/base orders
 export {EvmCrossChainOrder as CrossChainOrder} from './cross-chain-order'
+export * from './cross-chain-order'
 export * from './escrow-factory'
 export {SupportedChains, SupportedChain} from './chains'
 export * from './immutables'
