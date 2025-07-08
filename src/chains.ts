@@ -28,7 +28,9 @@ export const SupportedChains = [
     NetworkEnum.COINBASE,
     NetworkEnum.ZKSYNC,
     NetworkEnum.LINEA,
-    NetworkEnum.SOLANA
+    NetworkEnum.SONIC,
+    NetworkEnum.UNICHAIN,
+    NetworkEnum.SOLANA,
 ] as const
 
 type UnsupportedChain = Exclude<
