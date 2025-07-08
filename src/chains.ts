@@ -12,6 +12,8 @@ export enum NetworkEnum {
     GNOSIS = 100,
     COINBASE = 8453,
     LINEA = 59144,
+    SONIC = 146,
+    UNICHAIN = 130,
     SOLANA = 501
 }
 
