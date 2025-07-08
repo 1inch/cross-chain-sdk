@@ -1,6 +1,6 @@
 {
   "name": "@1inch/cross-chain-sdk",
-  "version": "0.1.14",
+  "version": "0.1.15-rc.0",
   "description": "Sdk for creating atomic swaps through 1inch",
   "author": "@1inch",
   "module": "./dist/esm/index.js",
@@ -41,7 +41,7 @@
   },
   "dependencies": {
     "@1inch/byte-utils": "2.6.0",
-    "@1inch/fusion-sdk": "2.1.8-rc.0",
+    "@1inch/fusion-sdk": "2.1.11-rc.2",
     "@openzeppelin/merkle-tree": "1.0.7",
     "axios": "1.8.2",
     "ecies-25519": "1.3.1",
@@ -50,7 +50,7 @@
     "ws": "^8.18.0"
   },
   "devDependencies": {
-    "@1inch/eslint-config": "3.0.6",
+    "@1inch/eslint-config": "3.0.7",
     "@1inch/tsconfig": "1.0.7",
     "@eslint/compat": "1.1.0",
     "@eslint/eslintrc": "^3.1.0",
