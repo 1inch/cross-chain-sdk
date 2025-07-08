@@ -1,7 +1,6 @@
 import {WebSocket, WebSocketServer} from 'ws'
 import {
     GetAllowMethodsRpcEvent,
-    NetworkEnum,
     OrderFilledEvent,
     OrderFilledPartiallyEvent,
     OrderInvalidEvent,
@@ -24,6 +23,7 @@ import {
 } from './types'
 import {castUrl} from './url'
 import {OrderType} from '../api'
+import {NetworkEnum} from '../chains'
 
 jest.setTimeout(5 * 60 * 1000)
 

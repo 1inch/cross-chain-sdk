@@ -1,15 +1,10 @@
-import {
-    Address,
-    NetworkEnum,
-    AuctionDetails,
-    now,
-    Extension
-} from '@1inch/fusion-sdk'
-import {CrossChainOrder} from './cross-chain-order'
-import {CrossChainOrderInfo, EscrowParams} from './types'
+import {Address, AuctionDetails, now, Extension} from '@1inch/fusion-sdk'
+import {EvmCrossChainOrder} from './evm-cross-chain-order'
+import {CrossChainOrderInfo, EvmEscrowParams} from './types'
 import {HashLock} from './hash-lock'
 import {TimeLocks} from './time-locks'
 import {getRandomBytes32} from '../test-utils/get-random-bytes-32'
+import {NetworkEnum} from '../chains'
 
 describe('CrossChainOrder', () => {
     it('Should encode/decode raw order', () => {
@@ -27,7 +22,7 @@ describe('CrossChainOrder', () => {
         const extension =
             '0x000001230000005e0000005e0000005e0000005e0000002f000000000000000000000000000000000000000000000000000000000000000000000066bba8f70000b4030d520237b400780186da003c00000000000000000000000000000000000000000000000000000066bba8f70000b4030d520237b400780186da003c000000000000000000000000000000000000000066bba8ded1a23c3abeed63c51b860000081b4b4e1773c2ae1d1651115a2d6d443d8c55256808395a8a83e986a917f73f720000000000000000000000000000000000000000000000000000000000000089000000000000000000000000eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee0000000000000000000090e4a41235800000000000000000004547258d4c86c000000000000001a40000012c000000b400000264000001ec0000015000000024'
 
-        const o = CrossChainOrder.fromDataAndExtension(
+        const o = EvmCrossChainOrder.fromDataAndExtension(
             rawOrder,
             Extension.decode(extension)
         )
@@ -50,7 +45,7 @@ describe('CrossChainOrder', () => {
         const extension =
             '0x000001230000005e0000005e0000005e0000005e0000002f0000000000000000a7bcb4eac8964306f9e3764f67db6a7af6ddf99a000d3d0000000a66e4706f0000b400d19a00b1f30078000d3d003ca7bcb4eac8964306f9e3764f67db6a7af6ddf99a000d3d0000000a66e4706f0000b400d19a00b1f30078000d3d003ca7bcb4eac8964306f9e3764f67db6a7af6ddf99a66e4705e555d67e125f8769284ba00000800516df7f436cd4aa9c714cf8dafd978cba12632f5c696ca464804b2d7ea6ae00000000000000000000000000000000000000000000000000000000000000064000000000000000000000000ddafbb505ad214d7b80b1f830fccc89b60fb7a8300000000000000000000046398184200000000000000000000017f9c78c235900000000000000150000000d80000002400000228000001b0000001140000003c'
 
-        const o = CrossChainOrder.fromDataAndExtension(
+        const o = EvmCrossChainOrder.fromDataAndExtension(
             rawOrder,
             Extension.decode(extension)
         )
@@ -79,7 +74,7 @@ describe('CrossChainOrder', () => {
             takingAmount: 90_000000n
         }
 
-        const escrowParams: EscrowParams = {
+        const escrowParams: EvmEscrowParams = {
             hashLock: HashLock.forSingleFill(getRandomBytes32()),
             srcChainId: NetworkEnum.ETHEREUM,
             dstChainId: NetworkEnum.ARBITRUM,
@@ -95,7 +90,7 @@ describe('CrossChainOrder', () => {
                 dstCancellation: 3n
             })
         }
-        const order = CrossChainOrder.new(
+        const order = EvmCrossChainOrder.new(
             factoryAddress,
             orderData,
             escrowParams,
@@ -114,7 +109,7 @@ describe('CrossChainOrder', () => {
         )
 
         expect(
-            CrossChainOrder.fromDataAndExtension(
+            EvmCrossChainOrder.fromDataAndExtension(
                 order.build(),
                 Extension.decode(order.extension.encode())
             )
@@ -142,7 +137,7 @@ describe('CrossChainOrder', () => {
         ]
         const leaves = HashLock.getMerkleLeaves(secrets)
 
-        const escrowParams: EscrowParams = {
+        const escrowParams: EvmEscrowParams = {
             hashLock: HashLock.forMultipleFills(leaves),
             srcChainId: NetworkEnum.ETHEREUM,
             dstChainId: NetworkEnum.ARBITRUM,
@@ -158,7 +153,7 @@ describe('CrossChainOrder', () => {
                 dstCancellation: 3n
             })
         }
-        const order = CrossChainOrder.new(
+        const order = EvmCrossChainOrder.new(
             factoryAddress,
             orderData,
             escrowParams,
@@ -178,7 +173,7 @@ describe('CrossChainOrder', () => {
         )
 
         expect(
-            CrossChainOrder.fromDataAndExtension(
+            EvmCrossChainOrder.fromDataAndExtension(
                 order.build(),
                 Extension.decode(order.extension.encode())
             )
@@ -202,8 +197,8 @@ describe('CrossChainOrder', () => {
         const createOrder = (
             srcChainId: number,
             dstChainId: number
-        ): CrossChainOrder => {
-            const escrowParams: EscrowParams = {
+        ): EvmCrossChainOrder => {
+            const escrowParams: EvmEscrowParams = {
                 hashLock: HashLock.forSingleFill(getRandomBytes32()),
                 srcChainId,
                 dstChainId,
@@ -220,7 +215,7 @@ describe('CrossChainOrder', () => {
                 })
             }
 
-            return CrossChainOrder.new(
+            return EvmCrossChainOrder.new(
                 factoryAddress,
                 orderData,
                 escrowParams,
@@ -263,7 +258,7 @@ describe('CrossChainOrder', () => {
             takingAmount: 90_000000n
         }
 
-        const escrowParams: EscrowParams = {
+        const escrowParams: EvmEscrowParams = {
             hashLock: HashLock.forSingleFill(getRandomBytes32()),
             srcChainId: NetworkEnum.ETHEREUM,
             dstChainId: NetworkEnum.ETHEREUM,
@@ -280,8 +275,8 @@ describe('CrossChainOrder', () => {
             })
         }
 
-        const createOrder = (): CrossChainOrder =>
-            CrossChainOrder.new(
+        const createOrder = (): EvmCrossChainOrder =>
+            EvmCrossChainOrder.new(
                 factoryAddress,
                 orderData,
                 escrowParams,

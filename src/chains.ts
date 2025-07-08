@@ -1,5 +1,19 @@
-import {NetworkEnum} from '@1inch/fusion-sdk'
 import {TupleToUnion} from './type-utils'
+
+export enum NetworkEnum {
+    ETHEREUM = 1,
+    POLYGON = 137,
+    ZKSYNC = 324,
+    BINANCE = 56,
+    ARBITRUM = 42161,
+    AVALANCHE = 43114,
+    OPTIMISM = 10,
+    FANTOM = 250,
+    GNOSIS = 100,
+    COINBASE = 8453,
+    LINEA = 59144,
+    SOLANA = 501
+}
 
 export const SupportedChains = [
     NetworkEnum.ETHEREUM,
@@ -11,7 +25,8 @@ export const SupportedChains = [
     NetworkEnum.GNOSIS,
     NetworkEnum.COINBASE,
     NetworkEnum.ZKSYNC,
-    NetworkEnum.LINEA
+    NetworkEnum.LINEA,
+    NetworkEnum.SOLANA
 ] as const
 
 type UnsupportedChain = Exclude<
@@ -20,6 +35,14 @@ type UnsupportedChain = Exclude<
 >
 
 export type SupportedChain = Exclude<NetworkEnum, UnsupportedChain>
+export type EvmChain = Exclude<SupportedChain, NetworkEnum.SOLANA>
 
 export const isSupportedChain = (chain: unknown): chain is SupportedChain =>
     SupportedChains.includes(chain as number)
+
+export const isEvm = (chain: unknown): chain is EvmChain => {
+    return (
+        SupportedChains.includes(chain as number) &&
+        chain !== NetworkEnum.SOLANA
+    )
+}

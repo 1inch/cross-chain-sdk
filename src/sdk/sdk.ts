@@ -25,7 +25,7 @@ import {
     PublishedSecretsResponse,
     ReadyToExecutePublicActions
 } from '../api'
-import {CrossChainOrder} from '../cross-chain-order'
+import {EvmCrossChainOrder} from '../cross-chain-order'
 import {SupportedChain} from '../chains'
 
 export class SDK {
@@ -153,7 +153,7 @@ export class SDK {
 
     public async submitOrder(
         srcChainId: SupportedChain,
-        order: CrossChainOrder,
+        order: EvmCrossChainOrder,
         quoteId: string,
         secretHashes: string[]
     ): Promise<OrderInfo> {

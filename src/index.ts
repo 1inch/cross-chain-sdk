@@ -2,7 +2,6 @@ export {
     EIP712TypedData,
     LimitOrderV4Struct,
     Address,
-    NetworkEnum,
     MakerTraits,
     Extension,
     AuctionDetails,
@@ -27,6 +26,7 @@ export {
     PingRpcEvent,
     GetAllowMethodsRpcEvent
 } from '@1inch/fusion-sdk'
+export {NetworkEnum} from './chains'
 export * from './cross-chain-order'
 export * from './escrow-factory'
 export {SupportedChains, SupportedChain} from './chains'
