@@ -1,10 +1,10 @@
-import {Address} from '@1inch/fusion-sdk'
 import {AbiCoder, keccak256} from 'ethers'
 import {isHexBytes} from '@1inch/byte-utils'
 import assert from 'assert'
 import {DstImmutablesComplement} from './dst-immutables-complement'
-import {HashLock} from '../cross-chain-order/hash-lock'
-import {TimeLocks} from '../cross-chain-order/time-locks'
+import {HashLock} from '../hash-lock'
+import {TimeLocks} from '../time-locks'
+import {AddressLike, EvmAddress} from '../../domains/addresses'
 
 /**
  * Contract representation of class
@@ -39,27 +39,25 @@ export class Immutables {
     private constructor(
         public readonly orderHash: string,
         public readonly hashLock: HashLock,
-        public readonly maker: Address,
+        public readonly maker: AddressLike,
         /**
          * Address who can withdraw funds, also to this address funds will be transferred in case of public withdrawal
          */
-        public readonly taker: Address,
-        public readonly token: Address,
+        public readonly taker: AddressLike,
+        public readonly token: AddressLike,
         public readonly amount: bigint,
         public readonly safetyDeposit: bigint,
         public readonly timeLocks: TimeLocks
     ) {
-        if (this.token.isZero()) {
-            this.token = Address.NATIVE_CURRENCY
-        }
+        this.token = this.token.zeroAsNative()
     }
 
     public static new(params: {
         orderHash: string
         hashLock: HashLock
-        maker: Address
-        taker: Address
-        token: Address
+        maker: AddressLike
+        taker: AddressLike
+        token: AddressLike
         amount: bigint
         safetyDeposit: bigint
         timeLocks: TimeLocks
@@ -80,7 +78,7 @@ export class Immutables {
      * Create instance from encoded bytes
      * @param bytes 0x prefixed hex string
      */
-    public static decode(bytes: string): Immutables {
+    public static fromABIEncoded(bytes: string): Immutables {
         assert(isHexBytes(bytes))
         const res = AbiCoder.defaultAbiCoder().decode(
             [Immutables.Web3Type],
@@ -91,9 +89,9 @@ export class Immutables {
         return new Immutables(
             data.orderHash,
             HashLock.fromString(data.hashlock),
-            new Address(data.maker),
-            new Address(data.taker),
-            new Address(data.token),
+            new EvmAddress(data.maker),
+            new EvmAddress(data.taker),
+            new EvmAddress(data.token),
             BigInt(data.amount),
             BigInt(data.safetyDeposit),
             TimeLocks.fromBigInt(BigInt(data.timelocks))
@@ -117,7 +115,7 @@ export class Immutables {
         })
     }
 
-    public withTaker(taker: Address): Immutables {
+    public withTaker(taker: AddressLike): Immutables {
         return Immutables.new({...this, taker})
     }
 
@@ -133,11 +131,11 @@ export class Immutables {
      * Return keccak256 hash of instance
      */
     public hash(): string {
-        return keccak256(this.encode())
+        return keccak256(this.toABIEncoded())
     }
 
     public build(): ImmutablesData {
-        const token = this.token.isNative() ? Address.ZERO_ADDRESS : this.token
+        const token = this.token.nativeAsZero()
 
         return {
             orderHash: this.orderHash,
@@ -154,7 +152,7 @@ export class Immutables {
     /**
      * Encode instance as bytes
      */
-    public encode(): string {
+    public toABIEncoded(): string {
         return AbiCoder.defaultAbiCoder().encode(
             [Immutables.Web3Type],
             [this.build()]

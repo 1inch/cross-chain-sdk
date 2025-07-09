@@ -1,17 +1,17 @@
-import {Address} from '@1inch/fusion-sdk'
+import {AddressLike} from '../addresses'
 
 export class DstImmutablesComplement {
     private constructor(
-        public readonly maker: Address,
+        public readonly maker: AddressLike,
         public readonly amount: bigint,
-        public readonly token: Address,
+        public readonly token: AddressLike,
         public readonly safetyDeposit: bigint
     ) {}
 
     public static new(params: {
-        maker: Address
+        maker: AddressLike
         amount: bigint
-        token: Address
+        token: AddressLike
         safetyDeposit: bigint
     }): DstImmutablesComplement {
         return new DstImmutablesComplement(

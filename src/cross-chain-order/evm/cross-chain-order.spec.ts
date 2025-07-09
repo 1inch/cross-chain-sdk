@@ -1,10 +1,10 @@
 import {Address, AuctionDetails, now, Extension} from '@1inch/fusion-sdk'
 import {EvmCrossChainOrder} from './evm-cross-chain-order'
 import {CrossChainOrderInfo, EvmEscrowParams} from './types'
-import {HashLock} from './hash-lock'
-import {TimeLocks} from './time-locks'
-import {getRandomBytes32} from '../test-utils/get-random-bytes-32'
-import {NetworkEnum} from '../chains'
+import {HashLock} from '../../domains/hash-lock'
+import {TimeLocks} from '../../domains/time-locks'
+import {getRandomBytes32} from '../../test-utils/get-random-bytes-32'
+import {NetworkEnum} from '../../chains'
 
 describe('CrossChainOrder', () => {
     it('Should encode/decode raw order', () => {

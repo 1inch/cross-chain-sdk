@@ -1,7 +1,7 @@
-import {Address} from '@1inch/fusion-sdk'
 import {Immutables} from './immutables'
-import {TimeLocks} from '../cross-chain-order/time-locks/time-locks'
-import {HashLock} from '../cross-chain-order/hash-lock'
+import {HashLock} from '../../domains/hash-lock'
+import {EvmAddress} from '../../domains/addresses'
+import {TimeLocks} from '../../domains/time-locks'
 
 describe('Immutables', function () {
     const immutables = Immutables.new({
@@ -10,13 +10,13 @@ describe('Immutables', function () {
         hashLock: HashLock.fromString(
             '0xc54045fa7c6ec765e825df7f9e9bf9dec12c5cef146f93a5eee56772ee647fbc'
         ),
-        maker: Address.fromBigInt(
+        maker: EvmAddress.fromBigInt(
             383079593504046113366356564994826494389704707888n
         ),
-        taker: Address.fromBigInt(
+        taker: EvmAddress.fromBigInt(
             366443055401047251047893360440697731881434542072n
         ),
-        token: Address.fromBigInt(
+        token: EvmAddress.fromBigInt(
             1405310203571408291950365054053061012934685786634n
         ),
         amount: 150000000000000000n,
@@ -38,6 +38,8 @@ describe('Immutables', function () {
     })
 
     it('Should encode/decode', () => {
-        expect(Immutables.decode(immutables.encode())).toEqual(immutables)
+        expect(Immutables.fromABIEncoded(immutables.toABIEncoded())).toEqual(
+            immutables
+        )
     })
 })

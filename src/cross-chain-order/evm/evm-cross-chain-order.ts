@@ -1,5 +1,4 @@
 import {
-    Address,
     OrderInfoData,
     AuctionCalculator,
     Extension,
@@ -15,11 +14,15 @@ import assert from 'assert'
 import {CrossChainOrderInfo, Details, EvmEscrowParams, Extra} from './types'
 import {InnerOrder} from './inner-order'
 import {EscrowExtension} from './escrow-extension'
-import {TRUE_ERC20} from '../deployments'
-import {isSupportedChain, NetworkEnum, SupportedChain} from '../chains'
-import {Immutables} from '../immutables'
+import {Address, EvmAddress} from '../../domains/addresses'
+import {BaseOrder} from '../base-order'
+import {TRUE_ERC20} from '../../deployments'
+import {isSupportedChain, NetworkEnum, SupportedChain} from '../../chains'
+import {Immutables} from '../../domains/immutables'
+import {HashLock} from '../../domains/hash-lock'
+import {TimeLocks} from '../../domains/time-locks'
 
-export class EvmCrossChainOrder {
+export class EvmCrossChainOrder extends BaseOrder<LimitOrderV4Struct> {
     private inner: InnerOrder
 
     private constructor(
@@ -27,7 +30,20 @@ export class EvmCrossChainOrder {
         orderInfo: OrderInfoData,
         extra?: Extra
     ) {
+        super()
         this.inner = new InnerOrder(extension, orderInfo, extra)
+    }
+
+    public get hashLock(): HashLock {
+        return this.escrowExtension.hashLockInfo
+    }
+
+    public get timeLocks(): TimeLocks {
+        return this.escrowExtension.timeLocks
+    }
+
+    public get srcSafetyDeposit(): bigint {
+        return this.escrowExtension.srcSafetyDeposit
     }
 
     get dstChainId(): NetworkEnum {
@@ -43,15 +59,15 @@ export class EvmCrossChainOrder {
     }
 
     get maker(): Address {
-        return this.inner.maker
+        return new Address(this.inner.maker)
     }
 
     get takerAsset(): Address {
-        return this.inner.escrowExtension.dstToken
+        return new Address(this.inner.escrowExtension.dstToken)
     }
 
     get makerAsset(): Address {
-        return this.inner.makerAsset
+        return new Address(this.inner.makerAsset)
     }
 
     get takingAmount(): bigint {
@@ -70,7 +86,7 @@ export class EvmCrossChainOrder {
      * If zero address, then maker will receive funds
      */
     get receiver(): Address {
-        return this.inner.receiver
+        return new Address(this.inner.receiver)
     }
 
     /**
@@ -110,7 +126,7 @@ export class EvmCrossChainOrder {
      * Create new EvmCrossChainOrder
      */
     public static new(
-        escrowFactory: Address,
+        escrowFactory: EvmAddress,
         orderInfo: CrossChainOrderInfo,
         escrowParams: EvmEscrowParams,
         details: Details,
@@ -186,12 +202,12 @@ export class EvmCrossChainOrder {
         return new EvmCrossChainOrder(
             ext,
             {
-                makerAsset: new Address(order.makerAsset),
-                takerAsset: new Address(order.takerAsset),
+                makerAsset: new EvmAddress(order.makerAsset),
+                takerAsset: new EvmAddress(order.takerAsset),
                 makingAmount: BigInt(order.makingAmount),
                 takingAmount: BigInt(order.takingAmount),
-                receiver: new Address(order.receiver),
-                maker: new Address(order.maker),
+                receiver: new EvmAddress(order.receiver),
+                maker: new EvmAddress(order.maker),
                 salt: BigInt(order.salt) >> 160n
             },
             {
@@ -210,6 +226,10 @@ export class EvmCrossChainOrder {
 
     public build(): LimitOrderV4Struct {
         return this.inner.build()
+    }
+
+    public toJSON(): LimitOrderV4Struct {
+        return this.build()
     }
 
     public getOrderHash(srcChainId: number): string {
@@ -246,7 +266,9 @@ export class EvmCrossChainOrder {
      * @param executionTime timestamp in sec at which order planning to execute
      */
     public canExecuteAt(executor: Address, executionTime: bigint): boolean {
-        return this.inner.canExecuteAt(executor, executionTime)
+        executor.assertEvm()
+
+        return this.inner.canExecuteAt(executor.inner, executionTime)
     }
 
     /**
@@ -274,7 +296,9 @@ export class EvmCrossChainOrder {
      * Check if `wallet` can fill order before other
      */
     public isExclusiveResolver(wallet: Address): boolean {
-        return this.inner.isExclusiveResolver(wallet)
+        wallet.assertEvm()
+
+        return this.inner.isExclusiveResolver(wallet.inner)
     }
 
     /**

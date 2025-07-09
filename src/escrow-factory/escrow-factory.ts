@@ -2,8 +2,8 @@ import {Address, Interaction} from '@1inch/fusion-sdk'
 import {AbiCoder, getCreate2Address, keccak256} from 'ethers'
 import {add0x, getBytesCount, isHexBytes, trim0x} from '@1inch/byte-utils'
 import assert from 'assert'
-import {Immutables, DstImmutablesComplement} from '../immutables'
-import {MerkleLeaf} from '../cross-chain-order/hash-lock/hash-lock'
+import {Immutables, DstImmutablesComplement} from '../domains/immutables'
+import {MerkleLeaf} from '../domains/hash-lock'
 
 export class EscrowFactory {
     constructor(public readonly address: Address) {}

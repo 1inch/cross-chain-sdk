@@ -4,9 +4,9 @@ import {
     AuctionWhitelistItem,
     IntegratorFee
 } from '@1inch/fusion-sdk'
-import {HashLock} from './hash-lock'
-import {TimeLocks} from './time-locks'
-import {EvmChain, SupportedChain} from '../chains'
+import {HashLock} from '../../domains/hash-lock'
+import {TimeLocks} from '../../domains/time-locks'
+import {EvmChain, SupportedChain} from '../../chains'
 
 export type CrossChainOrderInfo = {
     /**
