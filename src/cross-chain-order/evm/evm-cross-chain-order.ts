@@ -1,28 +1,36 @@
 import {
-    OrderInfoData,
-    AuctionCalculator,
-    Extension,
-    LimitOrderV4Struct,
     EIP712TypedData,
+    Extension,
     Interaction,
+    LimitOrderV4Struct,
     MakerTraits,
-    ZX,
-    SettlementPostInteractionData,
-    now
-} from '@1inch/fusion-sdk'
+    ZX
+} from '@1inch/limit-order-sdk'
 import assert from 'assert'
-import {CrossChainOrderInfo, Details, EvmEscrowParams, Extra} from './types'
+import {
+    CrossChainOrderInfo,
+    Details,
+    EvmEscrowParams,
+    Extra,
+    OrderInfoData
+} from './types'
 import {InnerOrder} from './inner-order'
 import {EscrowExtension} from './escrow-extension'
-import {Address, EvmAddress} from '../../domains/addresses'
+import {SettlementPostInteractionData} from './fusion-order'
+import {AuctionCalculator} from '../auction-calculator'
+import {now} from '../../utils/time'
+import {createAddress, AddressLike, EvmAddress} from '../../domains/addresses'
 import {BaseOrder} from '../base-order'
 import {TRUE_ERC20} from '../../deployments'
-import {isSupportedChain, NetworkEnum, SupportedChain} from '../../chains'
+import {isSupportedChain, SupportedChain} from '../../chains'
 import {Immutables} from '../../domains/immutables'
 import {HashLock} from '../../domains/hash-lock'
 import {TimeLocks} from '../../domains/time-locks'
 
-export class EvmCrossChainOrder extends BaseOrder<LimitOrderV4Struct> {
+export class EvmCrossChainOrder extends BaseOrder<
+    EvmAddress,
+    LimitOrderV4Struct
+> {
     private inner: InnerOrder
 
     private constructor(
@@ -46,7 +54,7 @@ export class EvmCrossChainOrder extends BaseOrder<LimitOrderV4Struct> {
         return this.escrowExtension.srcSafetyDeposit
     }
 
-    get dstChainId(): NetworkEnum {
+    get dstChainId(): SupportedChain {
         return this.inner.escrowExtension.dstChainId
     }
 
@@ -58,16 +66,19 @@ export class EvmCrossChainOrder extends BaseOrder<LimitOrderV4Struct> {
         return this.inner.extension
     }
 
-    get maker(): Address {
-        return new Address(this.inner.maker)
+    get maker(): EvmAddress {
+        return EvmAddress.fromString(this.inner.maker.toString())
     }
 
-    get takerAsset(): Address {
-        return new Address(this.inner.escrowExtension.dstToken)
+    get takerAsset(): AddressLike {
+        return createAddress(
+            this.inner.escrowExtension.dstToken.toString(),
+            this.dstChainId
+        )
     }
 
-    get makerAsset(): Address {
-        return new Address(this.inner.makerAsset)
+    get makerAsset(): EvmAddress {
+        return EvmAddress.fromString(this.inner.makerAsset.toString())
     }
 
     get takingAmount(): bigint {
@@ -85,8 +96,8 @@ export class EvmCrossChainOrder extends BaseOrder<LimitOrderV4Struct> {
     /**
      * If zero address, then maker will receive funds
      */
-    get receiver(): Address {
-        return new Address(this.inner.receiver)
+    get receiver(): AddressLike {
+        return createAddress(this.inner.receiver.toString(), this.dstChainId)
     }
 
     /**
@@ -133,11 +144,8 @@ export class EvmCrossChainOrder extends BaseOrder<LimitOrderV4Struct> {
         extra?: Extra
     ): EvmCrossChainOrder {
         const postInteractionData = SettlementPostInteractionData.new({
-            bankFee: details.fees?.bankFee || 0n,
-            integratorFee: details.fees?.integratorFee,
             whitelist: details.whitelist,
-            resolvingStartTime: details.resolvingStartTime ?? now(),
-            customReceiver: orderInfo.receiver
+            resolvingStartTime: details.resolvingStartTime ?? BigInt(now())
         })
 
         const ext = new EscrowExtension(
@@ -145,7 +153,7 @@ export class EvmCrossChainOrder extends BaseOrder<LimitOrderV4Struct> {
             details.auction,
             postInteractionData,
             extra?.permit
-                ? new Interaction(orderInfo.makerAsset, extra.permit)
+                ? new Interaction(orderInfo.makerAsset.inner, extra.permit)
                 : undefined,
             escrowParams.hashLock,
             escrowParams.dstChainId,
@@ -202,12 +210,12 @@ export class EvmCrossChainOrder extends BaseOrder<LimitOrderV4Struct> {
         return new EvmCrossChainOrder(
             ext,
             {
-                makerAsset: new EvmAddress(order.makerAsset),
-                takerAsset: new EvmAddress(order.takerAsset),
+                makerAsset: EvmAddress.fromString(order.makerAsset),
+                takerAsset: EvmAddress.fromString(order.takerAsset),
                 makingAmount: BigInt(order.makingAmount),
                 takingAmount: BigInt(order.takingAmount),
-                receiver: new EvmAddress(order.receiver),
-                maker: new EvmAddress(order.maker),
+                receiver: createAddress(order.receiver, ext.dstChainId),
+                maker: EvmAddress.fromString(order.maker),
                 salt: BigInt(order.salt) >> 160n
             },
             {
@@ -265,9 +273,7 @@ export class EvmCrossChainOrder extends BaseOrder<LimitOrderV4Struct> {
      * @param executor address of executor
      * @param executionTime timestamp in sec at which order planning to execute
      */
-    public canExecuteAt(executor: Address, executionTime: bigint): boolean {
-        executor.assertEvm()
-
+    public canExecuteAt(executor: EvmAddress, executionTime: bigint): boolean {
         return this.inner.canExecuteAt(executor.inner, executionTime)
     }
 
@@ -281,23 +287,9 @@ export class EvmCrossChainOrder extends BaseOrder<LimitOrderV4Struct> {
     }
 
     /**
-     * Returns how much fee will be credited from a resolver deposit account
-     * Token of fee set in Settlement extension constructor
-     * Actual deployments can be found at https://github.com/1inch/limit-order-settlement/tree/master/deployments
-     *
-     * @param filledMakingAmount which resolver fills
-     * @see https://github.com/1inch/limit-order-settlement/blob/0e3cae3653092ebb4ea5d2a338c87a54351ad883/contracts/extensions/ResolverFeeExtension.sol#L29
-     */
-    public getResolverFee(filledMakingAmount: bigint): bigint {
-        return this.inner.getResolverFee(filledMakingAmount)
-    }
-
-    /**
      * Check if `wallet` can fill order before other
      */
-    public isExclusiveResolver(wallet: Address): boolean {
-        wallet.assertEvm()
-
+    public isExclusiveResolver(wallet: EvmAddress): boolean {
         return this.inner.isExclusiveResolver(wallet.inner)
     }
 
@@ -306,8 +298,8 @@ export class EvmCrossChainOrder extends BaseOrder<LimitOrderV4Struct> {
      *
      * @param time timestamp to check, `now()` by default
      */
-    public isExclusivityPeriod(time = now()): boolean {
-        return this.inner.isExclusivityPeriod(time)
+    public isExclusivityPeriod(time: bigint): boolean {
+        return this.inner.isExclusivityPeriod(Number(time))
     }
 
     /**
@@ -318,7 +310,7 @@ export class EvmCrossChainOrder extends BaseOrder<LimitOrderV4Struct> {
      */
     public toSrcImmutables(
         srcChainId: SupportedChain,
-        taker: Address,
+        taker: EvmAddress,
         amount: bigint,
         hashLock = this.escrowExtension.hashLockInfo
     ): Immutables {

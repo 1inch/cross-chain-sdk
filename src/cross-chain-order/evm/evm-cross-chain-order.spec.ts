@@ -1,12 +1,15 @@
-import {Address, AuctionDetails, now, Extension} from '@1inch/fusion-sdk'
+import {Extension} from '@1inch/limit-order-sdk'
 import {EvmCrossChainOrder} from './evm-cross-chain-order'
 import {CrossChainOrderInfo, EvmEscrowParams} from './types'
+import {AuctionDetails} from '../../domains/auction-details'
+import {now} from '../../utils'
+import {EvmAddress as Address, EvmAddress} from '../../domains/addresses'
 import {HashLock} from '../../domains/hash-lock'
 import {TimeLocks} from '../../domains/time-locks'
 import {getRandomBytes32} from '../../test-utils/get-random-bytes-32'
 import {NetworkEnum} from '../../chains'
 
-describe('CrossChainOrder', () => {
+describe('EvmCrossChainOrder', () => {
     it('Should encode/decode raw order', () => {
         const rawOrder = {
             maker: '0x63dc317f3208b10c46f4ff97faa04dd632487408',
@@ -17,7 +20,7 @@ describe('CrossChainOrder', () => {
             salt: '1410071294180528718533536018330595554196821979936720230760247937083',
             makingAmount: '41420000000000000',
             takingAmount: '261067595245294398218',
-            receiver: '0x0000000000000000000000000000000000000000'
+            receiver: '0'
         }
         const extension =
             '0x000001230000005e0000005e0000005e0000005e0000002f000000000000000000000000000000000000000000000000000000000000000000000066bba8f70000b4030d520237b400780186da003c00000000000000000000000000000000000000000000000000000066bba8f70000b4030d520237b400780186da003c000000000000000000000000000000000000000066bba8ded1a23c3abeed63c51b860000081b4b4e1773c2ae1d1651115a2d6d443d8c55256808395a8a83e986a917f73f720000000000000000000000000000000000000000000000000000000000000089000000000000000000000000eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee0000000000000000000090e4a41235800000000000000000004547258d4c86c000000000000001a40000012c000000b400000264000001ec0000015000000024'
@@ -34,7 +37,7 @@ describe('CrossChainOrder', () => {
         const rawOrder = {
             salt: '102412815605163333306499942368781310361338818117812724107394620400737590471129',
             maker: '0x6edc317f3208b10c46f4ff97faa04dd632487408',
-            receiver: '0x0000000000000000000000000000000000000000',
+            receiver: '0',
             makerAsset: '0xaf88d065e77c8cc2239327c5edb3a432268e5831',
             takerAsset: '0xda0000d4000015a526378bb6fafc650cea5966f8',
             makerTraits:
@@ -64,10 +67,10 @@ describe('CrossChainOrder', () => {
         const factoryAddress = Address.fromBigInt(1n)
         const orderData: CrossChainOrderInfo = {
             maker: Address.fromBigInt(2n),
-            makerAsset: new Address(
+            makerAsset: EvmAddress.fromString(
                 '0xdac17f958d2ee523a2206206994597c13d831ec7'
             ),
-            takerAsset: new Address(
+            takerAsset: EvmAddress.fromString(
                 '0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9'
             ),
             makingAmount: 100_000000n,
@@ -96,7 +99,7 @@ describe('CrossChainOrder', () => {
             escrowParams,
             {
                 auction: new AuctionDetails({
-                    startTime: now(),
+                    startTime: BigInt(now()),
                     duration: 180n,
                     points: [],
                     initialRateBump: 100_000
@@ -120,10 +123,10 @@ describe('CrossChainOrder', () => {
         const factoryAddress = Address.fromBigInt(1n)
         const orderData: CrossChainOrderInfo = {
             maker: Address.fromBigInt(2n),
-            makerAsset: new Address(
+            makerAsset: EvmAddress.fromString(
                 '0xdac17f958d2ee523a2206206994597c13d831ec7'
             ),
-            takerAsset: new Address(
+            takerAsset: EvmAddress.fromString(
                 '0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9'
             ),
             makingAmount: 100_000000n,
@@ -159,7 +162,7 @@ describe('CrossChainOrder', () => {
             escrowParams,
             {
                 auction: new AuctionDetails({
-                    startTime: now(),
+                    startTime: BigInt(now()),
                     duration: 180n,
                     points: [],
                     initialRateBump: 100_000
@@ -184,10 +187,10 @@ describe('CrossChainOrder', () => {
         const factoryAddress = Address.fromBigInt(1n)
         const orderData: CrossChainOrderInfo = {
             maker: Address.fromBigInt(2n),
-            makerAsset: new Address(
+            makerAsset: EvmAddress.fromString(
                 '0xdac17f958d2ee523a2206206994597c13d831ec7'
             ),
-            takerAsset: new Address(
+            takerAsset: EvmAddress.fromString(
                 '0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9'
             ),
             makingAmount: 100_000000n,
@@ -221,7 +224,7 @@ describe('CrossChainOrder', () => {
                 escrowParams,
                 {
                     auction: new AuctionDetails({
-                        startTime: now(),
+                        startTime: BigInt(now()),
                         duration: 180n,
                         points: [],
                         initialRateBump: 100_000
@@ -248,10 +251,10 @@ describe('CrossChainOrder', () => {
         const factoryAddress = Address.fromBigInt(1n)
         const orderData: CrossChainOrderInfo = {
             maker: Address.fromBigInt(2n),
-            makerAsset: new Address(
+            makerAsset: EvmAddress.fromString(
                 '0xdac17f958d2ee523a2206206994597c13d831ec7'
             ),
-            takerAsset: new Address(
+            takerAsset: EvmAddress.fromString(
                 '0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9'
             ),
             makingAmount: 100_000000n,
@@ -282,7 +285,7 @@ describe('CrossChainOrder', () => {
                 escrowParams,
                 {
                     auction: new AuctionDetails({
-                        startTime: now(),
+                        startTime: BigInt(now()),
                         duration: 180n,
                         points: [],
                         initialRateBump: 100_000

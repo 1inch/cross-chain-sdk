@@ -1,17 +1,13 @@
-import {
-    Address,
-    Extension,
-    FusionExtension,
-    Interaction,
-    SettlementPostInteractionData,
-    AuctionDetails
-} from '@1inch/fusion-sdk'
 import {AbiCoder} from 'ethers'
 import {BitMask, BN, trim0x, UINT_128_MAX} from '@1inch/byte-utils'
+import {Extension, Interaction} from '@1inch/limit-order-sdk'
 import assert from 'assert'
+import {FusionExtension, SettlementPostInteractionData} from './fusion-order'
+import {AuctionDetails} from '../../domains/auction-details'
 import {HashLock} from '../../domains/hash-lock'
 import {TimeLocks} from '../../domains/time-locks'
-import {NetworkEnum} from '../../chains'
+import {SupportedChain} from '../../chains'
+import {AddressLike, EvmAddress as Address} from '../../domains/addresses'
 
 /**
  * Same as FusionExtension, but with extra data at the end
@@ -40,8 +36,8 @@ export class EscrowExtension extends FusionExtension {
         postInteractionData: SettlementPostInteractionData,
         makerPermit: Interaction | undefined,
         public readonly hashLockInfo: HashLock,
-        public readonly dstChainId: NetworkEnum,
-        public readonly dstToken: Address,
+        public readonly dstChainId: SupportedChain,
+        public readonly dstToken: AddressLike,
         public readonly srcSafetyDeposit: bigint,
         public readonly dstSafetyDeposit: bigint,
         public readonly timeLocks: TimeLocks
@@ -51,9 +47,7 @@ export class EscrowExtension extends FusionExtension {
 
         super(address, auctionDetails, postInteractionData, makerPermit)
 
-        if (this.dstToken.isZero()) {
-            this.dstToken = Address.NATIVE_CURRENCY
-        }
+        this.dstToken = dstToken.zeroAsNative()
     }
 
     /**
@@ -122,7 +116,7 @@ export class EscrowExtension extends FusionExtension {
         return {
             hashLock: HashLock.fromString(hashLock),
             dstChainId: Number(dstChainId),
-            dstToken: new Address(dstToken),
+            dstToken: Address.fromString(dstToken),
             dstSafetyDeposit: safetyDepositBN.getMask(new BitMask(0n, 128n))
                 .value,
             srcSafetyDeposit: safetyDepositBN.getMask(new BitMask(128n, 256n))
@@ -142,16 +136,12 @@ export class EscrowExtension extends FusionExtension {
     }
 
     private encodeExtraData(): string {
-        const dstToken = this.dstToken.isNative()
-            ? Address.ZERO_ADDRESS
-            : this.dstToken
-
         return AbiCoder.defaultAbiCoder().encode(
             EscrowExtension.EXTRA_DATA_TYPES,
             [
                 this.hashLockInfo.toString(),
                 this.dstChainId,
-                dstToken.toString(),
+                this.dstToken.nativeAsZero().toHex(),
                 (this.srcSafetyDeposit << 128n) | this.dstSafetyDeposit,
                 this.timeLocks.build()
             ]

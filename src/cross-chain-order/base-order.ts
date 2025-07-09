@@ -2,11 +2,11 @@ import {AuctionCalculator} from '@1inch/fusion-sdk'
 import assert from 'assert'
 import {NetworkEnum, SupportedChain} from '../chains'
 import {HashLock} from '../domains/hash-lock'
-import {Address} from '../domains/addresses'
 import {Immutables} from '../domains/immutables'
 import {TimeLocks} from '../domains/time-locks'
+import {AddressLike} from '../domains/addresses'
 
-export abstract class BaseOrder<JSON> {
+export abstract class BaseOrder<TSrcAddress extends AddressLike, TJSON> {
     public abstract get hashLock(): HashLock
 
     public abstract get timeLocks(): TimeLocks
@@ -15,11 +15,11 @@ export abstract class BaseOrder<JSON> {
 
     public abstract get dstChainId(): NetworkEnum
 
-    public abstract get maker(): Address
+    public abstract get maker(): TSrcAddress
 
-    public abstract get takerAsset(): Address
+    public abstract get takerAsset(): AddressLike
 
-    public abstract get makerAsset(): Address
+    public abstract get makerAsset(): TSrcAddress
 
     public abstract get takingAmount(): bigint
 
@@ -28,7 +28,7 @@ export abstract class BaseOrder<JSON> {
     /**
      * If zero address, then maker will receive funds
      */
-    public abstract get receiver(): Address
+    public abstract get receiver(): AddressLike
 
     /**
      * Timestamp in sec
@@ -59,7 +59,7 @@ export abstract class BaseOrder<JSON> {
      */
     public toSrcImmutables(
         srcChainId: SupportedChain,
-        taker: Address,
+        taker: TSrcAddress,
         amount: bigint,
         hashLock = this.hashLock
     ): Immutables {
@@ -103,7 +103,7 @@ export abstract class BaseOrder<JSON> {
         return Number(calculatedIndex)
     }
 
-    public abstract toJSON(): JSON
+    public abstract toJSON(): TJSON
 
     public abstract getOrderHash(srcChainId: number): string
 
@@ -129,7 +129,7 @@ export abstract class BaseOrder<JSON> {
      * @param executionTime timestamp in sec at which order planning to execute
      */
     public abstract canExecuteAt(
-        executor: Address,
+        executor: TSrcAddress,
         executionTime: bigint
     ): boolean
 
@@ -143,7 +143,7 @@ export abstract class BaseOrder<JSON> {
     /**
      * Check if `wallet` can fill order before other
      */
-    public abstract isExclusiveResolver(wallet: Address): boolean
+    public abstract isExclusiveResolver(wallet: TSrcAddress): boolean
 
     /**
      * Check if the auction has exclusive resolver, and it is in the exclusivity period

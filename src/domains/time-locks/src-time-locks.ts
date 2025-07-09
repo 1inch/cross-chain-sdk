@@ -1,7 +1,7 @@
 import {UINT_32_MAX} from '@1inch/byte-utils'
-import {now} from '@1inch/fusion-sdk'
 import assert from 'assert'
 import {BaseTimeLock} from './base-time-lock'
+import {now} from '../../utils/time'
 
 export enum SrcStage {
     FinalityLock,

@@ -1,6 +1,8 @@
 import bs58 from 'bs58'
-import {hexToUint8Array} from '@1inch/byte-utils'
-import {AddressLike} from './types'
+import {hexToUint8Array, uint8ArrayToHex} from '@1inch/byte-utils'
+import {hexlify} from 'ethers'
+import {AddressLike, HexString} from './types'
+import {isBigintString} from '../../utils/numbers/is-bigint-string'
 
 export class SolanaAddress implements AddressLike {
     public static ASSOCIATED_TOKE_PROGRAM_ID = new SolanaAddress(
@@ -49,6 +51,10 @@ export class SolanaAddress implements AddressLike {
         }
 
         if (typeof val === 'string') {
+            if (isBigintString(val)) {
+                return SolanaAddress.fromBigInt(BigInt(val))
+            }
+
             return new SolanaAddress(val)
         }
 
@@ -107,11 +113,23 @@ export class SolanaAddress implements AddressLike {
         return Buffer.from(this.buf)
     }
 
-    public equal(other: SolanaAddress): boolean {
+    public equal(other: AddressLike): boolean {
         return this.toBuffer().equals(other.toBuffer())
     }
 
     public isNative(): boolean {
         return this.equal(SolanaAddress.NATIVE)
+    }
+
+    public isZero(): boolean {
+        return this.equal(SolanaAddress.ZERO)
+    }
+
+    public toHex(): HexString {
+        return hexlify(this.toBuffer()) as HexString
+    }
+
+    public toBigint(): bigint {
+        return BigInt(uint8ArrayToHex(this.buf))
     }
 }

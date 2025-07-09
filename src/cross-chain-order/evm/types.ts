@@ -1,9 +1,9 @@
 import {
-    Address,
     AuctionDetails,
     AuctionWhitelistItem,
     IntegratorFee
 } from '@1inch/fusion-sdk'
+import {AddressLike, EvmAddress} from '../../domains/addresses'
 import {HashLock} from '../../domains/hash-lock'
 import {TimeLocks} from '../../domains/time-locks'
 import {EvmChain, SupportedChain} from '../../chains'
@@ -12,11 +12,11 @@ export type CrossChainOrderInfo = {
     /**
      * Source chain asset
      */
-    makerAsset: Address
+    makerAsset: EvmAddress
     /**
      * Destination chain asset
      */
-    takerAsset: Address
+    takerAsset: AddressLike
     /**
      * Source chain amount
      */
@@ -25,14 +25,14 @@ export type CrossChainOrderInfo = {
      * Destination chain min amount
      */
     takingAmount: bigint
-    maker: Address
+    maker: EvmAddress
     salt?: bigint
     /**
      * Destination chain receiver address
      *
      * If not set, then `maker` used
      */
-    receiver?: Address
+    receiver?: AddressLike
 }
 
 export type Extra = {
@@ -81,4 +81,14 @@ export type EvmEscrowParams = {
     srcSafetyDeposit: bigint
     dstSafetyDeposit: bigint
     timeLocks: TimeLocks
+}
+
+export type OrderInfoData = {
+    makerAsset: EvmAddress
+    takerAsset: EvmAddress
+    makingAmount: bigint
+    takingAmount: bigint
+    maker: EvmAddress
+    salt?: bigint
+    receiver?: AddressLike
 }

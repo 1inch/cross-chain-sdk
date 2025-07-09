@@ -1,5 +1,6 @@
-import {Address, FusionExtension} from '@1inch/fusion-sdk'
 import {EscrowExtension} from './escrow-extension'
+import {FusionExtension} from './fusion-order'
+import {EvmAddress as Address} from '../../domains/addresses'
 import {HashLock} from '../../domains/hash-lock'
 import {TimeLocks} from '../../domains/time-locks'
 import {getRandomBytes32} from '../../test-utils/get-random-bytes-32'

@@ -10,7 +10,7 @@ import {CrossChainOrderParamsData} from './types'
 import {Cost, PresetEnum, QuoterResponse, TimeLocksRaw} from '../types'
 import {Preset} from '../preset'
 import {QuoterRequest} from '../quoter.request'
-import {EvmCrossChainOrder, TimeLocks} from '../../../cross-chain-order'
+import {EvmCrossChainOrder, TimeLocks} from '../../../cross-chain-order/evm'
 import {isEvm, SupportedChain} from '../../../chains'
 
 export class Quote {
