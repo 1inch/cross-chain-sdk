@@ -6,7 +6,7 @@ import {
 } from '@1inch/fusion-sdk'
 import {HashLock} from './hash-lock'
 import {TimeLocks} from './time-locks'
-import {SupportedChain} from '../chains'
+import {EvmChain, SupportedChain} from '../chains'
 
 export type CrossChainOrderInfo = {
     /**
@@ -68,6 +68,15 @@ export type Details = {
 export type EscrowParams = {
     hashLock: HashLock
     srcChainId: SupportedChain
+    dstChainId: SupportedChain
+    srcSafetyDeposit: bigint
+    dstSafetyDeposit: bigint
+    timeLocks: TimeLocks
+}
+
+export type EvmEscrowParams = {
+    hashLock: HashLock
+    srcChainId: EvmChain
     dstChainId: SupportedChain
     srcSafetyDeposit: bigint
     dstSafetyDeposit: bigint

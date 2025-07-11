@@ -5,12 +5,13 @@ import {
     bpsToRatioFormat,
     randBigInt
 } from '@1inch/fusion-sdk'
+import assert from 'assert'
 import {CrossChainOrderParamsData} from './types'
 import {Cost, PresetEnum, QuoterResponse, TimeLocksRaw} from '../types'
 import {Preset} from '../preset'
 import {QuoterRequest} from '../quoter.request'
-import {CrossChainOrder, TimeLocks} from '../../../cross-chain-order'
-import {SupportedChain} from '../../../chains'
+import {EvmCrossChainOrder, TimeLocks} from '../../../cross-chain-order'
+import {isEvm, SupportedChain} from '../../../chains'
 
 export class Quote {
     public readonly quoteId: string | null
@@ -81,7 +82,7 @@ export class Quote {
         return this.params.dstChain
     }
 
-    createOrder(params: CrossChainOrderParamsData): CrossChainOrder {
+    createOrder(params: CrossChainOrderParamsData): EvmCrossChainOrder {
         const preset = this.getPreset(params?.preset || this.recommendedPreset)
 
         const auctionDetails = preset.createAuctionDetails(
@@ -100,7 +101,10 @@ export class Quote {
             ? Address.NATIVE_CURRENCY
             : this.params.dstTokenAddress
 
-        return CrossChainOrder.new(
+        // todo: build order based on src chain
+        assert(isEvm(this.params.srcChain))
+
+        return EvmCrossChainOrder.new(
             this.srcEscrowFactory,
             {
                 makerAsset: this.params.srcTokenAddress,

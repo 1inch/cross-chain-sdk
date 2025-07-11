@@ -4,14 +4,14 @@ import {
     FusionExtension,
     Interaction,
     SettlementPostInteractionData,
-    AuctionDetails,
-    NetworkEnum
+    AuctionDetails
 } from '@1inch/fusion-sdk'
 import {AbiCoder} from 'ethers'
 import {BitMask, BN, trim0x, UINT_128_MAX} from '@1inch/byte-utils'
 import assert from 'assert'
 import {TimeLocks} from './time-locks/time-locks'
 import {HashLock} from './hash-lock/hash-lock'
+import {NetworkEnum} from '../chains'
 
 /**
  * Same as FusionExtension, but with extra data at the end

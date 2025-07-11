@@ -1,8 +1,9 @@
-import {Address, FusionExtension, NetworkEnum} from '@1inch/fusion-sdk'
+import {Address, FusionExtension} from '@1inch/fusion-sdk'
 import {EscrowExtension} from './escrow-extension'
 import {TimeLocks} from './time-locks'
 import {HashLock} from './hash-lock'
 import {getRandomBytes32} from '../test-utils/get-random-bytes-32'
+import {NetworkEnum} from '../chains'
 
 describe('EscrowExtension', () => {
     it('Should build/decode', () => {

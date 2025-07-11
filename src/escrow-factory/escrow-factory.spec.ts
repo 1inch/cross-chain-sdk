@@ -1,9 +1,10 @@
-import {Address, NetworkEnum} from '@1inch/fusion-sdk'
+import {Address} from '@1inch/fusion-sdk'
 import {keccak256} from 'ethers'
 import {EscrowFactoryFacade} from './escrow-factory-facade'
 import {EscrowFactoryZksync} from './escrow-factory-zksync'
 import {DstImmutablesComplement, Immutables} from '../immutables'
 import {HashLock, TimeLocks} from '../cross-chain-order'
+import {NetworkEnum} from '../chains'
 
 describe('EscrowAddressFacade', () => {
     it('Should correct calc src/dst address for Ethereum', () => {

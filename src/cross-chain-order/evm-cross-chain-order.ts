@@ -9,18 +9,17 @@ import {
     MakerTraits,
     ZX,
     SettlementPostInteractionData,
-    now,
-    NetworkEnum
+    now
 } from '@1inch/fusion-sdk'
 import assert from 'assert'
-import {CrossChainOrderInfo, Details, EscrowParams, Extra} from './types'
+import {CrossChainOrderInfo, Details, EvmEscrowParams, Extra} from './types'
 import {InnerOrder} from './inner-order'
 import {EscrowExtension} from './escrow-extension'
 import {TRUE_ERC20} from '../deployments'
-import {isSupportedChain, SupportedChain} from '../chains'
+import {isSupportedChain, NetworkEnum, SupportedChain} from '../chains'
 import {Immutables} from '../immutables'
 
-export class CrossChainOrder {
+export class EvmCrossChainOrder {
     private inner: InnerOrder
 
     private constructor(
@@ -108,15 +107,15 @@ export class CrossChainOrder {
     }
 
     /**
-     * Create new CrossChainOrder
+     * Create new EvmCrossChainOrder
      */
     public static new(
         escrowFactory: Address,
         orderInfo: CrossChainOrderInfo,
-        escrowParams: EscrowParams,
+        escrowParams: EvmEscrowParams,
         details: Details,
         extra?: Extra
-    ): CrossChainOrder {
+    ): EvmCrossChainOrder {
         const postInteractionData = SettlementPostInteractionData.new({
             bankFee: details.fees?.bankFee || 0n,
             integratorFee: details.fees?.integratorFee,
@@ -155,7 +154,7 @@ export class CrossChainOrder {
             'Chains must be different'
         )
 
-        return new CrossChainOrder(
+        return new EvmCrossChainOrder(
             ext,
             {
                 ...orderInfo,
@@ -172,7 +171,7 @@ export class CrossChainOrder {
     public static fromDataAndExtension(
         order: LimitOrderV4Struct,
         extension: Extension
-    ): CrossChainOrder {
+    ): EvmCrossChainOrder {
         const ext = EscrowExtension.fromExtension(extension)
         const makerTraits = new MakerTraits(BigInt(order.makerTraits))
         const deadline = makerTraits.expiration()
@@ -184,7 +183,7 @@ export class CrossChainOrder {
                   ext.auctionDetails.startTime -
                   ext.auctionDetails.duration
 
-        return new CrossChainOrder(
+        return new EvmCrossChainOrder(
             ext,
             {
                 makerAsset: new Address(order.makerAsset),
