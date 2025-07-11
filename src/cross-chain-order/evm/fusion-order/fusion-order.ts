@@ -20,7 +20,7 @@ import {injectTrackCode} from './source-track'
 import {AuctionDetails} from '../../../domains/auction-details'
 import {EvmAddress} from '../../../domains/addresses'
 import {now} from '../../../utils/time/now'
-import {AuctionCalculator} from '../../auction-calculator'
+import {AuctionCalculator} from '../../../auction-calculator'
 
 export type OrderInfoData = {
     makerAsset: EvmAddress
@@ -364,8 +364,7 @@ export class FusionOrder {
     }
 
     public getCalculator(): AuctionCalculator {
-        return AuctionCalculator.fromAuctionData(
-            this.fusionExtension.postInteractionData,
+        return AuctionCalculator.fromAuctionDetails(
             this.fusionExtension.auctionDetails
         )
     }

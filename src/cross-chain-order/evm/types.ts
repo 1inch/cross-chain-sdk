@@ -1,8 +1,5 @@
-import {
-    AuctionDetails,
-    AuctionWhitelistItem,
-    IntegratorFee
-} from '@1inch/fusion-sdk'
+import {AuctionWhitelistItem} from './fusion-order'
+import {AuctionDetails} from '../../domains/auction-details'
 import {AddressLike, EvmAddress} from '../../domains/addresses'
 import {HashLock} from '../../domains/hash-lock'
 import {TimeLocks} from '../../domains/time-locks'
@@ -54,24 +51,11 @@ export type Extra = {
 
 export type Details = {
     auction: AuctionDetails
-    fees?: {
-        integratorFee?: IntegratorFee
-        bankFee?: bigint
-    }
     whitelist: AuctionWhitelistItem[]
     /**
      * Time from which order can be executed
      */
     resolvingStartTime?: bigint
-}
-
-export type EscrowParams = {
-    hashLock: HashLock
-    srcChainId: SupportedChain
-    dstChainId: SupportedChain
-    srcSafetyDeposit: bigint
-    dstSafetyDeposit: bigint
-    timeLocks: TimeLocks
 }
 
 export type EvmEscrowParams = {

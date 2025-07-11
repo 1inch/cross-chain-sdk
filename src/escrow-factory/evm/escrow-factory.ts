@@ -1,9 +1,10 @@
-import {Address, Interaction} from '@1inch/fusion-sdk'
 import {AbiCoder, getCreate2Address, keccak256} from 'ethers'
 import {add0x, getBytesCount, isHexBytes, trim0x} from '@1inch/byte-utils'
+import {Interaction} from '@1inch/limit-order-sdk'
 import assert from 'assert'
-import {Immutables, DstImmutablesComplement} from '../domains/immutables'
-import {MerkleLeaf} from '../domains/hash-lock'
+import {Immutables, DstImmutablesComplement} from '../../domains/immutables'
+import {MerkleLeaf} from '../../domains/hash-lock'
+import {EvmAddress as Address} from '../../domains/addresses'
 
 export class EscrowFactory {
     constructor(public readonly address: Address) {}
@@ -37,7 +38,7 @@ export class EscrowFactory {
             'invalid hash'
         )
 
-        return new Address(
+        return Address.fromString(
             getCreate2Address(
                 this.address.toString(),
                 immutablesHash,
@@ -122,6 +123,6 @@ export class EscrowFactory {
 
         const dataNoOffset = add0x(data.slice(66))
 
-        return new Interaction(this.address, dataNoOffset)
+        return new Interaction(this.address.inner, dataNoOffset)
     }
 }

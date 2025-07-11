@@ -1,6 +1,10 @@
 import {RATE_BUMP_DENOMINATOR} from './constants'
 import {mulDiv, Rounding} from './utils'
-import {AuctionGasCostInfo, AuctionPoint} from '../../domains/auction-details'
+import {
+    AuctionDetails,
+    AuctionGasCostInfo,
+    AuctionPoint
+} from '../domains/auction-details'
 
 export class AuctionCalculator {
     private static GAS_PRICE_BASE = 1_000_000n // 1000 means 1 Gwei
@@ -10,7 +14,6 @@ export class AuctionCalculator {
         private readonly duration: bigint,
         private readonly initialRateBump: bigint,
         private readonly points: AuctionPoint[],
-        private readonly takerFeeRatio: bigint,
         private readonly gasCost: AuctionGasCostInfo = {
             gasBumpEstimate: 0n,
             gasPriceEstimate: 0n
@@ -27,6 +30,16 @@ export class AuctionCalculator {
             RATE_BUMP_DENOMINATOR
 
         return Number(bump)
+    }
+
+    static fromAuctionDetails(auction: AuctionDetails): AuctionCalculator {
+        return new AuctionCalculator(
+            auction.startTime,
+            auction.duration,
+            auction.initialRateBump,
+            auction.points,
+            auction.gasCost
+        )
     }
 
     /**

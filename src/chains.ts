@@ -30,7 +30,7 @@ export const SupportedChains = [
     NetworkEnum.LINEA,
     NetworkEnum.SONIC,
     NetworkEnum.UNICHAIN,
-    NetworkEnum.SOLANA,
+    NetworkEnum.SOLANA
 ] as const
 
 type UnsupportedChain = Exclude<

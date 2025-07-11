@@ -1,35 +1,29 @@
-import {AuctionCalculator, AuctionDetails} from '@1inch/fusion-sdk'
 import {UINT_64_MAX} from '@1inch/byte-utils'
-import assert from 'assert'
 import {ResolverCancellationConfig} from './resolver-cancellation-config'
-import {SolanaAddress} from '../../domains/addresses'
-import {NetworkEnum} from '../../chains'
+import {Details, Extra, SolanaEscrowParams} from './types'
+import {AddressLike, SolanaAddress} from '../../domains/addresses'
+import {SupportedChain} from '../../chains'
 import {HashLock} from '../../domains/hash-lock'
 import {TimeLocks} from '../../domains/time-locks'
 import {BaseOrder} from '../base-order'
 import {assertUInteger} from '../../utils'
+import {AuctionCalculator} from '../../auction-calculator'
 
 export type SolanaOrderJSON = {
     order_hash: string // 32bytes hex
     hashlock: string // 32bytes hex
-    creator: string // base58 address
-    token: string // base58 address
-    amount: string // u64
-    remaining_amount: string // u64
-    parts_amount: string // u64
-    safety_deposit: string // u64
-    finality_duration: number // u32
-    withdrawal_duration: number // u32
-    public_withdrawal_duration: number // u32
-    cancellation_duration: number // u32
-    rescue_start: number // u32
-    expiration_time: number // u32
-    asset_is_native: boolean
-    dst_amount: string // u256
-    dutch_auction_data_hash: string
-    max_cancellation_premium: string // u64
-    cancellation_auction_duration: number // u32
-    allow_multiple_fills: boolean
+    maker: string // base58 address
+    srcToken: string // base58 address
+    dstToken: string // uint256 address
+}
+
+export type OrderInfoData = {
+    srcToken: SolanaAddress
+    dstToken: SolanaAddress
+    maker: SolanaAddress
+    srcAmount: bigint // u64
+    minDstAmount: bigint // u64
+    receiver: AddressLike
 }
 
 export class SvmCrossChainOrder extends BaseOrder<
@@ -38,120 +32,131 @@ export class SvmCrossChainOrder extends BaseOrder<
 > {
     private static DefaultExtra = {
         orderExpirationDelay: 12n,
+        allowMultipleFills: true,
+        source: 'sdk',
         resolverCancellationConfig: ResolverCancellationConfig.ALMOST_ZERO // to enable cancellation by resolver
     }
 
+    private readonly orderConfig: {
+        srcToken: SolanaAddress
+        dstToken: AddressLike
+        maker: SolanaAddress
+        receiver: AddressLike
+        srcAmount: bigint // u64
+        minDstAmount: bigint // u64
+        deadline: number // u32
+
+        // ---extra---
+        srcAssetIsNative: boolean
+        // dst asset is native in case dstToken.isZero
+        resolverCancellationConfig: ResolverCancellationConfig
+        source: string
+        allowMultipleFills: boolean
+    }
+
+    private readonly details: Details
+
+    private readonly escrowParams: SolanaEscrowParams
+
     private constructor(
         orderInfo: OrderInfoData,
-        auctionDetails: AuctionDetails,
-        extra: {
-            srcAssetIsNative: boolean
-            dstAssetIsNative: boolean
-            /**
-             * Order will expire in `orderExpirationDelay` after auction ends
-             * Default 12s
-             */
-            orderExpirationDelay?: bigint
-            resolverCancellationConfig?: ResolverCancellationConfig
-        }
+        escrowParams: SolanaEscrowParams,
+        details: Details,
+        extra: Extra
     ) {
-        assert(
-            !orderInfo.dstMint.equal(orderInfo.srcMint),
-            'tokens must be different'
-        )
+        super()
 
         const orderExpirationDelay =
             extra.orderExpirationDelay ??
             SvmCrossChainOrder.DefaultExtra.orderExpirationDelay
 
         const deadline =
-            auctionDetails.startTime +
-            auctionDetails.duration +
+            details.auction.startTime +
+            details.auction.duration +
             orderExpirationDelay
 
         assertUInteger(orderExpirationDelay)
         assertUInteger(deadline)
-        assertUInteger(orderInfo.id)
         assertUInteger(orderInfo.srcAmount, UINT_64_MAX)
-        assertUInteger(orderInfo.estimatedDstAmount, UINT_64_MAX)
         assertUInteger(orderInfo.minDstAmount, UINT_64_MAX)
+        // todo more asserts
 
         const resolverCancellationConfig =
             extra.resolverCancellationConfig ||
             SvmCrossChainOrder.DefaultExtra.resolverCancellationConfig
 
+        this.details = details
+        this.escrowParams = escrowParams
         this.orderConfig = {
             ...orderInfo,
-            dutchAuctionData: auctionDetails,
+            source: extra.source ?? SvmCrossChainOrder.DefaultExtra.source,
+            allowMultipleFills:
+                extra.allowMultipleFills ??
+                SvmCrossChainOrder.DefaultExtra.allowMultipleFills,
             srcAssetIsNative: extra.srcAssetIsNative,
-            dstAssetIsNative: extra.dstAssetIsNative,
-            expirationTime: deadline,
+            deadline: Number(deadline),
             resolverCancellationConfig: resolverCancellationConfig
         }
     }
 
     public get hashLock(): HashLock {
-        throw new Error('Method not implemented.')
+        return this.escrowParams.hashLock
     }
 
     public get timeLocks(): TimeLocks {
-        throw new Error('Method not implemented.')
+        return this.escrowParams.timeLocks
     }
 
     public get srcSafetyDeposit(): bigint {
-        throw new Error('Method not implemented.')
+        return this.escrowParams.dstSafetyDeposit
     }
 
-    public get dstChainId(): NetworkEnum {
-        throw new Error('Method not implemented.')
+    public get dstChainId(): SupportedChain {
+        return this.escrowParams.dstChainId
     }
 
     public get maker(): SolanaAddress {
-        throw new Error('Method not implemented.')
-    }
-
-    public get takerAsset(): SolanaAddress {
-        throw new Error('Method not implemented.')
+        return this.orderConfig.maker
     }
 
     public get makerAsset(): SolanaAddress {
-        throw new Error('Method not implemented.')
+        return this.orderConfig.srcToken
     }
 
-    public get takingAmount(): bigint {
-        throw new Error('Method not implemented.')
+    public get takerAsset(): AddressLike {
+        return this.orderConfig.dstToken
     }
 
     public get makingAmount(): bigint {
-        throw new Error('Method not implemented.')
+        return this.orderConfig.srcAmount
     }
 
-    public get receiver(): SolanaAddress {
-        throw new Error('Method not implemented.')
+    public get takingAmount(): bigint {
+        return this.orderConfig.minDstAmount
+    }
+
+    public get receiver(): AddressLike {
+        return this.orderConfig.receiver
     }
 
     public get deadline(): bigint {
-        throw new Error('Method not implemented.')
+        return BigInt(this.orderConfig.deadline)
     }
 
     public get auctionStartTime(): bigint {
-        throw new Error('Method not implemented.')
+        return this.details.auction.startTime
     }
 
     public get auctionEndTime(): bigint {
-        throw new Error('Method not implemented.')
-    }
-
-    public get nonce(): bigint {
-        throw new Error('Method not implemented.')
+        return this.auctionStartTime + this.details.auction.duration
     }
 
     public get partialFillAllowed(): boolean {
-        throw new Error('Method not implemented.')
+        return this.orderConfig.allowMultipleFills
     }
 
     public get multipleFillsAllowed(): boolean {
-        throw new Error('Method not implemented.')
+        return this.orderConfig.allowMultipleFills
     }
 
     public toJSON(): SolanaOrderJSON {
@@ -163,33 +168,6 @@ export class SvmCrossChainOrder extends BaseOrder<
     }
 
     public getCalculator(): AuctionCalculator {
-        throw new Error('Method not implemented.')
-    }
-
-    public calcTakingAmount(
-        makingAmount: bigint,
-        time: bigint,
-        _blockBaseFee?: bigint
-    ): bigint {
-        throw new Error('Method not implemented.')
-    }
-
-    public canExecuteAt(
-        executor: SolanaAddress,
-        executionTime: bigint
-    ): boolean {
-        throw new Error('Method not implemented.')
-    }
-
-    public isExpiredAt(time: bigint): boolean {
-        throw new Error('Method not implemented.')
-    }
-
-    public isExclusiveResolver(wallet: SolanaAddress): boolean {
-        throw new Error('Method not implemented.')
-    }
-
-    public isExclusivityPeriod(time: bigint): boolean {
-        throw new Error('Method not implemented.')
+        return AuctionCalculator.fromAuctionDetails(this.details.auction)
     }
 }

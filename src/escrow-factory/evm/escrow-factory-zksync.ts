@@ -1,7 +1,7 @@
-import {Address} from '@1inch/fusion-sdk'
 import {AbiCoder, concat, keccak256} from 'ethers'
 import {add0x, getBytesCount, isHexBytes, trim0x} from '@1inch/byte-utils'
 import assert from 'assert'
+import {EvmAddress as Address} from 'domains/addresses'
 import {EscrowFactory} from './escrow-factory'
 
 export class EscrowFactoryZksync extends EscrowFactory {
@@ -51,6 +51,6 @@ export class EscrowFactoryZksync extends EscrowFactory {
             inputHash
         ])
 
-        return new Address(add0x(keccak256(concatenatedData).slice(-40)))
+        return Address.fromString(add0x(keccak256(concatenatedData).slice(-40)))
     }
 }

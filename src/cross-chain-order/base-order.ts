@@ -1,10 +1,12 @@
-import {AuctionCalculator} from '@1inch/fusion-sdk'
+import {calcTakingAmount} from '@1inch/limit-order-sdk'
 import assert from 'assert'
+import {now} from '../utils'
 import {NetworkEnum, SupportedChain} from '../chains'
 import {HashLock} from '../domains/hash-lock'
 import {Immutables} from '../domains/immutables'
 import {TimeLocks} from '../domains/time-locks'
 import {AddressLike} from '../domains/addresses'
+import {AuctionCalculator} from '../auction-calculator'
 
 export abstract class BaseOrder<TSrcAddress extends AddressLike, TJSON> {
     public abstract get hashLock(): HashLock
@@ -44,8 +46,6 @@ export abstract class BaseOrder<TSrcAddress extends AddressLike, TJSON> {
      * Timestamp in sec
      */
     public abstract get auctionEndTime(): bigint
-
-    public abstract get nonce(): bigint
 
     public abstract get partialFillAllowed(): boolean
 
@@ -103,11 +103,14 @@ export abstract class BaseOrder<TSrcAddress extends AddressLike, TJSON> {
         return Number(calculatedIndex)
     }
 
-    public abstract toJSON(): TJSON
-
-    public abstract getOrderHash(srcChainId: number): string
-
-    public abstract getCalculator(): AuctionCalculator
+    /**
+     * Check is order expired at a given time
+     *
+     * @param time timestamp in seconds
+     */
+    public isExpiredAt(time = now()): boolean {
+        return time >= this.deadline
+    }
 
     /**
      * Calculates required taking amount for passed `makingAmount` at block time `time`
@@ -116,39 +119,27 @@ export abstract class BaseOrder<TSrcAddress extends AddressLike, TJSON> {
      * @param time execution time in sec
      * @param blockBaseFee block fee in wei.
      * */
-    public abstract calcTakingAmount(
+    public calcTakingAmount(
         makingAmount: bigint,
         time: bigint,
-        blockBaseFee?: bigint
-    ): bigint
+        blockBaseFee = 0n
+    ): bigint {
+        const takingAmount = calcTakingAmount(
+            makingAmount,
+            this.makingAmount,
+            this.takingAmount
+        )
 
-    /**
-     * Check whether address allowed to execute order at the given time
-     *
-     * @param executor address of executor
-     * @param executionTime timestamp in sec at which order planning to execute
-     */
-    public abstract canExecuteAt(
-        executor: TSrcAddress,
-        executionTime: bigint
-    ): boolean
+        const calculator = this.getCalculator()
 
-    /**
-     * Check is order expired at a given time
-     *
-     * @param time timestamp in seconds
-     */
-    public abstract isExpiredAt(time: bigint): boolean
+        const bump = calculator.calcRateBump(time, blockBaseFee)
 
-    /**
-     * Check if `wallet` can fill order before other
-     */
-    public abstract isExclusiveResolver(wallet: TSrcAddress): boolean
+        return calculator.calcAuctionTakingAmount(takingAmount, bump)
+    }
 
-    /**
-     * Check if the auction has exclusive resolver, and it is in the exclusivity period
-     *
-     * @param time timestamp to check
-     */
-    public abstract isExclusivityPeriod(time: bigint): boolean
+    public abstract toJSON(): TJSON
+
+    public abstract getOrderHash(srcChainId: number): string
+
+    public abstract getCalculator(): AuctionCalculator
 }

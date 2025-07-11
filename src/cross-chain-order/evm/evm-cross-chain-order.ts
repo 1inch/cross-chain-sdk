@@ -17,13 +17,12 @@ import {
 import {InnerOrder} from './inner-order'
 import {EscrowExtension} from './escrow-extension'
 import {SettlementPostInteractionData} from './fusion-order'
-import {AuctionCalculator} from '../auction-calculator'
+import {AuctionCalculator} from '../../auction-calculator'
 import {now} from '../../utils/time'
 import {createAddress, AddressLike, EvmAddress} from '../../domains/addresses'
 import {BaseOrder} from '../base-order'
 import {TRUE_ERC20} from '../../deployments'
 import {isSupportedChain, SupportedChain} from '../../chains'
-import {Immutables} from '../../domains/immutables'
 import {HashLock} from '../../domains/hash-lock'
 import {TimeLocks} from '../../domains/time-locks'
 
@@ -253,40 +252,6 @@ export class EvmCrossChainOrder extends BaseOrder<
     }
 
     /**
-     * Calculates required taking amount for passed `makingAmount` at block time `time`
-     *
-     * @param makingAmount maker swap amount
-     * @param time execution time in sec
-     * @param blockBaseFee block fee in wei.
-     * */
-    public calcTakingAmount(
-        makingAmount: bigint,
-        time: bigint,
-        blockBaseFee?: bigint
-    ): bigint {
-        return this.inner.calcTakingAmount(makingAmount, time, blockBaseFee)
-    }
-
-    /**
-     * Check whether address allowed to execute order at the given time
-     *
-     * @param executor address of executor
-     * @param executionTime timestamp in sec at which order planning to execute
-     */
-    public canExecuteAt(executor: EvmAddress, executionTime: bigint): boolean {
-        return this.inner.canExecuteAt(executor.inner, executionTime)
-    }
-
-    /**
-     * Check is order expired at a given time
-     *
-     * @param time timestamp in seconds
-     */
-    public isExpiredAt(time: bigint): boolean {
-        return this.inner.isExpiredAt(time)
-    }
-
-    /**
      * Check if `wallet` can fill order before other
      */
     public isExclusiveResolver(wallet: EvmAddress): boolean {
@@ -300,60 +265,5 @@ export class EvmCrossChainOrder extends BaseOrder<
      */
     public isExclusivityPeriod(time: bigint): boolean {
         return this.inner.isExclusivityPeriod(Number(time))
-    }
-
-    /**
-     * @param srcChainId
-     * @param taker executor of fillOrder* transaction
-     * @param amount making amount (make sure same amount passed to contact fillOrder method)
-     * @param hashLock leaf of a merkle tree for multiple fill
-     */
-    public toSrcImmutables(
-        srcChainId: SupportedChain,
-        taker: EvmAddress,
-        amount: bigint,
-        hashLock = this.escrowExtension.hashLockInfo
-    ): Immutables {
-        const isPartialFill = amount !== this.makingAmount
-        const isLeafHashLock = hashLock !== this.escrowExtension.hashLockInfo
-
-        if (isPartialFill && !isLeafHashLock) {
-            throw new Error(
-                'Provide leaf of merkle tree as HashLock for partial fell'
-            )
-        }
-
-        return Immutables.new({
-            hashLock,
-            safetyDeposit: this.escrowExtension.srcSafetyDeposit,
-            taker,
-            maker: this.maker,
-            orderHash: this.getOrderHash(srcChainId),
-            amount,
-            timeLocks: this.escrowExtension.timeLocks,
-            token: this.makerAsset
-        })
-    }
-
-    public getMultipleFillIdx(
-        fillAmount: bigint,
-        remainingAmount = this.makingAmount
-    ): number {
-        assert(
-            this.inner.multipleFillsAllowed,
-            'Multiple fills disabled for order'
-        )
-        const partsCount = this.escrowExtension.hashLockInfo.getPartsCount()
-
-        const calculatedIndex =
-            ((this.makingAmount - remainingAmount + fillAmount - 1n) *
-                partsCount) /
-            this.makingAmount
-
-        if (remainingAmount === fillAmount) {
-            return Number(calculatedIndex + 1n)
-        }
-
-        return Number(calculatedIndex)
     }
 }
