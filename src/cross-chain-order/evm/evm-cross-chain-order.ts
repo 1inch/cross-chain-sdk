@@ -244,7 +244,11 @@ export class EvmCrossChainOrder extends BaseOrder<
     }
 
     public getTypedData(srcChainId: number): EIP712TypedData {
-        return this.inner.getTypedData(srcChainId)
+        const typedData = this.inner.getTypedData(srcChainId)
+
+        // typedData.types['Order'] = OrderTypeOverride
+
+        return typedData
     }
 
     public getCalculator(): AuctionCalculator {
@@ -267,3 +271,15 @@ export class EvmCrossChainOrder extends BaseOrder<
         return this.inner.isExclusivityPeriod(Number(time))
     }
 }
+
+const OrderTypeOverride = [
+    {name: 'salt', type: 'uint256'},
+    {name: 'maker', type: 'address'},
+    // override receiver to be able to pass solana address, it's handled on contract side as uint256 as well
+    {name: 'receiver', type: 'uint256'},
+    {name: 'makerAsset', type: 'address'},
+    {name: 'takerAsset', type: 'address'},
+    {name: 'makingAmount', type: 'uint256'},
+    {name: 'takingAmount', type: 'uint256'},
+    {name: 'makerTraits', type: 'uint256'}
+]

@@ -113,10 +113,10 @@ export class EscrowFactory {
         const data = AbiCoder.defaultAbiCoder().encode(
             [
                 `(
-                        bytes32[] proof,
-                        uint256 idx,
-                        bytes32 secretHash,
-                    )`
+                      bytes32[] proof,
+                      uint256 idx,
+                      bytes32 secretHash,
+                  )`
             ],
             [{proof, idx, secretHash}]
         )

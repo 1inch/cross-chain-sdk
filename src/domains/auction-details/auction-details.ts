@@ -10,6 +10,7 @@ import {
 import {Extension} from '@1inch/limit-order-sdk'
 import assert from 'assert'
 import {AuctionGasCostInfo, AuctionPoint} from './types'
+import {now} from '../../utils'
 
 export class AuctionDetails {
     public readonly startTime: bigint
@@ -111,6 +112,15 @@ export class AuctionDetails {
         return AuctionDetails.decode(
             add0x(extension.makingAmountData.slice(42))
         )
+    }
+
+    static noAuction(duration = 120n): AuctionDetails {
+        return new AuctionDetails({
+            startTime: BigInt(now()),
+            initialRateBump: 0,
+            duration,
+            points: []
+        })
     }
 
     /**
