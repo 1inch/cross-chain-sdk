@@ -1,7 +1,10 @@
 import bs58 from 'bs58'
 import {hexToUint8Array, uint8ArrayToHex} from '@1inch/byte-utils'
 import {hexlify} from 'ethers'
+import {UINT_160_MAX} from '@1inch/fusion-sdk'
 import {AddressLike, HexString} from './types'
+import {AddressComplement} from './address-complement'
+import {EvmAddress} from './evm-address'
 import {isBigintString} from '../../utils/numbers/is-bigint-string'
 
 export class SolanaAddress implements AddressLike {
@@ -131,5 +134,14 @@ export class SolanaAddress implements AddressLike {
 
     public toBigint(): bigint {
         return BigInt(uint8ArrayToHex(this.buf))
+    }
+
+    public splitToParts(): [AddressComplement, EvmAddress] {
+        const bn = this.toBigint()
+
+        return [
+            new AddressComplement(bn >> 160n),
+            EvmAddress.fromBigInt(bn & UINT_160_MAX)
+        ]
     }
 }

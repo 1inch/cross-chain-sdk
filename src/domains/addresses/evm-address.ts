@@ -1,6 +1,7 @@
-import {Address} from '@1inch/limit-order-sdk'
 import {isAddress} from 'ethers'
+import {Address} from '@1inch/fusion-sdk'
 import {AddressLike, HexString} from './types'
+import {AddressComplement} from './address-complement'
 import {isBigintString} from '../../utils/numbers/is-bigint-string'
 
 export class EvmAddress implements AddressLike {
@@ -88,5 +89,9 @@ export class EvmAddress implements AddressLike {
 
     public toString(): string {
         return this.inner.toString()
+    }
+
+    public splitToParts(): [AddressComplement, EvmAddress] {
+        return [AddressComplement.ZERO, this]
     }
 }

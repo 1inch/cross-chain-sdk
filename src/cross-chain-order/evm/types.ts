@@ -1,4 +1,3 @@
-import {AuctionWhitelistItem} from './fusion-order'
 import {AuctionDetails} from '../../domains/auction-details'
 import {AddressLike, EvmAddress} from '../../domains/addresses'
 import {HashLock} from '../../domains/hash-lock'
@@ -49,6 +48,11 @@ export type Extra = {
     allowPartialFills?: boolean
 }
 
+export type AuctionWhitelistItem = {
+    address: EvmAddress
+    allowFrom: bigint
+}
+
 export type Details = {
     auction: AuctionDetails
     whitelist: AuctionWhitelistItem[]
@@ -74,5 +78,5 @@ export type OrderInfoData = {
     takingAmount: bigint
     maker: EvmAddress
     salt?: bigint
-    receiver?: AddressLike
+    receiver?: EvmAddress
 }

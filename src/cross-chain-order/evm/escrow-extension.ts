@@ -1,13 +1,24 @@
 import {AbiCoder} from 'ethers'
 import {BitMask, BN, trim0x, UINT_128_MAX} from '@1inch/byte-utils'
-import {Extension, Interaction} from '@1inch/limit-order-sdk'
+import {
+    FusionExtension,
+    Extension,
+    Interaction,
+    SettlementPostInteractionData,
+    ZX
+} from '@1inch/fusion-sdk'
 import assert from 'assert'
-import {FusionExtension, SettlementPostInteractionData} from './fusion-order'
+import {AddressComplement} from '../../domains/addresses/address-complement'
 import {AuctionDetails} from '../../domains/auction-details'
 import {HashLock} from '../../domains/hash-lock'
 import {TimeLocks} from '../../domains/time-locks'
 import {SupportedChain} from '../../chains'
-import {AddressLike, EvmAddress as Address} from '../../domains/addresses'
+import {
+    AddressLike,
+    EvmAddress as Address,
+    EvmAddress,
+    createAddress
+} from '../../domains/addresses'
 
 /**
  * Same as FusionExtension, but with extra data at the end
@@ -23,13 +34,14 @@ export class EscrowExtension extends FusionExtension {
     private static EXTRA_DATA_TYPES = [
         HashLock.Web3Type,
         'uint256', // dst chain id
-        'address', // dst token
+        'uint256', // dst token
         'uint256', // src/dst safety deposit
         TimeLocks.Web3Type
     ] as const
 
     private static EXTRA_DATA_LENGTH = 160 * 2 // 160 bytes, so 320 hex chars
 
+    // eslint-disable-next-line max-params
     constructor(
         address: Address,
         auctionDetails: AuctionDetails,
@@ -40,12 +52,13 @@ export class EscrowExtension extends FusionExtension {
         public readonly dstToken: AddressLike,
         public readonly srcSafetyDeposit: bigint,
         public readonly dstSafetyDeposit: bigint,
-        public readonly timeLocks: TimeLocks
+        public readonly timeLocks: TimeLocks,
+        public readonly dstAddressFirstPart?: AddressComplement
     ) {
         assert(srcSafetyDeposit <= UINT_128_MAX)
         assert(srcSafetyDeposit <= UINT_128_MAX)
 
-        super(address, auctionDetails, postInteractionData, makerPermit)
+        super(address.inner, auctionDetails, postInteractionData, makerPermit)
 
         this.dstToken = dstToken.zeroAsNative()
     }
@@ -78,8 +91,13 @@ export class EscrowExtension extends FusionExtension {
                 )
         )
 
+        const complement =
+            extension.customData === ZX
+                ? AddressComplement.ZERO
+                : new AddressComplement(BigInt(extension.customData))
+
         return new EscrowExtension(
-            fusionExt.address,
+            EvmAddress.fromString(fusionExt.address.toString()),
             fusionExt.auctionDetails,
             fusionExt.postInteractionData,
             fusionExt.makerPermit,
@@ -88,7 +106,8 @@ export class EscrowExtension extends FusionExtension {
             extra.dstToken,
             extra.srcSafetyDeposit,
             extra.dstSafetyDeposit,
-            extra.timeLocks
+            extra.timeLocks,
+            complement
         )
     }
 
@@ -100,7 +119,7 @@ export class EscrowExtension extends FusionExtension {
     private static decodeExtraData(bytes: string): {
         hashLock: HashLock
         dstChainId: number
-        dstToken: Address
+        dstToken: AddressLike
         srcSafetyDeposit: bigint
         dstSafetyDeposit: bigint
         timeLocks: TimeLocks
@@ -116,7 +135,7 @@ export class EscrowExtension extends FusionExtension {
         return {
             hashLock: HashLock.fromString(hashLock),
             dstChainId: Number(dstChainId),
-            dstToken: Address.fromString(dstToken),
+            dstToken: createAddress(dstToken.toString(), Number(dstChainId)),
             dstSafetyDeposit: safetyDepositBN.getMask(new BitMask(0n, 128n))
                 .value,
             srcSafetyDeposit: safetyDepositBN.getMask(new BitMask(128n, 256n))
@@ -131,8 +150,17 @@ export class EscrowExtension extends FusionExtension {
         return new Extension({
             ...baseExt,
             postInteraction:
-                baseExt.postInteraction + trim0x(this.encodeExtraData())
+                baseExt.postInteraction + trim0x(this.encodeExtraData()),
+            customData: this.buildCustomData()
         })
+    }
+
+    private buildCustomData(): string {
+        if (!this.dstAddressFirstPart || this.dstAddressFirstPart.isZero()) {
+            return ZX
+        }
+
+        return this.dstAddressFirstPart.asHex()
     }
 
     private encodeExtraData(): string {

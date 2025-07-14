@@ -1,6 +1,5 @@
-import {Uint256} from '@1inch/limit-order-sdk'
+import {FusionOrder} from '@1inch/fusion-sdk'
 import {EscrowExtension} from './escrow-extension'
-import {FusionOrder} from './fusion-order'
 import {Extra, OrderInfoData} from './types'
 
 /**
@@ -18,9 +17,10 @@ export class InnerOrder extends FusionOrder {
             extension.address,
             {
                 ...orderInfo,
-                receiver:
-                    orderInfo.receiver &&
-                    new Uint256(orderInfo.receiver.toBigint())
+                makerAsset: orderInfo.makerAsset?.inner,
+                takerAsset: orderInfo.takerAsset?.inner,
+                maker: orderInfo.maker?.inner,
+                receiver: orderInfo.receiver?.inner
             },
             extension.auctionDetails,
             extension.postInteractionData,

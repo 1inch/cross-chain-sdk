@@ -1,7 +1,7 @@
 import {keccak256} from 'ethers'
-import {EvmAddress as Address} from 'domains/addresses'
 import {EscrowFactoryFacade} from './escrow-factory-facade'
 import {EscrowFactoryZksync} from './escrow-factory-zksync'
+import {EvmAddress as Address} from '../../domains/addresses'
 import {HashLock} from '../../domains/hash-lock'
 import {TimeLocks} from '../../domains/time-locks'
 import {DstImmutablesComplement, Immutables} from '../../domains/immutables'

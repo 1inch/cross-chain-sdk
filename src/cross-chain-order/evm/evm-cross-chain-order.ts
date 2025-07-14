@@ -1,11 +1,13 @@
 import {
+    AuctionCalculator,
     EIP712TypedData,
     Extension,
     Interaction,
     LimitOrderV4Struct,
     MakerTraits,
+    SettlementPostInteractionData,
     ZX
-} from '@1inch/limit-order-sdk'
+} from '@1inch/fusion-sdk'
 import assert from 'assert'
 import {
     CrossChainOrderInfo,
@@ -16,13 +18,12 @@ import {
 } from './types'
 import {InnerOrder} from './inner-order'
 import {EscrowExtension} from './escrow-extension'
-import {SettlementPostInteractionData} from './fusion-order'
-import {AuctionCalculator} from '../../auction-calculator'
+import {AddressComplement} from '../../domains/addresses/address-complement'
 import {now} from '../../utils/time'
 import {createAddress, AddressLike, EvmAddress} from '../../domains/addresses'
 import {BaseOrder} from '../base-order'
 import {TRUE_ERC20} from '../../deployments'
-import {isSupportedChain, SupportedChain} from '../../chains'
+import {isEvm, isSupportedChain, SupportedChain} from '../../chains'
 import {HashLock} from '../../domains/hash-lock'
 import {TimeLocks} from '../../domains/time-locks'
 
@@ -142,26 +143,6 @@ export class EvmCrossChainOrder extends BaseOrder<
         details: Details,
         extra?: Extra
     ): EvmCrossChainOrder {
-        const postInteractionData = SettlementPostInteractionData.new({
-            whitelist: details.whitelist,
-            resolvingStartTime: details.resolvingStartTime ?? BigInt(now())
-        })
-
-        const ext = new EscrowExtension(
-            escrowFactory,
-            details.auction,
-            postInteractionData,
-            extra?.permit
-                ? new Interaction(orderInfo.makerAsset.inner, extra.permit)
-                : undefined,
-            escrowParams.hashLock,
-            escrowParams.dstChainId,
-            orderInfo.takerAsset,
-            escrowParams.srcSafetyDeposit,
-            escrowParams.dstSafetyDeposit,
-            escrowParams.timeLocks
-        )
-
         assert(
             isSupportedChain(escrowParams.srcChainId),
             `Not supported chain ${escrowParams.srcChainId}`
@@ -177,10 +158,44 @@ export class EvmCrossChainOrder extends BaseOrder<
             'Chains must be different'
         )
 
+        const postInteractionData = SettlementPostInteractionData.new({
+            whitelist: details.whitelist.map((i) => ({
+                address: i.address.inner,
+                allowFrom: i.allowFrom
+            })),
+            resolvingStartTime: details.resolvingStartTime ?? BigInt(now())
+        })
+
+        if (!isEvm(escrowParams.dstChainId) && !orderInfo.receiver) {
+            throw new Error('Receiver is required for non EVM chain')
+        }
+
+        const [complement, receiver] = orderInfo.receiver?.splitToParts() || [
+            AddressComplement.ZERO,
+            EvmAddress.ZERO
+        ]
+
+        const ext = new EscrowExtension(
+            escrowFactory,
+            details.auction,
+            postInteractionData,
+            extra?.permit
+                ? new Interaction(orderInfo.makerAsset.inner, extra.permit)
+                : undefined,
+            escrowParams.hashLock,
+            escrowParams.dstChainId,
+            orderInfo.takerAsset,
+            escrowParams.srcSafetyDeposit,
+            escrowParams.dstSafetyDeposit,
+            escrowParams.timeLocks,
+            complement
+        )
+
         return new EvmCrossChainOrder(
             ext,
             {
                 ...orderInfo,
+                receiver,
                 takerAsset: TRUE_ERC20[escrowParams.srcChainId]
             },
             extra
@@ -213,7 +228,7 @@ export class EvmCrossChainOrder extends BaseOrder<
                 takerAsset: EvmAddress.fromString(order.takerAsset),
                 makingAmount: BigInt(order.makingAmount),
                 takingAmount: BigInt(order.takingAmount),
-                receiver: createAddress(order.receiver, ext.dstChainId),
+                receiver: EvmAddress.fromString(order.receiver),
                 maker: EvmAddress.fromString(order.maker),
                 salt: BigInt(order.salt) >> 160n
             },
@@ -268,18 +283,6 @@ export class EvmCrossChainOrder extends BaseOrder<
      * @param time timestamp to check, `now()` by default
      */
     public isExclusivityPeriod(time: bigint): boolean {
-        return this.inner.isExclusivityPeriod(Number(time))
+        return this.inner.isExclusivityPeriod(time)
     }
 }
-
-const OrderTypeOverride = [
-    {name: 'salt', type: 'uint256'},
-    {name: 'maker', type: 'address'},
-    // override receiver to be able to pass solana address, it's handled on contract side as uint256 as well
-    {name: 'receiver', type: 'uint256'},
-    {name: 'makerAsset', type: 'address'},
-    {name: 'takerAsset', type: 'address'},
-    {name: 'makingAmount', type: 'uint256'},
-    {name: 'takingAmount', type: 'uint256'},
-    {name: 'makerTraits', type: 'uint256'}
-]

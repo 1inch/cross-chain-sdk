@@ -1,6 +1,6 @@
+import {FusionExtension} from '@1inch/fusion-sdk'
 import {EscrowExtension} from './escrow-extension'
-import {FusionExtension} from './fusion-order'
-import {EvmAddress as Address} from '../../domains/addresses'
+import {EvmAddress as Address, EvmAddress} from '../../domains/addresses'
 import {HashLock} from '../../domains/hash-lock'
 import {TimeLocks} from '../../domains/time-locks'
 import {getRandomBytes32} from '../../test-utils/get-random-bytes-32'
@@ -13,7 +13,7 @@ describe('EscrowExtension', () => {
         )
 
         const ext = new EscrowExtension(
-            fusionExt.address,
+            EvmAddress.fromString(fusionExt.address.toString()),
             fusionExt.auctionDetails,
             fusionExt.postInteractionData,
             fusionExt.makerPermit,
@@ -42,7 +42,7 @@ describe('EscrowExtension', () => {
         )
 
         const ext = new EscrowExtension(
-            fusionExt.address,
+            EvmAddress.fromString(fusionExt.address.toString()),
             fusionExt.auctionDetails,
             fusionExt.postInteractionData,
             fusionExt.makerPermit,

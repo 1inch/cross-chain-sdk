@@ -1,4 +1,5 @@
-import {Address} from '@1inch/limit-order-sdk'
+import {AddressComplement} from './address-complement'
+import {EvmAddress} from './evm-address'
 
 export type HexString = `0x${string}`
 
@@ -11,10 +12,9 @@ export type AddressLike = {
     isNative(): boolean
     isZero(): boolean
     toBigint(): bigint
-}
-
-export function asFusionAddress<T extends AddressLike | undefined>(
-    a: T
-): T extends undefined ? Address | undefined : Address {
-    return a as unknown as Address
+    /** Split the address into 2 parts
+     * Second parts is 40 bytes as valid evm address
+     * First bytes
+     */
+    splitToParts(): [AddressComplement, EvmAddress]
 }

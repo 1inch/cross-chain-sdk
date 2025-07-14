@@ -89,9 +89,9 @@ export class Immutables {
         return new Immutables(
             data.orderHash,
             HashLock.fromString(data.hashlock),
-            new EvmAddress(data.maker),
-            new EvmAddress(data.taker),
-            new EvmAddress(data.token),
+            EvmAddress.fromString(data.maker),
+            EvmAddress.fromString(data.taker),
+            EvmAddress.fromString(data.token),
             BigInt(data.amount),
             BigInt(data.safetyDeposit),
             TimeLocks.fromBigInt(BigInt(data.timelocks))

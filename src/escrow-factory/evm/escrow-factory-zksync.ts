@@ -1,8 +1,8 @@
 import {AbiCoder, concat, keccak256} from 'ethers'
 import {add0x, getBytesCount, isHexBytes, trim0x} from '@1inch/byte-utils'
 import assert from 'assert'
-import {EvmAddress as Address} from 'domains/addresses'
 import {EscrowFactory} from './escrow-factory'
+import {EvmAddress as Address} from '../../domains/addresses'
 
 export class EscrowFactoryZksync extends EscrowFactory {
     private static create2Prefix =
