@@ -1,4 +1,4 @@
-import {Interaction} from '@1inch/limit-order-sdk'
+import {Interaction} from '@1inch/fusion-sdk'
 import {EscrowFactory} from './escrow-factory'
 import {EscrowFactoryZksync} from './escrow-factory-zksync'
 import {EvmAddress as Address} from '../../domains/addresses'

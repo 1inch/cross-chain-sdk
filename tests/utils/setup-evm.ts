@@ -10,6 +10,7 @@ import {
 } from 'ethers'
 
 import EscrowFactory from '../../dist/contracts/EscrowFactory.sol/EscrowFactory.json'
+import Resolver from '../../dist/contracts/Resolver.sol/Resolver.json'
 import {EvmChain} from '../../src/chains'
 import {EvmTestWallet} from '../utils/evm-wallet'
 import {ONE_INCH_LIMIT_ORDER_V4, USDC, WETH} from '../utils/addresses'
@@ -23,25 +24,38 @@ export type ReadyEvmFork = {
     chainId: EvmChain
     localNode: StartedTestContainer
     provider: JsonRpcProvider
-    escrowFactoryAddress: string
+    addresses: {
+        escrowFactory: string
+        resolver: string
+    }
     maker: EvmTestWallet
     taker: EvmTestWallet
 }
 
 // Setup evm fork with escrow factory contract and users with funds
 // maker have WETH
-// taker have USDC
+// taker have USDC on resolver contract
 export async function setupEvm(config: EvmNodeConfig): Promise<ReadyEvmFork> {
     const forkUrl =
         config.forkUrl ?? (process.env.FORK_URL || 'https://eth.meowrpc.com')
 
     const {localNode, provider} = await startNode(config.chainId, forkUrl)
-    const escrowFactoryAddress = await deployContracts(provider)
-    const {maker, taker} = await initUsers(provider)
+
+    const maker = new EvmTestWallet(
+        '0x37d5819e14a620d31d0ba9aab2b5154aa000c5519ae602158ddbe6369dca91fb',
+        provider
+    )
+
+    const taker = await EvmTestWallet.fromAddress(
+        '0x1d83cc9b3Fe9Ee21c45282Bef1BEd27Dfa689EA2',
+        provider
+    )
+    const addresses = await deployContracts(provider, taker)
+    await setupBalances(maker, taker, addresses.resolver, provider)
 
     return {
         chainId: config.chainId,
-        escrowFactoryAddress,
+        addresses,
         localNode,
         provider,
         maker,
@@ -105,13 +119,19 @@ async function startNode(
     }
 }
 
-async function deployContracts(provider: JsonRpcProvider): Promise<string> {
+async function deployContracts(
+    provider: JsonRpcProvider,
+    taker: EvmTestWallet
+): Promise<{
+    escrowFactory: string
+    resolver: string
+}> {
     const deployer = new Wallet(
         '0x3667482b9520ea17999acd812ad3db1ff29c12c006e756cdcb5fd6cc5d5a9b01',
         provider
     )
 
-    return deploy(
+    const escrowFactory = await deploy(
         EscrowFactory,
         [
             ONE_INCH_LIMIT_ORDER_V4,
@@ -123,37 +143,41 @@ async function deployContracts(provider: JsonRpcProvider): Promise<string> {
         ],
         deployer
     )
+
+    const resolver = await deploy(
+        Resolver,
+        [
+            escrowFactory,
+            ONE_INCH_LIMIT_ORDER_V4,
+            await taker.getAddress() // owner
+        ],
+        deployer
+    )
+
+    return {
+        escrowFactory,
+        resolver
+    }
 }
 
-async function initUsers(
+async function setupBalances(
+    maker: EvmTestWallet,
+    taker: EvmTestWallet,
+    resolver: string,
     provider: JsonRpcProvider
-): Promise<{maker: EvmTestWallet; taker: EvmTestWallet}> {
+): Promise<void> {
     const USDC_DONOR = await EvmTestWallet.fromAddress(
         '0x47ac0Fb4F2D84898e4D9E7b4DaB3C24507a6D503',
         provider
     )
 
     // maker have WETH
-    const maker = new EvmTestWallet(
-        '0x37d5819e14a620d31d0ba9aab2b5154aa000c5519ae602158ddbe6369dca91fb',
-        provider
-    )
     await maker.transfer(WETH, parseEther('5'))
     await maker.unlimitedApprove(WETH, ONE_INCH_LIMIT_ORDER_V4)
 
-    // Taker have USDC
-    const taker = await EvmTestWallet.fromAddress(
-        '0x1d83cc9b3Fe9Ee21c45282Bef1BEd27Dfa689EA2',
-        provider
-    )
-    await USDC_DONOR.transferToken(
-        USDC,
-        await taker.getAddress(),
-        parseUnits('100000', 6)
-    )
-    await taker.unlimitedApprove(USDC, ONE_INCH_LIMIT_ORDER_V4)
-
-    return {maker, taker}
+    // Taker have USDC on resolver
+    await USDC_DONOR.transferToken(USDC, resolver, parseUnits('100000', 6))
+    // await taker.unlimitedApprove(USDC, ONE_INCH_LIMIT_ORDER_V4)
 }
 
 /**

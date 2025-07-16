@@ -54,6 +54,10 @@ export class EvmCrossChainOrder extends BaseOrder<
         return this.escrowExtension.srcSafetyDeposit
     }
 
+    public get dstSafetyDeposit(): bigint {
+        return this.escrowExtension.dstSafetyDeposit
+    }
+
     get dstChainId(): SupportedChain {
         return this.inner.escrowExtension.dstChainId
     }
@@ -259,11 +263,7 @@ export class EvmCrossChainOrder extends BaseOrder<
     }
 
     public getTypedData(srcChainId: number): EIP712TypedData {
-        const typedData = this.inner.getTypedData(srcChainId)
-
-        // typedData.types['Order'] = OrderTypeOverride
-
-        return typedData
+        return this.inner.getTypedData(srcChainId)
     }
 
     public getCalculator(): AuctionCalculator {

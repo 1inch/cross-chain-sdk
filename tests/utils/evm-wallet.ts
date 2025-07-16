@@ -4,9 +4,7 @@ import {
     JsonRpcProvider,
     Signer,
     TransactionRequest,
-    Wallet as PKWallet,
-    Wallet,
-    TypedDataEncoder
+    Wallet as PKWallet
 } from 'ethers'
 import {Address, EIP712TypedData} from '@1inch/limit-order-sdk'
 import ERC20 from '../../dist/contracts/IERC20.sol/IERC20.json'
@@ -33,15 +31,11 @@ export class EvmTestWallet {
         signer: Signer,
         typedData: EIP712TypedData
     ): Promise<string> {
-        console.log(signer)
-
-        return (signer as Wallet).signingKey.sign(
-            TypedDataEncoder.encode(
-                typedData.domain,
-                {Order: typedData.types[typedData.primaryType]},
-                typedData.message
-            )
-        ).serialized
+        return signer.signTypedData(
+            typedData.domain,
+            {Order: typedData.types[typedData.primaryType]},
+            typedData.message
+        )
     }
 
     public static async fromAddress(

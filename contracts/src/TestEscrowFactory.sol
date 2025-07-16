@@ -1,6 +1,6 @@
 pragma solidity ^0.8.23;
 
-import '../lib/cross-chain-swap/contracts/EscrowFactory.sol';
+import {EscrowFactory, IERC20} from '../lib/cross-chain-swap/contracts/EscrowFactory.sol';
 
 contract TestSettlement is EscrowFactory {
     // solhint-disable-next-line no-empty-blocks

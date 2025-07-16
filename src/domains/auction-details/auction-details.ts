@@ -114,9 +114,12 @@ export class AuctionDetails {
         )
     }
 
-    static noAuction(duration = 120n): AuctionDetails {
+    static noAuction(
+        duration = 120n,
+        startTime = BigInt(now())
+    ): AuctionDetails {
         return new AuctionDetails({
-            startTime: BigInt(now()),
+            startTime,
             initialRateBump: 0,
             duration,
             points: []

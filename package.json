@@ -39,7 +39,7 @@
     "lint:types": "tsc --noEmit",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:integration": "pnpm build:contracts && jest -c jest.integration.config.js",
+    "test:integration": "jest -c jest.integration.config.js",
     "changelog:generate": "changelog generate -a",
     "qa:fix": "pnpm build && pnpm format && pnpm lint && pnpm lint:types && pnpm test"
   },
