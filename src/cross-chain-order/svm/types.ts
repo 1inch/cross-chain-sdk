@@ -22,7 +22,7 @@ export type Details = {
 }
 
 export type Extra = {
-    srcAssetIsNative: boolean
+    srcAssetIsNative?: boolean
     /**
      * Order will expire in `orderExpirationDelay` after auction ends
      * Default 12s
@@ -31,4 +31,6 @@ export type Extra = {
     resolverCancellationConfig?: ResolverCancellationConfig
     source?: string
     allowMultipleFills?: boolean
+    // random value in interval [0, UINT_32_MAX]
+    salt?: bigint
 }

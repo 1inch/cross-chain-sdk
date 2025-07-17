@@ -86,6 +86,10 @@ export class HashLock {
         return this.value
     }
 
+    public toBuffer(): Buffer {
+        return Buffer.from(this.value.slice(2), 'hex')
+    }
+
     public eq(other: HashLock): boolean {
         return this.value === other.value
     }

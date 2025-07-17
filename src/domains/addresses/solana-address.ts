@@ -2,6 +2,7 @@ import bs58 from 'bs58'
 import {hexToUint8Array, uint8ArrayToHex} from '@1inch/byte-utils'
 import {hexlify} from 'ethers'
 import {UINT_160_MAX} from '@1inch/fusion-sdk'
+import {web3} from '@coral-xyz/anchor'
 import {AddressLike, HexString} from './types'
 import {AddressComplement} from './address-complement'
 import {EvmAddress} from './evm-address'
@@ -22,6 +23,10 @@ export class SolanaAddress implements AddressLike {
 
     public static SYSTEM_PROGRAM_ID = new SolanaAddress(
         '11111111111111111111111111111111'
+    )
+
+    public static SYSVAR_RENT_ID = new SolanaAddress(
+        'SysvarRent111111111111111111111111111111111'
     )
 
     public static ZERO = SolanaAddress.fromBigInt(0n)
@@ -46,6 +51,10 @@ export class SolanaAddress implements AddressLike {
         } catch {
             throw new Error(`${value} is not a valid address.`)
         }
+    }
+
+    static fromString(str: string): SolanaAddress {
+        return new SolanaAddress(str)
     }
 
     static fromUnknown(val: unknown): SolanaAddress {
@@ -80,7 +89,7 @@ export class SolanaAddress implements AddressLike {
         throw new Error('invalid address')
     }
 
-    static fromPublicKey(publicKey: AddressLike): SolanaAddress {
+    static fromPublicKey(publicKey: web3.PublicKey): SolanaAddress {
         return SolanaAddress.fromBuffer(publicKey.toBuffer())
     }
 

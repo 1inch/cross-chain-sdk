@@ -7,7 +7,7 @@ import {
     UINT_24_MAX,
     UINT_32_MAX
 } from '@1inch/byte-utils'
-import {Extension} from '@1inch/limit-order-sdk'
+import {Extension} from '@1inch/fusion-sdk'
 import assert from 'assert'
 import {AuctionGasCostInfo, AuctionPoint} from './types'
 import {now} from '../../utils'
@@ -126,6 +126,19 @@ export class AuctionDetails {
         })
     }
 
+    public toJSON(): AuctionDetailsJSON {
+        return {
+            duration: this.duration.toString(),
+            gasCost: {
+                gasBumpEstimate: this.gasCost.gasBumpEstimate.toString(),
+                gasPriceEstimate: this.gasCost.gasPriceEstimate.toString()
+            },
+            points: this.points,
+            initialRateBump: this.initialRateBump.toString(),
+            startTime: this.startTime.toString()
+        }
+    }
+
     /**
      * Serialize auction data to bytes
      */
@@ -151,5 +164,16 @@ export class AuctionDetails {
         }
 
         return details
+    }
+}
+
+export type AuctionDetailsJSON = {
+    startTime: string
+    duration: string
+    initialRateBump: string
+    points: AuctionPoint[]
+    gasCost: {
+        gasBumpEstimate: string
+        gasPriceEstimate: string
     }
 }

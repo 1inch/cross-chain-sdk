@@ -13,7 +13,7 @@ import EscrowFactory from '../../dist/contracts/EscrowFactory.sol/EscrowFactory.
 import Resolver from '../../dist/contracts/Resolver.sol/Resolver.json'
 import {EvmChain} from '../../src/chains'
 import {EvmTestWallet} from '../utils/evm-wallet'
-import {ONE_INCH_LIMIT_ORDER_V4, USDC, WETH} from '../utils/addresses'
+import {ONE_INCH_LIMIT_ORDER_V4, USDC_EVM, WETH_EVM} from '../utils/addresses'
 
 export type EvmNodeConfig = {
     chainId: EvmChain
@@ -136,7 +136,7 @@ async function deployContracts(
         [
             ONE_INCH_LIMIT_ORDER_V4,
             '0xacce550000159e70908c0499a1119d04e7039c28', // access token
-            WETH, // fee token
+            WETH_EVM, // fee token
             deployer.address, // owner
             100000n, // src rescue delay
             100000n // dst rescue delay
@@ -172,11 +172,11 @@ async function setupBalances(
     )
 
     // maker have WETH
-    await maker.transfer(WETH, parseEther('5'))
-    await maker.unlimitedApprove(WETH, ONE_INCH_LIMIT_ORDER_V4)
+    await maker.transfer(WETH_EVM, parseEther('5'))
+    await maker.unlimitedApprove(WETH_EVM, ONE_INCH_LIMIT_ORDER_V4)
 
     // Taker have USDC on resolver
-    await USDC_DONOR.transferToken(USDC, resolver, parseUnits('100000', 6))
+    await USDC_DONOR.transferToken(USDC_EVM, resolver, parseUnits('100000', 6))
     // await taker.unlimitedApprove(USDC, ONE_INCH_LIMIT_ORDER_V4)
 }
 

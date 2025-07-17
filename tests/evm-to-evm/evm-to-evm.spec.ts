@@ -7,12 +7,12 @@ import {ReadyEvmFork, setupEvm} from '../utils/setup-evm'
 import {NetworkEnum} from '../../src/chains'
 import {EvmCrossChainOrder} from '../../src/cross-chain-order/evm'
 import {EvmAddress} from '../../src/domains/addresses'
-import {USDC, WETH} from '../utils/addresses'
+import {USDC_EVM, WETH_EVM} from '../utils/addresses'
 import {TimeLocks} from '../../src/domains/time-locks'
 import {AuctionDetails} from '../../src/domains/auction-details'
 import {getSecret} from '../utils/secret'
 import {HashLock} from '../../src/domains/hash-lock'
-import {EscrowFactoryFacade} from '../../src/escrow-factory/evm/escrow-factory-facade'
+import {EscrowFactoryFacade} from '../../src/contracts/evm/escrow-factory/evm/escrow-factory-facade'
 import {DstImmutablesComplement, Immutables} from '../../src/domains/immutables'
 
 jest.setTimeout(1000 * 10 * 60)
@@ -58,6 +58,7 @@ describe('EVM to EVM', () => {
         order: EvmCrossChainOrder,
         signature: string,
         immutables: Immutables,
+        chainConfig: ReadyEvmFork,
         leaves = [],
         secretHashes = [],
         fillAmount = order.makingAmount,
@@ -109,8 +110,8 @@ describe('EVM to EVM', () => {
             // 1 WETH -> 1000 USDC
             {
                 maker,
-                makerAsset: EvmAddress.fromString(WETH),
-                takerAsset: EvmAddress.fromString(USDC), // address on dst chain
+                makerAsset: EvmAddress.fromString(WETH_EVM),
+                takerAsset: EvmAddress.fromString(USDC_EVM), // address on dst chain
                 makingAmount: parseEther('1'),
                 takingAmount: parseUnits('1000', 6)
             },
@@ -157,7 +158,7 @@ describe('EVM to EVM', () => {
         )
         const srcEscrow = await srcChain.taker.send({
             to: resolver.toString(),
-            data: getFillData(order, signature, srcImmutables),
+            data: getFillData(order, signature, srcImmutables, srcChain),
             value: order.srcSafetyDeposit
         })
 
