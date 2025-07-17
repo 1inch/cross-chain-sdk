@@ -1,5 +1,5 @@
 import {UINT_40_MAX} from '@1inch/byte-utils'
-import {AuctionWhitelistItem, randBigInt} from '@1inch/fusion-sdk'
+import {randBigInt} from '@1inch/fusion-sdk'
 import assert from 'assert'
 import {CrossChainOrderParamsData} from './types'
 import {EvmAddress as Address} from '../../../domains/addresses'
@@ -9,6 +9,7 @@ import {Preset} from '../preset'
 import {QuoterRequest} from '../quoter.request'
 import {EvmCrossChainOrder} from '../../../cross-chain-order/evm'
 import {isEvm, SupportedChain} from '../../../chains'
+import {AuctionWhitelistItem} from '../../../cross-chain-order/evm/types'
 
 export class Quote {
     public readonly quoteId: string | null
