@@ -25,7 +25,7 @@ import {
     PublishedSecretsResponse,
     ReadyToExecutePublicActions
 } from '../api'
-import {EvmCrossChainOrder} from '../cross-chain-order'
+import {EvmCrossChainOrder} from '../cross-chain-order/evm'
 import {SupportedChain} from '../chains'
 
 export class SDK {

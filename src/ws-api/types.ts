@@ -10,8 +10,8 @@ import {
 import {Jsonify} from 'type-fest'
 import {PaginationOutput} from '../api/types'
 import {ActiveOrder, OrderType, PublicSecret} from '../api/orders'
-import {Immutables} from '../immutables'
 import {SupportedChain} from '../chains'
+import {Immutables} from '../domains/immutables'
 
 export type OrderEventType =
     | OrderCreatedEvent

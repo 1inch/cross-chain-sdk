@@ -4,8 +4,9 @@ import {
     LimitOrderV4Struct
 } from '@1inch/fusion-sdk'
 import {CustomPreset, PresetEnum} from '../api'
-import {EvmCrossChainOrder, HashLock} from '../cross-chain-order'
+import {EvmCrossChainOrder} from '../cross-chain-order/evm'
 import {SupportedChain} from '../chains'
+import {HashLock} from '../domains/hash-lock'
 
 export type CrossChainSDKConfigParams = {
     url: string

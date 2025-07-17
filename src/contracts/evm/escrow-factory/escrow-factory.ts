@@ -1,10 +1,10 @@
 import {AbiCoder, getCreate2Address, keccak256} from 'ethers'
 import {add0x, getBytesCount, isHexBytes, trim0x} from '@1inch/byte-utils'
-import {Interaction} from '@1inch/limit-order-sdk'
+import {Interaction} from '@1inch/fusion-sdk'
 import assert from 'assert'
-import {Immutables, DstImmutablesComplement} from '../../domains/immutables'
-import {MerkleLeaf} from '../../domains/hash-lock'
-import {EvmAddress as Address} from '../../domains/addresses'
+import {EvmAddress as Address} from '../../../domains/addresses'
+import {DstImmutablesComplement, Immutables} from '../../../domains/immutables'
+import {MerkleLeaf} from '../../../domains/hash-lock'
 
 export class EscrowFactory {
     constructor(public readonly address: Address) {}

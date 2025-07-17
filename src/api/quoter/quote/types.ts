@@ -1,6 +1,6 @@
 import {Address} from '@1inch/fusion-sdk'
 import {PresetEnum} from '../types'
-import {HashLock} from '../../../cross-chain-order'
+import {HashLock} from '../../../domains/hash-lock'
 
 export type CrossChainOrderParamsData = {
     hashLock: HashLock

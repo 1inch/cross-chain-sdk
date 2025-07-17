@@ -1,4 +1,4 @@
-import {calcTakingAmount} from '@1inch/limit-order-sdk'
+import {AuctionCalculator, calcTakingAmount} from '@1inch/fusion-sdk'
 import assert from 'assert'
 import {now} from '../utils'
 import {NetworkEnum, SupportedChain} from '../chains'
@@ -6,7 +6,6 @@ import {HashLock} from '../domains/hash-lock'
 import {Immutables} from '../domains/immutables'
 import {TimeLocks} from '../domains/time-locks'
 import {AddressLike} from '../domains/addresses'
-import {AuctionCalculator} from '../auction-calculator'
 
 export abstract class BaseOrder<TSrcAddress extends AddressLike, TJSON> {
     public abstract get hashLock(): HashLock
