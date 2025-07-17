@@ -1,5 +1,5 @@
 import {Interface, parseEther, parseUnits} from 'ethers'
-import {Clock} from 'solana-bankrun'
+import {Clock} from 'litesvm'
 import {web3} from '@coral-xyz/anchor'
 import Resolver from '../../dist/contracts/Resolver.sol/Resolver.json'
 import {ReadyEvmFork, setupEvm} from '../utils/setup-evm'
@@ -23,7 +23,7 @@ describe('EVM to EVM', () => {
 
     async function advanceNodeTime(duration = 10): Promise<void> {
         const [clock, dstBlock] = await Promise.all([
-            srcChain.connection.getClock(),
+            srcChain.svm.getClock(),
             dstChain.provider.getBlock('latest', false)
         ])
 
@@ -36,7 +36,7 @@ describe('EVM to EVM', () => {
         )
 
         await Promise.all([
-            srcChain.ctx.setClock(newClock),
+            srcChain.svm.setClock(newClock),
             dstChain.provider.send('evm_setNextBlockTimestamp', [
                 dstBlock!.timestamp + duration
             ])

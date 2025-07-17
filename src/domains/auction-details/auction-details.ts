@@ -126,6 +126,19 @@ export class AuctionDetails {
         })
     }
 
+    static fromJSON(data: AuctionDetailsJSON): AuctionDetails {
+        return new AuctionDetails({
+            startTime: BigInt(data.startTime),
+            initialRateBump: data.initialRateBump,
+            duration: BigInt(data.duration),
+            points: data.points,
+            gasCost: {
+                gasBumpEstimate: BigInt(data.gasCost.gasBumpEstimate),
+                gasPriceEstimate: BigInt(data.gasCost.gasPriceEstimate)
+            }
+        })
+    }
+
     public toJSON(): AuctionDetailsJSON {
         return {
             duration: this.duration.toString(),
@@ -134,7 +147,7 @@ export class AuctionDetails {
                 gasPriceEstimate: this.gasCost.gasPriceEstimate.toString()
             },
             points: this.points,
-            initialRateBump: this.initialRateBump.toString(),
+            initialRateBump: Number(this.initialRateBump),
             startTime: this.startTime.toString()
         }
     }
@@ -170,7 +183,7 @@ export class AuctionDetails {
 export type AuctionDetailsJSON = {
     startTime: string
     duration: string
-    initialRateBump: string
+    initialRateBump: number
     points: AuctionPoint[]
     gasCost: {
         gasBumpEstimate: string

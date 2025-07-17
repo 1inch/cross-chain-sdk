@@ -15,10 +15,6 @@ export type SolanaEscrowParams = {
 
 export type Details = {
     auction: AuctionDetails
-    /**
-     * Time from which order can be executed
-     */
-    resolvingStartTime?: bigint
 }
 
 export type Extra = {

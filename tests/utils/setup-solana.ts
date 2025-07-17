@@ -1,10 +1,11 @@
 import {BorshCoder, web3} from '@coral-xyz/anchor'
-import {ProgramTestContext, start} from 'solana-bankrun'
+import {LiteSVM} from 'litesvm'
 import {
     createMint,
     getOrCreateAssociatedTokenAccount,
     mintTo
 } from '@solana/spl-token'
+import path from 'path'
 import {TestConnection} from './solana-test-connection'
 
 import {NetworkEnum} from '../../src/chains'
@@ -14,7 +15,7 @@ import {SvmDstEscrowFactory} from '../../src/contracts/svm/svm-dst-escrow-factor
 
 import {IDL as WhitelistIDL} from '../../src/idl/whitelist'
 
-import {airdropAccount, sol, SYSTEM_PROGRAM_ID} from '../utils/solana'
+import {sol, SYSTEM_PROGRAM_ID} from '../utils/solana'
 import {getPda} from '../../src/utils'
 import {SolanaAddress} from '../../src/domains/addresses'
 
@@ -25,7 +26,7 @@ export type SolanaNodeConfig = {
 export type ReadySolanaNode = {
     chainId: NetworkEnum.SOLANA
     connection: TestConnection
-    ctx: ProgramTestContext
+    svm: LiteSVM
     accounts: {
         srcToken: web3.Keypair
         dstToken: web3.Keypair
@@ -99,13 +100,11 @@ export async function setupSolana(
             resolver
         },
         connection: new TestConnection(programTestCtx),
-        ctx: programTestCtx
+        svm: programTestCtx
     }
 }
 
-async function startNode(
-    fundAccounts: web3.PublicKey[]
-): Promise<ProgramTestContext> {
+async function startNode(fundAccounts: web3.PublicKey[]): Promise<LiteSVM> {
     const whitelistProgramId = new web3.PublicKey(
         WhitelistContract.DEFAULT.programId.toBuffer()
     )
@@ -116,30 +115,31 @@ async function startNode(
     const dstFactoryProgramId = new web3.PublicKey(
         SvmDstEscrowFactory.DEFAULT.programId.toBuffer()
     )
-    const programTestCtx = await start(
-        [
-            {
-                name: 'whitelist',
-                programId: whitelistProgramId
-            },
-            {
-                name: 'cross_chain_escrow_src',
-                programId: srcFactoryProgramId
-            },
 
-            {
-                name: 'cross_chain_escrow_dst',
-                programId: dstFactoryProgramId
-            }
-        ],
-        fundAccounts.map((pk) => airdropAccount(pk, sol(100)))
+    const svm = new LiteSVM()
+
+    const getPath = (name: string): string =>
+        path.join(__dirname, '../fixtures', `${name}.so`)
+
+    svm.addProgramFromFile(whitelistProgramId, getPath('whitelist'))
+    svm.addProgramFromFile(
+        srcFactoryProgramId,
+        getPath('cross_chain_escrow_src')
+    )
+    svm.addProgramFromFile(
+        dstFactoryProgramId,
+        getPath('cross_chain_escrow_dst')
     )
 
-    return programTestCtx
+    fundAccounts.forEach((a) => {
+        svm.airdrop(a, BigInt(sol(100)))
+    })
+
+    return svm
 }
 
 async function initWhitelist(
-    testCtx: ProgramTestContext,
+    testCtx: LiteSVM,
     programId: web3.PublicKey,
     owner: web3.Keypair,
     resolver: web3.PublicKey
@@ -149,7 +149,7 @@ async function initWhitelist(
     // region init
     const initTx = new web3.Transaction({
         feePayer: owner.publicKey,
-        recentBlockhash: testCtx.lastBlockhash
+        recentBlockhash: testCtx.latestBlockhash()
     }).add({
         keys: [
             {pubkey: owner.publicKey, isSigner: true, isWritable: false},
@@ -173,12 +173,12 @@ async function initWhitelist(
     })
 
     initTx.sign(owner)
-    await testCtx.banksClient.processTransaction(initTx)
+    testCtx.sendTransaction(initTx)
     // endregion init
     // region register
     const registerTx = new web3.Transaction({
         feePayer: owner.publicKey,
-        recentBlockhash: testCtx.lastBlockhash
+        recentBlockhash: testCtx.latestBlockhash()
     }).add({
         keys: [
             {pubkey: owner.publicKey, isSigner: true, isWritable: false},
@@ -212,12 +212,12 @@ async function initWhitelist(
     })
 
     registerTx.sign(owner)
-    await testCtx.banksClient.processTransaction(registerTx)
+    testCtx.sendTransaction(registerTx)
     // endregion register
 }
 
 async function initTokens(
-    testCtx: ProgramTestContext,
+    testCtx: LiteSVM,
     owner: web3.Keypair,
     tokens: {
         mint: web3.Keypair

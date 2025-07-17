@@ -6,21 +6,55 @@ import {Details, Extra, SolanaEscrowParams} from './types'
 import {hashForSolana} from '../../domains/auction-details/hasher'
 import {uint256BorchSerialized} from '../../utils/numbers/uint256-borsh-serialized'
 import {uintAsBeBytes} from '../../utils/numbers/uint-as-be-bytes'
-import {AddressLike, SolanaAddress} from '../../domains/addresses'
-import {SupportedChain} from '../../chains'
+import {
+    AddressLike,
+    createAddress,
+    SolanaAddress
+} from '../../domains/addresses'
+import {NetworkEnum, SupportedChain} from '../../chains'
 import {HashLock} from '../../domains/hash-lock'
 import {TimeLocks} from '../../domains/time-locks'
 import {BaseOrder} from '../base-order'
 import {assertUInteger, getAta, getPda} from '../../utils'
-import {AuctionDetails} from '../../domains/auction-details'
+import {AuctionDetails, AuctionPoint} from '../../domains/auction-details'
 import {injectTrackCode} from '../source-track'
 
 export type SolanaOrderJSON = {
-    order_hash: string // 32bytes hex
-    hashlock: string // 32bytes hex
-    maker: string // base58 address
-    srcToken: string // base58 address
-    dstToken: string // uint256 address
+    orderInfo: {
+        srcToken: string // base58 solana address
+        dstToken: string // evm address
+        maker: string // base58 solana address
+        srcAmount: string // u64 bigint
+        minDstAmount: string // u64 bigint
+        receiver: string // evm address
+    }
+    escrowParams: {
+        hashLock: string // 32bytes hex
+        srcChainId: NetworkEnum.SOLANA
+        dstChainId: number
+        srcSafetyDeposit: string // u64 bigint
+        dstSafetyDeposit: string // u64 bigint
+        timeLocks: string // u256 bigint
+    }
+    details: {
+        auction: {
+            startTime: string
+            duration: string
+            initialRateBump: number
+            points: AuctionPoint[]
+        }
+    }
+    extra: {
+        srcAssetIsNative: boolean
+        orderExpirationDelay: string // bigint
+        resolverCancellationConfig: {
+            maxCancellationPremium: string // u64 bigint
+            cancellationAuctionDuration: number
+        }
+        source: string
+        allowMultipleFills: boolean
+        salt: string // u32 bigint
+    }
 }
 
 export type OrderInfoData = {
@@ -60,6 +94,8 @@ export class SvmCrossChainOrder extends BaseOrder<
         // dst asset is native in case dstToken.isZero
         resolverCancellationConfig: ResolverCancellationConfig
         allowMultipleFills: boolean
+        orderExpirationDelay: bigint
+        source: string
     }
 
     private readonly details: Details
@@ -79,16 +115,17 @@ export class SvmCrossChainOrder extends BaseOrder<
         const orderExpirationDelay =
             extra.orderExpirationDelay ??
             SvmCrossChainOrder.DefaultExtra.orderExpirationDelay
+        assertUInteger(orderExpirationDelay)
 
         const deadline =
             details.auction.startTime +
             details.auction.duration +
             orderExpirationDelay
 
-        assertUInteger(orderExpirationDelay)
-        assertUInteger(deadline)
+        assertUInteger(deadline, UINT_32_MAX)
         assertUInteger(orderInfo.srcAmount, UINT_64_MAX)
         assertUInteger(orderInfo.minDstAmount, UINT_64_MAX)
+
         // todo more asserts
 
         const source = extra.source ?? SvmCrossChainOrder.DefaultExtra.source
@@ -106,13 +143,15 @@ export class SvmCrossChainOrder extends BaseOrder<
         this.escrowParams = escrowParams
         this.orderConfig = {
             ...orderInfo,
+            source,
             salt,
             allowMultipleFills:
                 extra.allowMultipleFills ??
                 SvmCrossChainOrder.DefaultExtra.allowMultipleFills,
             srcAssetIsNative: extra.srcAssetIsNative || false,
             deadline: Number(deadline),
-            resolverCancellationConfig: resolverCancellationConfig
+            resolverCancellationConfig: resolverCancellationConfig,
+            orderExpirationDelay
         }
     }
 
@@ -214,8 +253,95 @@ export class SvmCrossChainOrder extends BaseOrder<
         )
     }
 
+    static fromJSON(data: SolanaOrderJSON): SvmCrossChainOrder {
+        return SvmCrossChainOrder.new(
+            {
+                srcToken: SolanaAddress.fromString(data.orderInfo.srcToken),
+                dstToken: createAddress(
+                    data.orderInfo.dstToken,
+                    data.escrowParams.dstChainId
+                ),
+                srcAmount: BigInt(data.orderInfo.srcAmount),
+                minDstAmount: BigInt(data.orderInfo.minDstAmount),
+                maker: SolanaAddress.fromString(data.orderInfo.maker),
+                receiver: createAddress(
+                    data.orderInfo.receiver,
+                    data.escrowParams.dstChainId
+                )
+            },
+            {
+                dstChainId: data.escrowParams.dstChainId,
+                dstSafetyDeposit: BigInt(data.escrowParams.dstSafetyDeposit),
+                hashLock: HashLock.fromString(data.escrowParams.hashLock),
+                srcChainId: data.escrowParams.srcChainId,
+                srcSafetyDeposit: BigInt(data.escrowParams.srcSafetyDeposit),
+                timeLocks: TimeLocks.fromBigInt(
+                    BigInt(data.escrowParams.timeLocks)
+                )
+            },
+            {
+                auction: AuctionDetails.fromJSON({
+                    ...data.details.auction,
+                    gasCost: {gasBumpEstimate: '0', gasPriceEstimate: '0'}
+                })
+            },
+            {
+                allowMultipleFills: data.extra.allowMultipleFills,
+                orderExpirationDelay: BigInt(data.extra.orderExpirationDelay),
+                salt: BigInt(data.extra.salt),
+                resolverCancellationConfig: new ResolverCancellationConfig(
+                    BigInt(
+                        data.extra.resolverCancellationConfig
+                            .maxCancellationPremium
+                    ),
+                    data.extra.resolverCancellationConfig.cancellationAuctionDuration
+                ),
+                source: data.extra.source
+            }
+        )
+    }
+
     public toJSON(): SolanaOrderJSON {
-        throw new Error('Method not implemented.')
+        const auction = this.auction.toJSON()
+
+        return {
+            details: {
+                // skip gasCost field
+                auction: {
+                    duration: auction.duration,
+                    initialRateBump: auction.initialRateBump,
+                    points: auction.points,
+                    startTime: auction.startTime
+                }
+            },
+            orderInfo: {
+                srcToken: this.orderConfig.srcToken.toString(),
+                dstToken: this.orderConfig.dstToken.toString(),
+                maker: this.orderConfig.maker.toString(),
+                srcAmount: this.orderConfig.srcAmount.toString(),
+                minDstAmount: this.orderConfig.minDstAmount.toString(),
+                receiver: this.orderConfig.receiver.toString()
+            },
+            escrowParams: {
+                hashLock: this.hashLock.toString(),
+                srcChainId: NetworkEnum.SOLANA,
+                dstChainId: this.dstChainId,
+                srcSafetyDeposit: this.escrowParams.srcSafetyDeposit.toString(),
+                dstSafetyDeposit: this.escrowParams.dstSafetyDeposit.toString(),
+                timeLocks: this.timeLocks.build().toString()
+            },
+            extra: {
+                srcAssetIsNative: this.srcAssetIsNative,
+                orderExpirationDelay:
+                    this.orderConfig.orderExpirationDelay.toString(),
+                resolverCancellationConfig:
+                    this.resolverCancellationConfig.toJSON(),
+                source: this.orderConfig.source,
+                allowMultipleFills: this.multipleFillsAllowed,
+                // use only last bits because high ones set from source
+                salt: (this.salt & UINT_32_MAX).toString()
+            }
+        }
     }
 
     /**

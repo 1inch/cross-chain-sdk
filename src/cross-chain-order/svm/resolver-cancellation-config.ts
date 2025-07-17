@@ -32,6 +32,16 @@ export class ResolverCancellationConfig {
         return ResolverCancellationConfig.ZERO
     }
 
+    public toJSON(): {
+        maxCancellationPremium: string
+        cancellationAuctionDuration: number
+    } {
+        return {
+            maxCancellationPremium: this.maxCancellationPremium.toString(),
+            cancellationAuctionDuration: this.cancellationAuctionDuration
+        }
+    }
+
     public isZero(): boolean {
         return this.maxCancellationPremium === 0n
     }

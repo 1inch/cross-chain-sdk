@@ -124,6 +124,9 @@ importers:
       jest:
         specifier: 29.7.0
         version: 29.7.0(@types/node@18.19.117)
+      litesvm:
+        specifier: 0.2.0
+        version: 0.2.0(bufferutil@4.0.9)(typescript@5.5.2)(utf-8-validate@5.0.10)
       prettier:
         specifier: ^3.3.2
         version: 3.6.2
@@ -2586,6 +2589,39 @@ packages:
 
   lines-and-columns@1.2.4:
     resolution: {integrity: sha512-7ylylesZQ/PV29jhEDl3Ufjo6ZX7gCqJr5F7PKrqc93v7fzSymt1BpwEU8nAUXs8qzzvqhbjhK5QZg6Mt/HkBg==}
+
+  litesvm-darwin-arm64@0.2.0:
+    resolution: {integrity: sha512-fqGE7Z6iT+5Xob9o1xs0N7Tf3c1meJxDERf7Z6T7Loqm0seyUsfjM0gTOvMJHiWvvnOx+qIo/Cjhtp84Kb9v8w==}
+    engines: {node: '>= 10'}
+    cpu: [arm64]
+    os: [darwin]
+
+  litesvm-darwin-universal@0.2.0:
+    resolution: {integrity: sha512-CNgVrQ9tknv8JbtpmOO0SNXuOQj769A3ufWHrMFEBuFhCr9CJ6RQI9a/HxPWjMHTC7EzlcF8klMupPYpqM8KGA==}
+    engines: {node: '>= 10'}
+    os: [darwin]
+
+  litesvm-darwin-x64@0.2.0:
+    resolution: {integrity: sha512-blRxD4y0FIx3E27Iv7oX0uz9x3v9KPD+++HLatBx5K5bh57qrAStUINsgT6MchYrxxOE0T2xktJaiSQSEMxWSA==}
+    engines: {node: '>= 10'}
+    cpu: [x64]
+    os: [darwin]
+
+  litesvm-linux-x64-gnu@0.2.0:
+    resolution: {integrity: sha512-2PQcLvn5c8GLGPp/vLCFaladWe61wbtwwTlIMLEfPeU5f88jBPOaEryO85+0FHZS1awbT97caa55sFDpAO4CWw==}
+    engines: {node: '>= 10'}
+    cpu: [x64]
+    os: [linux]
+
+  litesvm-linux-x64-musl@0.2.0:
+    resolution: {integrity: sha512-9vAYFIicGjZIlwoCBii6yJmfIUVS4cdF0CxoAL+DGexTBLECk+Tr+WEFEXsvsYe4s81jxP04TTiUnasj/EaIcw==}
+    engines: {node: '>= 10'}
+    cpu: [x64]
+    os: [linux]
+
+  litesvm@0.2.0:
+    resolution: {integrity: sha512-75+ZMkSFY5ynI3S+vCMnZv1wcILg5iNEj21B+XE/G3/P2dfTPj+rbdNM1q3eLFdlnXdewhiB4BLypKsBnQTSOw==}
+    engines: {node: '>= 10'}
 
   locate-path@5.0.0:
     resolution: {integrity: sha512-t7hw9pI+WvuwNJXwk5zVHpyhIqzg2qTlklJOf0mVxGSbe3Fp2VieZcduNYjaLDoy6p9uGpQEGWG87WpMKlNq8g==}
@@ -6580,6 +6616,37 @@ snapshots:
       type-check: 0.4.0
 
   lines-and-columns@1.2.4: {}
+
+  litesvm-darwin-arm64@0.2.0:
+    optional: true
+
+  litesvm-darwin-universal@0.2.0:
+    optional: true
+
+  litesvm-darwin-x64@0.2.0:
+    optional: true
+
+  litesvm-linux-x64-gnu@0.2.0:
+    optional: true
+
+  litesvm-linux-x64-musl@0.2.0:
+    optional: true
+
+  litesvm@0.2.0(bufferutil@4.0.9)(typescript@5.5.2)(utf-8-validate@5.0.10):
+    dependencies:
+      '@solana/web3.js': 1.98.2(bufferutil@4.0.9)(typescript@5.5.2)(utf-8-validate@5.0.10)
+      bs58: 4.0.1
+    optionalDependencies:
+      litesvm-darwin-arm64: 0.2.0
+      litesvm-darwin-universal: 0.2.0
+      litesvm-darwin-x64: 0.2.0
+      litesvm-linux-x64-gnu: 0.2.0
+      litesvm-linux-x64-musl: 0.2.0
+    transitivePeerDependencies:
+      - bufferutil
+      - encoding
+      - typescript
+      - utf-8-validate
 
   locate-path@5.0.0:
     dependencies:
