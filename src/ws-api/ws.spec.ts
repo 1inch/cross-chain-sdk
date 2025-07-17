@@ -133,7 +133,7 @@ describe(__filename, () => {
                 lazyInit: true
             })
 
-            expect(() => wsSdk.send({id: 1})).toThrowError()
+            expect(() => wsSdk.send({id: 1})).toThrow()
         })
 
         it('should be possible to initialize not in lazy mode', (done) => {

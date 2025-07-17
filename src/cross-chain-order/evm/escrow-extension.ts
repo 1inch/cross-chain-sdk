@@ -53,7 +53,7 @@ export class EscrowExtension extends FusionExtension {
         public readonly srcSafetyDeposit: bigint,
         public readonly dstSafetyDeposit: bigint,
         public readonly timeLocks: TimeLocks,
-        public readonly dstAddressFirstPart?: AddressComplement
+        public readonly dstAddressFirstPart = AddressComplement.ZERO
     ) {
         assert(srcSafetyDeposit <= UINT_128_MAX)
         assert(srcSafetyDeposit <= UINT_128_MAX)
