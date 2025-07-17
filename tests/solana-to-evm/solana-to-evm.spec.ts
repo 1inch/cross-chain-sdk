@@ -101,7 +101,9 @@ describe('EVM to EVM', () => {
         const srcEscrowFactory = SvmSrcEscrowFactory.DEFAULT
 
         // user submits order creation onchain
-        const createSrcIx = srcEscrowFactory.createOrder(order)
+        const createSrcIx = srcEscrowFactory.createOrder(order, {
+            srcTokenProgramId: SolanaAddress.TOKEN_PROGRAM_ID
+        })
         const initTx = new web3.Transaction().add({
             ...createSrcIx,
             programId: new web3.PublicKey(createSrcIx.programId.toBuffer()),
