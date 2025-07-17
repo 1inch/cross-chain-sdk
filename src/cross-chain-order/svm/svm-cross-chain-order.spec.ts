@@ -37,8 +37,7 @@ describe('SVMCrossChainOrder', () => {
                 )
             },
             {
-                auction: AuctionDetails.noAuction(120n, 1752739636n),
-                resolvingStartTime: 0n
+                auction: AuctionDetails.noAuction(120n, 1752739636n)
             },
             {
                 allowMultipleFills: false,

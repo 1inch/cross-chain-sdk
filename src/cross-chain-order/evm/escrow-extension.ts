@@ -98,7 +98,7 @@ export class EscrowExtension extends FusionExtension {
 
         return new EscrowExtension(
             EvmAddress.fromString(fusionExt.address.toString()),
-            fusionExt.auctionDetails,
+            AuctionDetails.fromBase(fusionExt.auctionDetails),
             fusionExt.postInteractionData,
             fusionExt.makerPermit,
             extra.hashLock,

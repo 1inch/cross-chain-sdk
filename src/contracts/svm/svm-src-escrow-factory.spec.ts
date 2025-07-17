@@ -38,8 +38,7 @@ describe('SVM Escrow src factory', () => {
                 )
             },
             {
-                auction: AuctionDetails.noAuction(),
-                resolvingStartTime: 0n
+                auction: AuctionDetails.noAuction()
             },
             {
                 allowMultipleFills: false

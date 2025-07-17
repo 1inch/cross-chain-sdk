@@ -1,5 +1,6 @@
-import {Address, AuctionDetails} from '@1inch/fusion-sdk'
 import {AuctionPoint, PresetData} from './types'
+import {AuctionDetails} from '../../domains/auction-details'
+import {EvmAddress as Address} from '../../domains/addresses'
 
 export class Preset {
     public readonly auctionDuration: bigint
@@ -47,7 +48,7 @@ export class Preset {
             gasBumpEstimate: BigInt(preset.gasCost?.gasBumpEstimate || 0n)
         }
         this.exclusiveResolver = preset.exclusiveResolver
-            ? new Address(preset.exclusiveResolver)
+            ? Address.fromString(preset.exclusiveResolver)
             : undefined
         this.allowPartialFills = preset.allowPartialFills
         this.allowMultipleFills = preset.allowMultipleFills

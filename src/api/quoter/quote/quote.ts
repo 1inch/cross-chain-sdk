@@ -1,16 +1,13 @@
 import {UINT_40_MAX} from '@1inch/byte-utils'
-import {
-    Address,
-    AuctionWhitelistItem,
-    bpsToRatioFormat,
-    randBigInt
-} from '@1inch/fusion-sdk'
+import {AuctionWhitelistItem, randBigInt} from '@1inch/fusion-sdk'
 import assert from 'assert'
+import {EvmAddress as Address} from 'domains/addresses'
 import {CrossChainOrderParamsData} from './types'
+import {TimeLocks} from '../../../domains/time-locks'
 import {Cost, PresetEnum, QuoterResponse, TimeLocksRaw} from '../types'
 import {Preset} from '../preset'
 import {QuoterRequest} from '../quoter.request'
-import {EvmCrossChainOrder, TimeLocks} from '../../../cross-chain-order/evm'
+import {EvmCrossChainOrder} from '../../../cross-chain-order/evm'
 import {isEvm, SupportedChain} from '../../../chains'
 
 export class Quote {
@@ -67,11 +64,11 @@ export class Quote {
         this.prices = response.prices
         this.volume = response.volume
         this.quoteId = response.quoteId
-        this.whitelist = response.whitelist.map((a) => new Address(a))
+        this.whitelist = response.whitelist.map((a) => Address.fromString(a))
         this.recommendedPreset = response.recommendedPreset
         this.slippage = response.autoK
-        this.srcEscrowFactory = new Address(response.srcEscrowFactory)
-        this.dstEscrowFactory = new Address(response.dstEscrowFactory)
+        this.srcEscrowFactory = Address.fromString(response.srcEscrowFactory)
+        this.dstEscrowFactory = Address.fromString(response.dstEscrowFactory)
     }
 
     get srcChainId(): SupportedChain {
@@ -98,7 +95,7 @@ export class Quote {
             : params.nonce
 
         const takerAsset = this.params.dstTokenAddress.isNative()
-            ? Address.NATIVE_CURRENCY
+            ? Address.NATIVE
             : this.params.dstTokenAddress
 
         // todo: build order based on src chain
@@ -138,15 +135,6 @@ export class Quote {
             },
             {
                 auction: auctionDetails,
-                fees: {
-                    integratorFee: {
-                        ratio: bpsToRatioFormat(this.params.fee) || 0n,
-                        receiver: params?.takingFeeReceiver
-                            ? new Address(params?.takingFeeReceiver)
-                            : Address.ZERO_ADDRESS
-                    },
-                    bankFee: 0n
-                },
                 whitelist: this.getWhitelist(
                     auctionDetails.startTime,
                     preset.exclusiveResolver

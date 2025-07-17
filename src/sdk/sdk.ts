@@ -1,4 +1,4 @@
-import {Address, encodeCancelOrder, MakerTraits} from '@1inch/fusion-sdk'
+import {encodeCancelOrder, MakerTraits} from '@1inch/fusion-sdk'
 import {
     OrderInfo,
     OrderParams,
@@ -7,6 +7,7 @@ import {
     QuoteCustomPresetParams,
     CrossChainSDKConfigParams
 } from './types'
+import {EvmAddress as Address} from '../domains/addresses'
 import {
     FusionApi,
     Quote,
@@ -88,8 +89,7 @@ export class SDK {
             srcTokenAddress: params.srcTokenAddress,
             dstTokenAddress: params.dstTokenAddress,
             amount: params.amount,
-            walletAddress:
-                params.walletAddress || Address.ZERO_ADDRESS.toString(),
+            walletAddress: params.walletAddress || Address.ZERO.toString(),
             permit: params.permit,
             enableEstimate: !!params.enableEstimate,
             fee: params?.takingFeeBps,
@@ -110,8 +110,7 @@ export class SDK {
             srcTokenAddress: params.srcTokenAddress,
             dstTokenAddress: params.dstTokenAddress,
             amount: params.amount,
-            walletAddress:
-                params.walletAddress || Address.ZERO_ADDRESS.toString(),
+            walletAddress: params.walletAddress || Address.ZERO.toString(),
             permit: params.permit,
             enableEstimate: !!params.enableEstimate,
             fee: params?.takingFeeBps,
@@ -137,7 +136,7 @@ export class SDK {
         const order = quote.createOrder({
             hashLock: params.hashLock,
             receiver: params.receiver
-                ? new Address(params.receiver)
+                ? Address.fromString(params.receiver)
                 : undefined,
             preset: params.preset,
             nonce: params.nonce,

@@ -104,7 +104,7 @@ export class DstTimeLocks extends BaseTimeLock {
      *
      * @param time default is `now()`
      */
-    public isFinalityLock(time = now()): boolean {
+    public isFinalityLock(time = BigInt(now())): boolean {
         return time < this.privateWithdrawal
     }
 
@@ -113,7 +113,7 @@ export class DstTimeLocks extends BaseTimeLock {
      *
      * @param time default is `now()`
      */
-    public isPrivateWithdrawal(time = now()): boolean {
+    public isPrivateWithdrawal(time = BigInt(now())): boolean {
         return time >= this.privateWithdrawal && time < this.publicWithdrawal
     }
 
@@ -122,7 +122,7 @@ export class DstTimeLocks extends BaseTimeLock {
      *
      * @param time default is `now()`
      */
-    public isPublicWithdrawal(time = now()): boolean {
+    public isPublicWithdrawal(time = BigInt(now())): boolean {
         return time >= this.publicWithdrawal && time < this.privateCancellation
     }
 
@@ -131,11 +131,11 @@ export class DstTimeLocks extends BaseTimeLock {
      *
      * @param time default is `now()`
      */
-    public isPrivateCancellation(time = now()): boolean {
+    public isPrivateCancellation(time = BigInt(now())): boolean {
         return time >= this.privateCancellation
     }
 
-    public getStage(time = now()): DstStage {
+    public getStage(time = BigInt(now())): DstStage {
         if (this.isFinalityLock(time)) return DstStage.FinalityLock
 
         if (this.isPrivateWithdrawal(time)) return DstStage.PrivateWithdrawal

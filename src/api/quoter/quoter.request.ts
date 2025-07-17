@@ -1,7 +1,7 @@
-import {Address, isValidAmount} from '@1inch/fusion-sdk'
+import {isValidAmount} from '@1inch/fusion-sdk'
 import {QuoterRequestParams} from './types'
 import {SupportedChain} from '../../chains'
-
+import {EvmAddress as Address} from '../../domains/addresses'
 export class QuoterRequest {
     public readonly srcChain: SupportedChain
 
@@ -36,9 +36,9 @@ export class QuoterRequest {
 
         this.srcChain = params.srcChain
         this.dstChain = params.dstChain
-        this.srcTokenAddress = new Address(params.srcTokenAddress)
-        this.dstTokenAddress = new Address(params.dstTokenAddress)
-        this.walletAddress = new Address(params.walletAddress)
+        this.srcTokenAddress = Address.fromString(params.srcTokenAddress)
+        this.dstTokenAddress = Address.fromString(params.dstTokenAddress)
+        this.walletAddress = Address.fromString(params.walletAddress)
         this.enableEstimate = params.enableEstimate || false
         this.permit = params.permit
         this.fee = params.fee
@@ -47,14 +47,12 @@ export class QuoterRequest {
 
         if (this.srcTokenAddress.isNative()) {
             throw new Error(
-                `cannot swap ${Address.NATIVE_CURRENCY}: wrap native currency to it's wrapper fist`
+                `cannot swap ${Address.NATIVE}: wrap native currency to it's wrapper fist`
             )
         }
 
         if (this.dstTokenAddress.isZero()) {
-            throw new Error(
-                `replace ${Address.ZERO_ADDRESS} with ${Address.NATIVE_CURRENCY}`
-            )
+            throw new Error(`replace ${Address.ZERO} with ${Address.NATIVE}`)
         }
 
         this.amount = BigInt(params.amount)

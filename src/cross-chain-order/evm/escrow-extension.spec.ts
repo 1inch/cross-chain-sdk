@@ -1,5 +1,6 @@
 import {FusionExtension} from '@1inch/fusion-sdk'
 import {EscrowExtension} from './escrow-extension'
+import {AuctionDetails} from '../../domains/auction-details'
 import {EvmAddress as Address, EvmAddress} from '../../domains/addresses'
 import {HashLock} from '../../domains/hash-lock'
 import {TimeLocks} from '../../domains/time-locks'
@@ -14,7 +15,7 @@ describe('EscrowExtension', () => {
 
         const ext = new EscrowExtension(
             EvmAddress.fromString(fusionExt.address.toString()),
-            fusionExt.auctionDetails,
+            AuctionDetails.fromBase(fusionExt.auctionDetails),
             fusionExt.postInteractionData,
             fusionExt.makerPermit,
             HashLock.forSingleFill(getRandomBytes32()),
@@ -43,7 +44,7 @@ describe('EscrowExtension', () => {
 
         const ext = new EscrowExtension(
             EvmAddress.fromString(fusionExt.address.toString()),
-            fusionExt.auctionDetails,
+            AuctionDetails.fromBase(fusionExt.auctionDetails),
             fusionExt.postInteractionData,
             fusionExt.makerPermit,
             HashLock.forMultipleFills(
