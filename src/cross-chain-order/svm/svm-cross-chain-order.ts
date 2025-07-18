@@ -176,6 +176,10 @@ export class SvmCrossChainOrder extends BaseOrder<
     }
 
     public get srcSafetyDeposit(): bigint {
+        return this.escrowParams.srcSafetyDeposit
+    }
+
+    public get dstSafetyDeposit(): bigint {
         return this.escrowParams.dstSafetyDeposit
     }
 
