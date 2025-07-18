@@ -1,4 +1,7 @@
-import {AuctionDetails as BaseAuctionDetails} from '@1inch/fusion-sdk'
+import {
+    AuctionDetails as BaseAuctionDetails,
+    Extension
+} from '@1inch/fusion-sdk'
 import {AuctionPoint} from './types'
 import {now} from '../../utils'
 
@@ -12,6 +15,12 @@ export class AuctionDetails extends BaseAuctionDetails {
             ...base,
             initialRateBump: Number(base.initialRateBump)
         })
+    }
+
+    static fromExtension(extension: Extension): AuctionDetails {
+        return AuctionDetails.fromBase(
+            BaseAuctionDetails.fromExtension(extension)
+        )
     }
 
     static noAuction(

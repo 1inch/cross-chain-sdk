@@ -25,7 +25,6 @@ export {
     PingRpcEvent,
     GetAllowMethodsRpcEvent
 } from '@1inch/fusion-sdk'
-export {} from './chains'
 export {SupportedChains, SupportedChain, NetworkEnum, EvmChain} from './chains'
 export * from './domains/immutables'
 export * from './deployments'
