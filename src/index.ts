@@ -25,10 +25,8 @@ export {
     PingRpcEvent,
     GetAllowMethodsRpcEvent
 } from '@1inch/fusion-sdk'
-export {NetworkEnum} from './chains'
-// todo: export evm/solana/base orders
-export {EvmCrossChainOrder as CrossChainOrder} from './cross-chain-order/evm/evm-cross-chain-order'
-export {SupportedChains, SupportedChain} from './chains'
+export {} from './chains'
+export {SupportedChains, SupportedChain, NetworkEnum, EvmChain} from './chains'
 export * from './domains/immutables'
 export * from './deployments'
 export * from './sdk'
@@ -38,3 +36,4 @@ export {IDL as SVM_ESCROW_DST_IDL} from './idl/cross-chain-escrow-dst'
 export {IDL as SVM_ESCROW_SRC_IDL} from './idl/cross-chain-escrow-src'
 export * from './domains'
 export * from './contracts'
+export * from './cross-chain-order'
