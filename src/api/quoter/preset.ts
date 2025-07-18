@@ -1,5 +1,5 @@
-import {AuctionPoint, PresetData} from './types'
-import {AuctionDetails} from '../../domains/auction-details'
+import {PresetData} from './types'
+import {AuctionDetails, AuctionPoint} from '../../domains/auction-details'
 import {EvmAddress as Address} from '../../domains/addresses'
 
 export class Preset {

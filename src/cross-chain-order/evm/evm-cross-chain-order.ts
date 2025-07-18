@@ -10,10 +10,10 @@ import {
 } from '@1inch/fusion-sdk'
 import assert from 'assert'
 import {
-    CrossChainOrderInfo,
-    Details,
+    EvmCrossChainOrderInfo,
+    EvmDetails,
     EvmEscrowParams,
-    Extra,
+    EvmExtra,
     OrderInfoData
 } from './types'
 import {InnerOrder} from './inner-order'
@@ -36,7 +36,7 @@ export class EvmCrossChainOrder extends BaseOrder<
     private constructor(
         extension: EscrowExtension,
         orderInfo: OrderInfoData,
-        extra?: Extra
+        extra?: EvmExtra
     ) {
         super()
         this.inner = new InnerOrder(extension, orderInfo, extra)
@@ -142,10 +142,10 @@ export class EvmCrossChainOrder extends BaseOrder<
      */
     public static new(
         escrowFactory: EvmAddress,
-        orderInfo: CrossChainOrderInfo,
+        orderInfo: EvmCrossChainOrderInfo,
         escrowParams: EvmEscrowParams,
-        details: Details,
-        extra?: Extra
+        details: EvmDetails,
+        extra?: EvmExtra
     ): EvmCrossChainOrder {
         assert(
             isSupportedChain(escrowParams.srcChainId),

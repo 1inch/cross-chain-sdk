@@ -90,8 +90,7 @@ describe('EVM to EVM', () => {
                 hashLock: HashLock.forSingleFill(secret)
             },
             {
-                auction: AuctionDetails.noAuction(),
-                resolvingStartTime: 0n
+                auction: AuctionDetails.noAuction()
             },
             {
                 allowMultipleFills: false

@@ -1,3 +1,4 @@
+import {AuctionPoint} from '../../domains'
 import {SupportedChain} from '../../chains'
 
 export type QuoterRequestParams = {
@@ -74,11 +75,6 @@ export type PresetData = {
     }
     exclusiveResolver: string | null
     secretsCount: number
-}
-
-export type AuctionPoint = {
-    delay: number
-    coefficient: number
 }
 
 export type Cost = {

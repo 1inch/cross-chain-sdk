@@ -4,7 +4,7 @@ import {HashLock} from '../../domains/hash-lock'
 import {TimeLocks} from '../../domains/time-locks'
 import {EvmChain, SupportedChain} from '../../chains'
 
-export type CrossChainOrderInfo = {
+export type EvmCrossChainOrderInfo = {
     /**
      * Source chain asset
      */
@@ -31,7 +31,7 @@ export type CrossChainOrderInfo = {
     receiver?: AddressLike
 }
 
-export type Extra = {
+export type EvmExtra = {
     /**
      * Max size is 40bit
      */
@@ -53,7 +53,7 @@ export type AuctionWhitelistItem = {
     allowFrom: bigint
 }
 
-export type Details = {
+export type EvmDetails = {
     auction: AuctionDetails
     whitelist: AuctionWhitelistItem[]
     /**

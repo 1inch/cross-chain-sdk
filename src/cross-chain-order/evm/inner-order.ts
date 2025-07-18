@@ -1,6 +1,6 @@
 import {FusionOrder} from '@1inch/fusion-sdk'
 import {EscrowExtension} from './escrow-extension'
-import {Extra, OrderInfoData} from './types'
+import {EvmExtra, OrderInfoData} from './types'
 
 /**
  * Inner order class, not intended for public usage
@@ -11,7 +11,7 @@ export class InnerOrder extends FusionOrder {
     public constructor(
         extension: EscrowExtension,
         orderInfo: OrderInfoData,
-        extra?: Extra
+        extra?: EvmExtra
     ) {
         super(
             extension.address,

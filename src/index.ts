@@ -4,7 +4,6 @@ export {
     Address,
     MakerTraits,
     Extension,
-    AuctionDetails,
     SettlementPostInteractionData,
     Interaction,
     AuctionCalculator,
@@ -37,3 +36,4 @@ export * from './api'
 export * from './ws-api'
 export {IDL as SVM_ESCROW_DST_IDL} from './idl/cross-chain-escrow-dst'
 export {IDL as SVM_ESCROW_SRC_IDL} from './idl/cross-chain-escrow-src'
+export * from './domains'

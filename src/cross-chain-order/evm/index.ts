@@ -1,3 +1,8 @@
 export {EvmCrossChainOrder} from './evm-cross-chain-order'
 export {EscrowExtension} from './escrow-extension'
-export {EvmEscrowParams, Details, Extra, CrossChainOrderInfo} from './types'
+export {
+    EvmEscrowParams,
+    EvmDetails,
+    EvmExtra,
+    EvmCrossChainOrderInfo
+} from './types'

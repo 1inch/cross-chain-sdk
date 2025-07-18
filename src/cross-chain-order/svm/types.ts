@@ -13,11 +13,11 @@ export type SolanaEscrowParams = {
     timeLocks: TimeLocks
 }
 
-export type Details = {
+export type SolanaDetails = {
     auction: AuctionDetails
 }
 
-export type Extra = {
+export type SolanaExtra = {
     srcAssetIsNative?: boolean
     /**
      * Order will expire in `orderExpirationDelay` after auction ends

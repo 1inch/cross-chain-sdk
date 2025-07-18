@@ -1,5 +1,5 @@
 import {web3} from '@coral-xyz/anchor'
-import {AddedAccount, ProgramTestContext} from 'solana-bankrun'
+import {LiteSVM} from 'litesvm'
 import {ACCOUNT_SIZE, AccountLayout} from '@solana/spl-token'
 import {AddressLike} from '../../src/domains/addresses'
 
@@ -11,41 +11,23 @@ export function sol(n: number): number {
     return 1_000_000_000 * n
 }
 
-export function airdropAccount(
-    pk: web3.PublicKey,
-    amount: number
-): AddedAccount {
-    return {
-        address: pk,
-        info: {
-            lamports: amount,
-            data: Buffer.alloc(0),
-            owner: SYSTEM_PROGRAM_ID,
-            executable: false
-        }
-    }
-}
-
 export function sleep(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 export async function withBalanceChanges(
-    ctx: ProgramTestContext,
+    ctx: LiteSVM,
     fn: () => Promise<unknown>,
     accounts: AddressLike[]
 ): Promise<bigint[]> {
-    const balancesBefore = await Promise.all(
-        accounts.map((a) =>
-            ctx.banksClient.getAccount(new web3.PublicKey(a.toBuffer()))
-        )
+    const balancesBefore = accounts.map((a) =>
+        ctx.getAccount(new web3.PublicKey(a.toBuffer()))
     )
+
     await fn()
 
-    const balancesAfter = await Promise.all(
-        accounts.map((a) =>
-            ctx.banksClient.getAccount(new web3.PublicKey(a.toBuffer()))
-        )
+    const balancesAfter = accounts.map((a) =>
+        ctx.getAccount(new web3.PublicKey(a.toBuffer()))
     )
 
     return balancesAfter.map((af, i) => {

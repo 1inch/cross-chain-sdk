@@ -2,7 +2,7 @@ import {add0x, BitMask, UINT_32_MAX, UINT_64_MAX} from '@1inch/byte-utils'
 import {AuctionCalculator, randBigInt} from '@1inch/fusion-sdk'
 import {keccak256} from 'ethers'
 import {ResolverCancellationConfig} from './resolver-cancellation-config'
-import {Details, Extra, SolanaEscrowParams} from './types'
+import {SolanaDetails, SolanaExtra, SolanaEscrowParams} from './types'
 import {hashForSolana} from '../../domains/auction-details/hasher'
 import {uint256BorchSerialized} from '../../utils/numbers/uint256-borsh-serialized'
 import {uintAsBeBytes} from '../../utils/numbers/uint-as-be-bytes'
@@ -98,7 +98,7 @@ export class SvmCrossChainOrder extends BaseOrder<
         source: string
     }
 
-    private readonly details: Details
+    private readonly details: SolanaDetails
 
     private readonly escrowParams: SolanaEscrowParams
 
@@ -107,8 +107,8 @@ export class SvmCrossChainOrder extends BaseOrder<
     private constructor(
         orderInfo: OrderInfoData,
         escrowParams: SolanaEscrowParams,
-        details: Details,
-        extra: Extra
+        details: SolanaDetails,
+        extra: SolanaExtra
     ) {
         super()
 
@@ -234,8 +234,8 @@ export class SvmCrossChainOrder extends BaseOrder<
     static new(
         orderInfo: OrderInfoData,
         escrowParams: SolanaEscrowParams,
-        details: Details,
-        extra: Omit<Extra, 'srcAssetIsNative'>
+        details: SolanaDetails,
+        extra: Omit<SolanaExtra, 'srcAssetIsNative'>
     ): SvmCrossChainOrder {
         return new SvmCrossChainOrder(
             {

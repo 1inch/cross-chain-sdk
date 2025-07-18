@@ -1,9 +1,14 @@
 import {Extension} from '@1inch/fusion-sdk'
+import {UINT_256_MAX} from '@1inch/byte-utils'
 import {EvmCrossChainOrder} from './evm-cross-chain-order'
-import {CrossChainOrderInfo, EvmEscrowParams} from './types'
+import {EvmCrossChainOrderInfo, EvmEscrowParams} from './types'
 import {AuctionDetails} from '../../domains/auction-details'
 import {now} from '../../utils'
-import {EvmAddress as Address, EvmAddress} from '../../domains/addresses'
+import {
+    EvmAddress as Address,
+    EvmAddress,
+    SolanaAddress
+} from '../../domains/addresses'
 import {HashLock} from '../../domains/hash-lock'
 import {TimeLocks} from '../../domains/time-locks'
 import {getRandomBytes32} from '../../test-utils/get-random-bytes-32'
@@ -65,7 +70,7 @@ describe('EvmCrossChainOrder', () => {
 
     it('Should encode/decode order', () => {
         const factoryAddress = Address.fromBigInt(1n)
-        const orderData: CrossChainOrderInfo = {
+        const orderData: EvmCrossChainOrderInfo = {
             maker: Address.fromBigInt(2n),
             makerAsset: EvmAddress.fromString(
                 '0xdac17f958d2ee523a2206206994597c13d831ec7'
@@ -121,7 +126,7 @@ describe('EvmCrossChainOrder', () => {
 
     it('Should encode/decode order with multiple fills', () => {
         const factoryAddress = Address.fromBigInt(1n)
-        const orderData: CrossChainOrderInfo = {
+        const orderData: EvmCrossChainOrderInfo = {
             maker: Address.fromBigInt(2n),
             makerAsset: EvmAddress.fromString(
                 '0xdac17f958d2ee523a2206206994597c13d831ec7'
@@ -185,7 +190,7 @@ describe('EvmCrossChainOrder', () => {
 
     it('should throw error for not supported chain', () => {
         const factoryAddress = Address.fromBigInt(1n)
-        const orderData: CrossChainOrderInfo = {
+        const orderData: EvmCrossChainOrderInfo = {
             maker: Address.fromBigInt(2n),
             makerAsset: EvmAddress.fromString(
                 '0xdac17f958d2ee523a2206206994597c13d831ec7'
@@ -249,7 +254,7 @@ describe('EvmCrossChainOrder', () => {
 
     it('should throw error for same chains', () => {
         const factoryAddress = Address.fromBigInt(1n)
-        const orderData: CrossChainOrderInfo = {
+        const orderData: EvmCrossChainOrderInfo = {
             maker: Address.fromBigInt(2n),
             makerAsset: EvmAddress.fromString(
                 '0xdac17f958d2ee523a2206206994597c13d831ec7'
@@ -300,5 +305,65 @@ describe('EvmCrossChainOrder', () => {
             )
 
         expect(createOrder).toThrow('Chains must be different')
+    })
+
+    it('Should return correct receiver for solana chain', () => {
+        const factoryAddress = Address.fromBigInt(1n)
+        const receiver = SolanaAddress.fromBigInt(UINT_256_MAX)
+        const orderData: EvmCrossChainOrderInfo = {
+            maker: Address.fromBigInt(2n),
+            makerAsset: EvmAddress.fromString(
+                '0xdac17f958d2ee523a2206206994597c13d831ec7'
+            ),
+            takerAsset: EvmAddress.fromString(
+                '0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9'
+            ),
+            makingAmount: 100_000000n,
+            takingAmount: 90_000000n,
+            receiver
+        }
+
+        const escrowParams: EvmEscrowParams = {
+            hashLock: HashLock.forSingleFill(getRandomBytes32()),
+            srcChainId: NetworkEnum.ETHEREUM,
+            dstChainId: NetworkEnum.SOLANA,
+            srcSafetyDeposit: 1000n,
+            dstSafetyDeposit: 1000n,
+            timeLocks: TimeLocks.new({
+                srcWithdrawal: 1n,
+                srcPublicWithdrawal: 2n,
+                srcCancellation: 3n,
+                srcPublicCancellation: 4n,
+                dstWithdrawal: 1n,
+                dstPublicWithdrawal: 2n,
+                dstCancellation: 3n
+            })
+        }
+        const order = EvmCrossChainOrder.new(
+            factoryAddress,
+            orderData,
+            escrowParams,
+            {
+                auction: new AuctionDetails({
+                    startTime: BigInt(now()),
+                    duration: 180n,
+                    points: [],
+                    initialRateBump: 100_000
+                }),
+                whitelist: [{address: Address.fromBigInt(100n), allowFrom: 0n}]
+            },
+            {
+                nonce: 1n
+            }
+        )
+
+        const decodedOrder = EvmCrossChainOrder.fromDataAndExtension(
+            order.build(),
+            Extension.decode(order.extension.encode())
+        )
+
+        expect(decodedOrder).toEqual(order)
+
+        expect(decodedOrder.receiver).toBe(receiver)
     })
 })
