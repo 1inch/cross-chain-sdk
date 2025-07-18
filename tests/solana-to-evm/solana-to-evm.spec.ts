@@ -1,6 +1,7 @@
-import {Interface, parseEther, parseUnits} from 'ethers'
+import {Interface, parseUnits} from 'ethers'
 import {Clock} from 'litesvm'
 import {web3} from '@coral-xyz/anchor'
+import {bs58} from '@coral-xyz/anchor/dist/cjs/utils/bytes'
 import Resolver from '../../dist/contracts/Resolver.sol/Resolver.json'
 import {ReadyEvmFork, setupEvm} from '../utils/setup-evm'
 import {NetworkEnum} from '../../src/chains'
@@ -70,7 +71,7 @@ describe('EVM to EVM', () => {
                     srcChain.accounts.srcToken.publicKey
                 ),
                 dstToken: EvmAddress.fromString(USDC_EVM), // address on dst chain
-                srcAmount: parseEther('1'),
+                srcAmount: parseUnits('1', 9),
                 minDstAmount: parseUnits('1000', 6)
             },
             {
@@ -99,7 +100,7 @@ describe('EVM to EVM', () => {
 
         const srcEscrowFactory = SvmSrcEscrowFactory.DEFAULT
 
-        // user submits order creation onchain
+        // user submits order creation onChain
         const createSrcIx = srcEscrowFactory.createOrder(order, {
             srcTokenProgramId: SolanaAddress.TOKEN_PROGRAM_ID
         })
@@ -112,8 +113,10 @@ describe('EVM to EVM', () => {
             }))
         })
 
-        await srcChain.connection.sendTransaction(initTx, [
+        const hash = await srcChain.connection.sendTransaction(initTx, [
             srcChain.accounts.maker
         ])
+
+        const txdata = srcChain.svm.getTransaction(bs58.decode(hash))
     })
 })

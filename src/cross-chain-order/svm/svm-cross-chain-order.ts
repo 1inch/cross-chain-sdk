@@ -344,18 +344,44 @@ export class SvmCrossChainOrder extends BaseOrder<
         }
     }
 
+    public getOrderAccount(
+        /**
+         * Src escrow factory program id
+         */
+        programId: SolanaAddress
+    ): SolanaAddress {
+        return getPda(programId, [
+            this.encoder.encode('order'),
+            this.getOrderHashBuffer()
+        ])
+    }
+
     /**
-     * Returns escrow address - owner of ATA where funds stored
+     * Returns escrow address - owner of ATA where funds stored after fill
      *
      * @see getEscrowATA to get ATA where funds stored
      */
-    public getEscrowAddress(programId: SolanaAddress): SolanaAddress {
+    public getEscrowAddress(
+        /**
+         * Src escrow factory program id
+         */
+        programId: SolanaAddress,
+        /**
+         * Address who fill order and create corresponding escrow
+         */
+        taker: SolanaAddress,
+        /**
+         * Hash of corresponding to fill amount secret
+         * Can be omitted  for orders where `multipleFillsAllowed` is false
+         */
+        secretHash = this.hashLock.toBuffer()
+    ): SolanaAddress {
         return getPda(programId, [
-            this.encoder.encode('escrow'),
+            this.encoder.encode('escrow'), // todo: fix when contract fixed
             this.getOrderHashBuffer(),
-            this.hashLock.toBuffer(),
+            secretHash,
             this.maker.toBuffer(),
-            this.receiver.toBuffer(),
+            taker.toBuffer(),
             this.makerAsset.toBuffer(),
             uintAsBeBytes(this.makingAmount, 64),
             uintAsBeBytes(this.srcSafetyDeposit, 64)

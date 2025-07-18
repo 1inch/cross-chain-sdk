@@ -48,25 +48,29 @@ export async function setupSolana(
     const resolver = web3.Keypair.generate()
     const owner = web3.Keypair.generate()
 
-    const programTestCtx = await startNode([
+    const svm = await startNode([
         maker.publicKey,
         resolver.publicKey,
         owner.publicKey
     ])
     await initWhitelist(
-        programTestCtx,
+        svm,
         new web3.PublicKey(WhitelistContract.DEFAULT.programId.toBuffer()),
         owner,
         resolver.publicKey
     )
 
-    await initTokens(programTestCtx, owner, [
+    await initTokens(svm, owner, [
         {
             mint: srcToken,
             owners: [
                 {
                     address: maker.publicKey,
                     amount: sol(100)
+                },
+                {
+                    address: resolver.publicKey,
+                    amount: sol(0) // to have ata
                 }
             ]
         },
@@ -76,15 +80,6 @@ export async function setupSolana(
                 {
                     address: resolver.publicKey,
                     amount: sol(100)
-                }
-            ]
-        },
-        {
-            mint: srcToken,
-            owners: [
-                {
-                    address: resolver.publicKey,
-                    amount: sol(0) // to have ata
                 }
             ]
         }
@@ -99,8 +94,8 @@ export async function setupSolana(
             owner,
             resolver
         },
-        connection: new TestConnection(programTestCtx),
-        svm: programTestCtx
+        connection: new TestConnection(svm),
+        svm: svm
     }
 }
 

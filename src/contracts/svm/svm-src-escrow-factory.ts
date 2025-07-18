@@ -1,13 +1,13 @@
 import {BN, BorshCoder} from '@coral-xyz/anchor'
 import {Instruction} from './instruction'
 import {BaseProgram} from './base-program'
-import {getAta, getPda} from '../../utils'
+import {WhitelistContract} from './whitelist'
+import {HashLock, MerkleLeaf, SolanaAddress} from '../../domains'
+import {getAta} from '../../utils'
 import {SvmCrossChainOrder} from '../../cross-chain-order/svm/svm-cross-chain-order'
-import {SolanaAddress} from '../../domains/addresses'
 import {IDL} from '../../idl/cross-chain-escrow-src'
 import {uint256split} from '../../utils/numbers/uint256-split'
 import {hashForSolana} from '../../domains/auction-details/hasher'
-import {uintAsBeBytes} from '../../utils/numbers/uint-as-be-bytes'
 
 export class SvmSrcEscrowFactory extends BaseProgram {
     static DEFAULT = new SvmSrcEscrowFactory(
@@ -50,16 +50,7 @@ export class SvmSrcEscrowFactory extends BaseProgram {
             }
         })
 
-        const escrowAddress = getPda(this.programId, [
-            this.encoder.encode('escrow'),
-            order.getOrderHashBuffer(),
-            order.hashLock.toBuffer(),
-            order.maker.toBuffer(),
-            order.receiver.toBuffer(),
-            order.makerAsset.toBuffer(),
-            uintAsBeBytes(order.makingAmount, 64),
-            uintAsBeBytes(order.srcSafetyDeposit, 64)
-        ])
+        const orderAccount = order.getOrderAccount(this.programId)
 
         return new Instruction(
             this.programId,
@@ -85,16 +76,16 @@ export class SvmSrcEscrowFactory extends BaseProgram {
                     },
                     order.srcAssetIsNative
                 ),
-                // 4. escrow
+                // 4. order
                 {
-                    pubkey: escrowAddress,
+                    pubkey: orderAccount,
                     isSigner: false,
                     isWritable: true
                 },
-                // 5. escrow_ata
+                // 5. order_ata
                 {
                     pubkey: getAta(
-                        escrowAddress,
+                        orderAccount,
                         order.makerAsset,
                         extra.srcTokenProgramId
                     ),
@@ -129,8 +120,161 @@ export class SvmSrcEscrowFactory extends BaseProgram {
             data
         )
     }
+
+    public createEscrow(
+        order: SvmCrossChainOrder,
+        fillAmount: bigint,
+        extra: {
+            /**
+             * Who will sign tx
+             */
+            taker: SolanaAddress
+            /**
+             * If not passed, than `WhitelistContract.DEFAULT` will be used
+             * @see WhitelistContract.DEFAULT
+             */
+            whitelistProgramId?: SolanaAddress
+            /**
+             * TokenProgram or TokenProgram 2022
+             */
+            srcTokenProgramId: SolanaAddress
+            /**
+             * Required if order allows partial fills
+             */
+            merkleProof?: {
+                /**
+                 * Merkle proof for index `idx`
+                 *
+                 * @see HashLock.getProof
+                 */
+                proof: MerkleLeaf[]
+                /**
+                 * @see SvmCrossChainOrder.getMultipleFillIdx
+                 */
+                idx: number
+                /**
+                 * Hash of secret at index `idx`
+                 */
+                secretHash: Buffer
+            }
+        }
+    ): Instruction {
+        const {merkleProof} = extra
+        const whitelistProgram = extra.whitelistProgramId
+            ? new WhitelistContract(extra.whitelistProgramId)
+            : WhitelistContract.DEFAULT
+
+        const data = this.coder.instruction.encode('createEscrow', {
+            fillAmount: new BN(fillAmount.toString()),
+            auction: {
+                startTime: Number(order.auction.startTime),
+                duration: Number(order.auction.duration),
+                initialRateBump: Number(order.auction.initialRateBump),
+                pointsAndTimeDeltas: order.auction.points.map((p) => ({
+                    rateBump: p.coefficient,
+                    timeDelta: p.delay
+                }))
+            },
+            merkleProof: merkleProof && {
+                proof: merkleProof.proof.map((p) => Buffer.from(p.slice(2))),
+                idx: new BN(merkleProof.idx),
+                secretHash: merkleProof.secretHash
+            }
+        })
+
+        const orderAccount = order.getOrderAccount(this.programId)
+        const escrowAddress = order.getEscrowAddress(
+            this.programId,
+            extra.taker,
+            merkleProof?.secretHash
+        )
+
+        return new Instruction(
+            this.programId,
+            [
+                // 1. taker
+                {
+                    pubkey: extra.taker,
+                    isSigner: true,
+                    isWritable: true
+                },
+                // 2. resolver_access
+                {
+                    pubkey: whitelistProgram.getAccessAccount(extra.taker),
+                    isSigner: false,
+                    isWritable: false
+                },
+                // 3. maker
+                {
+                    pubkey: order.maker,
+                    isSigner: false,
+                    isWritable: true
+                },
+                // 4. mint
+                {
+                    pubkey: order.makerAsset,
+                    isSigner: false,
+                    isWritable: false
+                },
+                // 5. order
+                {
+                    pubkey: orderAccount,
+                    isSigner: false,
+                    isWritable: true
+                },
+                // 6. order ata
+                {
+                    pubkey: getAta(
+                        orderAccount,
+                        order.makerAsset,
+                        extra.srcTokenProgramId
+                    ),
+                    isSigner: false,
+                    isWritable: true
+                },
+                // 7. escrow
+                {
+                    pubkey: escrowAddress,
+                    isSigner: false,
+                    isWritable: true
+                },
+                // 8. escrow ata
+                {
+                    pubkey: getAta(
+                        escrowAddress,
+                        order.makerAsset,
+                        extra.srcTokenProgramId
+                    ),
+                    isSigner: false,
+                    isWritable: true
+                },
+                // 9. associated_token_program
+                {
+                    pubkey: SolanaAddress.ASSOCIATED_TOKE_PROGRAM_ID,
+                    isSigner: false,
+                    isWritable: false
+                },
+                // 10. token_program
+                {
+                    pubkey: extra.srcTokenProgramId,
+                    isSigner: false,
+                    isWritable: false
+                },
+                // 11. system_program
+                {
+                    pubkey: SolanaAddress.SYSTEM_PROGRAM_ID,
+                    isSigner: false,
+                    isWritable: false
+                }
+            ],
+            data
+        )
+    }
 }
 
 function bigIntToBN(i: bigint): BN {
     return new BN(i.toString())
 }
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+type _ = HashLock // to have ability to refer to it in jsdoc

@@ -1,12 +1,9 @@
-import {Clock} from 'solana-bankrun'
+import {Clock, FailedTransactionMetadata, LiteSVM} from 'litesvm'
 import {web3} from '@coral-xyz/anchor'
 
 import bs58 from 'bs58'
-import {FailedTransactionMetadata, LiteSVM} from 'litesvm'
-import assert from 'assert'
 
 import {Buffer} from 'buffer'
-import {sleep} from './solana'
 
 export class TestConnection {
     constructor(private readonly testCtx: LiteSVM) {}
@@ -28,35 +25,39 @@ export class TestConnection {
         transaction.recentBlockhash = this.testCtx.latestBlockhash()
         transaction.sign(...signers)
 
-        this.testCtx.sendTransaction(transaction)
+        const result = this.testCtx.sendTransaction(transaction)
 
-        assert(transaction.signature)
+        if (result instanceof FailedTransactionMetadata) {
+            const logs = result.meta().logs()
 
-        await sleep(100) // IDK, for some reason the bank client can't find tx without this sleep
+            const msg = `tx failed: ${bs58.encode(result.meta().signature())}}`
 
-        return bs58.encode(transaction.signature) as web3.TransactionSignature
+            // eslint-disable-next-line no-console
+            console.error(result.toString())
+            // eslint-disable-next-line no-console
+            console.log(msg, '\n', logs.join('\n'))
+
+            throw new Error(msg)
+        }
+
+        return bs58.encode(result.signature()) as web3.TransactionSignature
     }
 
     async confirmTransaction(
         hash: web3.TransactionSignature
     ): Promise<web3.RpcResponseAndContext<web3.SignatureResult>> {
-        let i = 10
-        while (i--) {
-            const status = this.testCtx.getTransaction(bs58.decode(hash))
+        const status = this.testCtx.getTransaction(bs58.decode(hash))
 
-            if (status) {
-                return {
-                    context: {slot: 0},
-                    value: {
-                        err:
-                            status instanceof FailedTransactionMetadata
-                                ? status.err()
-                                : null
-                    }
+        if (status) {
+            return {
+                context: {slot: 0},
+                value: {
+                    err:
+                        status instanceof FailedTransactionMetadata
+                            ? status.err()
+                            : null
                 }
             }
-
-            await sleep(1000)
         }
 
         throw new Error(`transaction not confirmed: ${hash}`)
