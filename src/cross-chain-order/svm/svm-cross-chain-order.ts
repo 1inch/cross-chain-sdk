@@ -15,7 +15,7 @@ import {NetworkEnum, SupportedChain} from '../../chains'
 import {HashLock} from '../../domains/hash-lock'
 import {TimeLocks} from '../../domains/time-locks'
 import {BaseOrder} from '../base-order'
-import {assertUInteger, getAta, getPda} from '../../utils'
+import {assertUInteger, getPda} from '../../utils'
 import {AuctionDetails, AuctionPoint} from '../../domains/auction-details'
 import {injectTrackCode} from '../source-track'
 
@@ -392,23 +392,23 @@ export class SvmCrossChainOrder extends BaseOrder<
         ])
     }
 
-    /**
-     * Actual address where funds stored
-     */
-    public getEscrowATA(
-        /**
-         * Src escrow factory
-         */
-        srcEscrowProgramId: SolanaAddress,
-        /**
-         * TokenProgram or TokenProgram 2022
-         */
-        srcMintProgramId: SolanaAddress
-    ): SolanaAddress {
-        const escrowAddress = this.getEscrowAddress(srcEscrowProgramId)
-
-        return getAta(escrowAddress, this.makerAsset, srcMintProgramId)
-    }
+    // /**
+    //  * Actual address where funds stored
+    //  */
+    // public getEscrowATA(
+    //     /**
+    //      * Src escrow factory
+    //      */
+    //     srcEscrowProgramId: SolanaAddress,
+    //     /**
+    //      * TokenProgram or TokenProgram 2022
+    //      */
+    //     srcMintProgramId: SolanaAddress
+    // ): SolanaAddress {
+    //     const escrowAddress = this.getEscrowAddress(srcEscrowProgramId)
+    //
+    //     return getAta(escrowAddress, this.makerAsset, srcMintProgramId)
+    // }
 
     public getOrderHash(_srcChainId: number): string {
         return add0x(this.getOrderHashBuffer().toString('hex'))
