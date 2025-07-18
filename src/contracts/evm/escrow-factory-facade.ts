@@ -1,10 +1,10 @@
 import {Interaction} from '@1inch/fusion-sdk'
 import {EscrowFactory} from './escrow-factory'
 import {EscrowFactoryZksync} from './escrow-factory-zksync'
-import {EvmAddress as Address} from '../../../domains/addresses'
-import {DstImmutablesComplement, Immutables} from '../../../domains/immutables'
-import {MerkleLeaf} from '../../../domains/hash-lock'
-import {NetworkEnum} from '../../../chains'
+import {EvmAddress as Address} from '../../domains/addresses'
+import {DstImmutablesComplement, Immutables} from '../../domains/immutables'
+import {MerkleLeaf} from '../../domains/hash-lock'
+import {NetworkEnum} from '../../chains'
 
 export class EscrowFactoryFacade implements EscrowFactory {
     private factory: EscrowFactory

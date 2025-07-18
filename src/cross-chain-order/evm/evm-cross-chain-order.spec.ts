@@ -307,17 +307,16 @@ describe('EvmCrossChainOrder', () => {
         expect(createOrder).toThrow('Chains must be different')
     })
 
-    it('Should return correct receiver for solana chain', () => {
+    it('Should return correct receiver/taker asset for solana chain', () => {
         const factoryAddress = Address.fromBigInt(1n)
         const receiver = SolanaAddress.fromBigInt(UINT_256_MAX)
+        const takerAsset = SolanaAddress.fromBigInt(10n)
         const orderData: EvmCrossChainOrderInfo = {
             maker: Address.fromBigInt(2n),
             makerAsset: EvmAddress.fromString(
                 '0xdac17f958d2ee523a2206206994597c13d831ec7'
             ),
-            takerAsset: EvmAddress.fromString(
-                '0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9'
-            ),
+            takerAsset,
             makingAmount: 100_000000n,
             takingAmount: 90_000000n,
             receiver
@@ -365,5 +364,6 @@ describe('EvmCrossChainOrder', () => {
         expect(decodedOrder).toEqual(order)
 
         expect(decodedOrder.receiver).toBe(receiver)
+        expect(decodedOrder.takerAsset).toBe(takerAsset)
     })
 })

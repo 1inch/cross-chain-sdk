@@ -1,11 +1,11 @@
 import {keccak256} from 'ethers'
 import {EscrowFactoryFacade} from './escrow-factory-facade'
 import {EscrowFactoryZksync} from './escrow-factory-zksync'
-import {EvmAddress as Address} from '../../../domains/addresses'
-import {HashLock} from '../../../domains/hash-lock'
-import {TimeLocks} from '../../../domains/time-locks'
-import {DstImmutablesComplement, Immutables} from '../../../domains/immutables'
-import {NetworkEnum} from '../../../chains'
+import {EvmAddress as Address} from '../../domains/addresses'
+import {HashLock} from '../../domains/hash-lock'
+import {TimeLocks} from '../../domains/time-locks'
+import {DstImmutablesComplement, Immutables} from '../../domains/immutables'
+import {NetworkEnum} from '../../chains'
 
 describe('EscrowAddressFacade', () => {
     it('Should correct calc src/dst address for Ethereum', () => {

@@ -14,8 +14,12 @@ export function createAddress(
         return EvmAddress.fromUnknown(address)
     }
 
+    // console.log({address, chainId, complement})
+
     if (complement) {
-        // todo handle complement
+        const evm = EvmAddress.fromUnknown(address)
+
+        return SolanaAddress.fromParts([complement, evm])
     }
 
     return SolanaAddress.fromUnknown(address)
