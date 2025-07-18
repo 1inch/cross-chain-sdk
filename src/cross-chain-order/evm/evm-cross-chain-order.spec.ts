@@ -363,7 +363,7 @@ describe('EvmCrossChainOrder', () => {
 
         expect(decodedOrder).toEqual(order)
 
-        expect(decodedOrder.receiver).toBe(receiver)
-        expect(decodedOrder.takerAsset).toBe(takerAsset)
+        expect(decodedOrder.receiver).toStrictEqual(receiver)
+        expect(decodedOrder.takerAsset).toStrictEqual(takerAsset)
     })
 })

@@ -14,8 +14,6 @@ export function createAddress(
         return EvmAddress.fromUnknown(address)
     }
 
-    // console.log({address, chainId, complement})
-
     if (complement) {
         const evm = EvmAddress.fromUnknown(address)
 

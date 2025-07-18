@@ -63,8 +63,9 @@ export class SolanaAddress implements AddressLike {
     static fromParts(parts: [AddressComplement, EvmAddress]): SolanaAddress {
         const highBits = parts[0].inner
         const lowBits = parts[1].toBigint()
+        const address = (highBits << 160n) | lowBits
 
-        return SolanaAddress.fromBigInt((highBits << 160n) & lowBits)
+        return SolanaAddress.fromBigInt(address)
     }
 
     static fromUnknown(val: unknown): SolanaAddress {

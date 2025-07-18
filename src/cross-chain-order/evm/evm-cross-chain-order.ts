@@ -101,7 +101,11 @@ export class EvmCrossChainOrder extends BaseOrder<
      * If zero address, then maker will receive funds
      */
     get receiver(): AddressLike {
-        return createAddress(this.inner.receiver.toString(), this.dstChainId)
+        return createAddress(
+            this.inner.receiver.toString(),
+            this.dstChainId,
+            this.escrowExtension.dstAddressFirstPart
+        )
     }
 
     /**
