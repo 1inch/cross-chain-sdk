@@ -1013,7 +1013,7 @@ const _IDL = {
                 fields: [
                     {name: 'startTime', type: 'u32'},
                     {name: 'duration', type: 'u32'},
-                    {name: 'initialRateBump', type: 'u16'},
+                    {name: 'initialRateBump', type: 'u32'},
                     {
                         name: 'pointsAndTimeDeltas',
                         type: {vec: {defined: {name: 'pointAndTimeDelta'}}}
@@ -1092,7 +1092,7 @@ const _IDL = {
             type: {
                 kind: 'struct',
                 fields: [
-                    {name: 'rateBump', type: 'u16'},
+                    {name: 'rateBump', type: 'u32'},
                     {name: 'timeDelta', type: 'u16'}
                 ]
             }

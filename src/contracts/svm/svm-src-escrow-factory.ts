@@ -31,7 +31,7 @@ export class SvmSrcEscrowFactory extends BaseProgram {
         srcSafetyDeposit: bigint
     }): SolanaAddress {
         return getPda(this.programId, [
-            this.encoder.encode('escrow'), // todo: fix when contract fixed
+            this.encoder.encode('escrow'),
             params.orderHash,
             params.secretHash,
             params.maker.toBuffer(),
