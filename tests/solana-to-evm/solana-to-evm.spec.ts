@@ -1,7 +1,8 @@
 /* eslint-disable no-console */
-import {Interface, parseUnits} from 'ethers'
+import {id, Interface, parseUnits} from 'ethers'
 import {Clock} from 'litesvm'
 import {web3} from '@coral-xyz/anchor'
+import {add0x} from '@1inch/byte-utils'
 import Resolver from '../../dist/contracts/Resolver.sol/Resolver.json'
 import {ReadyEvmFork, setupEvm} from '../utils/setup-evm'
 import {NetworkEnum} from '../../src/chains'
@@ -15,6 +16,8 @@ import {EvmAddress, SolanaAddress} from '../../src/domains/addresses'
 import {USDC_EVM} from '../utils/addresses'
 import {SvmSrcEscrowFactory} from '../../src/contracts/svm/svm-src-escrow-factory'
 import {Instruction} from '../../src/contracts/svm/instruction'
+import {DstImmutablesComplement} from '../../src/domains/immutables'
+import {EscrowFactoryFacade} from '../../src/contracts/evm/escrow-factory-facade'
 
 jest.setTimeout(1000 * 10 * 60)
 
@@ -112,24 +115,99 @@ describe('EVM to EVM', () => {
 
         console.log('order created')
 
-        const taker = SolanaAddress.fromBuffer(
+        const fillAmount = order.makingAmount
+        const resolverSvm = SolanaAddress.fromBuffer(
             srcChain.accounts.resolver.publicKey.toBuffer()
+        )
+        const resolverEvm = EvmAddress.fromString(dstChain.addresses.resolver)
+
+        let srcImmutables = order.toSrcImmutables(
+            srcChain.chainId,
+            resolverSvm,
+            fillAmount
         )
 
         const createSrcEscrowIx = srcEscrowFactory.createEscrow(
-            order,
-            order.makingAmount,
+            srcImmutables,
+            order.auction,
             {
-                srcTokenProgramId: SolanaAddress.TOKEN_PROGRAM_ID,
-                taker
+                srcTokenProgramId: SolanaAddress.TOKEN_PROGRAM_ID
             }
         )
 
         await srcChain.connection.sendTransaction(newTx(createSrcEscrowIx), [
             srcChain.accounts.resolver
         ])
-
         console.log('src escrow created')
+
+        const srcEscrowDeployedAt = srcChain.svm.getClock().unixTimestamp
+        srcImmutables = srcImmutables.withDeployedAt(srcEscrowDeployedAt)
+
+        // wait for finality
+        await advanceNodeTime(20)
+
+        let dstImmutables = srcImmutables
+            .withComplement(
+                // actually should be parsed from src escrow tx
+                DstImmutablesComplement.new({
+                    amount: order.takingAmount,
+                    safetyDeposit: order.dstSafetyDeposit,
+                    maker: order.receiver,
+                    token: order.takerAsset
+                })
+            )
+            .withTaker(resolverEvm)
+
+        const dstEscrow = await dstChain.taker.send({
+            to: resolverEvm.toString(),
+            data: resolverContractEvm.encodeFunctionData('deployDst', [
+                dstImmutables.build(),
+                srcImmutables.timeLocks.toSrcTimeLocks().privateCancellation
+            ]),
+            value: order.dstSafetyDeposit
+        })
+        console.log('dst escrow created')
+        dstImmutables = dstImmutables.withDeployedAt(dstEscrow.blockTimestamp)
+
+        // user wait for finality, makes validation and shares secret
+        await advanceNodeTime(20)
+
+        const dstImplAddress = await dstChain.provider.call({
+            to: dstChain.addresses.escrowFactory,
+            data: id('ESCROW_DST_IMPLEMENTATION()').slice(0, 10)
+        })
+
+        const dstEscrowAddress = EscrowFactoryFacade.getFactory(
+            dstChain.chainId,
+            EvmAddress.fromString(dstChain.addresses.escrowFactory)
+        ).getSrcEscrowAddress(
+            dstImmutables,
+            EvmAddress.fromString(add0x(dstImplAddress.slice(-40))) // decode from bytes32
+        )
+
+        const dstWithdraw = await dstChain.taker.send({
+            to: resolverEvm.toString(),
+            data: resolverContractEvm.encodeFunctionData('withdraw', [
+                dstEscrowAddress.toString(),
+                secret, // user shared secret at this point
+                dstImmutables.build()
+            ])
+        })
+
+        console.log('dst escrow withdrawn', dstWithdraw.txHash)
+
+        const withdrawIx = srcEscrowFactory.withdrawPrivate(
+            srcImmutables,
+            Buffer.from(secret.slice(2), 'hex'),
+            {
+                srcTokenProgramId: SolanaAddress.TOKEN_PROGRAM_ID
+            }
+        )
+
+        await srcChain.connection.sendTransaction(newTx(withdrawIx), [
+            srcChain.accounts.resolver
+        ])
+        console.log('src escrow withdrawn')
     })
 })
 

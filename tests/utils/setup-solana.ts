@@ -1,5 +1,5 @@
 import {BorshCoder, web3} from '@coral-xyz/anchor'
-import {LiteSVM} from 'litesvm'
+import {Clock, LiteSVM} from 'litesvm'
 import {
     createMint,
     getOrCreateAssociatedTokenAccount,
@@ -16,7 +16,7 @@ import {SvmDstEscrowFactory} from '../../src/contracts/svm/svm-dst-escrow-factor
 import {IDL as WhitelistIDL} from '../../src/idl/whitelist'
 
 import {sol, SYSTEM_PROGRAM_ID} from '../utils/solana'
-import {getPda} from '../../src/utils'
+import {getPda, now} from '../../src/utils'
 import {SolanaAddress} from '../../src/domains/addresses'
 
 export type SolanaNodeConfig = {
@@ -129,6 +129,17 @@ async function startNode(fundAccounts: web3.PublicKey[]): Promise<LiteSVM> {
     fundAccounts.forEach((a) => {
         svm.airdrop(a, BigInt(sol(100)))
     })
+
+    // setup node time to now()
+    const clock = svm.getClock()
+    const newClock = new Clock(
+        clock.slot,
+        clock.epochStartTimestamp,
+        clock.epoch,
+        clock.leaderScheduleEpoch,
+        clock.unixTimestamp + BigInt(now())
+    )
+    svm.setClock(newClock)
 
     return svm
 }

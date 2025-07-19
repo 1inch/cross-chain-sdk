@@ -96,7 +96,7 @@ export abstract class BaseOrder<TSrcAddress extends AddressLike, TJSON> {
             safetyDeposit: this.srcSafetyDeposit,
             taker,
             maker: this.maker,
-            orderHash: this.getOrderHash(srcChainId),
+            orderHash: this.getOrderHashBuffer(srcChainId),
             amount,
             timeLocks: this.timeLocks,
             token: this.makerAsset
@@ -159,6 +159,8 @@ export abstract class BaseOrder<TSrcAddress extends AddressLike, TJSON> {
     public abstract toJSON(): TJSON
 
     public abstract getOrderHash(srcChainId: number): string
+
+    public abstract getOrderHashBuffer(srcChainId: number): Buffer
 
     public abstract getCalculator(): AuctionCalculator
 }

@@ -12,7 +12,7 @@ import {TimeLocks} from '../../src/domains/time-locks'
 import {AuctionDetails} from '../../src/domains/auction-details'
 import {getSecret} from '../utils/secret'
 import {HashLock} from '../../src/domains/hash-lock'
-import {EscrowFactoryFacade} from '../../src/contracts/evm/escrow-factory/evm/escrow-factory-facade'
+import {EscrowFactoryFacade} from '../../src/contracts/evm/escrow-factory-facade'
 import {DstImmutablesComplement, Immutables} from '../../src/domains/immutables'
 
 jest.setTimeout(1000 * 10 * 60)

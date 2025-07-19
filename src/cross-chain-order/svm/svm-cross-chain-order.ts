@@ -13,7 +13,7 @@ import {NetworkEnum, SupportedChain} from '../../chains'
 import {HashLock} from '../../domains/hash-lock'
 import {TimeLocks} from '../../domains/time-locks'
 import {BaseOrder} from '../base-order'
-import {assertUInteger, getPda} from '../../utils'
+import {assertUInteger} from '../../utils'
 import {AuctionDetails, AuctionPoint} from '../../domains/auction-details'
 import {injectTrackCode} from '../source-track'
 
@@ -347,10 +347,9 @@ export class SvmCrossChainOrder extends BaseOrder<
          */
         programId: SolanaAddress
     ): SolanaAddress {
-        return getPda(programId, [
-            this.encoder.encode('order'),
+        return new SvmSrcEscrowFactory(programId).getOrderAccount(
             this.getOrderHashBuffer()
-        ])
+        )
     }
 
     /**

@@ -1,5 +1,5 @@
 import {AbiCoder, keccak256} from 'ethers'
-import {isHexBytes} from '@1inch/byte-utils'
+import {add0x, isHexBytes} from '@1inch/byte-utils'
 import assert from 'assert'
 import {DstImmutablesComplement} from './dst-immutables-complement'
 import {HashLock} from '../hash-lock'
@@ -10,6 +10,9 @@ import {AddressLike, EvmAddress} from '../../domains/addresses'
  * Contract representation of class
  */
 export type ImmutablesData = {
+    /**
+     * hex encoded with 0x prefix
+     */
     orderHash: string
     hashlock: string
     maker: string
@@ -37,7 +40,7 @@ export class Immutables {
     ]})`
 
     private constructor(
-        public readonly orderHash: string,
+        public readonly orderHash: Buffer,
         public readonly hashLock: HashLock,
         public readonly maker: AddressLike,
         /**
@@ -53,7 +56,7 @@ export class Immutables {
     }
 
     public static new(params: {
-        orderHash: string
+        orderHash: Buffer
         hashLock: HashLock
         maker: AddressLike
         taker: AddressLike
@@ -87,7 +90,7 @@ export class Immutables {
         const data = res.at(0) as ImmutablesData
 
         return new Immutables(
-            data.orderHash,
+            Buffer.from(data.orderHash.slice(2)),
             HashLock.fromString(data.hashlock),
             EvmAddress.fromString(data.maker),
             EvmAddress.fromString(data.taker),
@@ -138,11 +141,11 @@ export class Immutables {
         const token = this.token.nativeAsZero()
 
         return {
-            orderHash: this.orderHash,
+            orderHash: add0x(this.orderHash.toString('hex')),
             hashlock: this.hashLock.toString(),
-            maker: this.maker.toString(),
-            taker: this.taker.toString(),
-            token: token.toString(),
+            maker: this.maker.toHex(),
+            taker: this.taker.toHex(),
+            token: token.toHex(),
             amount: this.amount.toString(),
             safetyDeposit: this.safetyDeposit.toString(),
             timelocks: this.timeLocks.build().toString()

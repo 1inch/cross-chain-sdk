@@ -55,8 +55,9 @@ describe('EscrowAddressFacade', () => {
             hashLock: HashLock.fromString(
                 '0x939dbeb956ac9369de8b1acaaa78a173620c2275fba501f8340b91cbceabdbf1'
             ),
-            orderHash:
-                '0x8ed7de0668228e00103038a7fc6a19c933d56fca27b154a3e532ebeb4a5c07bd',
+            orderHash: Buffer.from(
+                '8ed7de0668228e00103038a7fc6a19c933d56fca27b154a3e532ebeb4a5c07bd'
+            ),
             timeLocks:
                 TimeLocks.fromBigInt(
                     46545443980783778519496226194286874737220106048808714334632784681655911579684n
@@ -108,8 +109,9 @@ describe('EscrowAddressFacade', () => {
                 hashLock: HashLock.fromString(
                     '0x939dbeb956ac9369de8b1acaaa78a173620c2275fba501f8340b91cbceabdbf1'
                 ),
-                orderHash:
-                    '0x8ed7de0668228e00103038a7fc6a19c933d56fca27b154a3e532ebeb4a5c07bd',
+                orderHash: Buffer.from(
+                    '8ed7de0668228e00103038a7fc6a19c933d56fca27b154a3e532ebeb4a5c07bd'
+                ),
                 timeLocks:
                     TimeLocks.fromBigInt(
                         46545443980783778519496226194286874737220106048808714334632784681655911579684n
@@ -147,8 +149,9 @@ describe('EscrowAddressFacade', () => {
                 hashLock: HashLock.fromString(
                     '0x939dbeb956ac9369de8b1acaaa78a173620c2275fba501f8340b91cbceabdbf1'
                 ),
-                orderHash:
-                    '0x8ed7de0668228e00103038a7fc6a19c933d56fca27b154a3e532ebeb4a5c07bd',
+                orderHash: Buffer.from(
+                    '8ed7de0668228e00103038a7fc6a19c933d56fca27b154a3e532ebeb4a5c07bd'
+                ),
                 timeLocks:
                     TimeLocks.fromBigInt(
                         46545443980783778519496226194286874737220106048808714334632784681655911579684n
