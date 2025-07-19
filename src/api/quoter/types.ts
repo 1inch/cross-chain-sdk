@@ -1,9 +1,12 @@
 import {AuctionPoint} from '../../domains'
 import {SupportedChain} from '../../chains'
 
-export type QuoterRequestParams = {
-    srcChain: SupportedChain
-    dstChain: SupportedChain
+export type QuoterRequestParams<
+    SrcChain extends SupportedChain = SupportedChain,
+    DstChain extends SupportedChain = SupportedChain
+> = {
+    srcChain: SrcChain
+    dstChain: DstChain
     srcTokenAddress: string
     dstTokenAddress: string
     amount: string

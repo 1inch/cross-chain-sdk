@@ -1,69 +1,135 @@
 import {isValidAmount} from '@1inch/fusion-sdk'
+import assert from 'assert'
 import {QuoterRequestParams} from './types'
-import {SupportedChain} from '../../chains'
-import {EvmAddress as Address} from '../../domains/addresses'
-export class QuoterRequest {
-    public readonly srcChain: SupportedChain
+import {
+    EvmChain,
+    isEvm,
+    isSolana,
+    SolanaChain,
+    SupportedChain
+} from '../../chains'
+import {createAddress, EvmAddress, SolanaAddress} from '../../domains'
+import type {AddressForChain} from '../../type-utils'
 
-    public readonly dstChain: SupportedChain
-
-    public readonly srcTokenAddress: Address
-
-    public readonly dstTokenAddress: Address
-
-    public readonly amount: bigint
-
-    public readonly walletAddress: Address
-
-    public readonly enableEstimate: boolean
-
-    public readonly permit: string | undefined
-
-    public readonly fee: number | undefined
-
-    public readonly source: string
-
-    public readonly isPermit2: boolean
-
-    constructor(params: QuoterRequestParams) {
-        if (params.srcChain === params.dstChain) {
+export class QuoterRequest<
+    SrcChain extends SupportedChain = SupportedChain,
+    DstChain extends SupportedChain = SupportedChain
+> {
+    // eslint-disable-next-line max-params
+    private constructor(
+        public readonly srcChain: SrcChain,
+        public readonly dstChain: DstChain,
+        public readonly srcTokenAddress: AddressForChain<SrcChain>,
+        public readonly dstTokenAddress: AddressForChain<DstChain>,
+        public readonly amount: bigint,
+        public readonly walletAddress: AddressForChain<SrcChain>,
+        public readonly enableEstimate: boolean = false,
+        public readonly permit: string | undefined,
+        public readonly fee: number | undefined,
+        public readonly source: string = 'sdk',
+        public readonly isPermit2: boolean = false
+    ) {
+        if ((srcChain as SupportedChain) === (dstChain as SupportedChain)) {
             throw new Error('srcChain and dstChain should be different')
         }
-
-        if (!isValidAmount(params.amount)) {
-            throw new Error(`${params.amount} is invalid amount`)
-        }
-
-        this.srcChain = params.srcChain
-        this.dstChain = params.dstChain
-        this.srcTokenAddress = Address.fromString(params.srcTokenAddress)
-        this.dstTokenAddress = Address.fromString(params.dstTokenAddress)
-        this.walletAddress = Address.fromString(params.walletAddress)
-        this.enableEstimate = params.enableEstimate || false
-        this.permit = params.permit
-        this.fee = params.fee
-        this.source = params.source || 'sdk'
-        this.isPermit2 = params.isPermit2 ?? false
-
-        if (this.srcTokenAddress.isNative()) {
-            throw new Error(
-                `cannot swap ${Address.NATIVE}: wrap native currency to it's wrapper fist`
-            )
-        }
-
-        if (this.dstTokenAddress.isZero()) {
-            throw new Error(`replace ${Address.ZERO} with ${Address.NATIVE}`)
-        }
-
-        this.amount = BigInt(params.amount)
 
         if (this.fee && this.source === 'sdk') {
             throw new Error('cannot use fee without source')
         }
     }
 
-    static new(params: QuoterRequestParams): QuoterRequest {
-        return new QuoterRequest(params)
+    static isEvmRequest(
+        params: QuoterRequestParams
+    ): params is QuoterRequestParams<EvmChain> {
+        return isEvm(params.srcChain)
+    }
+
+    static isSolanaRequest(
+        params: QuoterRequestParams
+    ): params is QuoterRequestParams<SolanaChain> {
+        return isSolana(params.srcChain)
+    }
+
+    static forEVM(
+        params: QuoterRequestParams<EvmChain>
+    ): QuoterRequest<EvmChain> {
+        assert(
+            isEvm(params.srcChain),
+            'cannot use non evm quote request for srcChain'
+        )
+
+        assert(
+            isValidAmount(params.amount),
+            `${params.amount} is invalid amount`
+        )
+
+        const srcToken = EvmAddress.fromString(params.srcTokenAddress)
+        const dstToken = createAddress(params.dstTokenAddress, params.dstChain)
+
+        assert(
+            !srcToken.isNative(),
+            `cannot swap ${EvmAddress.NATIVE}: wrap native currency to it's wrapper fist`
+        )
+
+        if (isEvm(params.dstChain)) {
+            assert(
+                !dstToken.isZero(),
+                `replace ${EvmAddress.ZERO} with ${EvmAddress.NATIVE}`
+            )
+        }
+
+        return new QuoterRequest<EvmChain>(
+            params.srcChain,
+            params.dstChain,
+            srcToken,
+            dstToken,
+            BigInt(params.amount),
+            EvmAddress.fromString(params.walletAddress),
+            params.enableEstimate,
+            params.permit,
+            params.fee,
+            params.source,
+            params.isPermit2
+        )
+    }
+
+    static forSolana(
+        params: QuoterRequestParams<SolanaChain>
+    ): QuoterRequest<SolanaChain> {
+        assert(
+            isSolana(params.srcChain),
+            'cannot use non solana quote request for srcChain'
+        )
+
+        assert(
+            isValidAmount(params.amount),
+            `${params.amount} is invalid amount`
+        )
+
+        const srcToken = SolanaAddress.fromString(params.srcTokenAddress)
+        const dstToken = createAddress(params.dstTokenAddress, params.dstChain)
+
+        return new QuoterRequest<SolanaChain>(
+            params.srcChain,
+            params.dstChain,
+            srcToken,
+            dstToken,
+            BigInt(params.amount),
+            SolanaAddress.fromString(params.walletAddress),
+            params.enableEstimate,
+            params.permit,
+            params.fee,
+            params.source,
+            params.isPermit2
+        )
+    }
+
+    isEvmRequest(): this is QuoterRequest<EvmChain> {
+        return isEvm(this.srcChain)
+    }
+
+    isSolanaRequest(): this is QuoterRequest<SolanaChain> {
+        return isSolana(this.srcChain)
     }
 
     build(): QuoterRequestParams {
