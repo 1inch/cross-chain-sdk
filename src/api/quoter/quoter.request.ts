@@ -8,7 +8,7 @@ import {
     SolanaChain,
     SupportedChain
 } from '../../chains'
-import {EvmAddress, SolanaAddress} from '../../domains'
+import {createAddress, EvmAddress, SolanaAddress} from '../../domains'
 import type {AddressForChain} from '../../type-utils'
 
 export class QuoterRequest<
@@ -31,10 +31,6 @@ export class QuoterRequest<
     ) {
         if ((srcChain as SupportedChain) === (dstChain as SupportedChain)) {
             throw new Error('srcChain and dstChain should be different')
-        }
-
-        if (!isValidAmount(amount)) {
-            throw new Error(`${amount} is invalid amount`)
         }
 
         if (this.fee && this.source === 'sdk') {
@@ -62,10 +58,13 @@ export class QuoterRequest<
             'cannot use non evm quote request for srcChain'
         )
 
+        assert(
+            isValidAmount(params.amount),
+            `${params.amount} is invalid amount`
+        )
+
         const srcToken = EvmAddress.fromString(params.srcTokenAddress)
-        const dstToken = isSolana(params.dstChain)
-            ? SolanaAddress.fromString(params.dstTokenAddress)
-            : EvmAddress.fromString(params.dstTokenAddress)
+        const dstToken = createAddress(params.dstTokenAddress, params.dstChain)
 
         assert(
             !srcToken.isNative(),
@@ -73,7 +72,7 @@ export class QuoterRequest<
         )
 
         assert(
-            isEvm(dstToken) && !srcToken.isNative(),
+            isEvm(params.dstChain) && !dstToken.isNative(),
             `replace ${EvmAddress.ZERO} with ${EvmAddress.NATIVE}`
         )
 
@@ -100,15 +99,15 @@ export class QuoterRequest<
             'cannot use non solana quote request for srcChain'
         )
 
+        assert(
+            isValidAmount(params.amount),
+            `${params.amount} is invalid amount`
+        )
+
         const srcToken = SolanaAddress.fromString(params.srcTokenAddress)
         const dstToken = isSolana(params.dstChain)
             ? SolanaAddress.fromString(params.dstTokenAddress)
             : EvmAddress.fromString(params.dstTokenAddress)
-
-        assert(
-            isEvm(dstToken) && !srcToken.isNative(),
-            `replace ${EvmAddress.ZERO} with ${EvmAddress.NATIVE}`
-        )
 
         return new QuoterRequest<SolanaChain>(
             params.srcChain,

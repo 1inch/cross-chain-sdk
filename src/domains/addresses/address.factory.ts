@@ -1,24 +1,27 @@
-import {AddressLike} from './types'
 import {EvmAddress} from './evm-address'
 import {SolanaAddress} from './solana-address'
 import {AddressComplement} from './address-complement'
-import {isEvm} from '../../chains'
+import {isEvm, SupportedChain} from '../../chains'
+import {AddressForChain} from '../../type-utils'
 
-export function createAddress(
+export function createAddress<Chain extends SupportedChain>(
     // hex/base56/bigint
     address: string,
-    chainId: number,
+    chainId: Chain,
     complement?: AddressComplement
-): AddressLike {
+): AddressForChain<Chain> {
     if (isEvm(chainId)) {
-        return EvmAddress.fromUnknown(address)
+        return EvmAddress.fromUnknown(address) as AddressForChain<Chain>
     }
 
     if (complement) {
         const evm = EvmAddress.fromUnknown(address)
 
-        return SolanaAddress.fromParts([complement, evm])
+        return SolanaAddress.fromParts([
+            complement,
+            evm
+        ]) as AddressForChain<Chain>
     }
 
-    return SolanaAddress.fromUnknown(address)
+    return SolanaAddress.fromUnknown(address) as AddressForChain<Chain>
 }

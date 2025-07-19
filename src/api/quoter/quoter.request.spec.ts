@@ -1,7 +1,7 @@
 import {Address, NetworkEnum} from '@1inch/fusion-sdk'
 import {QuoterRequest} from './quoter.request'
 
-describe(__filename, () => {
+describe('QuoterRequest', () => {
     it('should return error if native currency', () => {
         expect(() =>
             QuoterRequest.forEVM({

@@ -45,13 +45,13 @@ export type SolanaChain = NetworkEnum.SOLANA
 export const isSupportedChain = (chain: unknown): chain is SupportedChain =>
     SupportedChains.includes(chain as number)
 
-export const isEvm = (chain: unknown): chain is EvmChain => {
+export const isEvm = (chain: SupportedChain): chain is EvmChain => {
     return (
         SupportedChains.includes(chain as number) &&
         chain !== NetworkEnum.SOLANA
     )
 }
 
-export const isSolana = (chain: unknown): chain is SolanaChain => {
+export const isSolana = (chain: SupportedChain): chain is SolanaChain => {
     return chain === NetworkEnum.SOLANA
 }
