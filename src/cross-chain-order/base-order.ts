@@ -51,6 +51,26 @@ export abstract class BaseOrder<TSrcAddress extends AddressLike, TJSON> {
     public abstract get multipleFillsAllowed(): boolean
 
     /**
+     * Calculate expiration delay from deadline and auction times
+     */
+    static calcExpirationDelay(
+        /**
+         * Order deadline
+         */
+        deadline: bigint,
+        /**
+         * Auction start time
+         */
+        startTime: bigint,
+        /**
+         * Auction duration
+         */
+        duration: bigint
+    ): bigint {
+        return deadline - startTime - duration
+    }
+
+    /**
      * @param srcChainId
      * @param taker executor of fillOrder* transaction
      * @param amount making amount (make sure same amount passed to contact fillOrder method)
