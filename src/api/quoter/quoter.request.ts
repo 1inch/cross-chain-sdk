@@ -107,9 +107,7 @@ export class QuoterRequest<
         )
 
         const srcToken = SolanaAddress.fromString(params.srcTokenAddress)
-        const dstToken = isSolana(params.dstChain)
-            ? SolanaAddress.fromString(params.dstTokenAddress)
-            : EvmAddress.fromString(params.dstTokenAddress)
+        const dstToken = createAddress(params.dstTokenAddress, params.dstChain)
 
         return new QuoterRequest<SolanaChain>(
             params.srcChain,
