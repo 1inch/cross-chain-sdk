@@ -6,7 +6,8 @@ import {TimeLocks} from '../../domains/time-locks'
 describe('Immutables', function () {
     const immutables = Immutables.new({
         orderHash: Buffer.from(
-            '47bb61560b511b196788026f8de50c213051732f2c4abfeb855f1bdf0825aa1f'
+            '47bb61560b511b196788026f8de50c213051732f2c4abfeb855f1bdf0825aa1f',
+            'hex'
         ),
         hashLock: HashLock.fromString(
             '0xc54045fa7c6ec765e825df7f9e9bf9dec12c5cef146f93a5eee56772ee647fbc'

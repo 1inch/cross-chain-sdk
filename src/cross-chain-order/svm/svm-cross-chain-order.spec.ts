@@ -48,7 +48,7 @@ describe('SVMCrossChainOrder', () => {
         const hash = order.getOrderHashBuffer()
 
         expect(hash.toString('hex')).toEqual(
-            'f13d820b1d6ddea77338098062f917af55f202bf77c90739be9f61d9209fa1fe'
+            '01dd6877b477b46906131ff4b81c47c0ea29b7a253f1322f3f7d4285e18b1c76'
         )
     })
 

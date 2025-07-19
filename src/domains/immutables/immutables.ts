@@ -27,7 +27,7 @@ export type ImmutablesData = {
  * Contains escrow params for both source and destination chains
  * Determinate addresses of escrow contracts
  */
-export class Immutables {
+export class Immutables<A extends AddressLike> {
     public static readonly Web3Type = `tuple(${[
         'bytes32 orderHash',
         'bytes32 hashlock',
@@ -42,29 +42,29 @@ export class Immutables {
     private constructor(
         public readonly orderHash: Buffer,
         public readonly hashLock: HashLock,
-        public readonly maker: AddressLike,
+        public readonly maker: A,
         /**
          * Address who can withdraw funds, also to this address funds will be transferred in case of public withdrawal
          */
-        public readonly taker: AddressLike,
-        public readonly token: AddressLike,
+        public readonly taker: A,
+        public readonly token: A,
         public readonly amount: bigint,
         public readonly safetyDeposit: bigint,
         public readonly timeLocks: TimeLocks
     ) {
-        this.token = this.token.zeroAsNative()
+        this.token = this.token.zeroAsNative() as A
     }
 
-    public static new(params: {
+    public static new<A extends AddressLike>(params: {
         orderHash: Buffer
         hashLock: HashLock
-        maker: AddressLike
-        taker: AddressLike
-        token: AddressLike
+        maker: A
+        taker: A
+        token: A
         amount: bigint
         safetyDeposit: bigint
         timeLocks: TimeLocks
-    }): Immutables {
+    }): Immutables<A> {
         return new Immutables(
             params.orderHash,
             params.hashLock,
@@ -81,7 +81,7 @@ export class Immutables {
      * Create instance from encoded bytes
      * @param bytes 0x prefixed hex string
      */
-    public static fromABIEncoded(bytes: string): Immutables {
+    public static fromABIEncoded(bytes: string): Immutables<EvmAddress> {
         assert(isHexBytes(bytes))
         const res = AbiCoder.defaultAbiCoder().decode(
             [Immutables.Web3Type],
@@ -90,7 +90,7 @@ export class Immutables {
         const data = res.at(0) as ImmutablesData
 
         return new Immutables(
-            Buffer.from(data.orderHash.slice(2)),
+            Buffer.from(data.orderHash.slice(2), 'hex'),
             HashLock.fromString(data.hashlock),
             EvmAddress.fromString(data.maker),
             EvmAddress.fromString(data.taker),
@@ -105,11 +105,13 @@ export class Immutables {
         return this.build()
     }
 
-    public withComplement(dstComplement: DstImmutablesComplement): Immutables {
+    public withComplement<D extends AddressLike>(
+        dstComplement: DstImmutablesComplement<D>
+    ): Immutables<D> {
         return Immutables.new({...this, ...dstComplement})
     }
 
-    public withDeployedAt(time: bigint): Immutables {
+    public withDeployedAt(time: bigint): Immutables<A> {
         return Immutables.new({
             ...this,
             timeLocks: TimeLocks.fromBigInt(
@@ -118,15 +120,15 @@ export class Immutables {
         })
     }
 
-    public withTaker(taker: AddressLike): Immutables {
+    public withTaker(taker: A): Immutables<A> {
         return Immutables.new({...this, taker})
     }
 
-    public withHashLock(hashLock: HashLock): Immutables {
+    public withHashLock(hashLock: HashLock): Immutables<A> {
         return Immutables.new({...this, hashLock})
     }
 
-    public withAmount(amount: bigint): Immutables {
+    public withAmount(amount: bigint): Immutables<A> {
         return Immutables.new({...this, amount})
     }
 

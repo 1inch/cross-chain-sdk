@@ -81,7 +81,7 @@ export abstract class BaseOrder<TSrcAddress extends AddressLike, TJSON> {
         taker: TSrcAddress,
         amount: bigint,
         hashLock = this.hashLock
-    ): Immutables {
+    ): Immutables<TSrcAddress> {
         const isPartialFill = amount !== this.makingAmount
         const isHashRoot = hashLock.eq(this.hashLock)
 

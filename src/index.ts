@@ -26,7 +26,6 @@ export {
     GetAllowMethodsRpcEvent
 } from '@1inch/fusion-sdk'
 export {SupportedChains, SupportedChain, NetworkEnum, EvmChain} from './chains'
-export * from './domains/immutables'
 export * from './deployments'
 export * from './sdk'
 export * from './api'

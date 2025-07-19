@@ -1,5 +1,4 @@
 import {BN, BorshCoder} from '@coral-xyz/anchor'
-import assert from 'assert'
 import {Immutables} from 'domains/immutables'
 import {Instruction} from './instruction'
 import {BaseProgram} from './base-program'
@@ -155,7 +154,7 @@ export class SvmSrcEscrowFactory extends BaseProgram {
     }
 
     public createEscrow(
-        immutables: Immutables,
+        immutables: Immutables<SolanaAddress>,
         auction: AuctionDetails,
         extra: {
             /**
@@ -188,19 +187,6 @@ export class SvmSrcEscrowFactory extends BaseProgram {
             }
         }
     ): Instruction {
-        assert(
-            immutables.maker instanceof SolanaAddress,
-            'maker must be solana address'
-        )
-        assert(
-            immutables.token instanceof SolanaAddress,
-            'token must be solana address'
-        )
-        assert(
-            immutables.taker instanceof SolanaAddress,
-            'taker must be solana address'
-        )
-
         const merkleProof = extra.merkleProof || null
         const whitelistProgram = extra.whitelistProgramId
             ? new WhitelistContract(extra.whitelistProgramId)
@@ -318,7 +304,7 @@ export class SvmSrcEscrowFactory extends BaseProgram {
     }
 
     public withdrawPrivate(
-        params: Immutables,
+        params: Immutables<SolanaAddress>,
         secret: Buffer,
         extra: {
             /**
@@ -327,20 +313,6 @@ export class SvmSrcEscrowFactory extends BaseProgram {
             srcTokenProgramId: SolanaAddress
         }
     ): Instruction {
-        assert(
-            params.taker instanceof SolanaAddress,
-            'taker must be solana address'
-        )
-        assert(
-            params.token instanceof SolanaAddress,
-            'token must be solana address'
-        )
-
-        assert(
-            params.maker instanceof SolanaAddress,
-            'maker must be solana address'
-        )
-
         const data = this.coder.instruction.encode('withdraw', {secret})
         const escrowAddress = this.getEscrowAddress({
             maker: params.maker,

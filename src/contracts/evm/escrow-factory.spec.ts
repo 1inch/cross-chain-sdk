@@ -56,7 +56,8 @@ describe('EscrowAddressFacade', () => {
                 '0x939dbeb956ac9369de8b1acaaa78a173620c2275fba501f8340b91cbceabdbf1'
             ),
             orderHash: Buffer.from(
-                '8ed7de0668228e00103038a7fc6a19c933d56fca27b154a3e532ebeb4a5c07bd'
+                '8ed7de0668228e00103038a7fc6a19c933d56fca27b154a3e532ebeb4a5c07bd',
+                'hex'
             ),
             timeLocks:
                 TimeLocks.fromBigInt(
@@ -77,7 +78,8 @@ describe('EscrowAddressFacade', () => {
                 amount: immutables.amount,
                 maker: immutables.maker,
                 safetyDeposit: immutables.safetyDeposit,
-                token: immutables.token
+                token: immutables.token,
+                taker: immutables.taker
             }),
             0n,
             Address.fromBigInt(immutables.taker.toBigint()),
@@ -110,7 +112,8 @@ describe('EscrowAddressFacade', () => {
                     '0x939dbeb956ac9369de8b1acaaa78a173620c2275fba501f8340b91cbceabdbf1'
                 ),
                 orderHash: Buffer.from(
-                    '8ed7de0668228e00103038a7fc6a19c933d56fca27b154a3e532ebeb4a5c07bd'
+                    '8ed7de0668228e00103038a7fc6a19c933d56fca27b154a3e532ebeb4a5c07bd',
+                    'hex'
                 ),
                 timeLocks:
                     TimeLocks.fromBigInt(
@@ -150,7 +153,8 @@ describe('EscrowAddressFacade', () => {
                     '0x939dbeb956ac9369de8b1acaaa78a173620c2275fba501f8340b91cbceabdbf1'
                 ),
                 orderHash: Buffer.from(
-                    '8ed7de0668228e00103038a7fc6a19c933d56fca27b154a3e532ebeb4a5c07bd'
+                    '8ed7de0668228e00103038a7fc6a19c933d56fca27b154a3e532ebeb4a5c07bd',
+                    'hex'
                 ),
                 timeLocks:
                     TimeLocks.fromBigInt(
