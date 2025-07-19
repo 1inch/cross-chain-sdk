@@ -71,10 +71,12 @@ export class QuoterRequest<
             `cannot swap ${EvmAddress.NATIVE}: wrap native currency to it's wrapper fist`
         )
 
-        assert(
-            isEvm(params.dstChain) && !dstToken.isZero(),
-            `replace ${EvmAddress.ZERO} with ${EvmAddress.NATIVE}`
-        )
+        if (isEvm(params.dstChain)) {
+            assert(
+                !dstToken.isZero(),
+                `replace ${EvmAddress.ZERO} with ${EvmAddress.NATIVE}`
+            )
+        }
 
         return new QuoterRequest<EvmChain>(
             params.srcChain,
