@@ -47,9 +47,13 @@ export class TestConnection {
     }
 
     async confirmTransaction(
-        hash: web3.TransactionSignature
+        _hash: web3.TransactionSignature
     ): Promise<web3.RpcResponseAndContext<web3.SignatureResult>> {
-        const status = this.testCtx.getTransaction(bs58.decode(hash))
+        console.log({_hash})
+
+        const hash = typeof _hash === 'string' ? bs58.decode(_hash) : _hash
+
+        const status = this.testCtx.getTransaction(hash)
 
         if (status) {
             return {
