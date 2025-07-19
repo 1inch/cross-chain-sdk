@@ -1,10 +1,11 @@
-import {parseEther, parseUnits, Interface, Signature, id} from 'ethers'
-import {AmountMode, randBigInt, TakerTraits} from '@1inch/fusion-sdk'
+import {parseEther, parseUnits, Interface, id} from 'ethers'
+import {randBigInt} from '@1inch/fusion-sdk'
 import {add0x, UINT_40_MAX} from '@1inch/byte-utils'
 import assert from 'assert'
 import {USDC_EVM, WETH_EVM} from './utils/addresses'
 import {ReadyEvmFork, setupEvm} from './utils/setup-evm'
 import {getSecret} from './utils/secret'
+import {getEvmFillData} from './utils/tx'
 import Resolver from '../dist/contracts/Resolver.sol/Resolver.json'
 import {NetworkEnum} from '../src/chains'
 import {EvmCrossChainOrder} from '../src/cross-chain-order/evm'
@@ -13,7 +14,7 @@ import {TimeLocks} from '../src/domains/time-locks'
 import {AuctionDetails} from '../src/domains/auction-details'
 import {HashLock} from '../src/domains/hash-lock'
 import {EscrowFactoryFacade} from '../src/contracts/evm/escrow-factory-facade'
-import {DstImmutablesComplement, Immutables} from '../src/domains/immutables'
+import {DstImmutablesComplement} from '../src/domains/immutables'
 
 jest.setTimeout(1000 * 10 * 60)
 
@@ -53,54 +54,6 @@ describe('EVM to EVM', () => {
         await srcChain.localNode.stop()
         await dstChain.localNode.stop()
     })
-
-    function getFillData(
-        order: EvmCrossChainOrder,
-        signature: string,
-        immutables: Immutables<EvmAddress>,
-        chainConfig: ReadyEvmFork,
-        leaves = [],
-        secretHashes = [],
-        fillAmount = order.makingAmount,
-        remainingAmount = fillAmount
-    ): string {
-        const takerTraits = TakerTraits.default()
-            .setAmountMode(AmountMode.maker)
-            .setExtension(order.extension)
-
-        if (order.multipleFillsAllowed) {
-            assert(
-                leaves.length && secretHashes.length,
-                'no leaves or secret hashes provided'
-            )
-            const idx = order.getMultipleFillIdx(fillAmount, remainingAmount)
-
-            takerTraits.setInteraction(
-                new EscrowFactoryFacade(
-                    chainConfig.chainId,
-                    EvmAddress.fromString(chainConfig.addresses.escrowFactory)
-                ).getMultipleFillInteraction(
-                    HashLock.getProof(leaves!, idx),
-                    idx,
-                    secretHashes![idx]
-                )
-            )
-        }
-
-        const {r, yParityAndS: vs} = Signature.from(signature)
-
-        const {args, trait} = takerTraits.encode()
-
-        return resolverContract.encodeFunctionData('deploySrc', [
-            immutables.build(),
-            order.build(),
-            r,
-            vs,
-            fillAmount,
-            trait,
-            args
-        ])
-    }
 
     it('should perform cross chain swap with single fill', async () => {
         const secret = getSecret()
@@ -158,7 +111,13 @@ describe('EVM to EVM', () => {
         )
         const srcEscrow = await srcChain.taker.send({
             to: resolver.toString(),
-            data: getFillData(order, signature, srcImmutables, srcChain),
+            data: getEvmFillData(
+                resolverContract,
+                order,
+                signature,
+                srcImmutables,
+                srcChain
+            ),
             value: order.srcSafetyDeposit
         })
 

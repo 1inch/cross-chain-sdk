@@ -1,12 +1,13 @@
 /* eslint-disable no-console */
 import {id, Interface, parseUnits} from 'ethers'
 import {Clock} from 'litesvm'
-import {web3} from '@coral-xyz/anchor'
 import {add0x} from '@1inch/byte-utils'
+import assert from 'assert'
 import {ReadyEvmFork, setupEvm} from './utils/setup-evm'
 import {getSecret} from './utils/secret'
 import {ReadySolanaNode, setupSolana} from './utils/setup-solana'
 import {USDC_EVM} from './utils/addresses'
+import {newSolanaTx} from './utils/tx'
 import Resolver from '../dist/contracts/Resolver.sol/Resolver.json'
 import {NetworkEnum} from '../src/chains'
 
@@ -16,7 +17,6 @@ import {HashLock} from '../src/domains/hash-lock'
 import {TimeLocks} from '../src/domains/time-locks'
 import {EvmAddress, SolanaAddress} from '../src/domains/addresses'
 import {SvmSrcEscrowFactory} from '../src/contracts/svm/svm-src-escrow-factory'
-import {Instruction} from '../src/contracts/svm/instruction'
 import {DstImmutablesComplement} from '../src/domains/immutables'
 import {EscrowFactoryFacade} from '../src/contracts/evm/escrow-factory-facade'
 
@@ -64,7 +64,6 @@ describe('EVM to EVM', () => {
         const secret = getSecret()
 
         const order = SvmCrossChainOrder.new(
-            // 1 WETH [solana] -> 1000 USDC [ethereum]
             {
                 maker: SolanaAddress.fromPublicKey(
                     srcChain.accounts.maker.publicKey
@@ -110,7 +109,7 @@ describe('EVM to EVM', () => {
             srcTokenProgramId: SolanaAddress.TOKEN_PROGRAM_ID
         })
 
-        await srcChain.connection.sendTransaction(newTx(createSrcIx), [
+        await srcChain.connection.sendTransaction(newSolanaTx(createSrcIx), [
             srcChain.accounts.maker
         ])
 
@@ -136,9 +135,10 @@ describe('EVM to EVM', () => {
             }
         )
 
-        await srcChain.connection.sendTransaction(newTx(createSrcEscrowIx), [
-            srcChain.accounts.resolver
-        ])
+        await srcChain.connection.sendTransaction(
+            newSolanaTx(createSrcEscrowIx),
+            [srcChain.accounts.resolver]
+        )
         console.log('src escrow created')
 
         const srcEscrowDeployedAt = srcChain.svm.getClock().unixTimestamp
@@ -147,17 +147,17 @@ describe('EVM to EVM', () => {
         // wait for finality
         await advanceNodeTime(20)
 
-        let dstImmutables = srcImmutables
-            .withComplement(
-                // actually should be parsed from src escrow tx
-                DstImmutablesComplement.new({
-                    amount: order.takingAmount,
-                    safetyDeposit: order.dstSafetyDeposit,
-                    maker: order.receiver,
-                    token: order.takerAsset
-                })
-            )
-            .withTaker(resolverEvm)
+        assert(order.takerAsset instanceof EvmAddress)
+        let dstImmutables = srcImmutables.withComplement(
+            // actually should be parsed from src escrow tx
+            DstImmutablesComplement.new({
+                amount: order.takingAmount,
+                safetyDeposit: order.dstSafetyDeposit,
+                maker: order.receiver,
+                token: order.takerAsset,
+                taker: resolverEvm
+            })
+        )
 
         const dstEscrow = await dstChain.taker.send({
             to: resolverEvm.toString(),
@@ -205,20 +205,9 @@ describe('EVM to EVM', () => {
             }
         )
 
-        await srcChain.connection.sendTransaction(newTx(withdrawIx), [
+        await srcChain.connection.sendTransaction(newSolanaTx(withdrawIx), [
             srcChain.accounts.resolver
         ])
         console.log('src escrow withdrawn')
     })
 })
-
-function newTx(ix: Instruction): web3.Transaction {
-    return new web3.Transaction().add({
-        ...ix,
-        programId: new web3.PublicKey(ix.programId.toBuffer()),
-        keys: ix.accounts.map((a) => ({
-            ...a,
-            pubkey: new web3.PublicKey(a.pubkey.toBuffer())
-        }))
-    })
-}

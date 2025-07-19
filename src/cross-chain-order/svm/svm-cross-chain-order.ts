@@ -2,6 +2,7 @@ import {BitMask, UINT_32_MAX, UINT_64_MAX} from '@1inch/byte-utils'
 import {AuctionCalculator, randBigInt} from '@1inch/fusion-sdk'
 import {keccak256} from 'ethers'
 import {utils} from '@coral-xyz/anchor'
+import assert from 'assert'
 import {ResolverCancellationConfig} from './resolver-cancellation-config'
 import {SolanaDetails, SolanaExtra, SolanaEscrowParams} from './types'
 import {SvmSrcEscrowFactory} from '../../contracts'
@@ -9,7 +10,7 @@ import {hashForSolana} from '../../domains/auction-details/hasher'
 import {uint256BorchSerialized} from '../../utils/numbers/uint256-borsh-serialized'
 import {uintAsBeBytes} from '../../utils/numbers/uint-as-be-bytes'
 import {AddressLike, EvmAddress, SolanaAddress} from '../../domains/addresses'
-import {NetworkEnum, SupportedChain} from '../../chains'
+import {isSupportedChain, NetworkEnum, SupportedChain} from '../../chains'
 import {HashLock} from '../../domains/hash-lock'
 import {TimeLocks} from '../../domains/time-locks'
 import {BaseOrder} from '../base-order'
@@ -108,6 +109,19 @@ export class SvmCrossChainOrder extends BaseOrder<
         details: SolanaDetails,
         extra: SolanaExtra
     ) {
+        assert(
+            isSupportedChain(escrowParams.srcChainId),
+            `Not supported chain ${escrowParams.srcChainId}`
+        )
+        assert(
+            isSupportedChain(escrowParams.dstChainId),
+            `Not supported chain ${escrowParams.dstChainId}`
+        )
+        assert(
+            escrowParams.srcChainId !== escrowParams.dstChainId,
+            'Chains must be different'
+        )
+
         super()
 
         const orderExpirationDelay =
