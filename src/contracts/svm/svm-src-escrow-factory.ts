@@ -34,9 +34,9 @@ export class SvmSrcEscrowFactory extends BaseProgram {
             this.encoder.encode('escrow'), // todo: fix when contract fixed
             params.orderHash,
             params.secretHash,
-            params.maker,
-            params.taker,
-            params.makerAsset,
+            params.maker.toBuffer(),
+            params.taker.toBuffer(),
+            params.makerAsset.toBuffer(),
             uintAsBeBytes(params.makingAmount, 64),
             uintAsBeBytes(params.srcSafetyDeposit, 64)
         ])
