@@ -1,23 +1,26 @@
 import {AddressLike} from '../addresses'
 
-export class DstImmutablesComplement {
+export class DstImmutablesComplement<A extends AddressLike> {
     private constructor(
-        public readonly maker: AddressLike,
+        public readonly maker: A,
         public readonly amount: bigint,
-        public readonly token: AddressLike,
+        public readonly token: A,
+        public readonly taker: A,
         public readonly safetyDeposit: bigint
     ) {}
 
-    public static new(params: {
-        maker: AddressLike
+    public static new<A extends AddressLike>(params: {
+        maker: A
         amount: bigint
-        token: AddressLike
+        token: A
+        taker: A
         safetyDeposit: bigint
-    }): DstImmutablesComplement {
+    }): DstImmutablesComplement<A> {
         return new DstImmutablesComplement(
             params.maker,
             params.amount,
             params.token,
+            params.taker,
             params.safetyDeposit
         )
     }

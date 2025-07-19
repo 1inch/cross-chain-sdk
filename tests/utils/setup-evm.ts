@@ -9,6 +9,7 @@ import {
     Wallet
 } from 'ethers'
 
+import {randBigInt} from '@1inch/fusion-sdk'
 import EscrowFactory from '../../dist/contracts/EscrowFactory.sol/EscrowFactory.json'
 import Resolver from '../../dist/contracts/Resolver.sol/Resolver.json'
 import {EvmChain} from '../../src/chains'
@@ -105,7 +106,7 @@ async function startNode(
         ])
         // .withLogConsumer((s) => s.pipe(process.stdout))
         .withWaitStrategy(new LogWaitStrategy('Listening on 0.0.0.0:8545', 1))
-        .withName(`anvil_cross_chain_tests_${chainId}`)
+        .withName(`anvil_cross_chain_tests_${chainId}_${randBigInt(100n)}`)
         .start()
 
     const url = `http://127.0.0.1:${anvil.getMappedPort(innerPort)}`

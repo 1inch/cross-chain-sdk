@@ -81,7 +81,7 @@ export class EscrowFactory {
         /**
          * From `SrcEscrowCreated` event
          */
-        complement: DstImmutablesComplement,
+        complement: DstImmutablesComplement<Address>,
         /**
          * Block time when event `DstEscrowCreated` produced
          */

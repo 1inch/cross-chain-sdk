@@ -105,9 +105,9 @@ export class Immutables<A extends AddressLike> {
         return this.build()
     }
 
-    public withComplement(
-        dstComplement: DstImmutablesComplement
-    ): Immutables<A> {
+    public withComplement<D extends AddressLike>(
+        dstComplement: DstImmutablesComplement<D>
+    ): Immutables<D> {
         return Immutables.new({...this, ...dstComplement})
     }
 

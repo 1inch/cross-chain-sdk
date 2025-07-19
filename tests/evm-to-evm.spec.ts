@@ -2,18 +2,18 @@ import {parseEther, parseUnits, Interface, Signature, id} from 'ethers'
 import {AmountMode, randBigInt, TakerTraits} from '@1inch/fusion-sdk'
 import {add0x, UINT_40_MAX} from '@1inch/byte-utils'
 import assert from 'assert'
-import Resolver from '../../dist/contracts/Resolver.sol/Resolver.json'
-import {ReadyEvmFork, setupEvm} from '../utils/setup-evm'
-import {NetworkEnum} from '../../src/chains'
-import {EvmCrossChainOrder} from '../../src/cross-chain-order/evm'
-import {EvmAddress} from '../../src/domains/addresses'
-import {USDC_EVM, WETH_EVM} from '../utils/addresses'
-import {TimeLocks} from '../../src/domains/time-locks'
-import {AuctionDetails} from '../../src/domains/auction-details'
-import {getSecret} from '../utils/secret'
-import {HashLock} from '../../src/domains/hash-lock'
-import {EscrowFactoryFacade} from '../../src/contracts/evm/escrow-factory-facade'
-import {DstImmutablesComplement, Immutables} from '../../src/domains/immutables'
+import {USDC_EVM, WETH_EVM} from './utils/addresses'
+import {ReadyEvmFork, setupEvm} from './utils/setup-evm'
+import {getSecret} from './utils/secret'
+import Resolver from '../dist/contracts/Resolver.sol/Resolver.json'
+import {NetworkEnum} from '../src/chains'
+import {EvmCrossChainOrder} from '../src/cross-chain-order/evm'
+import {EvmAddress} from '../src/domains/addresses'
+import {TimeLocks} from '../src/domains/time-locks'
+import {AuctionDetails} from '../src/domains/auction-details'
+import {HashLock} from '../src/domains/hash-lock'
+import {EscrowFactoryFacade} from '../src/contracts/evm/escrow-factory-facade'
+import {DstImmutablesComplement, Immutables} from '../src/domains/immutables'
 
 jest.setTimeout(1000 * 10 * 60)
 
@@ -57,7 +57,7 @@ describe('EVM to EVM', () => {
     function getFillData(
         order: EvmCrossChainOrder,
         signature: string,
-        immutables: Immutables,
+        immutables: Immutables<EvmAddress>,
         chainConfig: ReadyEvmFork,
         leaves = [],
         secretHashes = [],
@@ -180,13 +180,17 @@ describe('EVM to EVM', () => {
         // wait for src finalization
         await advanceNodeTime(20)
 
+        const takerAsset = order.takerAsset
+        assert(takerAsset instanceof EvmAddress)
+
         let dstImmutables = srcImmutables.withComplement(
             // actually should be parsed from event in src escrow tx
             DstImmutablesComplement.new({
                 amount: order.takingAmount,
                 safetyDeposit: order.dstSafetyDeposit,
                 maker: resolver,
-                token: order.takerAsset
+                taker: srcImmutables.taker,
+                token: takerAsset
             })
         )
         const dstEscrow = await dstChain.taker.send({

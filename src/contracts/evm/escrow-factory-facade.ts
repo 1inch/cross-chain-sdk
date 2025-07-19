@@ -1,7 +1,7 @@
 import {Interaction} from '@1inch/fusion-sdk'
 import {EscrowFactory} from './escrow-factory'
 import {EscrowFactoryZksync} from './escrow-factory-zksync'
-import {EvmAddress as Address, EvmAddress} from '../../domains/addresses'
+import {EvmAddress as Address} from '../../domains/addresses'
 import {DstImmutablesComplement, Immutables} from '../../domains/immutables'
 import {MerkleLeaf} from '../../domains/hash-lock'
 import {NetworkEnum} from '../../chains'
@@ -49,7 +49,7 @@ export class EscrowFactoryFacade implements EscrowFactory {
         /**
          * From `SrcEscrowCreated` event (with correct timeLock.deployedAt)
          */
-        srcImmutables: Immutables<EvmAddress>,
+        srcImmutables: Immutables<Address>,
         /**
          * Address of escrow implementation at the same chain as `this.address`
          */
@@ -65,11 +65,11 @@ export class EscrowFactoryFacade implements EscrowFactory {
         /**
          * From `SrcEscrowCreated` event
          */
-        srcImmutables: Immutables<EvmAddress>,
+        srcImmutables: Immutables<Address>,
         /**
          * From `SrcEscrowCreated` event
          */
-        complement: DstImmutablesComplement,
+        complement: DstImmutablesComplement<Address>,
         /**
          * Block time when event `DstEscrowCreated` produced
          */

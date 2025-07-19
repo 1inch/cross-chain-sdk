@@ -78,7 +78,8 @@ describe('EscrowAddressFacade', () => {
                 amount: immutables.amount,
                 maker: immutables.maker,
                 safetyDeposit: immutables.safetyDeposit,
-                token: immutables.token
+                token: immutables.token,
+                taker: immutables.taker
             }),
             0n,
             Address.fromBigInt(immutables.taker.toBigint()),
