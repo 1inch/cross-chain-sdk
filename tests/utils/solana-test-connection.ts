@@ -21,7 +21,7 @@ export class TestConnection {
     async sendTransaction(
         transaction: web3.Transaction,
         signers: Array<web3.Signer>
-    ): Promise<{hash: web3.TransactionSignature; blockTime: bigint}> {
+    ): Promise<web3.TransactionSignature> {
         transaction.recentBlockhash = this.testCtx.latestBlockhash()
         transaction.sign(...signers)
 
@@ -40,20 +40,13 @@ export class TestConnection {
             throw new Error(msg)
         }
 
-        return {
-            hash: bs58.encode(result.signature()) as web3.TransactionSignature,
-            blockTime: this.testCtx.getClock().unixTimestamp
-        }
+        return bs58.encode(result.signature()) as web3.TransactionSignature
     }
 
     async confirmTransaction(
-        _hash: web3.TransactionSignature
+        hash: web3.TransactionSignature
     ): Promise<web3.RpcResponseAndContext<web3.SignatureResult>> {
-        console.log({_hash})
-
-        const hash = typeof _hash === 'string' ? bs58.decode(_hash) : _hash
-
-        const status = this.testCtx.getTransaction(hash)
+        const status = this.testCtx.getTransaction(bs58.decode(hash))
 
         if (status) {
             return {

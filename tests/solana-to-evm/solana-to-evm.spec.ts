@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import {Interface, parseUnits} from 'ethers'
 import {Clock} from 'litesvm'
 import {web3} from '@coral-xyz/anchor'
@@ -109,6 +110,8 @@ describe('EVM to EVM', () => {
             srcChain.accounts.maker
         ])
 
+        console.log('order created')
+
         const taker = SolanaAddress.fromBuffer(
             srcChain.accounts.resolver.publicKey.toBuffer()
         )
@@ -125,6 +128,8 @@ describe('EVM to EVM', () => {
         await srcChain.connection.sendTransaction(newTx(createSrcEscrowIx), [
             srcChain.accounts.resolver
         ])
+
+        console.log('src escrow created')
     })
 })
 

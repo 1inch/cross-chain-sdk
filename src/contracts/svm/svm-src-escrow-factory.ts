@@ -181,14 +181,14 @@ export class SvmSrcEscrowFactory extends BaseProgram {
             }
         }
     ): Instruction {
-        const {merkleProof} = extra
+        const merkleProof = extra.merkleProof || null
         const whitelistProgram = extra.whitelistProgramId
             ? new WhitelistContract(extra.whitelistProgramId)
             : WhitelistContract.DEFAULT
 
         const data = this.coder.instruction.encode('createEscrow', {
-            fillAmount: new BN(fillAmount.toString()),
-            auction: {
+            amount: new BN(fillAmount.toString()),
+            dutchAuctionData: {
                 startTime: Number(order.auction.startTime),
                 duration: Number(order.auction.duration),
                 initialRateBump: Number(order.auction.initialRateBump),
