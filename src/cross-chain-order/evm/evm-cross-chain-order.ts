@@ -267,7 +267,7 @@ export class EvmCrossChainOrder extends BaseOrder<
     }
 
     public getOrderHashBuffer(srcChainId: number): Buffer {
-        return Buffer.from(this.getOrderHash(srcChainId).slice(2))
+        return Buffer.from(this.getOrderHash(srcChainId).slice(2), 'hex')
     }
 
     public getTypedData(srcChainId: number): EIP712TypedData {
