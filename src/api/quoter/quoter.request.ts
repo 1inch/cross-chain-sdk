@@ -72,7 +72,7 @@ export class QuoterRequest<
         )
 
         assert(
-            isEvm(params.dstChain) && !dstToken.isNative(),
+            isEvm(params.dstChain) && !dstToken.isZero(),
             `replace ${EvmAddress.ZERO} with ${EvmAddress.NATIVE}`
         )
 
