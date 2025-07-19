@@ -4,8 +4,9 @@ import {
     LimitOrderV4Struct
 } from '@1inch/fusion-sdk'
 import {CustomPreset, PresetEnum} from '../api'
-import {CrossChainOrder, HashLock} from '../cross-chain-order'
+import {EvmCrossChainOrder} from '../cross-chain-order/evm'
 import {SupportedChain} from '../chains'
+import {HashLock} from '../domains/hash-lock'
 
 export type CrossChainSDKConfigParams = {
     url: string
@@ -14,9 +15,12 @@ export type CrossChainSDKConfigParams = {
     httpProvider?: HttpProviderConnector
 }
 
-export type QuoteParams = {
-    srcChainId: SupportedChain
-    dstChainId: SupportedChain
+export type QuoteParams<
+    SrcChain extends SupportedChain = SupportedChain,
+    DstChain extends SupportedChain = SupportedChain
+> = {
+    srcChainId: SrcChain
+    dstChainId: DstChain
     srcTokenAddress: string
     dstTokenAddress: string
     amount: string
@@ -65,7 +69,7 @@ export type OrderInfo = {
 }
 
 export type PreparedOrder = {
-    order: CrossChainOrder
+    order: EvmCrossChainOrder
     hash: string
     quoteId: string
 }

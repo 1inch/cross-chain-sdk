@@ -1,6 +1,6 @@
 import {LimitOrderV4Struct} from '@1inch/fusion-sdk'
+import {AuctionPoint} from '../../domains'
 import {PaginationOutput} from '../types'
-import {AuctionPoint} from '../quoter'
 import {PaginationParams} from '../pagination'
 import {SupportedChain} from '../../chains'
 

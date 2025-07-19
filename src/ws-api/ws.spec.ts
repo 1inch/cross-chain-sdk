@@ -1,7 +1,6 @@
 import {WebSocket, WebSocketServer} from 'ws'
 import {
     GetAllowMethodsRpcEvent,
-    NetworkEnum,
     OrderFilledEvent,
     OrderFilledPartiallyEvent,
     OrderInvalidEvent,
@@ -24,6 +23,7 @@ import {
 } from './types'
 import {castUrl} from './url'
 import {OrderType} from '../api'
+import {NetworkEnum} from '../chains'
 
 jest.setTimeout(5 * 60 * 1000)
 
@@ -133,7 +133,7 @@ describe(__filename, () => {
                 lazyInit: true
             })
 
-            expect(() => wsSdk.send({id: 1})).toThrowError()
+            expect(() => wsSdk.send({id: 1})).toThrow()
         })
 
         it('should be possible to initialize not in lazy mode', (done) => {

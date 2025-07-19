@@ -1,0 +1,6 @@
+[submodule "contracts/lib/cross-chain-swap"]
+	path = contracts/lib/cross-chain-swap
+	url = https://github.com/1inch/cross-chain-swap
+[submodule "contracts/lib/solana-crosschain-protocol"]
+	path = contracts/lib/solana-crosschain-protocol
+	url = git@github.com:1inch/solana-crosschain-protocol.git

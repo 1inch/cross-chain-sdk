@@ -1,0 +1,550 @@
+import {WritableDeep} from 'type-fest'
+const _IDL = {
+    address: 'GveV3ToLhvRmeq1Fyg3BMkNetZuG9pZEp4uBGWLrTjve',
+    metadata: {
+        name: 'crossChainEscrowDst',
+        version: '0.1.0',
+        spec: '0.1.0',
+        description: 'Created with Anchor'
+    },
+    instructions: [
+        {
+            name: 'cancel',
+            discriminator: [232, 219, 223, 41, 219, 236, 220, 190],
+            accounts: [
+                {name: 'creator', writable: true, signer: true},
+                {name: 'mint'},
+                {
+                    name: 'escrow',
+                    writable: true,
+                    pda: {
+                        seeds: [
+                            {
+                                kind: 'const',
+                                value: [101, 115, 99, 114, 111, 119]
+                            },
+                            {
+                                kind: 'account',
+                                path: 'escrow.orderHash',
+                                account: 'escrowDst'
+                            },
+                            {
+                                kind: 'account',
+                                path: 'escrow.hashlock',
+                                account: 'escrowDst'
+                            },
+                            {
+                                kind: 'account',
+                                path: 'escrow.creator',
+                                account: 'escrowDst'
+                            },
+                            {
+                                kind: 'account',
+                                path: 'escrow.recipient',
+                                account: 'escrowDst'
+                            },
+                            {kind: 'account', path: 'mint'},
+                            {
+                                kind: 'account',
+                                path: 'escrow.amount',
+                                account: 'escrowDst'
+                            },
+                            {
+                                kind: 'account',
+                                path: 'escrow.safetyDeposit',
+                                account: 'escrowDst'
+                            }
+                        ]
+                    }
+                },
+                {
+                    name: 'escrowAta',
+                    writable: true,
+                    pda: {
+                        seeds: [
+                            {kind: 'account', path: 'escrow'},
+                            {kind: 'account', path: 'tokenProgram'},
+                            {kind: 'account', path: 'mint'}
+                        ],
+                        program: {
+                            kind: 'const',
+                            value: [
+                                140, 151, 37, 143, 78, 36, 137, 241, 187, 61,
+                                16, 41, 20, 142, 13, 131, 11, 90, 19, 153, 218,
+                                255, 16, 132, 4, 142, 123, 216, 219, 233, 248,
+                                89
+                            ]
+                        }
+                    }
+                },
+                {
+                    name: 'creatorAta',
+                    writable: true,
+                    optional: true,
+                    pda: {
+                        seeds: [
+                            {kind: 'account', path: 'creator'},
+                            {kind: 'account', path: 'tokenProgram'},
+                            {kind: 'account', path: 'mint'}
+                        ],
+                        program: {
+                            kind: 'const',
+                            value: [
+                                140, 151, 37, 143, 78, 36, 137, 241, 187, 61,
+                                16, 41, 20, 142, 13, 131, 11, 90, 19, 153, 218,
+                                255, 16, 132, 4, 142, 123, 216, 219, 233, 248,
+                                89
+                            ]
+                        }
+                    }
+                },
+                {name: 'tokenProgram'},
+                {
+                    name: 'systemProgram',
+                    address: '11111111111111111111111111111111'
+                }
+            ],
+            args: []
+        },
+        {
+            name: 'create',
+            discriminator: [24, 30, 200, 40, 5, 28, 7, 119],
+            accounts: [
+                {
+                    name: 'creator',
+                    docs: ['Puts tokens into escrow'],
+                    writable: true,
+                    signer: true
+                },
+                {name: 'mint'},
+                {
+                    name: 'creatorAta',
+                    docs: [
+                        "Account to store creator's tokens (Optional if the token is native)"
+                    ],
+                    writable: true,
+                    optional: true,
+                    pda: {
+                        seeds: [
+                            {kind: 'account', path: 'creator'},
+                            {kind: 'account', path: 'tokenProgram'},
+                            {kind: 'account', path: 'mint'}
+                        ],
+                        program: {
+                            kind: 'const',
+                            value: [
+                                140, 151, 37, 143, 78, 36, 137, 241, 187, 61,
+                                16, 41, 20, 142, 13, 131, 11, 90, 19, 153, 218,
+                                255, 16, 132, 4, 142, 123, 216, 219, 233, 248,
+                                89
+                            ]
+                        }
+                    }
+                },
+                {
+                    name: 'escrow',
+                    docs: ['Account to store escrow details'],
+                    writable: true,
+                    pda: {
+                        seeds: [
+                            {
+                                kind: 'const',
+                                value: [101, 115, 99, 114, 111, 119]
+                            },
+                            {kind: 'arg', path: 'orderHash'},
+                            {kind: 'arg', path: 'hashlock'},
+                            {kind: 'account', path: 'creator'},
+                            {kind: 'arg', path: 'recipient'},
+                            {kind: 'account', path: 'mint'},
+                            {kind: 'arg', path: 'amount'},
+                            {kind: 'arg', path: 'safetyDeposit'}
+                        ]
+                    }
+                },
+                {
+                    name: 'escrowAta',
+                    docs: ['Account to store escrowed tokens'],
+                    writable: true,
+                    pda: {
+                        seeds: [
+                            {kind: 'account', path: 'escrow'},
+                            {kind: 'account', path: 'tokenProgram'},
+                            {kind: 'account', path: 'mint'}
+                        ],
+                        program: {
+                            kind: 'const',
+                            value: [
+                                140, 151, 37, 143, 78, 36, 137, 241, 187, 61,
+                                16, 41, 20, 142, 13, 131, 11, 90, 19, 153, 218,
+                                255, 16, 132, 4, 142, 123, 216, 219, 233, 248,
+                                89
+                            ]
+                        }
+                    }
+                },
+                {
+                    name: 'associatedTokenProgram',
+                    address: 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'
+                },
+                {name: 'tokenProgram'},
+                {
+                    name: 'rent',
+                    address: 'SysvarRent111111111111111111111111111111111'
+                },
+                {
+                    name: 'systemProgram',
+                    address: '11111111111111111111111111111111'
+                }
+            ],
+            args: [
+                {name: 'orderHash', type: {array: ['u8', 32]}},
+                {name: 'hashlock', type: {array: ['u8', 32]}},
+                {name: 'amount', type: 'u64'},
+                {name: 'safetyDeposit', type: 'u64'},
+                {name: 'recipient', type: 'pubkey'},
+                {name: 'timelocks', type: {array: ['u64', 4]}},
+                {name: 'srcCancellationTimestamp', type: 'u32'},
+                {name: 'assetIsNative', type: 'bool'}
+            ]
+        },
+        {
+            name: 'publicWithdraw',
+            discriminator: [152, 57, 240, 192, 82, 35, 150, 11],
+            accounts: [
+                {name: 'creator', writable: true},
+                {name: 'recipient', writable: true},
+                {name: 'payer', writable: true, signer: true},
+                {
+                    name: 'resolverAccess',
+                    pda: {
+                        seeds: [
+                            {
+                                kind: 'const',
+                                value: [
+                                    114, 101, 115, 111, 108, 118, 101, 114, 95,
+                                    97, 99, 99, 101, 115, 115
+                                ]
+                            },
+                            {kind: 'account', path: 'payer'}
+                        ],
+                        program: {
+                            kind: 'const',
+                            value: [
+                                170, 5, 244, 79, 146, 16, 119, 74, 230, 143, 46,
+                                226, 18, 94, 39, 74, 77, 83, 134, 201, 103, 219,
+                                237, 226, 10, 41, 63, 132, 147, 102, 240, 110
+                            ]
+                        }
+                    }
+                },
+                {name: 'mint'},
+                {
+                    name: 'escrow',
+                    writable: true,
+                    pda: {
+                        seeds: [
+                            {
+                                kind: 'const',
+                                value: [101, 115, 99, 114, 111, 119]
+                            },
+                            {
+                                kind: 'account',
+                                path: 'escrow.orderHash',
+                                account: 'escrowDst'
+                            },
+                            {
+                                kind: 'account',
+                                path: 'escrow.hashlock',
+                                account: 'escrowDst'
+                            },
+                            {
+                                kind: 'account',
+                                path: 'escrow.creator',
+                                account: 'escrowDst'
+                            },
+                            {
+                                kind: 'account',
+                                path: 'escrow.recipient',
+                                account: 'escrowDst'
+                            },
+                            {kind: 'account', path: 'mint'},
+                            {
+                                kind: 'account',
+                                path: 'escrow.amount',
+                                account: 'escrowDst'
+                            },
+                            {
+                                kind: 'account',
+                                path: 'escrow.safetyDeposit',
+                                account: 'escrowDst'
+                            }
+                        ]
+                    }
+                },
+                {
+                    name: 'escrowAta',
+                    writable: true,
+                    pda: {
+                        seeds: [
+                            {kind: 'account', path: 'escrow'},
+                            {kind: 'account', path: 'tokenProgram'},
+                            {kind: 'account', path: 'mint'}
+                        ],
+                        program: {
+                            kind: 'const',
+                            value: [
+                                140, 151, 37, 143, 78, 36, 137, 241, 187, 61,
+                                16, 41, 20, 142, 13, 131, 11, 90, 19, 153, 218,
+                                255, 16, 132, 4, 142, 123, 216, 219, 233, 248,
+                                89
+                            ]
+                        }
+                    }
+                },
+                {
+                    name: 'recipientAta',
+                    docs: ['Optional if the token is native'],
+                    writable: true,
+                    optional: true,
+                    pda: {
+                        seeds: [
+                            {kind: 'account', path: 'recipient'},
+                            {kind: 'account', path: 'tokenProgram'},
+                            {kind: 'account', path: 'mint'}
+                        ],
+                        program: {
+                            kind: 'const',
+                            value: [
+                                140, 151, 37, 143, 78, 36, 137, 241, 187, 61,
+                                16, 41, 20, 142, 13, 131, 11, 90, 19, 153, 218,
+                                255, 16, 132, 4, 142, 123, 216, 219, 233, 248,
+                                89
+                            ]
+                        }
+                    }
+                },
+                {name: 'tokenProgram'},
+                {
+                    name: 'systemProgram',
+                    address: '11111111111111111111111111111111'
+                }
+            ],
+            args: [{name: 'secret', type: {array: ['u8', 32]}}]
+        },
+        {
+            name: 'rescueFunds',
+            discriminator: [238, 204, 8, 81, 89, 43, 193, 103],
+            accounts: [
+                {name: 'creator', writable: true, signer: true},
+                {name: 'recipient'},
+                {name: 'mint'},
+                {
+                    name: 'escrow',
+                    pda: {
+                        seeds: [
+                            {
+                                kind: 'const',
+                                value: [101, 115, 99, 114, 111, 119]
+                            },
+                            {kind: 'arg', path: 'orderHash'},
+                            {kind: 'arg', path: 'hashlock'},
+                            {kind: 'account', path: 'creator'},
+                            {kind: 'account', path: 'recipient'},
+                            {kind: 'arg', path: 'escrowMint'},
+                            {kind: 'arg', path: 'escrowAmount'},
+                            {kind: 'arg', path: 'safetyDeposit'}
+                        ]
+                    }
+                },
+                {
+                    name: 'escrowAta',
+                    writable: true,
+                    pda: {
+                        seeds: [
+                            {kind: 'account', path: 'escrow'},
+                            {kind: 'account', path: 'tokenProgram'},
+                            {kind: 'account', path: 'mint'}
+                        ],
+                        program: {
+                            kind: 'const',
+                            value: [
+                                140, 151, 37, 143, 78, 36, 137, 241, 187, 61,
+                                16, 41, 20, 142, 13, 131, 11, 90, 19, 153, 218,
+                                255, 16, 132, 4, 142, 123, 216, 219, 233, 248,
+                                89
+                            ]
+                        }
+                    }
+                },
+                {
+                    name: 'creatorAta',
+                    writable: true,
+                    pda: {
+                        seeds: [
+                            {kind: 'account', path: 'creator'},
+                            {kind: 'account', path: 'tokenProgram'},
+                            {kind: 'account', path: 'mint'}
+                        ],
+                        program: {
+                            kind: 'const',
+                            value: [
+                                140, 151, 37, 143, 78, 36, 137, 241, 187, 61,
+                                16, 41, 20, 142, 13, 131, 11, 90, 19, 153, 218,
+                                255, 16, 132, 4, 142, 123, 216, 219, 233, 248,
+                                89
+                            ]
+                        }
+                    }
+                },
+                {name: 'tokenProgram'},
+                {
+                    name: 'systemProgram',
+                    address: '11111111111111111111111111111111'
+                }
+            ],
+            args: [
+                {name: 'orderHash', type: {array: ['u8', 32]}},
+                {name: 'hashlock', type: {array: ['u8', 32]}},
+                {name: 'escrowMint', type: 'pubkey'},
+                {name: 'escrowAmount', type: 'u64'},
+                {name: 'safetyDeposit', type: 'u64'},
+                {name: 'rescueAmount', type: 'u64'}
+            ]
+        },
+        {
+            name: 'withdraw',
+            discriminator: [183, 18, 70, 156, 148, 109, 161, 34],
+            accounts: [
+                {name: 'creator', writable: true, signer: true},
+                {name: 'recipient', writable: true},
+                {name: 'mint'},
+                {
+                    name: 'escrow',
+                    writable: true,
+                    pda: {
+                        seeds: [
+                            {
+                                kind: 'const',
+                                value: [101, 115, 99, 114, 111, 119]
+                            },
+                            {
+                                kind: 'account',
+                                path: 'escrow.orderHash',
+                                account: 'escrowDst'
+                            },
+                            {
+                                kind: 'account',
+                                path: 'escrow.hashlock',
+                                account: 'escrowDst'
+                            },
+                            {
+                                kind: 'account',
+                                path: 'escrow.creator',
+                                account: 'escrowDst'
+                            },
+                            {
+                                kind: 'account',
+                                path: 'escrow.recipient',
+                                account: 'escrowDst'
+                            },
+                            {kind: 'account', path: 'mint'},
+                            {
+                                kind: 'account',
+                                path: 'escrow.amount',
+                                account: 'escrowDst'
+                            },
+                            {
+                                kind: 'account',
+                                path: 'escrow.safetyDeposit',
+                                account: 'escrowDst'
+                            }
+                        ]
+                    }
+                },
+                {
+                    name: 'escrowAta',
+                    writable: true,
+                    pda: {
+                        seeds: [
+                            {kind: 'account', path: 'escrow'},
+                            {kind: 'account', path: 'tokenProgram'},
+                            {kind: 'account', path: 'mint'}
+                        ],
+                        program: {
+                            kind: 'const',
+                            value: [
+                                140, 151, 37, 143, 78, 36, 137, 241, 187, 61,
+                                16, 41, 20, 142, 13, 131, 11, 90, 19, 153, 218,
+                                255, 16, 132, 4, 142, 123, 216, 219, 233, 248,
+                                89
+                            ]
+                        }
+                    }
+                },
+                {
+                    name: 'recipientAta',
+                    docs: ['Optional if the token is native'],
+                    writable: true,
+                    optional: true,
+                    pda: {
+                        seeds: [
+                            {kind: 'account', path: 'recipient'},
+                            {kind: 'account', path: 'tokenProgram'},
+                            {kind: 'account', path: 'mint'}
+                        ],
+                        program: {
+                            kind: 'const',
+                            value: [
+                                140, 151, 37, 143, 78, 36, 137, 241, 187, 61,
+                                16, 41, 20, 142, 13, 131, 11, 90, 19, 153, 218,
+                                255, 16, 132, 4, 142, 123, 216, 219, 233, 248,
+                                89
+                            ]
+                        }
+                    }
+                },
+                {name: 'tokenProgram'},
+                {
+                    name: 'systemProgram',
+                    address: '11111111111111111111111111111111'
+                }
+            ],
+            args: [{name: 'secret', type: {array: ['u8', 32]}}]
+        }
+    ],
+    accounts: [
+        {
+            name: 'escrowDst',
+            discriminator: [152, 45, 158, 28, 86, 74, 144, 177]
+        },
+        {
+            name: 'resolverAccess',
+            discriminator: [32, 2, 74, 248, 174, 108, 70, 156]
+        }
+    ],
+    types: [
+        {
+            name: 'escrowDst',
+            type: {
+                kind: 'struct',
+                fields: [
+                    {name: 'orderHash', type: {array: ['u8', 32]}},
+                    {name: 'hashlock', type: {array: ['u8', 32]}},
+                    {name: 'creator', type: 'pubkey'},
+                    {name: 'recipient', type: 'pubkey'},
+                    {name: 'token', type: 'pubkey'},
+                    {name: 'assetIsNative', type: 'bool'},
+                    {name: 'amount', type: 'u64'},
+                    {name: 'safetyDeposit', type: 'u64'},
+                    {name: 'timelocks', type: {array: ['u64', 4]}},
+                    {name: 'bump', type: 'u8'}
+                ]
+            }
+        },
+        {
+            name: 'resolverAccess',
+            type: {kind: 'struct', fields: [{name: 'bump', type: 'u8'}]}
+        }
+    ]
+} as const
+export const IDL: WritableDeep<typeof _IDL> = _IDL as WritableDeep<typeof _IDL>

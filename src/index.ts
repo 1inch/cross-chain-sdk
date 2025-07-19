@@ -2,10 +2,8 @@ export {
     EIP712TypedData,
     LimitOrderV4Struct,
     Address,
-    NetworkEnum,
     MakerTraits,
     Extension,
-    AuctionDetails,
     SettlementPostInteractionData,
     Interaction,
     AuctionCalculator,
@@ -27,11 +25,13 @@ export {
     PingRpcEvent,
     GetAllowMethodsRpcEvent
 } from '@1inch/fusion-sdk'
-export * from './cross-chain-order'
-export * from './escrow-factory'
-export {SupportedChains, SupportedChain} from './chains'
-export * from './immutables'
+export {SupportedChains, SupportedChain, NetworkEnum, EvmChain} from './chains'
 export * from './deployments'
 export * from './sdk'
 export * from './api'
 export * from './ws-api'
+export {IDL as SVM_ESCROW_DST_IDL} from './idl/cross-chain-escrow-dst'
+export {IDL as SVM_ESCROW_SRC_IDL} from './idl/cross-chain-escrow-src'
+export * from './domains'
+export * from './contracts'
+export * from './cross-chain-order'
