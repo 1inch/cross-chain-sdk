@@ -56,7 +56,7 @@ export class EscrowFactory {
         /**
          * From `SrcEscrowCreated` event (with correct timeLock.deployedAt)
          */
-        srcImmutables: Immutables,
+        srcImmutables: Immutables<Address>,
         /**
          * Address of escrow implementation at the same chain as `this.address`
          */
@@ -77,7 +77,7 @@ export class EscrowFactory {
         /**
          * From `SrcEscrowCreated` event
          */
-        srcImmutables: Immutables,
+        srcImmutables: Immutables<Address>,
         /**
          * From `SrcEscrowCreated` event
          */

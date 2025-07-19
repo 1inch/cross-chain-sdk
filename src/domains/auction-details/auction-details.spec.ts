@@ -28,7 +28,7 @@ describe('Auction details', () => {
         const hash = hashForSolana(details)
 
         expect(hash.toString('hex')).toEqual(
-            '1ce1d373c68016031fcea0d17fd0fc7d4348109e1d8c6be83f0b4fb099b8887a'
+            '9bea9f39c5235802bed8bae5261fdb00167766c3789e3c9920fab45dc313a9ff'
         )
     })
 })

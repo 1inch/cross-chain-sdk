@@ -8,10 +8,10 @@ import {
     PingRpcEvent
 } from '@1inch/fusion-sdk'
 import {Jsonify} from 'type-fest'
+import {AddressLike, Immutables} from '../domains'
 import {PaginationOutput} from '../api/types'
 import {ActiveOrder, OrderType, PublicSecret} from '../api/orders'
 import {SupportedChain} from '../chains'
-import {Immutables} from '../domains/immutables'
 
 export type OrderEventType =
     | OrderCreatedEvent
@@ -81,8 +81,8 @@ export type OrderSecretSharedEvent = Event<
     {
         idx: number
         secret: string
-        srcImmutables: Jsonify<Immutables>
-        dstImmutables: Jsonify<Immutables>
+        srcImmutables: Jsonify<Immutables<AddressLike>>
+        dstImmutables: Jsonify<Immutables<AddressLike>>
     }
 >
 
