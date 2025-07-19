@@ -15,9 +15,12 @@ export type CrossChainSDKConfigParams = {
     httpProvider?: HttpProviderConnector
 }
 
-export type QuoteParams = {
-    srcChainId: SupportedChain
-    dstChainId: SupportedChain
+export type QuoteParams<
+    SrcChain extends SupportedChain = SupportedChain,
+    DstChain extends SupportedChain = SupportedChain
+> = {
+    srcChainId: SrcChain
+    dstChainId: DstChain
     srcTokenAddress: string
     dstTokenAddress: string
     amount: string

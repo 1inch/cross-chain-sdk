@@ -19,7 +19,15 @@ export class QuoterApi {
 
         const res = await this.httpClient.get<QuoterResponse>(url)
 
-        return new Quote(params, res)
+        if (params.isEvmRequest()) {
+            return Quote.fromEVMQuote(params, res)
+        }
+
+        if (params.isSolanaRequest()) {
+            return Quote.fromSolanaQuote(params, res)
+        }
+
+        throw new Error('unknown chain request')
     }
 
     async getQuoteWithCustomPreset(
@@ -38,6 +46,14 @@ export class QuoterApi {
 
         const res = await this.httpClient.post<QuoterResponse>(url, bodyParams)
 
-        return new Quote(params, res)
+        if (params.isEvmRequest()) {
+            return Quote.fromEVMQuote(params, res)
+        }
+
+        if (params.isSolanaRequest()) {
+            return Quote.fromSolanaQuote(params, res)
+        }
+
+        throw new Error('unknown chain request')
     }
 }

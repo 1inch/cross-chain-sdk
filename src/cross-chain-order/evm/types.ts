@@ -49,7 +49,7 @@ export type EvmExtra = {
 }
 
 export type AuctionWhitelistItem = {
-    address: EvmAddress
+    address: AddressLike
     allowFrom: bigint
 }
 

@@ -19,7 +19,7 @@ describe('Quoter API', () => {
         }
     })
 
-    const params = QuoterRequest.new({
+    const params = QuoterRequest.forEVM({
         srcChain: NetworkEnum.ETHEREUM,
         dstChain: NetworkEnum.POLYGON,
         srcTokenAddress: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
@@ -137,7 +137,7 @@ describe('Quoter API', () => {
         }
     }
 
-    const QuoterResponseMock = new Quote(params, ResponseMock)
+    const QuoterResponseMock = Quote.fromEVMQuote(params, ResponseMock)
 
     it('should get quote with disabled estimate', async () => {
         const quoter = new QuoterApi(
@@ -163,7 +163,7 @@ describe('Quoter API', () => {
             httpProvider
         )
 
-        const params = QuoterRequest.new({
+        const params = QuoterRequest.forEVM({
             srcChain: NetworkEnum.ETHEREUM,
             dstChain: NetworkEnum.POLYGON,
             srcTokenAddress: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
@@ -174,7 +174,7 @@ describe('Quoter API', () => {
             source: '0x6b175474e89094c44da98b954eedeac495271d0f'
         })
 
-        const QuoterResponseMock = new Quote(params, ResponseMock)
+        const QuoterResponseMock = Quote.fromEVMQuote(params, ResponseMock)
         const res = await quoter.getQuote(params)
         expect(res).toStrictEqual(QuoterResponseMock)
         expect(httpProvider.get).toHaveBeenCalledWith(
@@ -190,7 +190,7 @@ describe('Quoter API', () => {
             httpProvider
         )
 
-        const params = QuoterRequest.new({
+        const params = QuoterRequest.forEVM({
             srcChain: NetworkEnum.ETHEREUM,
             dstChain: NetworkEnum.POLYGON,
             srcTokenAddress: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
@@ -213,7 +213,7 @@ describe('Quoter API', () => {
             }
         })
 
-        const QuoterResponseMock = new Quote(params, ResponseMock)
+        const QuoterResponseMock = Quote.fromEVMQuote(params, ResponseMock)
         const res = await quoter.getQuoteWithCustomPreset(params, body)
         expect(res).toStrictEqual(QuoterResponseMock)
         expect(httpProvider.post).toHaveBeenCalledWith(
