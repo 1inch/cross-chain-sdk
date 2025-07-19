@@ -1,5 +1,4 @@
 import {
-    Address,
     AuctionCalculator,
     EIP712TypedData,
     Extension,
@@ -169,7 +168,7 @@ export class EvmCrossChainOrder extends BaseOrder<
 
         const postInteractionData = SettlementPostInteractionData.new({
             whitelist: details.whitelist.map((i) => ({
-                address: new Address(i.address.toString()),
+                address: i.address.inner,
                 allowFrom: i.allowFrom
             })),
             resolvingStartTime: details.resolvingStartTime ?? BigInt(now())

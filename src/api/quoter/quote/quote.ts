@@ -2,11 +2,7 @@ import {UINT_40_MAX} from '@1inch/byte-utils'
 import {randBigInt} from '@1inch/fusion-sdk'
 import assert from 'assert'
 import {CrossChainOrderParamsData, Presets} from './types'
-import {
-    AddressLike,
-    EvmAddress,
-    SolanaAddress
-} from '../../../domains/addresses'
+import {EvmAddress, SolanaAddress} from '../../../domains/addresses'
 import {TimeLocks} from '../../../domains/time-locks'
 import {Cost, PresetEnum, QuoterResponse, TimeLocksRaw} from '../types'
 import {Preset} from '../preset'
@@ -21,6 +17,10 @@ import {
 } from '../../../chains'
 import {AuctionWhitelistItem} from '../../../cross-chain-order/evm/types'
 import {AddressForChain} from '../../../type-utils'
+
+type Whitelist<SrcChain extends SupportedChain> = SrcChain extends EvmChain
+    ? EvmAddress[]
+    : []
 
 export class Quote<
     SrcChain extends SupportedChain = SupportedChain,
@@ -38,7 +38,7 @@ export class Quote<
         public readonly timeLocks: TimeLocksRaw,
         public readonly srcSafetyDeposit: bigint,
         public readonly dstSafetyDeposit: bigint,
-        public readonly whitelist: AddressForChain<SrcChain>[],
+        public readonly whitelist: Whitelist<SrcChain>,
         public readonly recommendedPreset: PresetEnum,
         public readonly prices: Cost,
         public readonly volume: Cost,
@@ -117,7 +117,7 @@ export class Quote<
             response.timeLocks,
             BigInt(response.srcSafetyDeposit),
             BigInt(response.dstSafetyDeposit),
-            response.whitelist.map((w) => SolanaAddress.fromString(w)),
+            [],
             response.recommendedPreset,
             response.prices,
             response.volume,
@@ -213,7 +213,7 @@ export class Quote<
 
     private getWhitelist(
         auctionStartTime: bigint,
-        exclusiveResolver?: AddressLike
+        exclusiveResolver?: EvmAddress
     ): AuctionWhitelistItem[] {
         if (exclusiveResolver) {
             return this.whitelist.map((resolver) => {
