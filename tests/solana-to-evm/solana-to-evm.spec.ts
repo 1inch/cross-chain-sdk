@@ -1,7 +1,6 @@
 import {Interface, parseUnits} from 'ethers'
 import {Clock} from 'litesvm'
 import {web3} from '@coral-xyz/anchor'
-import {bs58} from '@coral-xyz/anchor/dist/cjs/utils/bytes'
 import Resolver from '../../dist/contracts/Resolver.sol/Resolver.json'
 import {ReadyEvmFork, setupEvm} from '../utils/setup-evm'
 import {NetworkEnum} from '../../src/chains'
@@ -14,6 +13,7 @@ import {TimeLocks} from '../../src/domains/time-locks'
 import {EvmAddress, SolanaAddress} from '../../src/domains/addresses'
 import {USDC_EVM} from '../utils/addresses'
 import {SvmSrcEscrowFactory} from '../../src/contracts/svm/svm-src-escrow-factory'
+import {Instruction} from '../../src/contracts/svm/instruction'
 
 jest.setTimeout(1000 * 10 * 60)
 
@@ -104,19 +104,37 @@ describe('EVM to EVM', () => {
         const createSrcIx = srcEscrowFactory.createOrder(order, {
             srcTokenProgramId: SolanaAddress.TOKEN_PROGRAM_ID
         })
-        const initTx = new web3.Transaction().add({
-            ...createSrcIx,
-            programId: new web3.PublicKey(createSrcIx.programId.toBuffer()),
-            keys: createSrcIx.accounts.map((a) => ({
-                ...a,
-                pubkey: new web3.PublicKey(a.pubkey.toBuffer())
-            }))
-        })
 
-        const hash = await srcChain.connection.sendTransaction(initTx, [
+        await srcChain.connection.sendTransaction(newTx(createSrcIx), [
             srcChain.accounts.maker
         ])
 
-        const txdata = srcChain.svm.getTransaction(bs58.decode(hash))
+        const taker = SolanaAddress.fromBuffer(
+            srcChain.accounts.resolver.publicKey.toBuffer()
+        )
+
+        const createSrcEscrowIx = srcEscrowFactory.createEscrow(
+            order,
+            order.makingAmount,
+            {
+                srcTokenProgramId: SolanaAddress.TOKEN_PROGRAM_ID,
+                taker
+            }
+        )
+
+        await srcChain.connection.sendTransaction(newTx(createSrcEscrowIx), [
+            srcChain.accounts.resolver
+        ])
     })
 })
+
+function newTx(ix: Instruction): web3.Transaction {
+    return new web3.Transaction().add({
+        ...ix,
+        programId: new web3.PublicKey(ix.programId.toBuffer()),
+        keys: ix.accounts.map((a) => ({
+            ...a,
+            pubkey: new web3.PublicKey(a.pubkey.toBuffer())
+        }))
+    })
+}

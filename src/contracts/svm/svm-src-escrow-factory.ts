@@ -2,8 +2,9 @@ import {BN, BorshCoder} from '@coral-xyz/anchor'
 import {Instruction} from './instruction'
 import {BaseProgram} from './base-program'
 import {WhitelistContract} from './whitelist'
+import {uintAsBeBytes} from '../../utils/numbers/uint-as-be-bytes'
 import {HashLock, MerkleLeaf, SolanaAddress} from '../../domains'
-import {getAta} from '../../utils'
+import {getAta, getPda} from '../../utils'
 import {SvmCrossChainOrder} from '../../cross-chain-order/svm/svm-cross-chain-order'
 import {IDL} from '../../idl/cross-chain-escrow-src'
 import {uint256split} from '../../utils/numbers/uint256-split'
@@ -18,6 +19,27 @@ export class SvmSrcEscrowFactory extends BaseProgram {
 
     constructor(programId: SolanaAddress) {
         super(programId)
+    }
+
+    public getEscrowAddress(params: {
+        orderHash: Buffer
+        secretHash: Buffer
+        maker: SolanaAddress
+        taker: SolanaAddress
+        makerAsset: SolanaAddress
+        makingAmount: bigint
+        srcSafetyDeposit: bigint
+    }): SolanaAddress {
+        return getPda(this.programId, [
+            this.encoder.encode('escrow'), // todo: fix when contract fixed
+            params.orderHash,
+            params.secretHash,
+            params.maker,
+            params.taker,
+            params.makerAsset,
+            uintAsBeBytes(params.makingAmount, 64),
+            uintAsBeBytes(params.srcSafetyDeposit, 64)
+        ])
     }
 
     public createOrder(
@@ -183,7 +205,7 @@ export class SvmSrcEscrowFactory extends BaseProgram {
         })
 
         const orderAccount = order.getOrderAccount(this.programId)
-        const escrowAddress = order.getEscrowAddress(
+        const escrowAddress = order.getSrcEscrowAddress(
             this.programId,
             extra.taker,
             merkleProof?.secretHash

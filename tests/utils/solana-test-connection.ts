@@ -21,7 +21,7 @@ export class TestConnection {
     async sendTransaction(
         transaction: web3.Transaction,
         signers: Array<web3.Signer>
-    ): Promise<web3.TransactionSignature> {
+    ): Promise<{hash: web3.TransactionSignature; blockTime: bigint}> {
         transaction.recentBlockhash = this.testCtx.latestBlockhash()
         transaction.sign(...signers)
 
@@ -40,7 +40,10 @@ export class TestConnection {
             throw new Error(msg)
         }
 
-        return bs58.encode(result.signature()) as web3.TransactionSignature
+        return {
+            hash: bs58.encode(result.signature()) as web3.TransactionSignature,
+            blockTime: this.testCtx.getClock().unixTimestamp
+        }
     }
 
     async confirmTransaction(

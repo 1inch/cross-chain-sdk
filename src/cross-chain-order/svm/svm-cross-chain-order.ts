@@ -1,16 +1,14 @@
-import {add0x, BitMask, UINT_32_MAX, UINT_64_MAX} from '@1inch/byte-utils'
+import {BitMask, UINT_32_MAX, UINT_64_MAX} from '@1inch/byte-utils'
 import {AuctionCalculator, randBigInt} from '@1inch/fusion-sdk'
 import {keccak256} from 'ethers'
+import {utils} from '@coral-xyz/anchor'
+import {SvmSrcEscrowFactory} from 'contracts'
 import {ResolverCancellationConfig} from './resolver-cancellation-config'
 import {SolanaDetails, SolanaExtra, SolanaEscrowParams} from './types'
 import {hashForSolana} from '../../domains/auction-details/hasher'
 import {uint256BorchSerialized} from '../../utils/numbers/uint256-borsh-serialized'
 import {uintAsBeBytes} from '../../utils/numbers/uint-as-be-bytes'
-import {
-    AddressLike,
-    createAddress,
-    SolanaAddress
-} from '../../domains/addresses'
+import {AddressLike, EvmAddress, SolanaAddress} from '../../domains/addresses'
 import {NetworkEnum, SupportedChain} from '../../chains'
 import {HashLock} from '../../domains/hash-lock'
 import {TimeLocks} from '../../domains/time-locks'
@@ -59,11 +57,11 @@ export type SolanaOrderJSON = {
 
 export type OrderInfoData = {
     srcToken: SolanaAddress
-    dstToken: AddressLike
+    dstToken: EvmAddress
     maker: SolanaAddress
     srcAmount: bigint // u64
     minDstAmount: bigint // u64
-    receiver: AddressLike
+    receiver: EvmAddress
 }
 
 export class SvmCrossChainOrder extends BaseOrder<
@@ -83,7 +81,7 @@ export class SvmCrossChainOrder extends BaseOrder<
         srcToken: SolanaAddress
         dstToken: AddressLike
         maker: SolanaAddress
-        receiver: AddressLike
+        receiver: EvmAddress
         srcAmount: bigint // u64
         minDstAmount: bigint // u64
         deadline: number // u32
@@ -207,7 +205,7 @@ export class SvmCrossChainOrder extends BaseOrder<
         return this.orderConfig.minDstAmount
     }
 
-    public get receiver(): AddressLike {
+    public get receiver(): EvmAddress {
         return this.orderConfig.receiver
     }
 
@@ -258,20 +256,14 @@ export class SvmCrossChainOrder extends BaseOrder<
     }
 
     static fromJSON(data: SolanaOrderJSON): SvmCrossChainOrder {
-        return SvmCrossChainOrder.new(
+        return new SvmCrossChainOrder(
             {
                 srcToken: SolanaAddress.fromString(data.orderInfo.srcToken),
-                dstToken: createAddress(
-                    data.orderInfo.dstToken,
-                    data.escrowParams.dstChainId
-                ),
+                dstToken: EvmAddress.fromString(data.orderInfo.dstToken),
                 srcAmount: BigInt(data.orderInfo.srcAmount),
                 minDstAmount: BigInt(data.orderInfo.minDstAmount),
                 maker: SolanaAddress.fromString(data.orderInfo.maker),
-                receiver: createAddress(
-                    data.orderInfo.receiver,
-                    data.escrowParams.dstChainId
-                )
+                receiver: EvmAddress.fromString(data.orderInfo.receiver)
             },
             {
                 dstChainId: data.escrowParams.dstChainId,
@@ -300,7 +292,8 @@ export class SvmCrossChainOrder extends BaseOrder<
                     ),
                     data.extra.resolverCancellationConfig.cancellationAuctionDuration
                 ),
-                source: data.extra.source
+                source: data.extra.source,
+                srcAssetIsNative: data.extra.srcAssetIsNative
             }
         )
     }
@@ -363,9 +356,9 @@ export class SvmCrossChainOrder extends BaseOrder<
     /**
      * Returns escrow address - owner of ATA where funds stored after fill
      *
-     * @see getEscrowATA to get ATA where funds stored
+     * @see getSrcEscrowATA to get ATA where funds stored
      */
-    public getEscrowAddress(
+    public getSrcEscrowAddress(
         /**
          * Src escrow factory program id
          */
@@ -380,38 +373,55 @@ export class SvmCrossChainOrder extends BaseOrder<
          */
         secretHash = this.hashLock.toBuffer()
     ): SolanaAddress {
-        return getPda(programId, [
-            this.encoder.encode('escrow'), // todo: fix when contract fixed
-            this.getOrderHashBuffer(),
+        return new SvmSrcEscrowFactory(programId).getEscrowAddress({
+            orderHash: this.getOrderHashBuffer(),
             secretHash,
-            this.maker.toBuffer(),
-            taker.toBuffer(),
-            this.makerAsset.toBuffer(),
-            uintAsBeBytes(this.makingAmount, 64),
-            uintAsBeBytes(this.srcSafetyDeposit, 64)
-        ])
+            maker: this.maker,
+            taker,
+            makerAsset: this.makerAsset,
+            makingAmount: this.makingAmount,
+            srcSafetyDeposit: this.srcSafetyDeposit
+        })
     }
 
     /**
      * Actual address where funds stored
      */
-    public getEscrowATA(
+    public getSrcEscrowATA(
         /**
          * Src escrow factory
          */
         srcEscrowProgramId: SolanaAddress,
-        /**
-         * TokenProgram or TokenProgram 2022
-         */
-        srcMintProgramId: SolanaAddress
+        extra: {
+            /**
+             * TokenProgram or TokenProgram 2022
+             */
+            srcMintProgramId: SolanaAddress
+            /**
+             * Address who fill order and create corresponding escrow
+             */
+            taker: SolanaAddress
+            /**
+             * Hash of corresponding to fill amount secret
+             * Can be omitted  for orders where `multipleFillsAllowed` is false
+             */
+            secretHash?: Buffer
+        }
     ): SolanaAddress {
-        const escrowAddress = this.getEscrowAddress(srcEscrowProgramId)
+        const escrowAddress = this.getSrcEscrowAddress(
+            srcEscrowProgramId,
+            extra.taker,
+            extra.secretHash
+        )
 
-        return getAta(escrowAddress, this.makerAsset, srcMintProgramId)
+        return getAta(escrowAddress, this.makerAsset, extra.srcMintProgramId)
     }
 
+    /**
+     * @returns order has in base58 encoding
+     */
     public getOrderHash(_srcChainId: number): string {
-        return add0x(this.getOrderHashBuffer().toString('hex'))
+        return utils.bytes.bs58.encode(this.getOrderHashBuffer())
     }
 
     public getOrderHashBuffer(): Buffer {
