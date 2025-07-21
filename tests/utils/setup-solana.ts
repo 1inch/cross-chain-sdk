@@ -53,7 +53,8 @@ export async function setupSolana(
     const svm = await startNode([
         maker.publicKey,
         resolver.publicKey,
-        owner.publicKey
+        owner.publicKey,
+        fallbackResolver.publicKey
     ])
     await initWhitelist(
         svm,

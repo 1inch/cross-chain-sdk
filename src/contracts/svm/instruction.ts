@@ -1,4 +1,5 @@
 import bs58 from 'bs58'
+import {add0x} from '@1inch/byte-utils'
 import {Buffer} from 'buffer'
 import {NodeMessage} from './node-message'
 import {SolanaAddress} from '../../domains/addresses'
@@ -39,6 +40,18 @@ export class Instruction {
                 Buffer.from(bs58.decode(ix.data))
             )
         })
+    }
+
+    public toJSON(): {
+        programId: SolanaAddress
+        accounts: AccountMeta[]
+        data: string
+    } {
+        return {
+            accounts: this.accounts,
+            data: add0x(this.data.toString('hex')),
+            programId: this.programId
+        }
     }
 }
 
