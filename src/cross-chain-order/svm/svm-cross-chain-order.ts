@@ -301,8 +301,11 @@ export class SvmCrossChainOrder extends BaseOrder<
 
         const extraDetails: SolanaExtra = {
             ...data.extraDetails,
-            orderExpirationDelay:
-                data.expirationTime - auction.startTime - auction.duration
+            orderExpirationDelay: this.calcExpirationDelay(
+                data.expirationTime,
+                auction.startTime,
+                auction.duration
+            )
         }
 
         return new SvmCrossChainOrder(
