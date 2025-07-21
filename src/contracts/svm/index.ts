@@ -5,3 +5,10 @@ export {
     Instruction as SvmInstruction,
     AccountMeta as SvmAccountMeta
 } from './instruction'
+
+export {
+    CreateOrderAccounts,
+    ParsedCreateDstEscrowInstructionData,
+    ParsedCreateInstructionData,
+    ParsedCreateSrcEscrowInstructionData
+} from './types'

@@ -4,7 +4,5 @@ export {
     SolanaDetails,
     SolanaEscrowParams,
     SolanaExtra,
-    ParsedCreateInstructionData,
-    CreateOrderData,
-    ParsedCreateSrcEscrowInstructionData
+    CreateOrderData
 } from './types'
