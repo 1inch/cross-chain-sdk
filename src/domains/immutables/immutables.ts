@@ -4,7 +4,7 @@ import assert from 'assert'
 import {DstImmutablesComplement} from './dst-immutables-complement'
 import {HashLock} from '../hash-lock'
 import {TimeLocks} from '../time-locks'
-import {AddressLike, EvmAddress} from '../../domains/addresses'
+import {AddressLike, EvmAddress, SolanaAddress} from '../../domains/addresses'
 import {bufferFromHex} from '../../utils/bytes'
 
 /**
@@ -90,16 +90,38 @@ export class Immutables<A extends AddressLike = AddressLike> {
         )
         const data = res.at(0) as ImmutablesData
 
+        return Immutables.fromJSON(data) as Immutables<EvmAddress>
+    }
+
+    public static fromJSON<T extends AddressLike = AddressLike>(
+        data: ImmutablesData
+    ): Immutables<T> {
+        const isSolanaAddress = data.maker.length === 66
+        const isEvmAddress = data.maker.length === 42
+        assert(isSolanaAddress || isEvmAddress, 'invalid addresses length')
+
+        if (isSolanaAddress) {
+            assert(data.taker.length === 66, 'invalid solana taker address len')
+            assert(data.token.length === 66, 'invalid solana token address len')
+        }
+
+        if (isEvmAddress) {
+            assert(data.taker.length === 42, 'invalid solana taker address len')
+            assert(data.token.length === 42, 'invalid solana token address len')
+        }
+
+        const TypedAddress = isSolanaAddress ? SolanaAddress : EvmAddress
+
         return new Immutables(
             bufferFromHex(data.orderHash),
             HashLock.fromString(data.hashlock),
-            EvmAddress.fromString(data.maker),
-            EvmAddress.fromString(data.taker),
-            EvmAddress.fromString(data.token),
+            TypedAddress.fromBuffer(bufferFromHex(data.maker)),
+            TypedAddress.fromBuffer(bufferFromHex(data.taker)),
+            TypedAddress.fromBuffer(bufferFromHex(data.token)),
             BigInt(data.amount),
             BigInt(data.safetyDeposit),
             TimeLocks.fromBigInt(BigInt(data.timelocks))
-        )
+        ) as unknown as Immutables<T>
     }
 
     public toJSON(): ImmutablesData {

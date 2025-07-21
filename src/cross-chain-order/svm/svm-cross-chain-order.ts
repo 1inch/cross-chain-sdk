@@ -5,12 +5,7 @@ import {utils} from '@coral-xyz/anchor'
 import assert from 'assert'
 import {Buffer} from 'buffer'
 import {ResolverCancellationConfig} from './resolver-cancellation-config'
-import {
-    SolanaDetails,
-    SolanaExtra,
-    SolanaEscrowParams,
-    ParsedCreateInstructionData
-} from './types'
+import {SolanaDetails, SolanaExtra, SolanaEscrowParams} from './types'
 import {SvmSrcEscrowFactory} from '../../contracts'
 import {hashForSolana} from '../../domains/auction-details/hasher'
 import {uint256BorchSerialized} from '../../utils/numbers/uint256-borsh-serialized'
@@ -24,6 +19,7 @@ import {assertUInteger, getAta} from '../../utils'
 import {AuctionDetails, AuctionPoint} from '../../domains/auction-details'
 import {injectTrackCode} from '../source-track'
 import {bufferFromHex} from '../../utils/bytes'
+import {ParsedCreateInstructionData} from '../../contracts/svm/types'
 
 export type SolanaOrderJSON = {
     orderInfo: {
