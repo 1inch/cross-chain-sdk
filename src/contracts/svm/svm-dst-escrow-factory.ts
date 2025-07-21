@@ -1,6 +1,7 @@
 import {BN, BorshCoder} from '@coral-xyz/anchor'
 import {Instruction} from './instruction'
 import {BaseProgram} from './base-program'
+import {WhitelistContract} from './whitelist'
 import {bigintToBN} from '../../utils/numbers/bigint-to-bn'
 import {uintAsBeBytes} from '../../utils/numbers/uint-as-be-bytes'
 import {uint256split} from '../../utils/numbers/uint256-split'
@@ -202,6 +203,113 @@ export class SvmDstEscrowFactory extends BaseProgram {
                 },
                 {
                     // 9. system_program
+                    pubkey: SolanaAddress.SYSTEM_PROGRAM_ID,
+                    isSigner: false,
+                    isWritable: false
+                }
+            ],
+            data
+        )
+    }
+
+    public withdrawPublic(
+        params: Immutables<SolanaAddress>,
+        secret: Buffer,
+        payer: SolanaAddress,
+        extra: {
+            /**
+             * If not passed, than `WhitelistContract.DEFAULT` will be used
+             * @see WhitelistContract.DEFAULT
+             */
+            whitelistProgramId?: SolanaAddress
+            /**
+             * TokenProgram or TokenProgram 2022
+             */
+            tokenProgramId: SolanaAddress
+        }
+    ): Instruction {
+        const whitelistProgram = extra.whitelistProgramId
+            ? new WhitelistContract(extra.whitelistProgramId)
+            : WhitelistContract.DEFAULT
+
+        const token = params.token.isNative()
+            ? SolanaAddress.WRAPPED_NATIVE
+            : params.token
+        const data = this.coder.instruction.encode('publicWithdraw', {secret})
+        const escrow = this.getEscrowAddress(params)
+
+        return new Instruction(
+            this.programId,
+            [
+                {
+                    // 1. creator
+                    pubkey: params.taker,
+                    isSigner: false,
+                    isWritable: true
+                },
+                {
+                    // 2. recipient
+                    pubkey: params.maker,
+                    isSigner: false,
+                    isWritable: true
+                },
+                {
+                    // 3. payer
+                    pubkey: payer,
+                    isSigner: true,
+                    isWritable: true
+                },
+                {
+                    // 4. resolver_access
+                    pubkey: whitelistProgram.getAccessAccount(payer),
+                    isSigner: false,
+                    isWritable: false
+                },
+                {
+                    // 5. mint
+                    pubkey: token,
+                    isSigner: false,
+                    isWritable: false
+                },
+                {
+                    // 6. escrow
+                    pubkey: escrow,
+                    isSigner: false,
+                    isWritable: true
+                },
+                {
+                    // 7. escrow_ata
+                    pubkey: getAta(escrow, token, extra.tokenProgramId),
+                    isSigner: false,
+                    isWritable: true
+                },
+                this.optionalAccount(
+                    {
+                        // 8. recipient_ata
+                        pubkey: getAta(
+                            params.maker,
+                            params.token,
+                            extra.tokenProgramId
+                        ),
+                        isSigner: false,
+                        isWritable: true
+                    },
+                    params.token.isNative()
+                ),
+                {
+                    // 9. associated_token_program
+                    pubkey: SolanaAddress.ASSOCIATED_TOKE_PROGRAM_ID,
+                    isSigner: false,
+                    isWritable: false
+                },
+                {
+                    // 10. token_program
+                    pubkey: extra.tokenProgramId,
+                    isSigner: false,
+                    isWritable: false
+                },
+                {
+                    // 11. system_program
                     pubkey: SolanaAddress.SYSTEM_PROGRAM_ID,
                     isSigner: false,
                     isWritable: false
