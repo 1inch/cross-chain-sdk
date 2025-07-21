@@ -27,7 +27,7 @@ export type ImmutablesData = {
  * Contains escrow params for both source and destination chains
  * Determinate addresses of escrow contracts
  */
-export class Immutables<A extends AddressLike> {
+export class Immutables<A extends AddressLike = AddressLike> {
     public static readonly Web3Type = `tuple(${[
         'bytes32 orderHash',
         'bytes32 hashlock',

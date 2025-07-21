@@ -152,7 +152,7 @@ export class EvmCrossChainOrder extends BaseOrder<
         extra?: EvmExtra
     ): EvmCrossChainOrder {
         assert(
-            isSupportedChain(escrowParams.srcChainId),
+            isEvm(escrowParams.srcChainId),
             `Not supported chain ${escrowParams.srcChainId}`
         )
 

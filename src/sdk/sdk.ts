@@ -1,4 +1,5 @@
 import {encodeCancelOrder, MakerTraits} from '@1inch/fusion-sdk'
+import assert from 'assert'
 import {
     OrderInfo,
     OrderParams,
@@ -24,7 +25,8 @@ import {
     OrderStatusResponse,
     ReadyToAcceptSecretFills,
     PublishedSecretsResponse,
-    ReadyToExecutePublicActions
+    ReadyToExecutePublicActions,
+    QuoterRequestParams
 } from '../api'
 import {EvmCrossChainOrder} from '../cross-chain-order/evm'
 import {SupportedChain} from '../chains'
@@ -83,7 +85,7 @@ export class SDK {
     }
 
     async getQuote(params: QuoteParams): Promise<Quote> {
-        const request = new QuoterRequest({
+        const quoteParams: QuoterRequestParams = {
             srcChain: params.srcChainId,
             dstChain: params.dstChainId,
             srcTokenAddress: params.srcTokenAddress,
@@ -95,16 +97,28 @@ export class SDK {
             fee: params?.takingFeeBps,
             source: params.source,
             isPermit2: params.isPermit2
-        })
+        }
 
-        return this.api.getQuote(request)
+        if (QuoterRequest.isEvmRequest(quoteParams)) {
+            const req = QuoterRequest.forEVM(quoteParams)
+
+            return this.api.getQuote(req)
+        }
+
+        if (QuoterRequest.isSolanaRequest(quoteParams)) {
+            const req = QuoterRequest.forSolana(quoteParams)
+
+            return this.api.getQuote(req)
+        }
+
+        throw new Error('unknown request src chain')
     }
 
     async getQuoteWithCustomPreset(
         params: QuoteParams,
         body: QuoteCustomPresetParams
     ): Promise<Quote> {
-        const paramsRequest = new QuoterRequest({
+        const quoteParams: QuoterRequestParams = {
             srcChain: params.srcChainId,
             dstChain: params.dstChainId,
             srcTokenAddress: params.srcTokenAddress,
@@ -116,13 +130,25 @@ export class SDK {
             fee: params?.takingFeeBps,
             source: params.source,
             isPermit2: params.isPermit2
-        })
+        }
 
         const bodyRequest = new QuoterCustomPresetRequest({
             customPreset: body.customPreset
         })
 
-        return this.api.getQuoteWithCustomPreset(paramsRequest, bodyRequest)
+        if (QuoterRequest.isEvmRequest(quoteParams)) {
+            const req = QuoterRequest.forEVM(quoteParams)
+
+            return this.api.getQuoteWithCustomPreset(req, bodyRequest)
+        }
+
+        if (QuoterRequest.isSolanaRequest(quoteParams)) {
+            const req = QuoterRequest.forSolana(quoteParams)
+
+            return this.api.getQuoteWithCustomPreset(req, bodyRequest)
+        }
+
+        throw new Error('unknown request src chain')
     }
 
     async createOrder(
@@ -133,7 +159,9 @@ export class SDK {
             throw new Error('request quote with enableEstimate=true')
         }
 
-        const order = quote.createOrder({
+        assert(quote.isEvmQuote(), 'cannot use non-evm quote')
+
+        const order = quote.createEvmOrder({
             hashLock: params.hashLock,
             receiver: params.receiver
                 ? Address.fromString(params.receiver)
