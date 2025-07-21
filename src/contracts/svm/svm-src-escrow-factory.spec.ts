@@ -7,6 +7,7 @@ import {HashLock} from '../../domains/hash-lock'
 import {TimeLocks} from '../../domains/time-locks'
 import {AuctionDetails} from '../../domains/auction-details'
 import {ResolverCancellationConfig} from '../../cross-chain-order'
+import {Immutables} from '../../domains/immutables'
 
 describe('SVM Escrow src factory', () => {
     it('should generate create instruction from order', () => {
@@ -163,5 +164,48 @@ describe('SVM Escrow src factory', () => {
         expect(order.getOrderHash(NetworkEnum.SOLANA)).toEqual(
             reCreatedOrder.getOrderHash(NetworkEnum.SOLANA)
         )
+    })
+
+    it('should generate withdrawPublic instruction', () => {
+        const immutables = Immutables.new({
+            orderHash: Buffer.from(
+                '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+                'hex'
+            ),
+            hashLock: HashLock.forSingleFill(
+                '0x4a52dc502242a54e1d3a609cb31e0160a504d9a26467fcf9a52b7a79060ef8f1'
+            ),
+            taker: SolanaAddress.fromBigInt(100n),
+            token: SolanaAddress.fromBigInt(200n),
+            maker: SolanaAddress.fromBigInt(300n),
+            amount: parseEther('1'),
+            safetyDeposit: 1000n,
+            timeLocks: TimeLocks.fromDurations({
+                srcFinalityLock: 10n,
+                srcPrivateWithdrawal: 200n,
+                srcPublicWithdrawal: 100n,
+                srcPrivateCancellation: 100n,
+                dstFinalityLock: 10n,
+                dstPrivateWithdrawal: 100n,
+                dstPublicWithdrawal: 100n
+            })
+        })
+
+        const secret = Buffer.from(
+            '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+            'hex'
+        )
+        const resolver = SolanaAddress.fromBigInt(400n)
+
+        const ix = SvmSrcEscrowFactory.DEFAULT.withdrawPublic(
+            immutables,
+            secret,
+            resolver,
+            {
+                tokenProgramId: SolanaAddress.TOKEN_2022_PROGRAM_ID
+            }
+        )
+
+        expect(ix).toMatchSnapshot()
     })
 })

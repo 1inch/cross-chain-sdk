@@ -319,3 +319,101 @@ Instruction {
   "programId": "2g4JDRMD7G3dK1PHmCnDAycKzd6e5sdhxqGBbs264zwz",
 }
 `;
+
+exports[`SVM Escrow src factory should generate withdrawPublic instruction 1`] = `
+Instruction {
+  "accounts": [
+    {
+      "isSigner": false,
+      "isWritable": true,
+      "pubkey": "11111111111111111111111111111112j",
+    },
+    {
+      "isSigner": true,
+      "isWritable": true,
+      "pubkey": "1111111111111111111111111111117u",
+    },
+    {
+      "isSigner": false,
+      "isWritable": false,
+      "pubkey": "Aikth6gKPGZbWbgkZSZumpXpBjTQLq2UUMccZ2CRhtSQ",
+    },
+    {
+      "isSigner": false,
+      "isWritable": false,
+      "pubkey": "11111111111111111111111111111114T",
+    },
+    {
+      "isSigner": false,
+      "isWritable": true,
+      "pubkey": "3pf4BAMrQPDhtY3xPfnjYdiViRmEVZmbBUHSG1UTjbiw",
+    },
+    {
+      "isSigner": false,
+      "isWritable": true,
+      "pubkey": "DCfwqvbJNpzmK7dTRwprUxGpGUXaZwYpUDuLMHkieUGf",
+    },
+    {
+      "isSigner": false,
+      "isWritable": true,
+      "pubkey": "cKjt7npJFbBC1Lu5FvKmgnVCKYYrBsmCkAWUnSNHYN8",
+    },
+    {
+      "isSigner": false,
+      "isWritable": false,
+      "pubkey": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
+    },
+    {
+      "isSigner": false,
+      "isWritable": false,
+      "pubkey": "11111111111111111111111111111111",
+    },
+  ],
+  "data": {
+    "data": [
+      152,
+      57,
+      240,
+      192,
+      82,
+      35,
+      150,
+      11,
+      1,
+      35,
+      69,
+      103,
+      137,
+      171,
+      205,
+      239,
+      1,
+      35,
+      69,
+      103,
+      137,
+      171,
+      205,
+      239,
+      1,
+      35,
+      69,
+      103,
+      137,
+      171,
+      205,
+      239,
+      1,
+      35,
+      69,
+      103,
+      137,
+      171,
+      205,
+      239,
+    ],
+    "type": "Buffer",
+  },
+  "programId": "2g4JDRMD7G3dK1PHmCnDAycKzd6e5sdhxqGBbs264zwz",
+}
+`;

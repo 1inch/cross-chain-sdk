@@ -9,9 +9,9 @@ export function hashForSolana(details: AuctionDetails): Buffer {
     const bytes = new BorshCoder(IDL).types.encode('auctionData', {
         startTime: Number(details.startTime),
         duration: Number(details.duration),
-        initialRateBump: Number(details.initialRateBump),
+        initialRateBump: [uintAsBeBytes(details.initialRateBump, 24)],
         pointsAndTimeDeltas: details.points.map((p) => ({
-            rateBump: uintAsBeBytes(BigInt(p.coefficient), 24),
+            rateBump: [uintAsBeBytes(BigInt(p.coefficient), 24)],
             timeDelta: p.delay
         }))
     })
