@@ -16,6 +16,7 @@ import {IDL} from '../../idl/cross-chain-escrow-src'
 import {uint256split} from '../../utils/numbers/uint256-split'
 import {hashForSolana} from '../../domains/auction-details/hasher'
 import {bigintToBN} from '../../utils/numbers/bigint-to-bn'
+import {bufferFromHex} from '../../utils/bytes'
 
 export class SvmSrcEscrowFactory extends BaseProgram {
     static DEFAULT = new SvmSrcEscrowFactory(
@@ -32,24 +33,13 @@ export class SvmSrcEscrowFactory extends BaseProgram {
         return getPda(this.programId, [this.encoder.encode('order'), orderHash])
     }
 
-    public getEscrowAddress(params: {
-        orderHash: Buffer
-        secretHash: Buffer
-        maker: SolanaAddress
-        taker: SolanaAddress
-        makerAsset: SolanaAddress
-        makingAmount: bigint
-        srcSafetyDeposit: bigint
-    }): SolanaAddress {
+    public getEscrowAddress(params: EscrowAddressParams): SolanaAddress {
         return getPda(this.programId, [
             this.encoder.encode('escrow'),
             params.orderHash,
-            params.secretHash,
-            params.maker.toBuffer(),
+            params.hashLock.toBuffer(),
             params.taker.toBuffer(),
-            params.makerAsset.toBuffer(),
-            uintAsBeBytes(params.makingAmount, 64),
-            uintAsBeBytes(params.srcSafetyDeposit, 64)
+            uintAsBeBytes(params.amount, 64)
         ])
     }
 
@@ -200,27 +190,19 @@ export class SvmSrcEscrowFactory extends BaseProgram {
                 duration: Number(auction.duration),
                 initialRateBump: Number(auction.initialRateBump),
                 pointsAndTimeDeltas: auction.points.map((p) => ({
-                    rateBump: p.coefficient,
+                    rateBump: uintAsBeBytes(BigInt(p.coefficient), 24),
                     timeDelta: p.delay
                 }))
             },
             merkleProof: merkleProof && {
-                proof: merkleProof.proof.map((p) => Buffer.from(p.slice(2))),
+                proof: merkleProof.proof.map((p) => bufferFromHex(p)),
                 idx: new BN(merkleProof.idx),
                 secretHash: merkleProof.secretHash
             }
         })
 
         const orderAccount = this.getOrderAccount(immutables.orderHash)
-        const escrowAddress = this.getEscrowAddress({
-            maker: immutables.maker,
-            makerAsset: immutables.token,
-            makingAmount: immutables.amount,
-            orderHash: immutables.orderHash,
-            secretHash: immutables.hashLock.toBuffer(),
-            srcSafetyDeposit: immutables.safetyDeposit,
-            taker: immutables.taker
-        })
+        const escrowAddress = this.getEscrowAddress(immutables)
 
         return new Instruction(
             this.programId,
@@ -315,15 +297,7 @@ export class SvmSrcEscrowFactory extends BaseProgram {
         }
     ): Instruction {
         const data = this.coder.instruction.encode('withdraw', {secret})
-        const escrowAddress = this.getEscrowAddress({
-            maker: params.maker,
-            makerAsset: params.token,
-            makingAmount: params.amount,
-            orderHash: params.orderHash,
-            secretHash: params.hashLock.toBuffer(),
-            srcSafetyDeposit: params.safetyDeposit,
-            taker: params.taker
-        })
+        const escrowAddress = this.getEscrowAddress(params)
 
         return new Instruction(
             this.programId,
@@ -386,3 +360,8 @@ export class SvmSrcEscrowFactory extends BaseProgram {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 type _ = HashLock // to have ability to refer to it in jsdoc
+
+export type EscrowAddressParams = Pick<
+    Immutables<SolanaAddress>,
+    'orderHash' | 'hashLock' | 'taker' | 'amount'
+>

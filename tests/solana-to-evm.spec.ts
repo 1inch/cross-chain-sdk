@@ -131,7 +131,7 @@ describe('EVM to EVM', () => {
             srcImmutables,
             order.auction,
             {
-                srcTokenProgramId: SolanaAddress.TOKEN_PROGRAM_ID
+                tokenProgramId: SolanaAddress.TOKEN_PROGRAM_ID
             }
         )
 
@@ -201,7 +201,7 @@ describe('EVM to EVM', () => {
             srcImmutables,
             Buffer.from(secret.slice(2), 'hex'),
             {
-                srcTokenProgramId: SolanaAddress.TOKEN_PROGRAM_ID
+                tokenProgramId: SolanaAddress.TOKEN_PROGRAM_ID
             }
         )
 

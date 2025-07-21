@@ -2,6 +2,7 @@ import {keccak256, solidityPackedKeccak256} from 'ethers'
 import {SimpleMerkleTree} from '@openzeppelin/merkle-tree'
 import {BitMask, BN, getBytesCount, isHexBytes} from '@1inch/byte-utils'
 import assert from 'assert'
+import {bufferFromHex} from '../../utils/bytes'
 
 export class HashLock {
     public static Web3Type = 'bytes32'
@@ -87,7 +88,7 @@ export class HashLock {
     }
 
     public toBuffer(): Buffer {
-        return Buffer.from(this.value.slice(2), 'hex')
+        return bufferFromHex(this.value)
     }
 
     public eq(other: HashLock): boolean {

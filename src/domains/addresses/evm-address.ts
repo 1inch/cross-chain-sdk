@@ -3,6 +3,7 @@ import {Address} from '@1inch/fusion-sdk'
 import {AddressLike, HexString} from './types'
 import {AddressComplement} from './address-complement'
 import {isBigintString} from '../../utils/numbers/is-bigint-string'
+import {bufferFromHex} from '../../utils/bytes'
 
 export class EvmAddress implements AddressLike {
     static readonly ZERO = new EvmAddress(Address.ZERO_ADDRESS)
@@ -64,7 +65,7 @@ export class EvmAddress implements AddressLike {
     }
 
     public toBuffer(): Buffer {
-        return Buffer.from(this.toString().slice(2), 'hex')
+        return bufferFromHex(this.toString())
     }
 
     public toHex(): HexString {

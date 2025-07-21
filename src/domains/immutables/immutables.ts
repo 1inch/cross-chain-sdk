@@ -5,6 +5,7 @@ import {DstImmutablesComplement} from './dst-immutables-complement'
 import {HashLock} from '../hash-lock'
 import {TimeLocks} from '../time-locks'
 import {AddressLike, EvmAddress} from '../../domains/addresses'
+import {bufferFromHex} from '../../utils/bytes'
 
 /**
  * Contract representation of class
@@ -90,7 +91,7 @@ export class Immutables<A extends AddressLike = AddressLike> {
         const data = res.at(0) as ImmutablesData
 
         return new Immutables(
-            Buffer.from(data.orderHash.slice(2), 'hex'),
+            bufferFromHex(data.orderHash),
             HashLock.fromString(data.hashlock),
             EvmAddress.fromString(data.maker),
             EvmAddress.fromString(data.taker),

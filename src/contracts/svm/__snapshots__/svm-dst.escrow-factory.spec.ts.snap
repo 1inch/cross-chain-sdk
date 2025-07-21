@@ -21,12 +21,12 @@ Instruction {
     {
       "isSigner": false,
       "isWritable": true,
-      "pubkey": "EyYy71HpE9NhTczKyPX7TXCSKxwuhUkoF8B3LgEAphAo",
+      "pubkey": "g2m1CJUtiEZWZsQT6czJCDeJsmAAxc2Rskhdey8wGxP",
     },
     {
       "isSigner": false,
       "isWritable": true,
-      "pubkey": "AYMd52szbTMA7UwAkoT2yfp3WNbSeM5pUW6VhA4Y31sh",
+      "pubkey": "JBx63bJv329f2DkoXNYuvGzCHsvCTKY3MFNiqYHF52pG",
     },
     {
       "isSigner": false,

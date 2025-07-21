@@ -35,23 +35,12 @@ const _IDL = {
                             },
                             {
                                 kind: 'account',
-                                path: 'escrow.creator',
-                                account: 'escrowDst'
-                            },
-                            {
-                                kind: 'account',
                                 path: 'escrow.recipient',
                                 account: 'escrowDst'
                             },
-                            {kind: 'account', path: 'mint'},
                             {
                                 kind: 'account',
                                 path: 'escrow.amount',
-                                account: 'escrowDst'
-                            },
-                            {
-                                kind: 'account',
-                                path: 'escrow.safetyDeposit',
                                 account: 'escrowDst'
                             }
                         ]
@@ -153,11 +142,8 @@ const _IDL = {
                             },
                             {kind: 'arg', path: 'orderHash'},
                             {kind: 'arg', path: 'hashlock'},
-                            {kind: 'account', path: 'creator'},
                             {kind: 'arg', path: 'recipient'},
-                            {kind: 'account', path: 'mint'},
-                            {kind: 'arg', path: 'amount'},
-                            {kind: 'arg', path: 'safetyDeposit'}
+                            {kind: 'arg', path: 'amount'}
                         ]
                     }
                 },
@@ -259,23 +245,12 @@ const _IDL = {
                             },
                             {
                                 kind: 'account',
-                                path: 'escrow.creator',
-                                account: 'escrowDst'
-                            },
-                            {
-                                kind: 'account',
                                 path: 'escrow.recipient',
                                 account: 'escrowDst'
                             },
-                            {kind: 'account', path: 'mint'},
                             {
                                 kind: 'account',
                                 path: 'escrow.amount',
-                                account: 'escrowDst'
-                            },
-                            {
-                                kind: 'account',
-                                path: 'escrow.safetyDeposit',
                                 account: 'escrowDst'
                             }
                         ]
@@ -348,11 +323,8 @@ const _IDL = {
                             },
                             {kind: 'arg', path: 'orderHash'},
                             {kind: 'arg', path: 'hashlock'},
-                            {kind: 'account', path: 'creator'},
                             {kind: 'account', path: 'recipient'},
-                            {kind: 'arg', path: 'escrowMint'},
-                            {kind: 'arg', path: 'escrowAmount'},
-                            {kind: 'arg', path: 'safetyDeposit'}
+                            {kind: 'arg', path: 'escrowAmount'}
                         ]
                     }
                 },
@@ -405,9 +377,7 @@ const _IDL = {
             args: [
                 {name: 'orderHash', type: {array: ['u8', 32]}},
                 {name: 'hashlock', type: {array: ['u8', 32]}},
-                {name: 'escrowMint', type: 'pubkey'},
                 {name: 'escrowAmount', type: 'u64'},
-                {name: 'safetyDeposit', type: 'u64'},
                 {name: 'rescueAmount', type: 'u64'}
             ]
         },
@@ -439,23 +409,12 @@ const _IDL = {
                             },
                             {
                                 kind: 'account',
-                                path: 'escrow.creator',
-                                account: 'escrowDst'
-                            },
-                            {
-                                kind: 'account',
                                 path: 'escrow.recipient',
                                 account: 'escrowDst'
                             },
-                            {kind: 'account', path: 'mint'},
                             {
                                 kind: 'account',
                                 path: 'escrow.amount',
-                                account: 'escrowDst'
-                            },
-                            {
-                                kind: 'account',
-                                path: 'escrow.safetyDeposit',
                                 account: 'escrowDst'
                             }
                         ]

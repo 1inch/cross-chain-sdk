@@ -34,21 +34,10 @@ const _IDL = {
                                 path: 'escrow.hashlock',
                                 account: 'escrowSrc'
                             },
-                            {
-                                kind: 'account',
-                                path: 'escrow.maker',
-                                account: 'escrowSrc'
-                            },
                             {kind: 'account', path: 'taker'},
-                            {kind: 'account', path: 'mint'},
                             {
                                 kind: 'account',
                                 path: 'escrow.amount',
-                                account: 'escrowSrc'
-                            },
-                            {
-                                kind: 'account',
-                                path: 'escrow.safetyDeposit',
                                 account: 'escrowSrc'
                             }
                         ]
@@ -531,21 +520,10 @@ const _IDL = {
                                 path: 'escrow.hashlock',
                                 account: 'escrowSrc'
                             },
-                            {
-                                kind: 'account',
-                                path: 'escrow.maker',
-                                account: 'escrowSrc'
-                            },
                             {kind: 'account', path: 'taker'},
-                            {kind: 'account', path: 'mint'},
                             {
                                 kind: 'account',
                                 path: 'escrow.amount',
-                                account: 'escrowSrc'
-                            },
-                            {
-                                kind: 'account',
-                                path: 'escrow.safetyDeposit',
                                 account: 'escrowSrc'
                             }
                         ]
@@ -655,23 +633,12 @@ const _IDL = {
                             },
                             {
                                 kind: 'account',
-                                path: 'escrow.maker',
-                                account: 'escrowSrc'
-                            },
-                            {
-                                kind: 'account',
                                 path: 'escrow.taker',
                                 account: 'escrowSrc'
                             },
-                            {kind: 'account', path: 'mint'},
                             {
                                 kind: 'account',
                                 path: 'escrow.amount',
-                                account: 'escrowSrc'
-                            },
-                            {
-                                kind: 'account',
-                                path: 'escrow.safetyDeposit',
                                 account: 'escrowSrc'
                             }
                         ]
@@ -741,11 +708,8 @@ const _IDL = {
                             },
                             {kind: 'arg', path: 'orderHash'},
                             {kind: 'arg', path: 'hashlock'},
-                            {kind: 'arg', path: 'maker'},
                             {kind: 'account', path: 'taker'},
-                            {kind: 'arg', path: 'token'},
-                            {kind: 'arg', path: 'amount'},
-                            {kind: 'arg', path: 'safetyDeposit'}
+                            {kind: 'arg', path: 'amount'}
                         ]
                     }
                 },
@@ -798,10 +762,7 @@ const _IDL = {
             args: [
                 {name: 'orderHash', type: {array: ['u8', 32]}},
                 {name: 'hashlock', type: {array: ['u8', 32]}},
-                {name: 'maker', type: 'pubkey'},
-                {name: 'token', type: 'pubkey'},
                 {name: 'amount', type: 'u64'},
-                {name: 'safetyDeposit', type: 'u64'},
                 {name: 'rescueAmount', type: 'u64'}
             ]
         },
@@ -926,23 +887,12 @@ const _IDL = {
                             },
                             {
                                 kind: 'account',
-                                path: 'escrow.maker',
-                                account: 'escrowSrc'
-                            },
-                            {
-                                kind: 'account',
                                 path: 'escrow.taker',
                                 account: 'escrowSrc'
                             },
-                            {kind: 'account', path: 'mint'},
                             {
                                 kind: 'account',
                                 path: 'escrow.amount',
-                                account: 'escrowSrc'
-                            },
-                            {
-                                kind: 'account',
-                                path: 'escrow.safetyDeposit',
                                 account: 'escrowSrc'
                             }
                         ]
@@ -1013,7 +963,7 @@ const _IDL = {
                 fields: [
                     {name: 'startTime', type: 'u32'},
                     {name: 'duration', type: 'u32'},
-                    {name: 'initialRateBump', type: 'u32'},
+                    {name: 'initialRateBump', type: {defined: {name: 'u24'}}},
                     {
                         name: 'pointsAndTimeDeltas',
                         type: {vec: {defined: {name: 'pointAndTimeDelta'}}}
@@ -1092,7 +1042,7 @@ const _IDL = {
             type: {
                 kind: 'struct',
                 fields: [
-                    {name: 'rateBump', type: 'u32'},
+                    {name: 'rateBump', type: {defined: {name: 'u24'}}},
                     {name: 'timeDelta', type: 'u16'}
                 ]
             }
@@ -1100,7 +1050,8 @@ const _IDL = {
         {
             name: 'resolverAccess',
             type: {kind: 'struct', fields: [{name: 'bump', type: 'u8'}]}
-        }
+        },
+        {name: 'u24', type: {kind: 'struct', fields: [{array: ['u8', 3]}]}}
     ]
 } as const
 export const IDL: WritableDeep<typeof _IDL> = _IDL as WritableDeep<typeof _IDL>

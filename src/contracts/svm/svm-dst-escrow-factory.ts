@@ -19,24 +19,13 @@ export class SvmDstEscrowFactory extends BaseProgram {
         super(programId)
     }
 
-    public getEscrowAddress(params: {
-        orderHash: Buffer
-        secretHash: Buffer
-        maker: SolanaAddress
-        taker: SolanaAddress
-        makerAsset: SolanaAddress
-        makingAmount: bigint
-        srcSafetyDeposit: bigint
-    }): SolanaAddress {
+    public getEscrowAddress(params: EscrowAddressParams): SolanaAddress {
         return getPda(this.programId, [
             this.encoder.encode('escrow'),
             params.orderHash,
-            params.secretHash,
-            params.taker.toBuffer(),
+            params.hashLock.toBuffer(),
             params.maker.toBuffer(),
-            params.makerAsset.toBuffer(),
-            uintAsBeBytes(params.makingAmount, 64),
-            uintAsBeBytes(params.srcSafetyDeposit, 64)
+            uintAsBeBytes(params.amount, 64)
         ])
     }
 
@@ -65,15 +54,7 @@ export class SvmDstEscrowFactory extends BaseProgram {
             assetIsNative: params.token.isNative()
         })
 
-        const escrowAddress = this.getEscrowAddress({
-            maker: params.maker,
-            makerAsset: params.token,
-            makingAmount: params.amount,
-            orderHash: params.orderHash,
-            secretHash: params.hashLock.toBuffer(),
-            srcSafetyDeposit: params.safetyDeposit,
-            taker: params.taker
-        })
+        const escrowAddress = this.getEscrowAddress(params)
 
         return new Instruction(
             this.programId,
@@ -144,4 +125,87 @@ export class SvmDstEscrowFactory extends BaseProgram {
             data
         )
     }
+
+    public withdrawPrivate(
+        params: Immutables<SolanaAddress>,
+        secret: Buffer,
+        extra: {
+            /**
+             * TokenProgram or TokenProgram 2022
+             */
+            tokenProgramId: SolanaAddress
+        }
+    ): Instruction {
+        const token = params.token.isNative()
+            ? SolanaAddress.WRAPPED_NATIVE
+            : params.token
+        const data = this.coder.instruction.encode('withdraw', {secret})
+        const escrow = this.getEscrowAddress(params)
+
+        return new Instruction(
+            this.programId,
+            [
+                {
+                    // 1. taker
+                    pubkey: params.taker,
+                    isSigner: true,
+                    isWritable: true
+                },
+                {
+                    // 2. recipient
+                    pubkey: params.maker,
+                    isSigner: false,
+                    isWritable: true
+                },
+                {
+                    // 3. dst token
+                    pubkey: token,
+                    isSigner: false,
+                    isWritable: false
+                },
+                {
+                    // 4. escrow
+                    pubkey: escrow,
+                    isSigner: false,
+                    isWritable: true
+                },
+                {
+                    // 5. escrow_ata
+                    pubkey: getAta(escrow, token, extra.tokenProgramId),
+                    isSigner: false,
+                    isWritable: true
+                },
+                this.optionalAccount(
+                    {
+                        // 6. recipient_ata
+                        pubkey: getAta(
+                            params.maker,
+                            params.token,
+                            extra.tokenProgramId
+                        ),
+                        isSigner: false,
+                        isWritable: true
+                    },
+                    params.token.isNative()
+                ),
+                {
+                    // 7. token_program
+                    pubkey: extra.tokenProgramId,
+                    isSigner: false,
+                    isWritable: false
+                },
+                {
+                    // 8. system_program
+                    pubkey: SolanaAddress.SYSTEM_PROGRAM_ID,
+                    isSigner: false,
+                    isWritable: false
+                }
+            ],
+            data
+        )
+    }
 }
+export type EscrowAddressParams = Pick<
+    Immutables<SolanaAddress>,
+    'orderHash' | 'hashLock' | 'maker' | 'amount'
+>
