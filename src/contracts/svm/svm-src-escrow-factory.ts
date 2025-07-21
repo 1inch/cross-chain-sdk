@@ -318,7 +318,7 @@ export class SvmSrcEscrowFactory extends BaseProgram {
     }
 
     public createEscrow(
-        immutables: Immutables<SolanaAddress>,
+        immutables: ActionParams,
         auction: AuctionDetails,
         extra: {
             /**
@@ -465,7 +465,7 @@ export class SvmSrcEscrowFactory extends BaseProgram {
     }
 
     public withdrawPrivate(
-        params: Immutables<SolanaAddress>,
+        params: ActionParams,
         secret: Buffer,
         extra: {
             /**
@@ -538,7 +538,7 @@ export class SvmSrcEscrowFactory extends BaseProgram {
     }
 
     public withdrawPublic(
-        params: Immutables<SolanaAddress>,
+        params: ActionParams,
         secret: Buffer,
         resolver: SolanaAddress,
         extra: {
@@ -634,6 +634,88 @@ export class SvmSrcEscrowFactory extends BaseProgram {
             data
         )
     }
+
+    public cancelPrivate(
+        params: ActionParams,
+        extra: {
+            /**
+             * TokenProgram or TokenProgram 2022
+             */
+            tokenProgramId: SolanaAddress
+        }
+    ): Instruction {
+        const data = SvmSrcEscrowFactory.coder.instruction.encode(
+            'cancelEscrow',
+            {}
+        )
+        const escrowAddress = this.getEscrowAddress(params)
+
+        return new Instruction(
+            this.programId,
+            [
+                // 1. taker
+                {
+                    pubkey: params.taker,
+                    isSigner: true,
+                    isWritable: true
+                },
+                // 2. maker
+                {
+                    pubkey: params.maker,
+                    isSigner: false,
+                    isWritable: true
+                },
+                // 3. mint
+                {
+                    pubkey: params.token,
+                    isSigner: false,
+                    isWritable: false
+                },
+                // 4. escrow
+                {
+                    pubkey: escrowAddress,
+                    isSigner: false,
+                    isWritable: true
+                },
+                // 5. escrow_ata
+                {
+                    pubkey: getAta(
+                        escrowAddress,
+                        params.token,
+                        extra.tokenProgramId
+                    ),
+                    isSigner: false,
+                    isWritable: true
+                },
+                // 6. maker_ata (optional)
+                this.optionalAccount(
+                    {
+                        pubkey: getAta(
+                            params.maker,
+                            params.token,
+                            extra.tokenProgramId
+                        ),
+                        isSigner: false,
+                        isWritable: true
+                    },
+                    params.token.isNative()
+                ),
+                // 7. token_program
+                {
+                    pubkey: extra.tokenProgramId,
+                    isSigner: false,
+                    isWritable: false
+                },
+                // 8. system_program
+                {
+                    pubkey: SolanaAddress.SYSTEM_PROGRAM_ID,
+                    isSigner: false,
+                    isWritable: false
+                }
+            ],
+            data
+        )
+    }
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -642,4 +724,9 @@ type _ = HashLock // to have ability to refer to it in jsdoc
 export type EscrowAddressParams = Pick<
     Immutables<SolanaAddress>,
     'orderHash' | 'hashLock' | 'taker' | 'amount'
+>
+
+export type ActionParams = Pick<
+    Immutables<SolanaAddress>,
+    'amount' | 'taker' | 'maker' | 'token' | 'hashLock' | 'orderHash'
 >

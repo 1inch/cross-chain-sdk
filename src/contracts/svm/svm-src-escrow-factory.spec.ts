@@ -368,4 +368,36 @@ describe('SVM Escrow src factory', () => {
         const parsed = SvmSrcEscrowFactory.parsePublicWithdrawInstruction(ix)
         expect(parsed.secret).toEqual('0x' + secret.toString('hex'))
     })
+
+    it('should generate cancelPrivate instruction', () => {
+        const immutables = Immutables.new({
+            orderHash: Buffer.from(
+                '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+                'hex'
+            ),
+            hashLock: HashLock.forSingleFill(
+                '0x4a52dc502242a54e1d3a609cb31e0160a504d9a26467fcf9a52b7a79060ef8f1'
+            ),
+            taker: SolanaAddress.fromBigInt(100n),
+            token: SolanaAddress.fromBigInt(200n),
+            maker: SolanaAddress.fromBigInt(300n),
+            amount: parseEther('1'),
+            safetyDeposit: 1000n,
+            timeLocks: TimeLocks.fromDurations({
+                srcFinalityLock: 10n,
+                srcPrivateWithdrawal: 200n,
+                srcPublicWithdrawal: 100n,
+                srcPrivateCancellation: 100n,
+                dstFinalityLock: 10n,
+                dstPrivateWithdrawal: 100n,
+                dstPublicWithdrawal: 100n
+            })
+        })
+
+        const ix = SvmSrcEscrowFactory.DEFAULT.cancelPrivate(immutables, {
+            tokenProgramId: SolanaAddress.TOKEN_2022_PROGRAM_ID
+        })
+
+        expect(ix).toMatchSnapshot()
+    })
 })

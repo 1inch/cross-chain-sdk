@@ -28,17 +28,6 @@ export class TestConnection {
         transaction.recentBlockhash = this.testCtx.latestBlockhash()
         transaction.sign(...signers)
 
-        console.log(
-            'sendTransactionsendTransactionsendTransactionsendTransactionsendTransaction'
-        )
-
-        const accs = transaction.instructions.flatMap((i) =>
-            i.keys.map((k) => k.pubkey)
-        )
-        accs.forEach((acc, i) => {
-            console.log(i + 1, acc.toBase58(), this.testCtx.getAccount(acc))
-        })
-
         const result = this.testCtx.sendTransaction(transaction)
 
         if (result instanceof FailedTransactionMetadata) {

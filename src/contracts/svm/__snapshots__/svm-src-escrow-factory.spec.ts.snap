@@ -1,5 +1,54 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
+exports[`SVM Escrow src factory should generate cancelPrivate instruction 1`] = `
+{
+  "accounts": [
+    {
+      "isSigner": true,
+      "isWritable": true,
+      "pubkey": "11111111111111111111111111111112j",
+    },
+    {
+      "isSigner": false,
+      "isWritable": true,
+      "pubkey": "1111111111111111111111111111116B",
+    },
+    {
+      "isSigner": false,
+      "isWritable": false,
+      "pubkey": "11111111111111111111111111111114T",
+    },
+    {
+      "isSigner": false,
+      "isWritable": true,
+      "pubkey": "3pf4BAMrQPDhtY3xPfnjYdiViRmEVZmbBUHSG1UTjbiw",
+    },
+    {
+      "isSigner": false,
+      "isWritable": true,
+      "pubkey": "DCfwqvbJNpzmK7dTRwprUxGpGUXaZwYpUDuLMHkieUGf",
+    },
+    {
+      "isSigner": false,
+      "isWritable": true,
+      "pubkey": "14DvVcGoPg1Wh4fVbDcq9NHBxtMCXkqi7PczedJXFvFQ",
+    },
+    {
+      "isSigner": false,
+      "isWritable": false,
+      "pubkey": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
+    },
+    {
+      "isSigner": false,
+      "isWritable": false,
+      "pubkey": "11111111111111111111111111111111",
+    },
+  ],
+  "data": "0x9ccb36b326482115",
+  "programId": "2g4JDRMD7G3dK1PHmCnDAycKzd6e5sdhxqGBbs264zwz",
+}
+`;
+
 exports[`SVM Escrow src factory should generate create instruction from order 1`] = `
 {
   "accounts": [
