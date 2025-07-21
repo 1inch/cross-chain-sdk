@@ -15,8 +15,7 @@ import {SvmCrossChainOrder} from '../../cross-chain-order/svm/svm-cross-chain-or
 import {IDL} from '../../idl/cross-chain-escrow-src'
 import {uint256split} from '../../utils/numbers/uint256-split'
 import {hashForSolana} from '../../domains/auction-details/hasher'
-import { bigIntToBN } from '../'
-
+import {bigintToBN} from '../../utils/numbers/bigint-to-bn'
 
 export class SvmSrcEscrowFactory extends BaseProgram {
     static DEFAULT = new SvmSrcEscrowFactory(
@@ -64,10 +63,10 @@ export class SvmSrcEscrowFactory extends BaseProgram {
             hashlock: order.hashLock.toBuffer(),
             amount: new BN(order.makingAmount.toString()),
             safetyDeposit: new BN(order.srcSafetyDeposit.toString()),
-            timelocks: uint256split(order.timeLocks.build()).map(bigIntToBN),
+            timelocks: uint256split(order.timeLocks.build()).map(bigintToBN),
             expirationTime: Number(order.deadline),
             assetIsNative: order.srcAssetIsNative,
-            dstAmount: uint256split(order.takingAmount).map(bigIntToBN),
+            dstAmount: uint256split(order.takingAmount).map(bigintToBN),
             dutchAuctionDataHash: hashForSolana(order.auction),
             maxCancellationPremium: new BN(
                 order.resolverCancellationConfig.maxCancellationPremium.toString()
