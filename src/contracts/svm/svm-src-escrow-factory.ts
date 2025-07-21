@@ -115,6 +115,62 @@ export class SvmSrcEscrowFactory extends BaseProgram {
         }
     }
 
+    static async parseDeploySrcEscrowInstruction(
+        ix: Instruction
+    ): Promise<any> {
+        const decodeIx = this.coder.instruction.decode(ix.data) as {
+            name: string
+            data: {
+                amount: BN
+                dutchAuctionData: {
+                    startTime: number
+                    duration: number
+                    initialRateBump: [[number, number, number]]
+                    pointsAndTimeDeltas: {
+                        rateBump: [[number, number, number]]
+                        timeDelta: number
+                    }[]
+                }
+                merkleProof: null | {
+                    idx: BN
+                    proof: Uint8Array[]
+                    hashedSecret: Uint8Array
+                }
+            }
+        }
+
+        assert(decodeIx, 'cannot decode create instruction')
+        assert(decodeIx.name === 'createEscrow', 'not createEscrow instruction')
+
+        const {amount, dutchAuctionData, merkleProof} = decodeIx.data
+
+        const auction = new AuctionDetails({
+            startTime: BigInt(dutchAuctionData.startTime),
+            duration: BigInt(dutchAuctionData.duration),
+            initialRateBump: parseInt(
+                Buffer.from(dutchAuctionData.initialRateBump[0]).toString('hex')
+            ),
+            points: dutchAuctionData.pointsAndTimeDeltas.map((pt) => ({
+                coefficient: parseInt(
+                    Buffer.from(pt.rateBump[0]).toString('hex')
+                ),
+                delay: pt.timeDelta
+            }))
+        })
+
+        return {
+            amount: BigInt(amount.toString()),
+            dutchAuctionData: auction,
+            merkleProof: merkleProof
+                ? {
+                      idx: Number(merkleProof.idx),
+                      proof: merkleProof.proof.map((p) => Buffer.from(p)),
+                      secretHash: Buffer.from(merkleProof.hashedSecret)
+                  }
+                : null
+        }
+    }
+
     public getOrderAccount(orderHash: Buffer): SolanaAddress {
         return getPda(this.programId, [this.encoder.encode('order'), orderHash])
     }
