@@ -5,7 +5,11 @@ import {Immutables} from 'domains/immutables'
 import {Instruction} from './instruction'
 import {BaseProgram} from './base-program'
 import {WhitelistContract} from './whitelist'
-import {CreateOrderAccounts} from './types'
+import {
+    CreateOrderAccounts,
+    ParsedCreateInstructionData,
+    ParsedCreateSrcEscrowInstructionData
+} from './types'
 import {NetworkEnum} from '../../chains'
 import {uintAsBeBytes} from '../../utils/numbers/uint-as-be-bytes'
 import {
@@ -25,11 +29,9 @@ import {IDL} from '../../idl/cross-chain-escrow-src'
 import {uint256split} from '../../utils/numbers/uint256-split'
 import {hashForSolana} from '../../domains/auction-details/hasher'
 import {bigintToBN} from '../../utils/numbers/bigint-to-bn'
-import {bufferFromHex} from '../../utils/bytes'
+import {bufferFromHex, bufferToHex} from '../../utils/bytes'
 import {
     CreateOrderData,
-    ParsedCreateInstructionData,
-    ParsedCreateSrcEscrowInstructionData,
     SolanaEscrowParams,
     SolanaExtra
 } from '../../cross-chain-order/svm/types'
@@ -49,9 +51,9 @@ export class SvmSrcEscrowFactory extends BaseProgram {
         super(programId)
     }
 
-    static async parseCreateInstruction(
+    static parseCreateInstruction(
         ix: Instruction
-    ): Promise<ParsedCreateInstructionData> {
+    ): ParsedCreateInstructionData {
         const decodeIx = this.coder.instruction.decode(ix.data) as unknown as {
             name: string
             data: CreateOrderData
@@ -113,14 +115,13 @@ export class SvmSrcEscrowFactory extends BaseProgram {
             escrowParams,
             extraDetails,
             expirationTime: BigInt(data.expirationTime),
-            dutchAuctionDataHash:
-                '0x' + Buffer.from(data.dutchAuctionDataHash).toString('hex')
+            dutchAuctionDataHash: bufferToHex(data.dutchAuctionDataHash)
         }
     }
 
-    static async parseDeploySrcEscrowInstruction(
+    static parseDeploySrcEscrowInstruction(
         ix: Instruction
-    ): Promise<ParsedCreateSrcEscrowInstructionData> {
+    ): ParsedCreateSrcEscrowInstructionData {
         const decodeIx = this.coder.instruction.decode(ix.data) as {
             name: string
             data: {
@@ -163,14 +164,41 @@ export class SvmSrcEscrowFactory extends BaseProgram {
             merkleProof: merkleProof
                 ? {
                       index: Number(merkleProof.index.toString()),
-                      proof: merkleProof.proof.map(
-                          (p) => '0x' + Buffer.from(p).toString('hex')
-                      ) as MerkleLeaf[],
-                      hashedSecret:
-                          '0x' +
-                          Buffer.from(merkleProof.hashedSecret).toString('hex')
+                      proof: merkleProof.proof.map(bufferToHex) as MerkleLeaf[],
+                      hashedSecret: bufferToHex(merkleProof.hashedSecret)
                   }
                 : null
+        }
+    }
+
+    static parsePrivateWithdrawInstruction(ix: Instruction): {secret: string} {
+        const decoded = this.coder.instruction.decode(ix.data) as {
+            name: string
+            data: {secret: FixedLengthArray<number, 32>}
+        }
+
+        assert(decoded, 'cannot decode withdraw instruction')
+        assert(decoded.name === 'withdraw', 'not withdraw instruction')
+
+        return {
+            secret: bufferToHex(decoded.data.secret)
+        }
+    }
+
+    static parsePublicWithdrawInstruction(ix: Instruction): {secret: string} {
+        const decoded = this.coder.instruction.decode(ix.data) as {
+            name: string
+            data: {secret: FixedLengthArray<number, 32>}
+        }
+
+        assert(decoded, 'cannot decode publicWithdraw instruction')
+        assert(
+            decoded.name === 'publicWithdraw',
+            'not publicWithdraw instruction'
+        )
+
+        return {
+            secret: bufferToHex(decoded.data.secret)
         }
     }
 
@@ -344,7 +372,7 @@ export class SvmSrcEscrowFactory extends BaseProgram {
                     }))
                 },
                 merkleProof: merkleProof && {
-                    proof: merkleProof.proof.map((p) => bufferFromHex(p)),
+                    proof: merkleProof.proof.map((x) => bufferFromHex(x)),
                     index: new BN(merkleProof.idx),
                     hashedSecret: merkleProof.secretHash
                 }

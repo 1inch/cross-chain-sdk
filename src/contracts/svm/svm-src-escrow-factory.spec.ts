@@ -1,5 +1,6 @@
 import {parseEther, parseUnits} from 'ethers'
 import {Buffer} from 'buffer'
+import {randomBytes} from 'crypto'
 import {SvmSrcEscrowFactory} from './svm-src-escrow-factory'
 import {NetworkEnum} from '../../chains'
 import {SvmCrossChainOrder} from '../../cross-chain-order/svm/svm-cross-chain-order'
@@ -155,7 +156,7 @@ describe('SVM Escrow src factory', () => {
             srcTokenProgramId: SolanaAddress.TOKEN_2022_PROGRAM_ID
         })
 
-        const parsedIx = await SvmSrcEscrowFactory.parseCreateInstruction(ix)
+        const parsedIx = SvmSrcEscrowFactory.parseCreateInstruction(ix)
 
         const reCreatedOrder = SvmCrossChainOrder.fromContractOrder(
             parsedIx,
@@ -297,8 +298,7 @@ describe('SVM Escrow src factory', () => {
             }
         )
 
-        const parsedIx =
-            await SvmSrcEscrowFactory.parseDeploySrcEscrowInstruction(ix)
+        const parsedIx = SvmSrcEscrowFactory.parseDeploySrcEscrowInstruction(ix)
 
         expect(parsedIx.amount).toEqual(fillAmount)
         expect(parsedIx.dutchAuctionData.toJSON()).toEqual(auction.toJSON())
@@ -308,5 +308,64 @@ describe('SVM Escrow src factory', () => {
             '0x7a9cfaa16d89b92cb2e8e22fdb6042ec9439f3c3c8ca8565cbe3cd237f2d9e2c',
             '0x2f4f2437bc342f8ca7ce9889040d05d092a3ce902daa0b51c2b896c9a207dcd9'
         ])
+    })
+
+    it('should parse withdraw instruction', async () => {
+        const immutables = Immutables.fromJSON<SolanaAddress>({
+            orderHash:
+                '0x62b5cf375b2e813bf2a0f33112712601d5aab04e598701f0bab2b6c5e9fa8a76',
+            hashlock:
+                '0x1a52dc502242a54e1d3a609cb31e0160a504d9a26467fcf9a52b7a79060ef8f2',
+            maker: '0x0000000000000000000000000000000000000000000000000000000000000001',
+            taker: '0xf8bb3ce975e1ae20ccc5bd1e775828b2f811c617cafc6e4182d84c290a09f0f7',
+            token: '0x0000000000000000000000000000000000000000000000000000000000000003',
+            amount: '500000000000000000',
+            safetyDeposit: '1000',
+            timelocks:
+                '4519513249946090673914462965909562690094454064409420748554250'
+        })
+
+        const secret = randomBytes(32)
+
+        const ix = SvmSrcEscrowFactory.DEFAULT.withdrawPrivate(
+            immutables,
+            secret,
+            {
+                tokenProgramId: SolanaAddress.TOKEN_2022_PROGRAM_ID
+            }
+        )
+
+        const parsed = SvmSrcEscrowFactory.parsePrivateWithdrawInstruction(ix)
+        expect(parsed.secret).toEqual('0x' + secret.toString('hex'))
+    })
+
+    it('should parse publicWithdraw instruction', async () => {
+        const immutables = Immutables.fromJSON<SolanaAddress>({
+            orderHash:
+                '0x62b5cf375b2e813bf2a0f33112712601d5aab04e598701f0bab2b6c5e9fa8a76',
+            hashlock:
+                '0x1a52dc502242a54e1d3a609cb31e0160a504d9a26467fcf9a52b7a79060ef8f2',
+            maker: '0x0000000000000000000000000000000000000000000000000000000000000001',
+            taker: '0xf8bb3ce975e1ae20ccc5bd1e775828b2f811c617cafc6e4182d84c290a09f0f7',
+            token: '0x0000000000000000000000000000000000000000000000000000000000000003',
+            amount: '500000000000000000',
+            safetyDeposit: '1000',
+            timelocks:
+                '4519513249946090673914462965909562690094454064409420748554250'
+        })
+
+        const secret = randomBytes(32)
+
+        const ix = SvmSrcEscrowFactory.DEFAULT.withdrawPublic(
+            immutables,
+            secret,
+            immutables.taker,
+            {
+                tokenProgramId: SolanaAddress.TOKEN_2022_PROGRAM_ID
+            }
+        )
+
+        const parsed = SvmSrcEscrowFactory.parsePublicWithdrawInstruction(ix)
+        expect(parsed.secret).toEqual('0x' + secret.toString('hex'))
     })
 })
