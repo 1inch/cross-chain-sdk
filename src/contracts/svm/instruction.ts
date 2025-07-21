@@ -1,4 +1,6 @@
+import bs58 from 'bs58'
 import {Buffer} from 'buffer'
+import {NodeMessage} from './node-message'
 import {SolanaAddress} from '../../domains/addresses'
 
 export class Instruction {
@@ -14,6 +16,30 @@ export class Instruction {
          */
         public readonly data: Buffer
     ) {}
+
+    static fromNode(msg: NodeMessage): Instruction[] {
+        return msg.instructions.map((ix) => {
+            return new Instruction(
+                new SolanaAddress(ix.programId),
+                ix.accounts.map((pubkey) => {
+                    const account = msg.accountKeys.find(
+                        (x) => x.pubkey === pubkey
+                    )
+
+                    if (!account) {
+                        throw new Error('account not found')
+                    }
+
+                    return {
+                        isWritable: account.writable,
+                        isSigner: account.signer,
+                        pubkey: new SolanaAddress(account.pubkey)
+                    }
+                }),
+                Buffer.from(bs58.decode(ix.data))
+            )
+        })
+    }
 }
 
 export type AccountMeta = {
