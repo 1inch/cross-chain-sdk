@@ -370,6 +370,9 @@ describe('EVM to EVM', () => {
 
         console.log('dst escrow withdrawn', dstWithdraw.txHash)
 
+        // wait for public withdraw
+        await advanceNodeTime(200)
+
         const withdrawIx = srcEscrowFactory.withdrawPublic(
             srcImmutables,
             Buffer.from(secret.slice(2), 'hex'),
