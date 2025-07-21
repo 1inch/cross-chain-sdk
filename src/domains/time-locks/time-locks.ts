@@ -180,7 +180,7 @@ export class TimeLocks {
     }
 
     public toJSON(): string {
-        return '0x' + this.build().toString(16)
+        return '0x' + this.build().toString(16).padStart(64, '0')
     }
 
     public build(): bigint {
