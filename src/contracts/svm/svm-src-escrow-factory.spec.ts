@@ -119,15 +119,15 @@ describe('SVM Escrow src factory', () => {
                 srcChainId: NetworkEnum.SOLANA,
                 dstChainId: NetworkEnum.ETHEREUM,
                 srcSafetyDeposit: 1000n,
-                dstSafetyDeposit: 1000n,
+                dstSafetyDeposit: 2000n,
                 timeLocks: TimeLocks.fromDurations({
                     srcFinalityLock: 10n,
                     srcPrivateWithdrawal: 200n,
                     srcPublicWithdrawal: 100n,
-                    srcPrivateCancellation: 100n,
-                    dstFinalityLock: 10n,
-                    dstPrivateWithdrawal: 100n,
-                    dstPublicWithdrawal: 100n
+                    srcPrivateCancellation: 150n,
+                    dstFinalityLock: 20n,
+                    dstPrivateWithdrawal: 300n,
+                    dstPublicWithdrawal: 400n
                 }),
                 hashLock: HashLock.forSingleFill(
                     '0x4a52dc502242a54e1d3a609cb31e0160a504d9a26467fcf9a52b7a79060ef8f1'
@@ -150,14 +150,16 @@ describe('SVM Escrow src factory', () => {
             srcTokenProgramId: SolanaAddress.TOKEN_2022_PROGRAM_ID
         })
 
-        const x = await SvmSrcEscrowFactory.parseCreateInstruction(ix)
-        console.log(
-            JSON.stringify(
-                x,
-                (_, value) =>
-                    typeof value === 'bigint' ? value.toString() : value,
-                2
-            )
+        const parsedIx = await SvmSrcEscrowFactory.parseCreateInstruction(ix)
+
+        const reCreatedOrder = SvmCrossChainOrder.fromContractOrder(
+            parsedIx,
+            auction
+        )
+
+        expect(order.toJSON()).toEqual(reCreatedOrder.toJSON())
+        expect(order.getOrderHash(NetworkEnum.SOLANA)).toEqual(
+            reCreatedOrder.getOrderHash(NetworkEnum.SOLANA)
         )
     })
 })

@@ -1,5 +1,6 @@
 import {BN, BorshCoder} from '@coral-xyz/anchor'
 import assert from 'assert'
+import {Buffer} from 'buffer'
 import {Immutables} from 'domains/immutables'
 import {Instruction} from './instruction'
 import {BaseProgram} from './base-program'
@@ -109,7 +110,8 @@ export class SvmSrcEscrowFactory extends BaseProgram {
             escrowParams,
             extraDetails,
             expirationTime: BigInt(data.expirationTime),
-            dutchAuctionDataHash: Buffer.from(data.dutchAuctionDataHash)
+            dutchAuctionDataHash:
+                '0x' + Buffer.from(data.dutchAuctionDataHash).toString('hex')
         }
     }
 
@@ -151,9 +153,9 @@ export class SvmSrcEscrowFactory extends BaseProgram {
             salt: new BN(order.salt.toString()),
             dstChainParams: {
                 chainId: order.dstChainId,
-                makerAddress: order.receiver.toBuffer(),
-                token: order.takerAsset.toBuffer(),
-                safetyDeposit: new BN(order.srcSafetyDeposit.toString())
+                makerAddress: bufferFromHex(order.receiver.toString(), 32),
+                token: bufferFromHex(order.takerAsset.toString(), 32),
+                safetyDeposit: new BN(order.dstSafetyDeposit.toString())
             }
         })
 

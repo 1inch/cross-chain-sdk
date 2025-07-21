@@ -291,7 +291,9 @@ export class SvmCrossChainOrder extends BaseOrder<
         auction: AuctionDetails
     ): SvmCrossChainOrder {
         assert(
-            auction.hashForSolana().equals(data.dutchAuctionDataHash),
+            auction
+                .hashForSolana()
+                .equals(bufferFromHex(data.dutchAuctionDataHash)),
             'wrong auction data'
         )
 

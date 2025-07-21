@@ -1,5 +1,4 @@
 import {BN} from '@coral-xyz/anchor'
-import {Buffer} from 'buffer'
 import {ResolverCancellationConfig} from './resolver-cancellation-config'
 import {OrderInfoData} from './svm-cross-chain-order'
 import {HashLock} from '../../domains/hash-lock'
@@ -65,5 +64,5 @@ export type ParsedCreateInstructionData = {
     escrowParams: SolanaEscrowParams
     extraDetails: Omit<SolanaExtra, 'orderExpirationDelay'>
     expirationTime: bigint
-    dutchAuctionDataHash: Buffer
+    dutchAuctionDataHash: string
 }
