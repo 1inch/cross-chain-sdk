@@ -80,6 +80,10 @@ export async function setupSolana(
                 {
                     address: resolver.publicKey,
                     amount: sol(100)
+                },
+                {
+                    address: maker.publicKey,
+                    amount: sol(0) // to have ata todo: remove when contract fixed
                 }
             ]
         }

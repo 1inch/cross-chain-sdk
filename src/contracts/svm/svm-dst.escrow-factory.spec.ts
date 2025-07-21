@@ -1,4 +1,3 @@
-import {now} from '@1inch/fusion-sdk'
 import {SvmDstEscrowFactory} from './svm-dst-escrow-factory'
 import {bufferFromHex} from '../../utils/bytes'
 import {HashLock, Immutables, SolanaAddress, TimeLocks} from '../../domains'
@@ -36,7 +35,7 @@ describe('SVM Escrow dst factory', () => {
         })
 
         const ix = SvmDstEscrowFactory.DEFAULT.createEscrow(immutables, {
-            srcCancellationTimestamp: now(),
+            srcCancellationTimestamp: 100n,
             tokenProgramId: SolanaAddress.TOKEN_PROGRAM_ID
         })
 

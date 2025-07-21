@@ -20,9 +20,10 @@ import {isSupportedChain, NetworkEnum, SupportedChain} from '../../chains'
 import {HashLock} from '../../domains/hash-lock'
 import {TimeLocks} from '../../domains/time-locks'
 import {BaseOrder} from '../base-order'
-import {assertUInteger} from '../../utils'
+import {assertUInteger, getAta} from '../../utils'
 import {AuctionDetails, AuctionPoint} from '../../domains/auction-details'
 import {injectTrackCode} from '../source-track'
+import {bufferFromHex} from '../../utils/bytes'
 
 export type SolanaOrderJSON = {
     orderInfo: {
@@ -422,39 +423,50 @@ export class SvmCrossChainOrder extends BaseOrder<
          */
         taker: SolanaAddress,
         /**
-         * Hash of corresponding to fill amount secret
+         * HashLock corresponding to the fill amount secret
          * Can be omitted  for orders where `multipleFillsAllowed` is false
          */
-        secretHash = this.hashLock.toBuffer()
+        hashLock = this.hashLock
     ): SolanaAddress {
         return new SvmSrcEscrowFactory(programId).getEscrowAddress({
             orderHash: this.getOrderHashBuffer(),
-            secretHash,
-            maker: this.maker,
+            hashLock,
             taker,
-            makerAsset: this.makerAsset,
-            makingAmount: this.makingAmount,
-            srcSafetyDeposit: this.srcSafetyDeposit
+            amount: this.makingAmount
         })
     }
 
-    // /**
-    //  * Actual address where funds stored
-    //  */
-    // public getEscrowATA(
-    //     /**
-    //      * Src escrow factory
-    //      */
-    //     srcEscrowProgramId: SolanaAddress,
-    //     /**
-    //      * TokenProgram or TokenProgram 2022
-    //      */
-    //     srcMintProgramId: SolanaAddress
-    // ): SolanaAddress {
-    //     const escrowAddress = this.getEscrowAddress(srcEscrowProgramId)
-    //
-    //     return getAta(escrowAddress, this.makerAsset, srcMintProgramId)
-    // }
+    /**
+     * Account where funds stored after fill
+     */
+    public getSrcEscrowATA(params: {
+        /**
+         * Src escrow factory program id
+         */
+        programId: SolanaAddress
+        /**
+         * Address who fill order and create corresponding escrow
+         */
+        taker: SolanaAddress
+        /**
+         * HashLock corresponding to the fill amount secret
+         * Can be omitted  for orders where `multipleFillsAllowed` is false
+         */
+        hashLock?: HashLock
+
+        /**
+         * TokenProgram or TokenProgram 2022
+         */
+        tokenProgramId: SolanaAddress
+    }): SolanaAddress {
+        const escrowAddress = this.getSrcEscrowAddress(
+            params.programId,
+            params.taker,
+            params.hashLock
+        )
+
+        return getAta(escrowAddress, this.makerAsset, params.tokenProgramId)
+    }
 
     /**
      * @returns order has in base58 encoding
@@ -464,7 +476,7 @@ export class SvmCrossChainOrder extends BaseOrder<
     }
 
     public getOrderHashBuffer(): Buffer {
-        return Buffer.from(
+        return bufferFromHex(
             keccak256(
                 Buffer.concat([
                     this.hashLock.toBuffer(),
@@ -491,8 +503,7 @@ export class SvmCrossChainOrder extends BaseOrder<
                     Buffer.from([Number(this.multipleFillsAllowed)]),
                     uintAsBeBytes(this.salt, 64)
                 ])
-            ).slice(2),
-            'hex'
+            )
         )
     }
 

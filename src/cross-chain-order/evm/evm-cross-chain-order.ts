@@ -26,6 +26,7 @@ import {TRUE_ERC20} from '../../deployments'
 import {isEvm, isSupportedChain, SupportedChain} from '../../chains'
 import {HashLock} from '../../domains/hash-lock'
 import {TimeLocks} from '../../domains/time-locks'
+import {bufferFromHex} from '../../utils/bytes'
 
 export class EvmCrossChainOrder extends BaseOrder<
     EvmAddress,
@@ -267,7 +268,7 @@ export class EvmCrossChainOrder extends BaseOrder<
     }
 
     public getOrderHashBuffer(srcChainId: number): Buffer {
-        return Buffer.from(this.getOrderHash(srcChainId).slice(2), 'hex')
+        return bufferFromHex(this.getOrderHash(srcChainId))
     }
 
     public getTypedData(srcChainId: number): EIP712TypedData {
