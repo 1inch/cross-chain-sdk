@@ -55,7 +55,7 @@ export class HashLock {
     }
 
     public static fromBuffer(value: Buffer): HashLock {
-        const hex = '0x' + Buffer.from(value).toString('hex')
+        const hex = '0x' + value.toString('hex')
 
         return HashLock.fromString(hex)
     }
