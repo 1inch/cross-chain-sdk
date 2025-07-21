@@ -50,7 +50,7 @@ export type SolanaOrderJSON = {
             maxCancellationPremium: string // u64 bigint
             cancellationAuctionDuration: number
         }
-        source: string
+        source?: string
         allowMultipleFills: boolean
         salt: string // u32 bigint
     }
@@ -141,11 +141,17 @@ export class SvmCrossChainOrder extends BaseOrder<
         // todo more asserts
 
         const source = extra.source ?? SvmCrossChainOrder.DefaultExtra.source
-        const salt = injectTrackCode(
-            extra.salt ?? randBigInt(UINT_32_MAX),
-            source,
-            SvmCrossChainOrder.TRACK_CODE_MASK
-        )
+        const isSaltContainsSource = extra.salt && extra.salt > UINT_32_MAX
+
+        const salt = isSaltContainsSource
+            ? extra.salt!
+            : injectTrackCode(
+                  extra.salt ?? randBigInt(UINT_32_MAX),
+                  source,
+                  SvmCrossChainOrder.TRACK_CODE_MASK
+              )
+
+        assertUInteger(salt, UINT_64_MAX)
 
         const resolverCancellationConfig =
             extra.resolverCancellationConfig ||
@@ -245,6 +251,10 @@ export class SvmCrossChainOrder extends BaseOrder<
 
     public get srcAssetIsNative(): boolean {
         return this.orderConfig.srcAssetIsNative
+    }
+
+    get source(): string {
+        return this.orderConfig.source
     }
 
     static new(
