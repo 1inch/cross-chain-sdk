@@ -70,17 +70,25 @@ describe('EVM to Solana', () => {
         )
         const resolverEvm = EvmAddress.fromString(srcChain.addresses.resolver)
 
+        // address on dst chain
+        const takerAsset = SolanaAddress.fromPublicKey(
+            dstChain.accounts.dstToken.publicKey
+        )
+        const receiver = SolanaAddress.fromPublicKey(
+            dstChain.accounts.maker.publicKey
+        )
+        const makerBalanceDstBefore = dstChain.connection.getTokenBalance(
+            receiver,
+            takerAsset
+        )
+
         const order = EvmCrossChainOrder.new(
             EvmAddress.fromString(srcChain.addresses.escrowFactory),
             {
                 maker,
-                receiver: SolanaAddress.fromPublicKey(
-                    dstChain.accounts.maker.publicKey
-                ),
+                receiver,
                 makerAsset: EvmAddress.fromString(WETH_EVM),
-                takerAsset: SolanaAddress.fromPublicKey(
-                    dstChain.accounts.dstToken.publicKey
-                ), // address on dst chain
+                takerAsset,
                 makingAmount: parseEther('1'),
                 takingAmount: parseUnits('1000', 6)
             },
@@ -213,5 +221,14 @@ describe('EVM to Solana', () => {
         )
 
         console.log('dst escrow withdrawn')
+
+        const makerBalanceDstAfter = dstChain.connection.getTokenBalance(
+            receiver,
+            takerAsset
+        )
+
+        expect(makerBalanceDstAfter - makerBalanceDstBefore).toEqual(
+            order.takingAmount
+        )
     })
 })

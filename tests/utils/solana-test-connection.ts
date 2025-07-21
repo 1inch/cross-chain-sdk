@@ -3,7 +3,10 @@ import {web3} from '@coral-xyz/anchor'
 
 import bs58 from 'bs58'
 
+import {ACCOUNT_SIZE, AccountLayout} from '@solana/spl-token'
 import {Buffer} from 'buffer'
+import {SolanaAddress} from '../../src/domains'
+import {getAta} from '../../src/utils'
 
 export class TestConnection {
     constructor(private readonly testCtx: LiteSVM) {}
@@ -73,5 +76,19 @@ export class TestConnection {
 
     async getClock(): Promise<Clock> {
         return this.testCtx.getClock()
+    }
+
+    getTokenBalance(
+        address: SolanaAddress,
+        mint: SolanaAddress,
+        programId = SolanaAddress.TOKEN_PROGRAM_ID
+    ): bigint {
+        const ata = getAta(address, mint, programId)
+
+        const info = this.testCtx.getAccount(new web3.PublicKey(ata.toBuffer()))
+
+        return info
+            ? AccountLayout.decode(info.data.slice(0, ACCOUNT_SIZE)).amount
+            : 0n
     }
 }
