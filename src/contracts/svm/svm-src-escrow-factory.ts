@@ -716,6 +716,110 @@ export class SvmSrcEscrowFactory extends BaseProgram {
             data
         )
     }
+
+    public cancelPublic(
+        params: Immutables<SolanaAddress>,
+        payer: SolanaAddress,
+        extra: {
+            /**
+             * If not passed, than `WhitelistContract.DEFAULT` will be used
+             * @see WhitelistContract.DEFAULT
+             */
+            whitelistProgramId?: SolanaAddress
+            /**
+             * TokenProgram or TokenProgram 2022
+             */
+            tokenProgramId: SolanaAddress
+        }
+    ): Instruction {
+        const whitelistProgram = extra.whitelistProgramId
+            ? new WhitelistContract(extra.whitelistProgramId)
+            : WhitelistContract.DEFAULT
+
+        const data = SvmSrcEscrowFactory.coder.instruction.encode(
+            'publicCancelEscrow',
+            {}
+        )
+        const escrowAddress = this.getEscrowAddress(params)
+
+        return new Instruction(
+            this.programId,
+            [
+                // 1. taker
+                {
+                    pubkey: params.taker,
+                    isSigner: false,
+                    isWritable: true
+                },
+                // 2. maker
+                {
+                    pubkey: params.maker,
+                    isSigner: false,
+                    isWritable: true
+                },
+                // 3. mint
+                {
+                    pubkey: params.token,
+                    isSigner: false,
+                    isWritable: false
+                },
+                // 4. payer
+                {
+                    pubkey: payer,
+                    isSigner: true,
+                    isWritable: true
+                },
+                // 5. resolver_access
+                {
+                    pubkey: whitelistProgram.getAccessAccount(payer),
+                    isSigner: false,
+                    isWritable: false
+                },
+                // 6. escrow
+                {
+                    pubkey: escrowAddress,
+                    isSigner: false,
+                    isWritable: true
+                },
+                // 7. escrow_ata
+                {
+                    pubkey: getAta(
+                        escrowAddress,
+                        params.token,
+                        extra.tokenProgramId
+                    ),
+                    isSigner: false,
+                    isWritable: true
+                },
+                // 8. maker_ata (optional)
+                this.optionalAccount(
+                    {
+                        pubkey: getAta(
+                            params.maker,
+                            params.token,
+                            extra.tokenProgramId
+                        ),
+                        isSigner: false,
+                        isWritable: true
+                    },
+                    params.token.isNative()
+                ),
+                // 9. token_program
+                {
+                    pubkey: extra.tokenProgramId,
+                    isSigner: false,
+                    isWritable: false
+                },
+                // 10. system_program
+                {
+                    pubkey: SolanaAddress.SYSTEM_PROGRAM_ID,
+                    isSigner: false,
+                    isWritable: false
+                }
+            ],
+            data
+        )
+    }
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

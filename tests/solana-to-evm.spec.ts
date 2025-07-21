@@ -497,4 +497,116 @@ describe('Solana to EVM', () => {
         ])
         console.log('src escrow cancelled')
     })
+
+    it('should cancel solana escrow using cancelPublic', async () => {
+        const secret = getSecret()
+
+        const order = SvmCrossChainOrder.new(
+            {
+                maker: SolanaAddress.fromPublicKey(
+                    srcChain.accounts.maker.publicKey
+                ),
+                receiver: EvmAddress.fromString(
+                    await dstChain.maker.getAddress()
+                ),
+                srcToken: SolanaAddress.fromPublicKey(
+                    srcChain.accounts.srcToken.publicKey
+                ),
+                dstToken: EvmAddress.fromString(USDC_EVM), // address on dst chain
+                srcAmount: parseUnits('1', 9),
+                minDstAmount: parseUnits('1000', 6)
+            },
+            {
+                srcChainId: srcChain.chainId,
+                dstChainId: dstChain.chainId,
+                srcSafetyDeposit: 1000n,
+                dstSafetyDeposit: 1000n,
+                timeLocks: TimeLocks.fromDurations({
+                    srcFinalityLock: 5n,
+                    srcPrivateWithdrawal: 50n,
+                    srcPublicWithdrawal: 30n,
+                    srcPrivateCancellation: 20n,
+                    dstFinalityLock: 5n,
+                    dstPrivateWithdrawal: 50n,
+                    dstPublicWithdrawal: 30n
+                }),
+                hashLock: HashLock.forSingleFill(secret)
+            },
+            {
+                auction: new AuctionDetails({
+                    duration: 120n,
+                    startTime: BigInt(now()),
+                    initialRateBump: 0,
+                    points: [
+                        {
+                            coefficient: 0,
+                            delay: 0
+                        }
+                    ]
+                })
+            },
+            {
+                allowMultipleFills: false
+            }
+        )
+
+        const srcEscrowFactory = SvmSrcEscrowFactory.DEFAULT
+
+        // user submits order creation onChain
+        const createSrcIx = srcEscrowFactory.createOrder(order, {
+            srcTokenProgramId: SolanaAddress.TOKEN_PROGRAM_ID
+        })
+
+        await srcChain.connection.sendTransaction(newSolanaTx(createSrcIx), [
+            srcChain.accounts.maker
+        ])
+
+        console.log('order created')
+
+        const fillAmount = order.makingAmount
+        const resolverSvm = SolanaAddress.fromBuffer(
+            srcChain.accounts.resolver.publicKey.toBuffer()
+        )
+
+        let srcImmutables = order.toSrcImmutables(
+            srcChain.chainId,
+            resolverSvm,
+            fillAmount
+        )
+
+        const createSrcEscrowIx = srcEscrowFactory.createEscrow(
+            srcImmutables,
+            order.auction,
+            {
+                tokenProgramId: SolanaAddress.TOKEN_PROGRAM_ID
+            }
+        )
+
+        await srcChain.connection.sendTransaction(
+            newSolanaTx(createSrcEscrowIx),
+            [srcChain.accounts.resolver]
+        )
+        console.log('src escrow created')
+
+        const srcEscrowDeployedAt = srcChain.svm.getClock().unixTimestamp
+        srcImmutables = srcImmutables.withDeployedAt(srcEscrowDeployedAt)
+
+        // wait for public cancellation to become available
+        await advanceNodeTime(105)
+
+        const cancelIx = srcEscrowFactory.cancelPublic(
+            srcImmutables,
+            SolanaAddress.fromPublicKey(
+                srcChain.accounts.fallbackResolver.publicKey
+            ),
+            {
+                tokenProgramId: SolanaAddress.TOKEN_PROGRAM_ID
+            }
+        )
+
+        await srcChain.connection.sendTransaction(newSolanaTx(cancelIx), [
+            srcChain.accounts.fallbackResolver
+        ])
+        console.log('src escrow cancelled publicly')
+    })
 })
