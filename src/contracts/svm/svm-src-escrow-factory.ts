@@ -164,9 +164,7 @@ export class SvmSrcEscrowFactory extends BaseProgram {
             merkleProof: merkleProof
                 ? {
                       index: Number(merkleProof.index.toString()),
-                      proof: merkleProof.proof.map((p) =>
-                          bufferToHex(p)
-                      ) as MerkleLeaf[],
+                      proof: merkleProof.proof.map(bufferToHex) as MerkleLeaf[],
                       hashedSecret: bufferToHex(merkleProof.hashedSecret)
                   }
                 : null
@@ -374,7 +372,7 @@ export class SvmSrcEscrowFactory extends BaseProgram {
                     }))
                 },
                 merkleProof: merkleProof && {
-                    proof: merkleProof.proof.map((p) => bufferFromHex(p)),
+                    proof: merkleProof.proof.map(bufferFromHex),
                     index: new BN(merkleProof.idx),
                     hashedSecret: merkleProof.secretHash
                 }
