@@ -49,9 +49,9 @@ export class SvmSrcEscrowFactory extends BaseProgram {
         super(programId)
     }
 
-    static async parseCreateInstruction(
+    static parseCreateInstruction(
         ix: Instruction
-    ): Promise<ParsedCreateInstructionData> {
+    ): ParsedCreateInstructionData {
         const decodeIx = this.coder.instruction.decode(ix.data) as unknown as {
             name: string
             data: CreateOrderData
@@ -118,9 +118,9 @@ export class SvmSrcEscrowFactory extends BaseProgram {
         }
     }
 
-    static async parseDeploySrcEscrowInstruction(
+    static parseDeploySrcEscrowInstruction(
         ix: Instruction
-    ): Promise<ParsedCreateSrcEscrowInstructionData> {
+    ): ParsedCreateSrcEscrowInstructionData {
         const decodeIx = this.coder.instruction.decode(ix.data) as {
             name: string
             data: {
@@ -171,6 +171,37 @@ export class SvmSrcEscrowFactory extends BaseProgram {
                           Buffer.from(merkleProof.hashedSecret).toString('hex')
                   }
                 : null
+        }
+    }
+
+    static parsePrivateWithdrawInstruction(ix: Instruction): {secret: string} {
+        const decoded = this.coder.instruction.decode(ix.data) as {
+            name: string
+            data: {secret: FixedLengthArray<number, 32>}
+        }
+
+        assert(decoded, 'cannot decode withdraw instruction')
+        assert(decoded.name === 'withdraw', 'not withdraw instruction')
+
+        return {
+            secret: '0x' + Buffer.from(decoded.data.secret).toString('hex')
+        }
+    }
+
+    static parsePublicWithdrawInstruction(ix: Instruction): {secret: string} {
+        const decoded = this.coder.instruction.decode(ix.data) as {
+            name: string
+            data: {secret: FixedLengthArray<number, 32>}
+        }
+
+        assert(decoded, 'cannot decode publicWithdraw instruction')
+        assert(
+            decoded.name === 'publicWithdraw',
+            'not publicWithdraw instruction'
+        )
+
+        return {
+            secret: '0x' + Buffer.from(decoded.data.secret).toString('hex')
         }
     }
 
