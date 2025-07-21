@@ -128,9 +128,9 @@ export class SvmSrcEscrowFactory extends BaseProgram {
                 dutchAuctionData: {
                     startTime: number
                     duration: number
-                    initialRateBump: [FixedLengthArray<number, 32>]
+                    initialRateBump: [FixedLengthArray<number, 3>]
                     pointsAndTimeDeltas: {
-                        rateBump: [FixedLengthArray<number, 32>]
+                        rateBump: [FixedLengthArray<number, 3>]
                         timeDelta: number
                     }[]
                 }
