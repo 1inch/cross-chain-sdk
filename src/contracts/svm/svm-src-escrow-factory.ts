@@ -163,7 +163,7 @@ export class SvmSrcEscrowFactory extends BaseProgram {
             merkleProof: merkleProof
                 ? {
                       index: Number(merkleProof.index.toString()),
-                      proof: merkleProof!.proof.map(
+                      proof: merkleProof.proof.map(
                           (p) => '0x' + Buffer.from(p).toString('hex')
                       ) as MerkleLeaf[],
                       hashedSecret:
