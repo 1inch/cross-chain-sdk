@@ -119,7 +119,7 @@ export class SvmSrcEscrowFactory extends BaseProgram {
         }
     }
 
-    static parseDeploySrcEscrowInstruction(
+    static parseCreateEscrowInstruction(
         ix: Instruction
     ): ParsedCreateSrcEscrowInstructionData {
         const decodeIx = this.coder.instruction.decode(ix.data) as {

@@ -298,7 +298,7 @@ describe('SVM Escrow src factory', () => {
             }
         )
 
-        const parsedIx = SvmSrcEscrowFactory.parseDeploySrcEscrowInstruction(ix)
+        const parsedIx = SvmSrcEscrowFactory.parseCreateEscrowInstruction(ix)
 
         expect(parsedIx.amount).toEqual(fillAmount)
         expect(parsedIx.dutchAuctionData.toJSON()).toEqual(auction.toJSON())
