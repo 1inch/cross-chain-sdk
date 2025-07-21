@@ -1,7 +1,7 @@
 import {BN} from '@coral-xyz/anchor'
 import {ResolverCancellationConfig} from './resolver-cancellation-config'
 import {OrderInfoData} from './svm-cross-chain-order'
-import {HashLock} from '../../domains/hash-lock'
+import {HashLock, MerkleLeaf} from '../../domains/hash-lock'
 import {TimeLocks} from '../../domains/time-locks'
 import {NetworkEnum, SupportedChain} from '../../chains'
 import {AuctionDetails} from '../../domains/auction-details'
@@ -65,4 +65,14 @@ export type ParsedCreateInstructionData = {
     extraDetails: Omit<SolanaExtra, 'orderExpirationDelay'>
     expirationTime: bigint
     dutchAuctionDataHash: string
+}
+
+export type ParsedCreateSrcEscrowInstructionData = {
+    amount: bigint
+    dutchAuctionData: AuctionDetails
+    merkleProof: {
+        index: number
+        proof: MerkleLeaf[]
+        hashedSecret: string
+    } | null
 }
