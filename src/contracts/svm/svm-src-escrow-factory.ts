@@ -372,7 +372,7 @@ export class SvmSrcEscrowFactory extends BaseProgram {
                     }))
                 },
                 merkleProof: merkleProof && {
-                    proof: merkleProof.proof.map(bufferFromHex),
+                    proof: merkleProof.proof.map((x) => bufferFromHex(x)),
                     index: new BN(merkleProof.idx),
                     hashedSecret: merkleProof.secretHash
                 }

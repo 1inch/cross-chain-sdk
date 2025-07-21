@@ -316,7 +316,10 @@ export class SvmDstEscrowFactory extends BaseProgram {
         const token = params.token.isNative()
             ? SolanaAddress.WRAPPED_NATIVE
             : params.token
-        const data = SvmDstEscrowFactory.coder.instruction.encode('publicWithdraw', {secret})
+        const data = SvmDstEscrowFactory.coder.instruction.encode(
+            'publicWithdraw',
+            {secret}
+        )
         const escrow = this.getEscrowAddress(params)
 
         return new Instruction(
