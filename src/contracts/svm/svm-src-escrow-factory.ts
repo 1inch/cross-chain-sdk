@@ -29,11 +29,14 @@ import {bufferFromHex} from '../../utils/bytes'
 import {
     CreateOrderData,
     ParsedCreateInstructionData,
+    ParsedCreateSrcEscrowInstructionData,
     SolanaEscrowParams,
     SolanaExtra
 } from '../../cross-chain-order/svm/types'
 import {bnArrayToBigInt} from '../../utils/numbers/bn-array-to-big-int'
 import {ResolverCancellationConfig} from '../../cross-chain-order'
+import {u24ToNumber} from '../../utils/numbers/u24-to-number'
+import {FixedLengthArray} from '../../type-utils'
 
 export class SvmSrcEscrowFactory extends BaseProgram {
     static DEFAULT = new SvmSrcEscrowFactory(
@@ -112,6 +115,62 @@ export class SvmSrcEscrowFactory extends BaseProgram {
             expirationTime: BigInt(data.expirationTime),
             dutchAuctionDataHash:
                 '0x' + Buffer.from(data.dutchAuctionDataHash).toString('hex')
+        }
+    }
+
+    static async parseDeploySrcEscrowInstruction(
+        ix: Instruction
+    ): Promise<ParsedCreateSrcEscrowInstructionData> {
+        const decodeIx = this.coder.instruction.decode(ix.data) as {
+            name: string
+            data: {
+                amount: BN
+                dutchAuctionData: {
+                    startTime: number
+                    duration: number
+                    initialRateBump: [FixedLengthArray<number, 3>]
+                    pointsAndTimeDeltas: {
+                        rateBump: [FixedLengthArray<number, 3>]
+                        timeDelta: number
+                    }[]
+                }
+                merkleProof: null | {
+                    index: BN
+                    proof: FixedLengthArray<number, 32>[]
+                    hashedSecret: FixedLengthArray<number, 32>
+                }
+            }
+        }
+
+        assert(decodeIx, 'cannot decode create instruction')
+        assert(decodeIx.name === 'createEscrow', 'not createEscrow instruction')
+
+        const {amount, dutchAuctionData, merkleProof} = decodeIx.data
+
+        const auction = new AuctionDetails({
+            startTime: BigInt(dutchAuctionData.startTime),
+            duration: BigInt(dutchAuctionData.duration),
+            initialRateBump: u24ToNumber(dutchAuctionData.initialRateBump),
+            points: dutchAuctionData.pointsAndTimeDeltas.map((pt) => ({
+                coefficient: u24ToNumber(pt.rateBump),
+                delay: pt.timeDelta
+            }))
+        })
+
+        return {
+            amount: BigInt(amount.toString()),
+            dutchAuctionData: auction,
+            merkleProof: merkleProof
+                ? {
+                      index: Number(merkleProof.index.toString()),
+                      proof: merkleProof.proof.map(
+                          (p) => '0x' + Buffer.from(p).toString('hex')
+                      ) as MerkleLeaf[],
+                      hashedSecret:
+                          '0x' +
+                          Buffer.from(merkleProof.hashedSecret).toString('hex')
+                  }
+                : null
         }
     }
 
@@ -286,8 +345,8 @@ export class SvmSrcEscrowFactory extends BaseProgram {
                 },
                 merkleProof: merkleProof && {
                     proof: merkleProof.proof.map((p) => bufferFromHex(p)),
-                    idx: new BN(merkleProof.idx),
-                    secretHash: merkleProof.secretHash
+                    index: new BN(merkleProof.idx),
+                    hashedSecret: merkleProof.secretHash
                 }
             }
         )
