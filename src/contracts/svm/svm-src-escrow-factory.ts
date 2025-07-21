@@ -15,6 +15,8 @@ import {SvmCrossChainOrder} from '../../cross-chain-order/svm/svm-cross-chain-or
 import {IDL} from '../../idl/cross-chain-escrow-src'
 import {uint256split} from '../../utils/numbers/uint256-split'
 import {hashForSolana} from '../../domains/auction-details/hasher'
+import { bigIntToBN } from '../'
+
 
 export class SvmSrcEscrowFactory extends BaseProgram {
     static DEFAULT = new SvmSrcEscrowFactory(
@@ -165,7 +167,7 @@ export class SvmSrcEscrowFactory extends BaseProgram {
             /**
              * TokenProgram or TokenProgram 2022
              */
-            srcTokenProgramId: SolanaAddress
+            tokenProgramId: SolanaAddress
             /**
              * Required if order allows partial fills
              */
@@ -259,7 +261,7 @@ export class SvmSrcEscrowFactory extends BaseProgram {
                     pubkey: getAta(
                         orderAccount,
                         immutables.token,
-                        extra.srcTokenProgramId
+                        extra.tokenProgramId
                     ),
                     isSigner: false,
                     isWritable: true
@@ -275,7 +277,7 @@ export class SvmSrcEscrowFactory extends BaseProgram {
                     pubkey: getAta(
                         escrowAddress,
                         immutables.token,
-                        extra.srcTokenProgramId
+                        extra.tokenProgramId
                     ),
                     isSigner: false,
                     isWritable: true
@@ -288,7 +290,7 @@ export class SvmSrcEscrowFactory extends BaseProgram {
                 },
                 // 10. token_program
                 {
-                    pubkey: extra.srcTokenProgramId,
+                    pubkey: extra.tokenProgramId,
                     isSigner: false,
                     isWritable: false
                 },
@@ -310,7 +312,7 @@ export class SvmSrcEscrowFactory extends BaseProgram {
             /**
              * TokenProgram or TokenProgram 2022
              */
-            srcTokenProgramId: SolanaAddress
+            tokenProgramId: SolanaAddress
         }
     ): Instruction {
         const data = this.coder.instruction.encode('withdraw', {secret})
@@ -350,7 +352,7 @@ export class SvmSrcEscrowFactory extends BaseProgram {
                     pubkey: getAta(
                         escrowAddress,
                         params.token,
-                        extra.srcTokenProgramId
+                        extra.tokenProgramId
                     ),
                     isSigner: false,
                     isWritable: true
@@ -360,14 +362,14 @@ export class SvmSrcEscrowFactory extends BaseProgram {
                     pubkey: getAta(
                         params.taker,
                         params.token,
-                        extra.srcTokenProgramId
+                        extra.tokenProgramId
                     ),
                     isSigner: false,
                     isWritable: true
                 },
                 // 6. token_program
                 {
-                    pubkey: extra.srcTokenProgramId,
+                    pubkey: extra.tokenProgramId,
                     isSigner: false,
                     isWritable: false
                 },
@@ -381,10 +383,6 @@ export class SvmSrcEscrowFactory extends BaseProgram {
             data
         )
     }
-}
-
-function bigIntToBN(i: bigint): BN {
-    return new BN(i.toString())
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

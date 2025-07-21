@@ -4,6 +4,7 @@ import {EvmAddress} from './evm-address'
 export type HexString = `0x${string}`
 
 export type AddressLike = {
+    toString(): string
     nativeAsZero(): AddressLike
     zeroAsNative(): AddressLike
     toBuffer(): Buffer

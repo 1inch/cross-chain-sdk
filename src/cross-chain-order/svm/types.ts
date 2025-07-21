@@ -25,8 +25,12 @@ export type SolanaExtra = {
      */
     orderExpirationDelay?: bigint
     resolverCancellationConfig?: ResolverCancellationConfig
+    /**
+     * Can be omitted for salt > UINT_32_MAX
+     */
     source?: string
     allowMultipleFills?: boolean
     // random value in interval [0, UINT_32_MAX]
+    // If salt > UINT_32_MAX, then source won't be injected to it
     salt?: bigint
 }

@@ -1,12 +1,13 @@
-import {id, Interface, parseUnits, parseEther} from 'ethers'
+import {Interface, parseUnits, parseEther} from 'ethers'
 import {Clock} from 'litesvm'
-import {add0x, UINT_40_MAX} from '@1inch/byte-utils'
+import {UINT_40_MAX} from '@1inch/byte-utils'
 import {randBigInt} from '@1inch/fusion-sdk'
+import assert from 'assert'
 import {ReadyEvmFork, setupEvm} from './utils/setup-evm'
 import {getSecret} from './utils/secret'
 import {ReadySolanaNode, setupSolana} from './utils/setup-solana'
 import {WETH_EVM} from './utils/addresses'
-import {getEvmFillData} from './utils/tx'
+import {getEvmFillData, newSolanaTx} from './utils/tx'
 import Resolver from '../dist/contracts/Resolver.sol/Resolver.json'
 import {NetworkEnum} from '../src/chains'
 
@@ -15,7 +16,8 @@ import {AuctionDetails} from '../src/domains/auction-details'
 import {HashLock} from '../src/domains/hash-lock'
 import {TimeLocks} from '../src/domains/time-locks'
 import {EvmAddress, SolanaAddress} from '../src/domains/addresses'
-import {EscrowFactoryFacade} from '../src/contracts/evm/escrow-factory-facade'
+import {SvmDstEscrowFactory} from '../src/contracts'
+import {DstImmutablesComplement} from '../src/domains'
 
 jest.setTimeout(1000 * 10 * 60)
 
@@ -131,20 +133,47 @@ describe('EVM to EVM', () => {
             ),
             value: order.srcSafetyDeposit
         })
-
         srcImmutables = srcImmutables.withDeployedAt(srcEscrow.blockTimestamp)
 
-        const srcImplAddress = await srcChain.provider.call({
-            to: srcChain.addresses.escrowFactory,
-            data: id('ESCROW_SRC_IMPLEMENTATION()').slice(0, 10)
-        })
+        // wait for finality
+        await advanceNodeTime(20)
 
-        const srcEscrowAddress = EscrowFactoryFacade.getFactory(
-            srcChain.chainId,
-            EvmAddress.fromString(srcChain.addresses.escrowFactory)
-        ).getSrcEscrowAddress(
-            srcImmutables,
-            EvmAddress.fromString(add0x(srcImplAddress.slice(-40))) // decode from bytes32
+        assert(order.takerAsset instanceof SolanaAddress)
+        assert(order.receiver instanceof SolanaAddress)
+
+        const dstImmutables = srcImmutables.withComplement(
+            // actually should be parsed from event in src escrow tx
+            DstImmutablesComplement.new({
+                amount: order.takingAmount,
+                safetyDeposit: order.dstSafetyDeposit,
+                maker: order.receiver,
+                taker: resolverSvm,
+                token: order.takerAsset
+            })
         )
+
+        const dstEscrowIx = SvmDstEscrowFactory.DEFAULT.createEscrow(
+            dstImmutables,
+            {
+                tokenProgramId: SolanaAddress.TOKEN_PROGRAM_ID,
+                srcCancellationTimestamp:
+                    srcImmutables.timeLocks.toSrcTimeLocks().publicCancellation
+            }
+        )
+
+        dstChain.svm.sendTransaction(newSolanaTx(dstEscrowIx))
     })
 })
+
+//const srcImplAddress = await srcChain.provider.call({
+//     to: srcChain.addresses.escrowFactory,
+//     data: id('ESCROW_SRC_IMPLEMENTATION()').slice(0, 10)
+// })
+
+// const srcEscrowAddress = EscrowFactoryFacade.getFactory(
+//     srcChain.chainId,
+//     EvmAddress.fromString(srcChain.addresses.escrowFactory)
+// ).getSrcEscrowAddress(
+//     srcImmutables,
+//     EvmAddress.fromString(add0x(srcImplAddress.slice(-40))) // decode from bytes32
+// )
