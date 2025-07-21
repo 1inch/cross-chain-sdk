@@ -3,8 +3,14 @@ import {AuctionCalculator, randBigInt} from '@1inch/fusion-sdk'
 import {keccak256} from 'ethers'
 import {utils} from '@coral-xyz/anchor'
 import assert from 'assert'
+import {Buffer} from 'buffer'
 import {ResolverCancellationConfig} from './resolver-cancellation-config'
-import {SolanaDetails, SolanaExtra, SolanaEscrowParams} from './types'
+import {
+    SolanaDetails,
+    SolanaExtra,
+    SolanaEscrowParams,
+    ParsedCreateInstructionData
+} from './types'
 import {SvmSrcEscrowFactory} from '../../contracts'
 import {hashForSolana} from '../../domains/auction-details/hasher'
 import {uint256BorchSerialized} from '../../utils/numbers/uint256-borsh-serialized'
@@ -276,6 +282,31 @@ export class SvmCrossChainOrder extends BaseOrder<
                 ...extra,
                 srcAssetIsNative: orderInfo.srcToken.isNative()
             }
+        )
+    }
+
+    static fromContractOrder(
+        data: ParsedCreateInstructionData,
+        auction: AuctionDetails
+    ): SvmCrossChainOrder {
+        assert(
+            auction.hashForSolana().equals(data.dutchAuctionDataHash),
+            'wrong auction data'
+        )
+
+        const details: SolanaDetails = {auction}
+
+        const extraDetails: SolanaExtra = {
+            ...data.extraDetails,
+            orderExpirationDelay:
+                data.expirationTime - auction.startTime - auction.duration
+        }
+
+        return new SvmCrossChainOrder(
+            data.orderInfo,
+            data.escrowParams,
+            details,
+            extraDetails
         )
     }
 

@@ -11,3 +11,9 @@ export type AddressForChain<Chain extends SupportedChain> =
         : Chain extends SolanaChain
           ? SolanaAddress
           : never
+
+export type FixedLengthArray<
+    T,
+    N extends number,
+    R extends T[] = []
+> = R['length'] extends N ? R : FixedLengthArray<T, N, [T, ...R]>

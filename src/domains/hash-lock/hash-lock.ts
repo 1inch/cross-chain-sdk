@@ -2,6 +2,7 @@ import {keccak256, solidityPackedKeccak256} from 'ethers'
 import {SimpleMerkleTree} from '@openzeppelin/merkle-tree'
 import {BitMask, BN, getBytesCount, isHexBytes} from '@1inch/byte-utils'
 import assert from 'assert'
+import {Buffer} from 'buffer'
 
 export class HashLock {
     public static Web3Type = 'bytes32'
@@ -52,6 +53,12 @@ export class HashLock {
         return new HashLock(value)
     }
 
+    public static fromBuffer(value: Buffer): HashLock {
+        const hex = '0x' + Buffer.from(value).toString('hex')
+
+        return HashLock.fromString(hex)
+    }
+
     /**
      * Create HashLock from keccak256 hash of secret
      */
@@ -83,6 +90,10 @@ export class HashLock {
     }
 
     public toString(): string {
+        return this.value
+    }
+
+    public toJSON(): string {
         return this.value
     }
 

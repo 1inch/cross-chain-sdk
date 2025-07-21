@@ -1,5 +1,6 @@
 import {isAddress} from 'ethers'
 import {Address} from '@1inch/fusion-sdk'
+import {Buffer} from 'buffer'
 import {AddressLike, HexString} from './types'
 import {AddressComplement} from './address-complement'
 import {isBigintString} from '../../utils/numbers/is-bigint-string'
@@ -17,6 +18,16 @@ export class EvmAddress implements AddressLike {
 
     static fromString(address: string): EvmAddress {
         return new EvmAddress(new Address(address))
+    }
+
+    static fromBuffer(address: Buffer): EvmAddress {
+        const hex =
+            '0x' +
+            address
+                .toString('hex')
+                .substring(address.length * 2 - 40, address.length * 2)
+
+        return new EvmAddress(new Address(hex))
     }
 
     static fromUnknown(address: unknown): EvmAddress {
@@ -88,6 +99,10 @@ export class EvmAddress implements AddressLike {
     }
 
     public toString(): string {
+        return this.inner.toString()
+    }
+
+    public toJSON(): string {
         return this.inner.toString()
     }
 

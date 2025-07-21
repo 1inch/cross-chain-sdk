@@ -1,31 +1,116 @@
 import {BN, BorshCoder} from '@coral-xyz/anchor'
+import assert from 'assert'
+import {Buffer} from 'buffer'
 import {Immutables} from 'domains/immutables'
 import {Instruction} from './instruction'
 import {BaseProgram} from './base-program'
 import {WhitelistContract} from './whitelist'
+import {CreateOrderAccounts} from './types'
 import {uintAsBeBytes} from '../../utils/numbers/uint-as-be-bytes'
 import {
     AuctionDetails,
+    EvmAddress,
     HashLock,
     MerkleLeaf,
-    SolanaAddress
+    SolanaAddress,
+    TimeLocks
 } from '../../domains'
 import {getAta, getPda} from '../../utils'
-import {SvmCrossChainOrder} from '../../cross-chain-order/svm/svm-cross-chain-order'
+import {
+    OrderInfoData,
+    SvmCrossChainOrder
+} from '../../cross-chain-order/svm/svm-cross-chain-order'
 import {IDL} from '../../idl/cross-chain-escrow-src'
 import {uint256split} from '../../utils/numbers/uint256-split'
 import {hashForSolana} from '../../domains/auction-details/hasher'
 import {bigintToBN} from '../../utils/numbers/bigint-to-bn'
+import {
+    CreateOrderData,
+    ParsedCreateInstructionData,
+    SolanaEscrowParams,
+    SolanaExtra
+} from '../../cross-chain-order/svm/types'
+import {bnArrayToBigInt} from '../../utils/numbers/bn-array-to-big-int'
+import {NetworkEnum} from '../../chains'
+import {ResolverCancellationConfig} from '../../cross-chain-order'
 
 export class SvmSrcEscrowFactory extends BaseProgram {
     static DEFAULT = new SvmSrcEscrowFactory(
         new SolanaAddress('2g4JDRMD7G3dK1PHmCnDAycKzd6e5sdhxqGBbs264zwz')
     )
 
-    private readonly coder = new BorshCoder(IDL)
+    private static readonly coder = new BorshCoder(IDL)
 
     constructor(programId: SolanaAddress) {
         super(programId)
+    }
+
+    static async parseCreateInstruction(
+        ix: Instruction
+    ): Promise<ParsedCreateInstructionData> {
+        const decodeIx = this.coder.instruction.decode(ix.data) as unknown as {
+            name: string
+            data: CreateOrderData
+        }
+
+        assert(decodeIx, 'cannot decode create instruction')
+        assert(decodeIx.name === 'create', 'provided not create instruction')
+
+        const data = decodeIx.data
+
+        const accounts: CreateOrderAccounts = {
+            creator: ix.accounts[0].pubkey,
+            mint: ix.accounts[1].pubkey,
+            creatorAta: ix.accounts[2].pubkey,
+            order: ix.accounts[3].pubkey,
+            orderAta: ix.accounts[4].pubkey,
+            associatedTokenProgram: ix.accounts[5].pubkey,
+            tokenProgram: ix.accounts[6].pubkey,
+            rent: ix.accounts[7].pubkey,
+            systemProgram: ix.accounts[8].pubkey
+        }
+
+        const orderInfo: OrderInfoData = {
+            srcToken: accounts.mint,
+            dstToken: EvmAddress.fromBuffer(
+                Buffer.from(data.dstChainParams.token)
+            ),
+            maker: accounts.creator,
+            srcAmount: BigInt(data.amount.toString()),
+            minDstAmount: bnArrayToBigInt(data.dstAmount),
+            receiver: EvmAddress.fromBuffer(
+                Buffer.from(data.dstChainParams.makerAddress)
+            )
+        }
+
+        const escrowParams: SolanaEscrowParams = {
+            hashLock: HashLock.fromBuffer(Buffer.from(data.hashlock)),
+            srcChainId: NetworkEnum.SOLANA,
+            dstChainId: data.dstChainParams.chainId,
+            srcSafetyDeposit: BigInt(data.safetyDeposit.toString()),
+            dstSafetyDeposit: BigInt(
+                data.dstChainParams.safetyDeposit.toString()
+            ),
+            timeLocks: TimeLocks.fromBigInt(bnArrayToBigInt(data.timelocks))
+        }
+
+        const extraDetails: SolanaExtra = {
+            srcAssetIsNative: data.assetsIsNative,
+            resolverCancellationConfig: new ResolverCancellationConfig(
+                BigInt(data.maxCancellationPremium),
+                data.cancellationAuctionDuration
+            ),
+            allowMultipleFills: data.allowMultipleFills,
+            salt: BigInt(data.salt.toString())
+        }
+
+        return {
+            orderInfo,
+            escrowParams,
+            extraDetails,
+            expirationTime: BigInt(data.expirationTime),
+            dutchAuctionDataHash: Buffer.from(data.dutchAuctionDataHash)
+        }
     }
 
     public getOrderAccount(orderHash: Buffer): SolanaAddress {
@@ -59,7 +144,7 @@ export class SvmSrcEscrowFactory extends BaseProgram {
             srcTokenProgramId: SolanaAddress
         }
     ): Instruction {
-        const data = this.coder.instruction.encode('create', {
+        const data = SvmSrcEscrowFactory.coder.instruction.encode('create', {
             hashlock: order.hashLock.toBuffer(),
             amount: new BN(order.makingAmount.toString()),
             safetyDeposit: new BN(order.srcSafetyDeposit.toString()),
@@ -193,23 +278,28 @@ export class SvmSrcEscrowFactory extends BaseProgram {
             ? new WhitelistContract(extra.whitelistProgramId)
             : WhitelistContract.DEFAULT
 
-        const data = this.coder.instruction.encode('createEscrow', {
-            amount: new BN(immutables.amount.toString()),
-            dutchAuctionData: {
-                startTime: Number(auction.startTime),
-                duration: Number(auction.duration),
-                initialRateBump: Number(auction.initialRateBump),
-                pointsAndTimeDeltas: auction.points.map((p) => ({
-                    rateBump: p.coefficient,
-                    timeDelta: p.delay
-                }))
-            },
-            merkleProof: merkleProof && {
-                proof: merkleProof.proof.map((p) => Buffer.from(p.slice(2))),
-                idx: new BN(merkleProof.idx),
-                secretHash: merkleProof.secretHash
+        const data = SvmSrcEscrowFactory.coder.instruction.encode(
+            'createEscrow',
+            {
+                amount: new BN(immutables.amount.toString()),
+                dutchAuctionData: {
+                    startTime: Number(auction.startTime),
+                    duration: Number(auction.duration),
+                    initialRateBump: Number(auction.initialRateBump),
+                    pointsAndTimeDeltas: auction.points.map((p) => ({
+                        rateBump: p.coefficient,
+                        timeDelta: p.delay
+                    }))
+                },
+                merkleProof: merkleProof && {
+                    proof: merkleProof.proof.map((p) =>
+                        Buffer.from(p.slice(2))
+                    ),
+                    idx: new BN(merkleProof.idx),
+                    secretHash: merkleProof.secretHash
+                }
             }
-        })
+        )
 
         const orderAccount = this.getOrderAccount(immutables.orderHash)
         const escrowAddress = this.getEscrowAddress({
@@ -314,7 +404,9 @@ export class SvmSrcEscrowFactory extends BaseProgram {
             tokenProgramId: SolanaAddress
         }
     ): Instruction {
-        const data = this.coder.instruction.encode('withdraw', {secret})
+        const data = SvmSrcEscrowFactory.coder.instruction.encode('withdraw', {
+            secret
+        })
         const escrowAddress = this.getEscrowAddress({
             maker: params.maker,
             makerAsset: params.token,
