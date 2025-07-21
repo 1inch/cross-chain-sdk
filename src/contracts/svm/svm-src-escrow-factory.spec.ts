@@ -39,10 +39,11 @@ describe('SVM Escrow src factory', () => {
                 )
             },
             {
-                auction: AuctionDetails.noAuction()
+                auction: AuctionDetails.noAuction(120n, 1234n)
             },
             {
-                allowMultipleFills: false
+                allowMultipleFills: false,
+                salt: 123n
             }
         )
 
@@ -87,11 +88,12 @@ describe('SVM Escrow src factory', () => {
                     duration: 120n,
                     initialRateBump: 70_000,
                     points: [],
-                    startTime: 0n
+                    startTime: 1234n
                 })
             },
             {
-                allowMultipleFills: false
+                allowMultipleFills: false,
+                salt: 123n
             }
         )
 
