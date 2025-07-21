@@ -65,7 +65,7 @@ export class SvmSrcEscrowFactory extends BaseProgram {
                 order.resolverCancellationConfig.cancellationAuctionDuration,
             allowMultipleFills: order.multipleFillsAllowed,
             salt: new BN(order.salt.toString()),
-            _dstChainParams: {
+            dstChainParams: {
                 chainId: order.dstChainId,
                 makerAddress: order.receiver.toBuffer(),
                 token: order.takerAsset.toBuffer(),

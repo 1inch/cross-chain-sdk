@@ -49,7 +49,7 @@ describe('SVM Escrow src factory', () => {
             srcTokenProgramId: SolanaAddress.TOKEN_2022_PROGRAM_ID
         })
 
-        expect(ix.data.length).toBeGreaterThan(0)
+        expect(ix).toMatchSnapshot()
     })
 
     it('should generate create instruction from order with bump bigger than u16', () => {
