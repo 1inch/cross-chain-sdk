@@ -332,9 +332,11 @@ export class SvmSrcEscrowFactory extends BaseProgram {
                 dutchAuctionData: {
                     startTime: Number(auction.startTime),
                     duration: Number(auction.duration),
-                    initialRateBump: Number(auction.initialRateBump),
+                    initialRateBump: [
+                        uintAsBeBytes(auction.initialRateBump, 24)
+                    ],
                     pointsAndTimeDeltas: auction.points.map((p) => ({
-                        rateBump: uintAsBeBytes(BigInt(p.coefficient), 24),
+                        rateBump: [uintAsBeBytes(BigInt(p.coefficient), 24)],
                         timeDelta: p.delay
                     }))
                 },
@@ -494,6 +496,104 @@ export class SvmSrcEscrowFactory extends BaseProgram {
                     isWritable: false
                 },
                 // 7. system_program
+                {
+                    pubkey: SolanaAddress.SYSTEM_PROGRAM_ID,
+                    isSigner: false,
+                    isWritable: false
+                }
+            ],
+            data
+        )
+    }
+
+    public withdrawPublic(
+        params: Immutables<SolanaAddress>,
+        secret: Buffer,
+        resolver: SolanaAddress,
+        extra: {
+            /**
+             * If not passed, than `WhitelistContract.DEFAULT` will be used
+             * @see WhitelistContract.DEFAULT
+             */
+            whitelistProgramId?: SolanaAddress
+            /**
+             * TokenProgram or TokenProgram 2022
+             */
+            tokenProgramId: SolanaAddress
+        }
+    ): Instruction {
+        const whitelistProgram = extra.whitelistProgramId
+            ? new WhitelistContract(extra.whitelistProgramId)
+            : WhitelistContract.DEFAULT
+
+        const data = SvmSrcEscrowFactory.coder.instruction.encode(
+            'publicWithdraw',
+            {
+                secret
+            }
+        )
+        const escrowAddress = this.getEscrowAddress(params)
+
+        return new Instruction(
+            this.programId,
+            [
+                // 1. taker
+                {
+                    pubkey: params.taker,
+                    isSigner: false,
+                    isWritable: true
+                },
+                // 2. payer
+                {
+                    pubkey: resolver,
+                    isSigner: true,
+                    isWritable: true
+                },
+                // 3. resolver_access
+                {
+                    pubkey: whitelistProgram.getAccessAccount(resolver),
+                    isSigner: false,
+                    isWritable: false
+                },
+                // 4. mint
+                {
+                    pubkey: params.token,
+                    isSigner: false,
+                    isWritable: false
+                },
+                // 5. escrow
+                {
+                    pubkey: escrowAddress,
+                    isWritable: true,
+                    isSigner: false
+                },
+                // 6. escrow ata
+                {
+                    pubkey: getAta(
+                        escrowAddress,
+                        params.token,
+                        extra.tokenProgramId
+                    ),
+                    isSigner: false,
+                    isWritable: true
+                },
+                // 7. taker ata
+                {
+                    pubkey: getAta(
+                        params.taker,
+                        params.token,
+                        extra.tokenProgramId
+                    ),
+                    isSigner: false,
+                    isWritable: true
+                },
+                // 8. token_program
+                {
+                    pubkey: extra.tokenProgramId,
+                    isSigner: false,
+                    isWritable: false
+                },
+                // 9. system_program
                 {
                     pubkey: SolanaAddress.SYSTEM_PROGRAM_ID,
                     isSigner: false,

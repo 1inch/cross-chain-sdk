@@ -1,3 +1,4 @@
+/* eslint-disable max-lines-per-function */
 /* eslint-disable no-console */
 import {id, Interface, parseUnits} from 'ethers'
 import {Clock} from 'litesvm'
@@ -19,6 +20,7 @@ import {EvmAddress, SolanaAddress} from '../src/domains/addresses'
 import {SvmSrcEscrowFactory} from '../src/contracts/svm/svm-src-escrow-factory'
 import {DstImmutablesComplement} from '../src/domains/immutables'
 import {EscrowFactoryFacade} from '../src/contracts/evm/escrow-factory-facade'
+import {now} from '../src/utils'
 
 jest.setTimeout(1000 * 10 * 60)
 
@@ -60,7 +62,7 @@ describe('EVM to EVM', () => {
         await dstChain.localNode.stop()
     })
 
-    it('should perform cross chain swap with single fill', async () => {
+    it('should perform cross chain swap with single fill. Private withdraw', async () => {
         const secret = getSecret()
 
         const order = SvmCrossChainOrder.new(
@@ -95,7 +97,17 @@ describe('EVM to EVM', () => {
                 hashLock: HashLock.forSingleFill(secret)
             },
             {
-                auction: AuctionDetails.noAuction()
+                auction: new AuctionDetails({
+                    duration: 120n,
+                    startTime: BigInt(now()),
+                    initialRateBump: 0,
+                    points: [
+                        {
+                            coefficient: 0,
+                            delay: 0
+                        }
+                    ]
+                })
             },
             {
                 allowMultipleFills: false
@@ -207,6 +219,170 @@ describe('EVM to EVM', () => {
 
         await srcChain.connection.sendTransaction(newSolanaTx(withdrawIx), [
             srcChain.accounts.resolver
+        ])
+        console.log('src escrow withdrawn')
+    })
+
+    it('should perform cross chain swap with single fill. Public withdraw', async () => {
+        const secret = getSecret()
+
+        const order = SvmCrossChainOrder.new(
+            {
+                maker: SolanaAddress.fromPublicKey(
+                    srcChain.accounts.maker.publicKey
+                ),
+                receiver: EvmAddress.fromString(
+                    await dstChain.maker.getAddress()
+                ),
+                srcToken: SolanaAddress.fromPublicKey(
+                    srcChain.accounts.srcToken.publicKey
+                ),
+                dstToken: EvmAddress.fromString(USDC_EVM), // address on dst chain
+                srcAmount: parseUnits('1', 9),
+                minDstAmount: parseUnits('1000', 6)
+            },
+            {
+                srcChainId: srcChain.chainId,
+                dstChainId: dstChain.chainId,
+                srcSafetyDeposit: 1000n,
+                dstSafetyDeposit: 1000n,
+                timeLocks: TimeLocks.fromDurations({
+                    srcFinalityLock: 10n,
+                    srcPrivateWithdrawal: 200n,
+                    srcPublicWithdrawal: 100n,
+                    srcPrivateCancellation: 100n,
+                    dstFinalityLock: 10n,
+                    dstPrivateWithdrawal: 100n,
+                    dstPublicWithdrawal: 100n
+                }),
+                hashLock: HashLock.forSingleFill(secret)
+            },
+            {
+                auction: new AuctionDetails({
+                    duration: 120n,
+                    startTime: BigInt(now()),
+                    initialRateBump: 0,
+                    points: [
+                        {
+                            coefficient: 0,
+                            delay: 0
+                        }
+                    ]
+                })
+            },
+            {
+                allowMultipleFills: false
+            }
+        )
+
+        const srcEscrowFactory = SvmSrcEscrowFactory.DEFAULT
+
+        // user submits order creation onChain
+        const createSrcIx = srcEscrowFactory.createOrder(order, {
+            srcTokenProgramId: SolanaAddress.TOKEN_PROGRAM_ID
+        })
+
+        await srcChain.connection.sendTransaction(newSolanaTx(createSrcIx), [
+            srcChain.accounts.maker
+        ])
+
+        console.log('order created')
+
+        const fillAmount = order.makingAmount
+        const resolverSvm = SolanaAddress.fromBuffer(
+            srcChain.accounts.resolver.publicKey.toBuffer()
+        )
+        const resolverEvm = EvmAddress.fromString(dstChain.addresses.resolver)
+
+        let srcImmutables = order.toSrcImmutables(
+            srcChain.chainId,
+            resolverSvm,
+            fillAmount
+        )
+
+        const createSrcEscrowIx = srcEscrowFactory.createEscrow(
+            srcImmutables,
+            order.auction,
+            {
+                tokenProgramId: SolanaAddress.TOKEN_PROGRAM_ID
+            }
+        )
+
+        await srcChain.connection.sendTransaction(
+            newSolanaTx(createSrcEscrowIx),
+            [srcChain.accounts.resolver]
+        )
+        console.log('src escrow created')
+
+        const srcEscrowDeployedAt = srcChain.svm.getClock().unixTimestamp
+        srcImmutables = srcImmutables.withDeployedAt(srcEscrowDeployedAt)
+
+        // wait for finality
+        await advanceNodeTime(20)
+
+        assert(order.takerAsset instanceof EvmAddress)
+        let dstImmutables = srcImmutables.withComplement(
+            // actually should be parsed from src escrow tx
+            DstImmutablesComplement.new({
+                amount: order.takingAmount,
+                safetyDeposit: order.dstSafetyDeposit,
+                maker: order.receiver,
+                token: order.takerAsset,
+                taker: resolverEvm
+            })
+        )
+
+        const dstEscrow = await dstChain.taker.send({
+            to: resolverEvm.toString(),
+            data: resolverContractEvm.encodeFunctionData('deployDst', [
+                dstImmutables.build(),
+                srcImmutables.timeLocks.toSrcTimeLocks().privateCancellation
+            ]),
+            value: order.dstSafetyDeposit
+        })
+        console.log('dst escrow created')
+        dstImmutables = dstImmutables.withDeployedAt(dstEscrow.blockTimestamp)
+
+        // user wait for finality, makes validation and shares secret
+        await advanceNodeTime(20)
+
+        const dstImplAddress = await dstChain.provider.call({
+            to: dstChain.addresses.escrowFactory,
+            data: id('ESCROW_DST_IMPLEMENTATION()').slice(0, 10)
+        })
+
+        const dstEscrowAddress = EscrowFactoryFacade.getFactory(
+            dstChain.chainId,
+            EvmAddress.fromString(dstChain.addresses.escrowFactory)
+        ).getSrcEscrowAddress(
+            dstImmutables,
+            EvmAddress.fromString(add0x(dstImplAddress.slice(-40))) // decode from bytes32
+        )
+
+        const dstWithdraw = await dstChain.taker.send({
+            to: resolverEvm.toString(),
+            data: resolverContractEvm.encodeFunctionData('withdraw', [
+                dstEscrowAddress.toString(),
+                secret, // user shared secret at this point
+                dstImmutables.build()
+            ])
+        })
+
+        console.log('dst escrow withdrawn', dstWithdraw.txHash)
+
+        const withdrawIx = srcEscrowFactory.withdrawPublic(
+            srcImmutables,
+            Buffer.from(secret.slice(2), 'hex'),
+            SolanaAddress.fromPublicKey(
+                srcChain.accounts.fallbackResolver.publicKey
+            ),
+            {
+                tokenProgramId: SolanaAddress.TOKEN_PROGRAM_ID
+            }
+        )
+
+        await srcChain.connection.sendTransaction(newSolanaTx(withdrawIx), [
+            srcChain.accounts.fallbackResolver
         ])
         console.log('src escrow withdrawn')
     })

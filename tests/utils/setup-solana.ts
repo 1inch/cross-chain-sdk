@@ -32,6 +32,7 @@ export type ReadySolanaNode = {
         dstToken: web3.Keypair
         maker: web3.Keypair
         resolver: web3.Keypair
+        fallbackResolver: web3.Keypair
         owner: web3.Keypair
     }
 }
@@ -46,6 +47,7 @@ export async function setupSolana(
     const dstToken = web3.Keypair.generate()
     const maker = web3.Keypair.generate()
     const resolver = web3.Keypair.generate()
+    const fallbackResolver = web3.Keypair.generate()
     const owner = web3.Keypair.generate()
 
     const svm = await startNode([
@@ -57,7 +59,7 @@ export async function setupSolana(
         svm,
         new web3.PublicKey(WhitelistContract.DEFAULT.programId.toBuffer()),
         owner,
-        resolver.publicKey
+        [resolver.publicKey, fallbackResolver.publicKey]
     )
 
     await initTokens(svm, owner, [
@@ -71,6 +73,10 @@ export async function setupSolana(
                 {
                     address: resolver.publicKey,
                     amount: sol(0) // to have ata
+                },
+                {
+                    address: fallbackResolver.publicKey,
+                    amount: sol(0) // to have ata
                 }
             ]
         },
@@ -80,10 +86,6 @@ export async function setupSolana(
                 {
                     address: resolver.publicKey,
                     amount: sol(100)
-                },
-                {
-                    address: maker.publicKey,
-                    amount: sol(0) // to have ata todo: remove when contract fixed
                 }
             ]
         }
@@ -96,7 +98,8 @@ export async function setupSolana(
             dstToken,
             maker,
             owner,
-            resolver
+            resolver,
+            fallbackResolver
         },
         connection: new TestConnection(svm),
         svm: svm
@@ -152,7 +155,7 @@ async function initWhitelist(
     testCtx: LiteSVM,
     programId: web3.PublicKey,
     owner: web3.Keypair,
-    resolver: web3.PublicKey
+    resolvers: web3.PublicKey[]
 ): Promise<void> {
     const whitelistCoder = new BorshCoder(WhitelistIDL)
 
@@ -184,45 +187,50 @@ async function initWhitelist(
 
     initTx.sign(owner)
     testCtx.sendTransaction(initTx)
+
     // endregion init
     // region register
-    const registerTx = new web3.Transaction({
-        feePayer: owner.publicKey,
-        recentBlockhash: testCtx.latestBlockhash()
-    }).add({
-        keys: [
-            {pubkey: owner.publicKey, isSigner: true, isWritable: false},
-            {
-                pubkey: new web3.PublicKey(
-                    getPda(SolanaAddress.fromBuffer(programId.toBuffer()), [
-                        new TextEncoder().encode('whitelist_state')
-                    ]).toBuffer()
-                ),
-                isSigner: false,
-                isWritable: true
-            },
-            {
-                pubkey: new web3.PublicKey(
-                    getPda(SolanaAddress.fromBuffer(programId.toBuffer()), [
-                        new TextEncoder().encode('resolver_access'),
-                        resolver.toBuffer()
-                    ]).toBuffer()
-                ),
-                isSigner: false,
-                isWritable: true
-            },
-            {
-                pubkey: SYSTEM_PROGRAM_ID,
-                isSigner: false,
-                isWritable: false
-            }
-        ],
-        data: whitelistCoder.instruction.encode('register', {user: resolver}),
-        programId: programId
-    })
+    for (const resolver of resolvers) {
+        const registerTx = new web3.Transaction({
+            feePayer: owner.publicKey,
+            recentBlockhash: testCtx.latestBlockhash()
+        }).add({
+            keys: [
+                {pubkey: owner.publicKey, isSigner: true, isWritable: false},
+                {
+                    pubkey: new web3.PublicKey(
+                        getPda(SolanaAddress.fromBuffer(programId.toBuffer()), [
+                            new TextEncoder().encode('whitelist_state')
+                        ]).toBuffer()
+                    ),
+                    isSigner: false,
+                    isWritable: true
+                },
+                {
+                    pubkey: new web3.PublicKey(
+                        getPda(SolanaAddress.fromBuffer(programId.toBuffer()), [
+                            new TextEncoder().encode('resolver_access'),
+                            resolver.toBuffer()
+                        ]).toBuffer()
+                    ),
+                    isSigner: false,
+                    isWritable: true
+                },
+                {
+                    pubkey: SYSTEM_PROGRAM_ID,
+                    isSigner: false,
+                    isWritable: false
+                }
+            ],
+            data: whitelistCoder.instruction.encode('register', {
+                user: resolver
+            }),
+            programId: programId
+        })
 
-    registerTx.sign(owner)
-    testCtx.sendTransaction(registerTx)
+        registerTx.sign(owner)
+        testCtx.sendTransaction(registerTx)
+    }
     // endregion register
 }
 

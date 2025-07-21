@@ -23,7 +23,17 @@ describe('Auction details', () => {
     })
 
     it('should calculate hash of struct for solana', () => {
-        const details = AuctionDetails.noAuction(120n, 1752739636n)
+        const details = new AuctionDetails({
+            duration: 120n,
+            initialRateBump: 1000,
+            points: [
+                {
+                    coefficient: 1000,
+                    delay: 0
+                }
+            ],
+            startTime: 123n
+        })
 
         const hash = hashForSolana(details)
 

@@ -189,13 +189,19 @@ export class SvmDstEscrowFactory extends BaseProgram {
                     params.token.isNative()
                 ),
                 {
-                    // 7. token_program
+                    // 7. associated_token_program
+                    pubkey: SolanaAddress.ASSOCIATED_TOKE_PROGRAM_ID,
+                    isSigner: false,
+                    isWritable: false
+                },
+                {
+                    // 8. token_program
                     pubkey: extra.tokenProgramId,
                     isSigner: false,
                     isWritable: false
                 },
                 {
-                    // 8. system_program
+                    // 9. system_program
                     pubkey: SolanaAddress.SYSTEM_PROGRAM_ID,
                     isSigner: false,
                     isWritable: false
