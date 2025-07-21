@@ -298,6 +298,10 @@ const _IDL = {
                         }
                     }
                 },
+                {
+                    name: 'associatedTokenProgram',
+                    address: 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'
+                },
                 {name: 'tokenProgram'},
                 {
                     name: 'systemProgram',
@@ -461,6 +465,10 @@ const _IDL = {
                             ]
                         }
                     }
+                },
+                {
+                    name: 'associatedTokenProgram',
+                    address: 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'
                 },
                 {name: 'tokenProgram'},
                 {
