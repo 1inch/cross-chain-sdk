@@ -5,7 +5,11 @@ import {Immutables} from 'domains/immutables'
 import {Instruction} from './instruction'
 import {BaseProgram} from './base-program'
 import {WhitelistContract} from './whitelist'
-import {CreateOrderAccounts} from './types'
+import {
+    CreateOrderAccounts,
+    ParsedCreateInstructionData,
+    ParsedCreateSrcEscrowInstructionData
+} from './types'
 import {NetworkEnum} from '../../chains'
 import {uintAsBeBytes} from '../../utils/numbers/uint-as-be-bytes'
 import {
@@ -25,11 +29,9 @@ import {IDL} from '../../idl/cross-chain-escrow-src'
 import {uint256split} from '../../utils/numbers/uint256-split'
 import {hashForSolana} from '../../domains/auction-details/hasher'
 import {bigintToBN} from '../../utils/numbers/bigint-to-bn'
-import {bufferFromHex} from '../../utils/bytes'
+import {bufferFromHex, bufferToHex} from '../../utils/bytes'
 import {
     CreateOrderData,
-    ParsedCreateInstructionData,
-    ParsedCreateSrcEscrowInstructionData,
     SolanaEscrowParams,
     SolanaExtra
 } from '../../cross-chain-order/svm/types'
@@ -113,8 +115,7 @@ export class SvmSrcEscrowFactory extends BaseProgram {
             escrowParams,
             extraDetails,
             expirationTime: BigInt(data.expirationTime),
-            dutchAuctionDataHash:
-                '0x' + Buffer.from(data.dutchAuctionDataHash).toString('hex')
+            dutchAuctionDataHash: bufferToHex(data.dutchAuctionDataHash)
         }
     }
 
@@ -163,12 +164,10 @@ export class SvmSrcEscrowFactory extends BaseProgram {
             merkleProof: merkleProof
                 ? {
                       index: Number(merkleProof.index.toString()),
-                      proof: merkleProof.proof.map(
-                          (p) => '0x' + Buffer.from(p).toString('hex')
+                      proof: merkleProof.proof.map((p) =>
+                          bufferToHex(p)
                       ) as MerkleLeaf[],
-                      hashedSecret:
-                          '0x' +
-                          Buffer.from(merkleProof.hashedSecret).toString('hex')
+                      hashedSecret: bufferToHex(merkleProof.hashedSecret)
                   }
                 : null
         }
@@ -184,7 +183,7 @@ export class SvmSrcEscrowFactory extends BaseProgram {
         assert(decoded.name === 'withdraw', 'not withdraw instruction')
 
         return {
-            secret: '0x' + Buffer.from(decoded.data.secret).toString('hex')
+            secret: bufferToHex(decoded.data.secret)
         }
     }
 
@@ -201,7 +200,7 @@ export class SvmSrcEscrowFactory extends BaseProgram {
         )
 
         return {
-            secret: '0x' + Buffer.from(decoded.data.secret).toString('hex')
+            secret: bufferToHex(decoded.data.secret)
         }
     }
 

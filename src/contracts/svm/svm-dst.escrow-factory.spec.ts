@@ -1,6 +1,13 @@
+import {randomBytes} from 'crypto'
 import {SvmDstEscrowFactory} from './svm-dst-escrow-factory'
-import {bufferFromHex} from '../../utils/bytes'
-import {HashLock, Immutables, SolanaAddress, TimeLocks} from '../../domains'
+import {bufferFromHex, bufferToHex} from '../../utils/bytes'
+import {
+    EvmAddress,
+    HashLock,
+    Immutables,
+    SolanaAddress,
+    TimeLocks
+} from '../../domains'
 
 describe('SVM Escrow dst factory', () => {
     it('should generate create escrow instruction', () => {
@@ -41,4 +48,99 @@ describe('SVM Escrow dst factory', () => {
 
         expect(ix).toMatchSnapshot()
     })
+
+    it('should parse create dst escrow instruction', async () => {
+        const immutables = Immutables.fromJSON<SolanaAddress>({
+            orderHash:
+                '0x62b5cf375b2e813bf2a0f33112712601d5aab04e598701f0bab2b6c5e9fa8a76',
+            hashlock:
+                '0x1a52dc502242a54e1d3a609cb31e0160a504d9a26467fcf9a52b7a79060ef8f2',
+            maker: '0x0000000000000000000000000000000000000000000000000000000000000001',
+            taker: '0xf8bb3ce975e1ae20ccc5bd1e775828b2f811c617cafc6e4182d84c290a09f0f7',
+            token: '0x0000000000000000000000000000000000000000000000000000000000000003',
+            amount: '500000000000000000',
+            safetyDeposit: '1000',
+            timelocks:
+                '4519513249946090673914462965909562690094454064409420748554250'
+        })
+
+        const srcCancellationTimestamp = BigInt(((Date.now() / 1000) | 0) + 100)
+
+        const ix = SvmDstEscrowFactory.DEFAULT.createEscrow(immutables, {
+            tokenProgramId: SolanaAddress.TOKEN_2022_PROGRAM_ID,
+            srcCancellationTimestamp: srcCancellationTimestamp
+        })
+
+        const parsed = SvmDstEscrowFactory.parseCreateEscrowInstruction(ix)
+        expect(parsed.orderHash).toEqual(bufferToHex(immutables.orderHash))
+        expect(parsed.hashlock).toEqual(immutables.hashLock)
+        expect(parsed.amount).toEqual(immutables.amount)
+        expect(parsed.safetyDeposit).toEqual(immutables.safetyDeposit)
+        expect(parsed.recipient).toEqual(
+            EvmAddress.fromBuffer(immutables.maker.toBuffer())
+        )
+        expect(parsed.assetIsNative).toEqual(false)
+        expect(parsed.srcCancellationTimestamp).toEqual(
+            Number(srcCancellationTimestamp)
+        )
+    })
+
+    it('should parse withdraw instruction', async () => {
+        const immutables = Immutables.fromJSON<SolanaAddress>({
+            orderHash:
+                '0x62b5cf375b2e813bf2a0f33112712601d5aab04e598701f0bab2b6c5e9fa8a76',
+            hashlock:
+                '0x1a52dc502242a54e1d3a609cb31e0160a504d9a26467fcf9a52b7a79060ef8f2',
+            maker: '0x0000000000000000000000000000000000000000000000000000000000000001',
+            taker: '0xf8bb3ce975e1ae20ccc5bd1e775828b2f811c617cafc6e4182d84c290a09f0f7',
+            token: '0x0000000000000000000000000000000000000000000000000000000000000003',
+            amount: '500000000000000000',
+            safetyDeposit: '1000',
+            timelocks:
+                '4519513249946090673914462965909562690094454064409420748554250'
+        })
+
+        const secret = randomBytes(32)
+
+        const ix = SvmDstEscrowFactory.DEFAULT.withdrawPrivate(
+            immutables,
+            secret,
+            {
+                tokenProgramId: SolanaAddress.TOKEN_2022_PROGRAM_ID
+            }
+        )
+
+        const parsed = SvmDstEscrowFactory.parsePrivateWithdrawInstruction(ix)
+        expect(parsed.secret).toEqual('0x' + secret.toString('hex'))
+    })
+
+    // it('should parse publicWithdraw instruction', async () => {
+    //     const immutables = Immutables.fromJSON<SolanaAddress>({
+    //         orderHash:
+    //             '0x62b5cf375b2e813bf2a0f33112712601d5aab04e598701f0bab2b6c5e9fa8a76',
+    //         hashlock:
+    //             '0x1a52dc502242a54e1d3a609cb31e0160a504d9a26467fcf9a52b7a79060ef8f2',
+    //         maker: '0x0000000000000000000000000000000000000000000000000000000000000001',
+    //         taker: '0xf8bb3ce975e1ae20ccc5bd1e775828b2f811c617cafc6e4182d84c290a09f0f7',
+    //         token: '0x0000000000000000000000000000000000000000000000000000000000000003',
+    //         amount: '500000000000000000',
+    //         safetyDeposit: '1000',
+    //         timelocks:
+    //             '4519513249946090673914462965909562690094454064409420748554250'
+    //     })
+    //
+    //     const secret = randomBytes(32)
+    //
+    //     const ix = SvmDstEscrowFactory.DEFAULT.withdrawPublic(
+    //         immutables,
+    //         secret,
+    //         immutables.taker,
+    //         {
+    //             tokenProgramId: SolanaAddress.TOKEN_2022_PROGRAM_ID
+    //         }
+    //     )
+    //
+    //     const parsed = SvmDstEscrowFactory.parsePublicWithdrawInstruction(ix)
+    //     expect(parsed.secret).toEqual('0x' + secret.toString('hex'))
+    // })
 })

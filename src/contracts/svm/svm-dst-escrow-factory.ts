@@ -1,22 +1,101 @@
-import {BN, BorshCoder} from '@coral-xyz/anchor'
+import {BN, BorshCoder, web3} from '@coral-xyz/anchor'
+import assert from 'assert'
+import {Buffer} from 'buffer'
 import {Instruction} from './instruction'
 import {BaseProgram} from './base-program'
+import {ParsedCreateDstEscrowInstructionData} from './types'
 import {bigintToBN} from '../../utils/numbers/bigint-to-bn'
 import {uintAsBeBytes} from '../../utils/numbers/uint-as-be-bytes'
 import {uint256split} from '../../utils/numbers/uint256-split'
 import {getAta, getPda} from '../../utils'
-import {Immutables, SolanaAddress} from '../../domains'
+import {
+    EvmAddress,
+    HashLock,
+    Immutables,
+    SolanaAddress,
+    TimeLocks
+} from '../../domains'
 import {IDL} from '../../idl/cross-chain-escrow-dst'
+import {FixedLengthArray} from '../../type-utils'
+import {bufferToHex} from '../../utils/bytes'
+import {bnArrayToBigInt} from '../../utils/numbers/bn-array-to-big-int'
 
 export class SvmDstEscrowFactory extends BaseProgram {
     static DEFAULT = new SvmDstEscrowFactory(
         new SolanaAddress('GveV3ToLhvRmeq1Fyg3BMkNetZuG9pZEp4uBGWLrTjve')
     )
 
-    private readonly coder = new BorshCoder(IDL)
+    private static readonly coder = new BorshCoder(IDL)
 
     constructor(programId: SolanaAddress) {
         super(programId)
+    }
+
+    static parseCreateEscrowInstruction(
+        ix: Instruction
+    ): ParsedCreateDstEscrowInstructionData {
+        const decoded = SvmDstEscrowFactory.coder.instruction.decode(
+            ix.data
+        ) as {
+            name: string
+            data: {
+                orderHash: FixedLengthArray<number, 32>
+                hashlock: FixedLengthArray<number, 32>
+                amount: BN
+                safetyDeposit: BN
+                recipient: web3.PublicKey
+                timelocks: FixedLengthArray<BN, 4>
+                srcCancellationTimestamp: number
+                assetIsNative: boolean
+            }
+        }
+
+        assert(decoded, 'cannot decode create instruction')
+        assert(decoded.name === 'create', 'not create instruction')
+
+        const data = decoded.data
+
+        return {
+            orderHash: bufferToHex(data.orderHash),
+            hashlock: HashLock.fromString(bufferToHex(data.hashlock)),
+            amount: BigInt(data.amount.toString()),
+            safetyDeposit: BigInt(data.safetyDeposit.toString()),
+            recipient: EvmAddress.fromBuffer(data.recipient.toBuffer()),
+            timelocks: TimeLocks.fromBigInt(bnArrayToBigInt(data.timelocks)),
+            srcCancellationTimestamp: data.srcCancellationTimestamp,
+            assetIsNative: data.assetIsNative
+        }
+    }
+
+    static parsePrivateWithdrawInstruction(ix: Instruction): {secret: string} {
+        const decoded = this.coder.instruction.decode(ix.data) as {
+            name: string
+            data: {secret: FixedLengthArray<number, 32>}
+        }
+
+        assert(decoded, 'cannot decode withdraw instruction')
+        assert(decoded.name === 'withdraw', 'not withdraw instruction')
+
+        return {
+            secret: bufferToHex(decoded.data.secret)
+        }
+    }
+
+    static parsePublicWithdrawInstruction(ix: Instruction): {secret: string} {
+        const decoded = this.coder.instruction.decode(ix.data) as {
+            name: string
+            data: {secret: FixedLengthArray<number, 32>}
+        }
+
+        assert(decoded, 'cannot decode publicWithdraw instruction')
+        assert(
+            decoded.name === 'publicWithdraw',
+            'not publicWithdraw instruction'
+        )
+
+        return {
+            secret: bufferToHex(decoded.data.secret)
+        }
     }
 
     public getEscrowAddress(params: EscrowAddressParams): SolanaAddress {
@@ -43,7 +122,7 @@ export class SvmDstEscrowFactory extends BaseProgram {
             ? SolanaAddress.WRAPPED_NATIVE
             : params.token
 
-        const data = this.coder.instruction.encode('create', {
+        const data = SvmDstEscrowFactory.coder.instruction.encode('create', {
             orderHash: params.orderHash,
             hashlock: params.hashLock.toBuffer(),
             amount: new BN(params.amount.toString()),
@@ -139,7 +218,9 @@ export class SvmDstEscrowFactory extends BaseProgram {
         const token = params.token.isNative()
             ? SolanaAddress.WRAPPED_NATIVE
             : params.token
-        const data = this.coder.instruction.encode('withdraw', {secret})
+        const data = SvmDstEscrowFactory.coder.instruction.encode('withdraw', {
+            secret
+        })
         const escrow = this.getEscrowAddress(params)
 
         return new Instruction(

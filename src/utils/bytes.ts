@@ -1,5 +1,6 @@
 import {isHexBytes} from '@1inch/byte-utils'
 import assert from 'assert'
+import {Buffer} from 'buffer'
 
 export function bufferFromHex(hex: string, bytesSize: number = -1): Buffer {
     assert(isHexBytes(hex))
@@ -13,4 +14,8 @@ export function bufferFromHex(hex: string, bytesSize: number = -1): Buffer {
     }
 
     return Buffer.from(hex.slice(2).padStart(bytesSize * 2, '0'), 'hex')
+}
+
+export function bufferToHex(buf: Buffer | number[]): string {
+    return '0x' + Buffer.from(buf).toString('hex')
 }
