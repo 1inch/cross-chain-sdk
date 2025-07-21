@@ -102,8 +102,6 @@ export class SvmCrossChainOrder extends BaseOrder<
 
     private readonly escrowParams: SolanaEscrowParams
 
-    private readonly encoder = new TextEncoder()
-
     private constructor(
         orderInfo: OrderInfoData,
         escrowParams: SolanaEscrowParams,
@@ -323,6 +321,56 @@ export class SvmCrossChainOrder extends BaseOrder<
         )
     }
 
+    static getOrderHashBuffer(
+        params: Pick<
+            SvmCrossChainOrder,
+            | 'hashLock'
+            | 'maker'
+            | 'makerAsset'
+            | 'makingAmount'
+            | 'srcSafetyDeposit'
+            | 'timeLocks'
+            | 'deadline'
+            | 'srcAssetIsNative'
+            | 'takingAmount'
+            | 'auction'
+            | 'resolverCancellationConfig'
+            | 'multipleFillsAllowed'
+            | 'salt'
+        >
+    ): Buffer {
+        return bufferFromHex(
+            keccak256(
+                Buffer.concat([
+                    params.hashLock.toBuffer(),
+                    params.maker.toBuffer(),
+                    params.makerAsset.toBuffer(),
+                    uintAsBeBytes(params.makingAmount, 64),
+                    uintAsBeBytes(params.srcSafetyDeposit, 64),
+                    uint256BorchSerialized(params.timeLocks.build()),
+                    uintAsBeBytes(params.deadline, 32),
+                    Buffer.from([Number(params.srcAssetIsNative)]),
+                    uint256BorchSerialized(params.takingAmount),
+                    hashForSolana(params.auction),
+                    uintAsBeBytes(
+                        params.resolverCancellationConfig
+                            .maxCancellationPremium,
+                        64
+                    ),
+                    uintAsBeBytes(
+                        BigInt(
+                            params.resolverCancellationConfig
+                                .cancellationAuctionDuration
+                        ),
+                        32
+                    ),
+                    Buffer.from([Number(params.multipleFillsAllowed)]),
+                    uintAsBeBytes(params.salt, 64)
+                ])
+            )
+        )
+    }
+
     public toJSON(): SolanaOrderJSON {
         const auction = this.auction.toJSON()
 
@@ -445,35 +493,7 @@ export class SvmCrossChainOrder extends BaseOrder<
     }
 
     public getOrderHashBuffer(): Buffer {
-        return bufferFromHex(
-            keccak256(
-                Buffer.concat([
-                    this.hashLock.toBuffer(),
-                    this.maker.toBuffer(),
-                    this.makerAsset.toBuffer(),
-                    uintAsBeBytes(this.makingAmount, 64),
-                    uintAsBeBytes(this.srcSafetyDeposit, 64),
-                    uint256BorchSerialized(this.timeLocks.build()),
-                    uintAsBeBytes(this.deadline, 32),
-                    Buffer.from([Number(this.srcAssetIsNative)]),
-                    uint256BorchSerialized(this.takingAmount),
-                    hashForSolana(this.auction),
-                    uintAsBeBytes(
-                        this.resolverCancellationConfig.maxCancellationPremium,
-                        64
-                    ),
-                    uintAsBeBytes(
-                        BigInt(
-                            this.resolverCancellationConfig
-                                .cancellationAuctionDuration
-                        ),
-                        32
-                    ),
-                    Buffer.from([Number(this.multipleFillsAllowed)]),
-                    uintAsBeBytes(this.salt, 64)
-                ])
-            )
-        )
+        return SvmCrossChainOrder.getOrderHashBuffer(this)
     }
 
     public getCalculator(): AuctionCalculator {
