@@ -10,9 +10,4 @@ export type NodeMessage = {
         data: string // base58 encoded
         programId: string
     }[]
-    addressTableLookups?: {
-        accountKey: string
-        writableIndexes: number[]
-        readonlyIndexes: number[]
-    }[]
 }
