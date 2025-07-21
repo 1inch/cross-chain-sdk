@@ -92,6 +92,15 @@ export async function setupSolana(
         }
     ])
 
+    console.log({
+        srcToken: srcToken.publicKey.toBase58(),
+        dstToken: dstToken.publicKey.toBase58(),
+        maker: maker.publicKey.toBase58(),
+        owner: owner.publicKey.toBase58(),
+        resolver: resolver.publicKey.toBase58(),
+        fallbackResolver: fallbackResolver.publicKey.toBase58()
+    })
+
     return {
         chainId: NetworkEnum.SOLANA,
         accounts: {

@@ -1,0 +1,129 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`SVM Escrow dst factory should generate withdrawPublic instruction 1`] = `
+{
+  "accounts": [
+    {
+      "isSigner": false,
+      "isWritable": true,
+      "pubkey": "11111111111111111111111111111112j",
+    },
+    {
+      "isSigner": false,
+      "isWritable": true,
+      "pubkey": "1111111111111111111111111111116B",
+    },
+    {
+      "isSigner": true,
+      "isWritable": true,
+      "pubkey": "1111111111111111111111111111117u",
+    },
+    {
+      "isSigner": false,
+      "isWritable": false,
+      "pubkey": "Aikth6gKPGZbWbgkZSZumpXpBjTQLq2UUMccZ2CRhtSQ",
+    },
+    {
+      "isSigner": false,
+      "isWritable": false,
+      "pubkey": "So11111111111111111111111111111111111111112",
+    },
+    {
+      "isSigner": false,
+      "isWritable": true,
+      "pubkey": "ENbPaTRr3J1CNuo877HxbM8bTGZRen19qNhSmpYYeoew",
+    },
+    {
+      "isSigner": false,
+      "isWritable": true,
+      "pubkey": "HEebJQkKDBXbGwRXPgN5aknqJCWYdG6s3H6Z1wHWz3it",
+    },
+    {
+      "isSigner": false,
+      "isWritable": false,
+      "pubkey": "GveV3ToLhvRmeq1Fyg3BMkNetZuG9pZEp4uBGWLrTjve",
+    },
+    {
+      "isSigner": false,
+      "isWritable": false,
+      "pubkey": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+    },
+    {
+      "isSigner": false,
+      "isWritable": false,
+      "pubkey": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
+    },
+    {
+      "isSigner": false,
+      "isWritable": false,
+      "pubkey": "11111111111111111111111111111111",
+    },
+  ],
+  "data": "0x9839f0c05223960b0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+  "programId": "GveV3ToLhvRmeq1Fyg3BMkNetZuG9pZEp4uBGWLrTjve",
+}
+`;
+
+exports[`SVM Escrow dst factory should handle native token correctly in withdrawPublic 1`] = `
+{
+  "accounts": [
+    {
+      "isSigner": false,
+      "isWritable": true,
+      "pubkey": "1111111111111111111111111111113K6",
+    },
+    {
+      "isSigner": false,
+      "isWritable": true,
+      "pubkey": "1111111111111111111111111111113eF",
+    },
+    {
+      "isSigner": true,
+      "isWritable": true,
+      "pubkey": "1111111111111111111111111111112yw",
+    },
+    {
+      "isSigner": false,
+      "isWritable": false,
+      "pubkey": "2ZWTkvbTmmyz9KWtYuAkcwHEgp4VXbaRWaYC2atJzVYf",
+    },
+    {
+      "isSigner": false,
+      "isWritable": false,
+      "pubkey": "So11111111111111111111111111111111111111112",
+    },
+    {
+      "isSigner": false,
+      "isWritable": true,
+      "pubkey": "EZkxgAXSduM7q3W6J2XxPjg3tgBCZNhWKBQs3xWaEmkB",
+    },
+    {
+      "isSigner": false,
+      "isWritable": true,
+      "pubkey": "Dkp9yvxVnPoDSLy7q1VCfnEHbKcm79sRCWgaH4t1uCwd",
+    },
+    {
+      "isSigner": false,
+      "isWritable": false,
+      "pubkey": "GveV3ToLhvRmeq1Fyg3BMkNetZuG9pZEp4uBGWLrTjve",
+    },
+    {
+      "isSigner": false,
+      "isWritable": false,
+      "pubkey": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+    },
+    {
+      "isSigner": false,
+      "isWritable": false,
+      "pubkey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+    },
+    {
+      "isSigner": false,
+      "isWritable": false,
+      "pubkey": "11111111111111111111111111111111",
+    },
+  ],
+  "data": "0x9839f0c05223960bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "programId": "GveV3ToLhvRmeq1Fyg3BMkNetZuG9pZEp4uBGWLrTjve",
+}
+`;
