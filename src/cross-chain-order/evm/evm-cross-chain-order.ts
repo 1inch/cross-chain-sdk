@@ -294,4 +294,14 @@ export class EvmCrossChainOrder extends BaseOrder<
     public isExclusivityPeriod(time: bigint): boolean {
         return this.inner.isExclusivityPeriod(time)
     }
+
+    /**
+     * Check whether address allowed to execute order at the given time
+     *
+     * @param executor address of executor
+     * @param executionTime timestamp in sec at which order planning to execute
+     */
+    public canExecuteAt(executor: EvmAddress, executionTime: bigint): boolean {
+        return this.inner.canExecuteAt(executor.inner, executionTime)
+    }
 }
