@@ -360,6 +360,15 @@ describe(__filename, () => {
             const url = 'https://test.com/orders'
 
             const expected: OrderStatusResponse = {
+                orderHash: '0x',
+                approximateTakingAmount: '1000',
+                cancelable: false,
+                srcChainId: NetworkEnum.ETHEREUM,
+                dstChainId: NetworkEnum.AVALANCHE,
+                takerAsset: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb49',
+                timeLocks: '0x0000000000000000000000000000000000000000',
+                validation: ValidationStatus.Valid,
+                positiveSurplus: '0',
                 order: {
                     salt: '102412815611787935992271873344279698181002251432500613888978521074851540062603',
                     maker: '0xdc8152a435d76fc89ced8255e28f690962c27e52',
@@ -372,16 +381,16 @@ describe(__filename, () => {
                     takingAmount: '119048031'
                 },
                 cancelTx: null,
-                points: null,
+                points: [],
                 auctionStartDate: 1713866825,
                 auctionDuration: 360,
                 initialRateBump: 654927,
                 status: OrderStatus.Executed,
                 extension:
                     '0x0000006f0000004a0000004a0000004a0000004a000000250000000000000000fb2809a5314473e1165f6b58018e20ed8f07b840000000000000006627884900016809fe4ffb2809a5314473e1165f6b58018e20ed8f07b840000000000000006627884900016809fe4ffb2809a5314473e1165f6b58018e20ed8f07b8406627883dd1a23c3abeed63c51b86000008',
-                createdAt: '2024-04-23T10:06:58.807Z',
-                fromTokenToUsdPrice: '3164.81348508000019137398',
-                toTokenToUsdPrice: '0.99699437304091353962',
+                createdAt: Date.now(),
+                srcTokenPriceUsd: '3164.81348508000019137398',
+                dstTokenPriceUsd: '0.99699437304091353962',
                 fills: [
                     {
                         status: FillStatus.Executed,
@@ -419,8 +428,125 @@ describe(__filename, () => {
                             }
                         ]
                     }
-                ],
-                isNativeCurrency: false
+                ]
+            }
+            const httpProvider = createHttpProviderFake(expected)
+            const api = new OrdersApi(
+                {
+                    url
+                },
+                httpProvider
+            )
+            const orderHash = `0x1beee023ab933cf5446c298eadadb61c05705f2156ef5b2db36c160b36f31ce4`
+
+            const response = await api.getOrderStatus(
+                new OrderStatusRequest({orderHash})
+            )
+
+            expect(response).toEqual(expected)
+            expect(httpProvider.get).toHaveBeenLastCalledWith(
+                `${url}/v1.1/order/status/${orderHash}`
+            )
+        })
+        it('solana', async () => {
+            const url = 'https://test.com/orders'
+
+            const expected: OrderStatusResponse = {
+                orderHash: '0x',
+                approximateTakingAmount: '1000',
+                cancelable: false,
+                srcChainId: NetworkEnum.SOLANA,
+                dstChainId: NetworkEnum.AVALANCHE,
+                takerAsset: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb49',
+                timeLocks: '0x0000000000000000000000000000000000000000',
+                validation: ValidationStatus.Valid,
+                positiveSurplus: '0',
+                order: {
+                    details: {
+                        auction: {
+                            duration: '120',
+                            initialRateBump: 0,
+                            points: [],
+                            startTime: '1752739636'
+                        }
+                    },
+                    escrowParams: {
+                        dstChainId: 1,
+                        dstSafetyDeposit: '1000',
+                        hashLock:
+                            '0x11f8dd293e31c96da8ed3c186011fd0eb9036cce32f2e08c1c5fd5001b737907',
+                        srcChainId: 501,
+                        srcSafetyDeposit: '1000',
+                        timeLocks:
+                            '1318191364591968140515317923577708210251486390651022433320970'
+                    },
+                    extra: {
+                        allowMultipleFills: false,
+                        orderExpirationDelay: '12',
+                        resolverCancellationConfig: {
+                            cancellationAuctionDuration: 1,
+                            maxCancellationPremium: '1'
+                        },
+                        salt: '1661142325',
+                        source: 'sdk',
+                        srcAssetIsNative: false
+                    },
+                    orderInfo: {
+                        dstToken: '0x0000000000000000000000000000000000000004',
+                        maker: '11111111111111111111111111111112',
+                        minDstAmount: '1000000000',
+                        receiver: '0x0000000000000000000000000000000000000002',
+                        srcAmount: '1000000000000000000',
+                        srcToken: '11111111111111111111111111111114'
+                    }
+                },
+                cancelTx: null,
+                points: [],
+                auctionStartDate: 1713866825,
+                auctionDuration: 360,
+                initialRateBump: 654927,
+                status: OrderStatus.Executed,
+                createdAt: Date.now(),
+                srcTokenPriceUsd: '3164.81348508000019137398',
+                dstTokenPriceUsd: '0.99699437304091353962',
+                fills: [
+                    {
+                        status: FillStatus.Executed,
+                        txHash: '0x346d2098059da884c61dfb95c357f11abbf51466c7903fe9c0d5a3d8471b8549',
+                        filledMakerAmount: '40000000000000000',
+                        filledAuctionTakerAmount: '120997216',
+                        escrowEvents: [
+                            {
+                                transactionHash: '0x2345',
+                                escrow: '0x123',
+                                action: EscrowEventAction.SrcEscrowCreated,
+                                blockTimestamp: 123,
+                                side: EscrowEventSide.Src
+                            },
+                            {
+                                transactionHash: '0x4234',
+                                escrow: '0x234',
+                                action: EscrowEventAction.DstEscrowCreated,
+                                blockTimestamp: 124,
+                                side: EscrowEventSide.Dst
+                            },
+                            {
+                                transactionHash: '0x6454',
+                                escrow: '0x123',
+                                action: EscrowEventAction.Withdrawn,
+                                side: EscrowEventSide.Dst,
+                                blockTimestamp: 125
+                            },
+                            {
+                                transactionHash: '0x4354',
+                                escrow: '0x234',
+                                action: EscrowEventAction.Withdrawn,
+                                side: EscrowEventSide.Src,
+                                blockTimestamp: 126
+                            }
+                        ]
+                    }
+                ]
             }
             const httpProvider = createHttpProviderFake(expected)
             const api = new OrdersApi(

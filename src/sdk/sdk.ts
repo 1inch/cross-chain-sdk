@@ -29,7 +29,7 @@ import {
     QuoterRequestParams
 } from '../api'
 import {EvmCrossChainOrder} from '../cross-chain-order/evm'
-import {SupportedChain} from '../chains'
+import {isEvm, SupportedChain} from '../chains'
 
 export class SDK {
     public readonly api: FusionApi
@@ -241,6 +241,11 @@ export class SDK {
         )
     }
 
+    /**
+     * Only for orders with src chain in EVM
+     *
+     * @throws Error for non EVM srcChain
+     */
     async buildCancelOrderCallData(orderHash: string): Promise<string> {
         const getOrderRequest = new OrderStatusRequest({orderHash})
         const orderData = await this.api.getOrderStatus(getOrderRequest)
@@ -251,11 +256,14 @@ export class SDK {
             )
         }
 
-        const {order} = orderData
+        assert(
+            isEvm(orderData.srcChainId) && 'extension' in orderData, // extension check needed for TS
+            'expected evm src chain'
+        )
 
         return encodeCancelOrder(
             orderHash,
-            new MakerTraits(BigInt(order.makerTraits))
+            new MakerTraits(BigInt(orderData.order.makerTraits))
         )
     }
 }

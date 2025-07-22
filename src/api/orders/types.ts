@@ -109,27 +109,48 @@ export type EscrowEventData = {
     escrow: string
     side: EscrowEventSide
     action: EscrowEventAction
+    /**
+     * Unix timestamp in ms
+     */
     blockTimestamp: number
 }
 
 export type OrderStatusResponse = {
+    orderHash: string
     status: OrderStatus
-    order: LimitOrderV4Struct
-    /**
-     * Available only where src chain is evm
-     */
-    extension?: string
-    points: AuctionPoint[] | null
-    cancelTx: string | null
+    validation: ValidationStatus
+    points: AuctionPoint[]
+    approximateTakingAmount: string
+    positiveSurplus: string
     fills: Fill[]
-    createdAt: string
+    /**
+     * unix timestamp in sec
+     */
     auctionStartDate: number
+    /**
+     * in sec
+     */
     auctionDuration: number
     initialRateBump: number
-    isNativeCurrency: boolean
-    fromTokenToUsdPrice: string
-    toTokenToUsdPrice: string
-}
+
+    /**
+     * unix timestamp in ms
+     */
+    createdAt: number
+    srcTokenPriceUsd: string | null
+    dstTokenPriceUsd: string | null
+    cancelTx: string | null
+    dstChainId: SupportedChain
+    cancelable: boolean
+    takerAsset: string
+    /**
+     * hex encoded with 0x prefix
+     */
+    timeLocks: string
+} & (
+    | {srcChainId: EvmChain; order: LimitOrderV4Struct; extension: string}
+    | {srcChainId: SolanaChain; order: SolanaOrderJSON}
+)
 
 export type OrdersByMakerParams = {
     address: string
