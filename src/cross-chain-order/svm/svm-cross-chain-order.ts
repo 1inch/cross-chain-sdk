@@ -15,7 +15,7 @@ import {SvmSrcEscrowFactory} from '../../contracts'
 import {hashForSolana} from '../../domains/auction-details/hasher'
 import {uint256BorchSerialized} from '../../utils/numbers/uint256-borsh-serialized'
 import {uintAsBeBytes} from '../../utils/numbers/uint-as-be-bytes'
-import {AddressLike, EvmAddress, SolanaAddress} from '../../domains/addresses'
+import {EvmAddress, SolanaAddress} from '../../domains/addresses'
 import {isSupportedChain, NetworkEnum, SupportedChain} from '../../chains'
 import {HashLock} from '../../domains/hash-lock'
 import {TimeLocks} from '../../domains/time-locks'
@@ -88,7 +88,7 @@ export class SvmCrossChainOrder extends BaseOrder<
 
     private readonly orderConfig: {
         srcToken: SolanaAddress
-        dstToken: AddressLike
+        dstToken: EvmAddress
         maker: SolanaAddress
         receiver: EvmAddress
         srcAmount: bigint // u64
@@ -219,7 +219,7 @@ export class SvmCrossChainOrder extends BaseOrder<
         return this.orderConfig.srcToken
     }
 
-    public get takerAsset(): AddressLike {
+    public get takerAsset(): EvmAddress {
         return this.orderConfig.dstToken
     }
 

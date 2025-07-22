@@ -7,18 +7,24 @@ import {Immutables} from '../domains/immutables'
 import {TimeLocks} from '../domains/time-locks'
 import {AddressLike} from '../domains/addresses'
 
-export abstract class BaseOrder<TSrcAddress extends AddressLike, TJSON> {
+export abstract class BaseOrder<
+    TSrcAddress extends AddressLike,
+    TJSON,
+    TDstAddress extends AddressLike = AddressLike
+> {
     public abstract get hashLock(): HashLock
 
     public abstract get timeLocks(): TimeLocks
 
     public abstract get srcSafetyDeposit(): bigint
 
+    public abstract get dstSafetyDeposit(): bigint
+
     public abstract get dstChainId(): NetworkEnum
 
     public abstract get maker(): TSrcAddress
 
-    public abstract get takerAsset(): AddressLike
+    public abstract get takerAsset(): TDstAddress
 
     public abstract get makerAsset(): TSrcAddress
 
@@ -29,7 +35,7 @@ export abstract class BaseOrder<TSrcAddress extends AddressLike, TJSON> {
     /**
      * If zero address, then maker will receive funds
      */
-    public abstract get receiver(): AddressLike
+    public abstract get receiver(): TDstAddress
 
     /**
      * Timestamp in sec
@@ -72,8 +78,8 @@ export abstract class BaseOrder<TSrcAddress extends AddressLike, TJSON> {
 
     /**
      * @param srcChainId
-     * @param taker executor of fillOrder* transaction
-     * @param amount making amount (make sure same amount passed to contact fillOrder method)
+     * @param taker executor of tx (signer or msg.sender)
+     * @param amount making amount (make sure same amount passed to contract)
      * @param hashLock leaf of a merkle tree for multiple fill
      */
     public toSrcImmutables(
@@ -100,6 +106,39 @@ export abstract class BaseOrder<TSrcAddress extends AddressLike, TJSON> {
             amount,
             timeLocks: this.timeLocks,
             token: this.makerAsset
+        })
+    }
+
+    /**
+     * @param srcChainId id on SRC chain
+     * @param taker executor of tx (signer or msg.sender)
+     * @param amount taking amount (make sure same amount passed to contract)
+     * @param hashLock leaf of a merkle tree for multiple fill
+     */
+    public toDstImmutables(
+        srcChainId: SupportedChain,
+        taker: TDstAddress,
+        amount: bigint,
+        hashLock = this.hashLock
+    ): Immutables<TDstAddress> {
+        const isPartialFill = amount < this.takingAmount
+        const isHashRoot = hashLock.eq(this.hashLock)
+
+        if (isPartialFill && isHashRoot) {
+            throw new Error(
+                'Provide leaf of merkle tree as HashLock for partial fill'
+            )
+        }
+
+        return Immutables.new({
+            hashLock,
+            safetyDeposit: this.dstSafetyDeposit,
+            taker,
+            maker: this.receiver,
+            orderHash: this.getOrderHashBuffer(srcChainId),
+            amount,
+            timeLocks: this.timeLocks,
+            token: this.takerAsset
         })
     }
 
