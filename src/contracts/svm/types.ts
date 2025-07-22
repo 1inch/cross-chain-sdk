@@ -31,6 +31,7 @@ export type ParsedCreateSrcEscrowInstructionData = {
     } | null
     taker: SolanaAddress
     token: SolanaAddress
+    escrow: SolanaAddress
 }
 
 export type ParsedCreateInstructionData = {
@@ -52,4 +53,5 @@ export type ParsedCreateDstEscrowInstructionData = {
     assetIsNative: boolean
     taker: SolanaAddress
     token: SolanaAddress
+    escrow: SolanaAddress
 }

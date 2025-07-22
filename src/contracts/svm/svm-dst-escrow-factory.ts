@@ -66,7 +66,8 @@ export class SvmDstEscrowFactory extends BaseProgram {
             srcCancellationTimestamp: data.srcCancellationTimestamp,
             assetIsNative: data.assetIsNative,
             taker: ix.accounts[0].pubkey,
-            token: ix.accounts[1].pubkey
+            token: ix.accounts[1].pubkey,
+            escrow: ix.accounts[3].pubkey
         }
     }
 
