@@ -402,6 +402,79 @@ export class SvmDstEscrowFactory extends BaseProgram {
             data
         )
     }
+
+    public cancelPrivate(
+        params: Immutables<SolanaAddress>,
+        extra: {
+            /**
+             * TokenProgram or TokenProgram 2022
+             */
+            tokenProgramId: SolanaAddress
+        }
+    ): Instruction {
+        const token = params.token.isNative()
+            ? SolanaAddress.WRAPPED_NATIVE
+            : params.token
+
+        const data = SvmDstEscrowFactory.coder.instruction.encode('cancel', {})
+        const escrow = this.getEscrowAddress(params)
+
+        return new Instruction(
+            this.programId,
+            [
+                {
+                    // 1. creator
+                    pubkey: params.taker,
+                    isSigner: true,
+                    isWritable: true
+                },
+                {
+                    // 2. mint
+                    pubkey: token,
+                    isSigner: false,
+                    isWritable: false
+                },
+                {
+                    // 3. escrow
+                    pubkey: escrow,
+                    isSigner: false,
+                    isWritable: true
+                },
+                {
+                    // 4. escrow_ata
+                    pubkey: getAta(escrow, token, extra.tokenProgramId),
+                    isSigner: false,
+                    isWritable: true
+                },
+                this.optionalAccount(
+                    {
+                        // 5. creator_ata
+                        pubkey: getAta(
+                            params.taker,
+                            params.token,
+                            extra.tokenProgramId
+                        ),
+                        isSigner: false,
+                        isWritable: true
+                    },
+                    params.token.isNative()
+                ),
+                {
+                    // 6. token_program
+                    pubkey: extra.tokenProgramId,
+                    isSigner: false,
+                    isWritable: false
+                },
+                {
+                    // 7. system_program
+                    pubkey: SolanaAddress.SYSTEM_PROGRAM_ID,
+                    isSigner: false,
+                    isWritable: false
+                }
+            ],
+            data
+        )
+    }
 }
 export type EscrowAddressParams = Pick<
     Immutables<SolanaAddress>,

@@ -1,5 +1,49 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
+exports[`SVM Escrow dst factory should generate cancelPrivate instruction 1`] = `
+{
+  "accounts": [
+    {
+      "isSigner": true,
+      "isWritable": true,
+      "pubkey": "11111111111111111111111111111112j",
+    },
+    {
+      "isSigner": false,
+      "isWritable": false,
+      "pubkey": "7on3yxZPgQgehEo4dxTNg2vV3ECWF8T8QVo3JJSGdcHk",
+    },
+    {
+      "isSigner": false,
+      "isWritable": true,
+      "pubkey": "FscNvqUJyRy5xqiBPEmC7CnJ6Yw5UaYxLoXmPJgxYw3q",
+    },
+    {
+      "isSigner": false,
+      "isWritable": true,
+      "pubkey": "2DDSCFzVdQgu5aFSSksZCfD9CvhXFyFNwxMpeFzzdWjg",
+    },
+    {
+      "isSigner": false,
+      "isWritable": true,
+      "pubkey": "A4zgefDchm9xaifwaEUSrNnB3B96XSNeLJh8s9ACR87o",
+    },
+    {
+      "isSigner": false,
+      "isWritable": false,
+      "pubkey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+    },
+    {
+      "isSigner": false,
+      "isWritable": false,
+      "pubkey": "11111111111111111111111111111111",
+    },
+  ],
+  "data": "0xe8dbdf29dbecdcbe",
+  "programId": "GveV3ToLhvRmeq1Fyg3BMkNetZuG9pZEp4uBGWLrTjve",
+}
+`;
+
 exports[`SVM Escrow dst factory should generate create escrow instruction 1`] = `
 {
   "accounts": [

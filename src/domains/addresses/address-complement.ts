@@ -1,5 +1,4 @@
 import {add0x, UINT_160_MAX} from '@1inch/byte-utils'
-import {hexlify} from 'ethers'
 import assert from 'assert'
 
 /**
@@ -15,7 +14,9 @@ export class AddressComplement {
     }
 
     public asHex(): string {
-        return hexlify(add0x(this.inner.toString(16)))
+        const hex = this.inner.toString(16)
+
+        return add0x(hex.length % 2 ? '0' + hex : hex)
     }
 
     public isZero(): boolean {

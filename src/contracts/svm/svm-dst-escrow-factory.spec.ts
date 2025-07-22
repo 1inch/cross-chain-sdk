@@ -203,8 +203,7 @@ describe('SVM Escrow dst factory', () => {
 
     it('should parse publicWithdraw instruction', async () => {
         const immutables = Immutables.fromJSON<SolanaAddress>({
-            orderHash:
-                '0x62b5cf375b2e813bf2a0f33112712601d5aab04e598701f0bab2b6c5e9fa8a76',
+            orderHash: '0x62b5cf375b2e813bf2a0f33112712601d5aab2b6c5e9fa8a76',
             hashlock:
                 '0x1a52dc502242a54e1d3a609cb31e0160a504d9a26467fcf9a52b7a79060ef8f2',
             maker: '0x0000000000000000000000000000000000000000000000000000000000000001',
@@ -229,5 +228,40 @@ describe('SVM Escrow dst factory', () => {
 
         const parsed = SvmDstEscrowFactory.parsePublicWithdrawInstruction(ix)
         expect(parsed.secret).toEqual('0x' + secret.toString('hex'))
+    })
+
+    it('should generate cancelPrivate instruction', () => {
+        const immutables = Immutables.new({
+            orderHash: bufferFromHex(
+                '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'
+            ),
+            hashLock: HashLock.forSingleFill(
+                '0x9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba'
+            ),
+            maker: SolanaAddress.fromBigInt(200n),
+            taker: SolanaAddress.fromBigInt(100n),
+            token: SolanaAddress.fromBuffer(
+                bufferFromHex(
+                    '0x6521c75081a686617dfe3d3af3015864adc2860fc497d7dd470f522850c660a7'
+                )
+            ),
+            amount: 500000000n,
+            safetyDeposit: 2000n,
+            timeLocks: TimeLocks.fromDurations({
+                srcFinalityLock: 15n,
+                srcPrivateWithdrawal: 150n,
+                srcPublicWithdrawal: 120n,
+                srcPrivateCancellation: 80n,
+                dstFinalityLock: 12n,
+                dstPrivateWithdrawal: 110n,
+                dstPublicWithdrawal: 90n
+            })
+        })
+
+        const ix = SvmDstEscrowFactory.DEFAULT.cancelPrivate(immutables, {
+            tokenProgramId: SolanaAddress.TOKEN_PROGRAM_ID
+        })
+
+        expect(ix).toMatchSnapshot()
     })
 })
