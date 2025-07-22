@@ -65,7 +65,8 @@ export class SvmDstEscrowFactory extends BaseProgram {
             timelocks: TimeLocks.fromBigInt(bnArrayToBigInt(data.timelocks)),
             srcCancellationTimestamp: data.srcCancellationTimestamp,
             assetIsNative: data.assetIsNative,
-            taker: ix.accounts[0].pubkey
+            taker: ix.accounts[0].pubkey,
+            token: ix.accounts[1].pubkey
         }
     }
 

@@ -167,7 +167,8 @@ export class SvmSrcEscrowFactory extends BaseProgram {
                       hashedSecret: bufferToHex(merkleProof.hashedSecret)
                   }
                 : null,
-            taker: ix.accounts[0].pubkey
+            taker: ix.accounts[0].pubkey,
+            token: ix.accounts[1].pubkey
         }
     }
 

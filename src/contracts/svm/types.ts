@@ -30,6 +30,7 @@ export type ParsedCreateSrcEscrowInstructionData = {
         hashedSecret: string
     } | null
     taker: SolanaAddress
+    token: SolanaAddress
 }
 
 export type ParsedCreateInstructionData = {
@@ -50,4 +51,5 @@ export type ParsedCreateDstEscrowInstructionData = {
     srcCancellationTimestamp: number
     assetIsNative: boolean
     taker: SolanaAddress
+    token: SolanaAddress
 }
