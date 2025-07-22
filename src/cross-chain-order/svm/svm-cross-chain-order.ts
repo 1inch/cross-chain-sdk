@@ -5,7 +5,12 @@ import {utils} from '@coral-xyz/anchor'
 import assert from 'assert'
 import {Buffer} from 'buffer'
 import {ResolverCancellationConfig} from './resolver-cancellation-config'
-import {SolanaDetails, SolanaExtra, SolanaEscrowParams} from './types'
+import {
+    SolanaDetails,
+    SolanaExtra,
+    SolanaEscrowParams,
+    OrderHashParams
+} from './types'
 import {SvmSrcEscrowFactory} from '../../contracts'
 import {hashForSolana} from '../../domains/auction-details/hasher'
 import {uint256BorchSerialized} from '../../utils/numbers/uint256-borsh-serialized'
@@ -353,24 +358,12 @@ export class SvmCrossChainOrder extends BaseOrder<
         )
     }
 
-    static getOrderHashBuffer(
-        params: Pick<
-            SvmCrossChainOrder,
-            | 'hashLock'
-            | 'maker'
-            | 'makerAsset'
-            | 'makingAmount'
-            | 'srcSafetyDeposit'
-            | 'timeLocks'
-            | 'deadline'
-            | 'srcAssetIsNative'
-            | 'takingAmount'
-            | 'auction'
-            | 'resolverCancellationConfig'
-            | 'multipleFillsAllowed'
-            | 'salt'
-        >
-    ): Buffer {
+    static getOrderHashBuffer(params: OrderHashParams): Buffer {
+        const auctionHash =
+            'auction' in params
+                ? hashForSolana(params.auction)
+                : params.auctionHash
+
         return bufferFromHex(
             keccak256(
                 Buffer.concat([
@@ -383,7 +376,7 @@ export class SvmCrossChainOrder extends BaseOrder<
                     uintAsBeBytes(params.deadline, 32),
                     Buffer.from([Number(params.srcAssetIsNative)]),
                     uint256BorchSerialized(params.takingAmount),
-                    hashForSolana(params.auction),
+                    auctionHash,
                     uintAsBeBytes(
                         params.resolverCancellationConfig
                             .maxCancellationPremium,

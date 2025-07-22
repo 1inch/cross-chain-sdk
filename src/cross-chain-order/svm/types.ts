@@ -1,5 +1,6 @@
 import {BN} from '@coral-xyz/anchor'
 import {ResolverCancellationConfig} from './resolver-cancellation-config'
+import {SvmCrossChainOrder} from './svm-cross-chain-order'
 import {HashLock} from '../../domains/hash-lock'
 import {TimeLocks} from '../../domains/time-locks'
 import {NetworkEnum, SupportedChain} from '../../chains'
@@ -57,3 +58,27 @@ export type CreateOrderData = {
         safetyDeposit: BN
     }
 }
+
+export type OrderHashParams = Pick<
+    SvmCrossChainOrder,
+    | 'hashLock'
+    | 'maker'
+    | 'makerAsset'
+    | 'makingAmount'
+    | 'srcSafetyDeposit'
+    | 'timeLocks'
+    | 'deadline'
+    | 'srcAssetIsNative'
+    | 'takingAmount'
+    | 'resolverCancellationConfig'
+    | 'multipleFillsAllowed'
+    | 'salt'
+> &
+    (
+        | {
+              auction: AuctionDetails
+          }
+        | {
+              auctionHash: Buffer
+          }
+    )

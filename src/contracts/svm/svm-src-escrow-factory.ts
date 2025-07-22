@@ -32,8 +32,7 @@ import {bigintToBN} from '../../utils/numbers/bigint-to-bn'
 import {bufferFromHex, bufferToHex} from '../../utils/bytes'
 import {
     CreateOrderData,
-    SolanaEscrowParams,
-    SolanaExtra
+    SolanaEscrowParams
 } from '../../cross-chain-order/svm/types'
 import {bnArrayToBigInt} from '../../utils/numbers/bn-array-to-big-int'
 import {ResolverCancellationConfig} from '../../cross-chain-order'
@@ -100,7 +99,7 @@ export class SvmSrcEscrowFactory extends BaseProgram {
             timeLocks: TimeLocks.fromBigInt(bnArrayToBigInt(data.timelocks))
         }
 
-        const extraDetails: SolanaExtra = {
+        const extraDetails: ParsedCreateInstructionData['extraDetails'] = {
             srcAssetIsNative: data.assetsIsNative,
             resolverCancellationConfig: new ResolverCancellationConfig(
                 BigInt(data.maxCancellationPremium),
