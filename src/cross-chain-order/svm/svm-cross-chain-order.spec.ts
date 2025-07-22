@@ -92,6 +92,7 @@ describe('SVMCrossChainOrder', () => {
 
         const json = order.toJSON()
 
+        expect(json).toMatchSnapshot()
         expect(SvmCrossChainOrder.fromJSON(json)).toEqual(order)
     })
 })

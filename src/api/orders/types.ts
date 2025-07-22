@@ -2,7 +2,8 @@ import {LimitOrderV4Struct} from '@1inch/fusion-sdk'
 import {AuctionPoint} from '../../domains'
 import {PaginationOutput} from '../types'
 import {PaginationParams} from '../pagination'
-import {SupportedChain} from '../../chains'
+import {EvmChain, SolanaChain, SupportedChain} from '../../chains'
+import {SolanaOrderJSON} from '../../cross-chain-order'
 
 export type OrdersApiConfig = {
     url: string
@@ -21,21 +22,28 @@ export type FillInfo = {
 export type ActiveOrder = {
     quoteId: string
     orderHash: string
-    signature: string
     deadline: string
     auctionStartDate: string
     auctionEndDate: string
-    remainingMakerAmount: string
-    makerBalance: string
-    makerAllowance: string
-    order: LimitOrderV4Struct
-    extension: string
-    srcChainId: SupportedChain
     dstChainId: SupportedChain
-    isMakerContract: boolean
+    remainingMakerAmount: string
     secretHashes?: string[]
     fills: FillInfo[]
-}
+} & (
+    | {
+          srcChainId: EvmChain
+          order: LimitOrderV4Struct
+          isMakerContract: boolean
+          signature: string
+          makerBalance: string
+          makerAllowance: string
+          extension: string
+      }
+    | {
+          srcChainId: SolanaChain
+          order: SolanaOrderJSON
+      }
+)
 
 export type ActiveOrdersResponse = PaginationOutput<ActiveOrder>
 
@@ -107,7 +115,10 @@ export type EscrowEventData = {
 export type OrderStatusResponse = {
     status: OrderStatus
     order: LimitOrderV4Struct
-    extension: string
+    /**
+     * Available only where src chain is evm
+     */
+    extension?: string
     points: AuctionPoint[] | null
     cancelTx: string | null
     fills: Fill[]

@@ -1,10 +1,11 @@
 import {
-    OnGetActiveOrdersCb,
     OnGetAllowedMethodsCb,
     OnPongCb,
+    RpcEvent,
     WsProviderConnector
 } from '@1inch/fusion-sdk'
 import {OnGetSecretsCb, RpcEventType, RpcMethod} from './types'
+import {ActiveOrder, PaginationOutput} from '../api/'
 import {PaginationParams, PaginationRequest} from '../api/pagination'
 
 export class RpcWebsocketApi {
@@ -72,3 +73,7 @@ export class RpcWebsocketApi {
         })
     }
 }
+
+export type OnGetActiveOrdersCb = (
+    data: RpcEvent<'getActiveOrders', PaginationOutput<ActiveOrder>>['result']
+) => unknown

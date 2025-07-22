@@ -1,0 +1,41 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`SVMCrossChainOrder should correct toJSON/fromJSON 1`] = `
+{
+  "details": {
+    "auction": {
+      "duration": "120",
+      "initialRateBump": 0,
+      "points": [],
+      "startTime": "1752739636",
+    },
+  },
+  "escrowParams": {
+    "dstChainId": 1,
+    "dstSafetyDeposit": "1000",
+    "hashLock": "0x11f8dd293e31c96da8ed3c186011fd0eb9036cce32f2e08c1c5fd5001b737907",
+    "srcChainId": 501,
+    "srcSafetyDeposit": "1000",
+    "timeLocks": "1318191364591968140515317923577708210251486390651022433320970",
+  },
+  "extra": {
+    "allowMultipleFills": false,
+    "orderExpirationDelay": "12",
+    "resolverCancellationConfig": {
+      "cancellationAuctionDuration": 1,
+      "maxCancellationPremium": "1",
+    },
+    "salt": "1661142325",
+    "source": "sdk",
+    "srcAssetIsNative": false,
+  },
+  "orderInfo": {
+    "dstToken": "0x0000000000000000000000000000000000000004",
+    "maker": "11111111111111111111111111111112",
+    "minDstAmount": "1000000000",
+    "receiver": "0x0000000000000000000000000000000000000002",
+    "srcAmount": "1000000000000000000",
+    "srcToken": "11111111111111111111111111111114",
+  },
+}
+`;

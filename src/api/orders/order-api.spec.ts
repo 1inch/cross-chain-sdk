@@ -1,4 +1,4 @@
-import {HttpProviderConnector, NetworkEnum} from '@1inch/fusion-sdk'
+import {HttpProviderConnector} from '@1inch/fusion-sdk'
 import {
     ActiveOrdersResponse,
     EscrowEventAction,
@@ -18,6 +18,7 @@ import {
     OrdersByMakerRequest,
     OrderStatusRequest
 } from './orders.request'
+import {NetworkEnum} from '../../chains'
 
 function createHttpProviderFake<T>(mock: T): HttpProviderConnector {
     return {
@@ -136,7 +137,7 @@ describe(__filename, () => {
 
             expect(response).toEqual(expected)
             expect(httpProvider.get).toHaveBeenLastCalledWith(
-                `${url}/v1.0/order/active/?page=1&limit=2`
+                `${url}/v1.1/order/active/?page=1&limit=2`
             )
         })
 
@@ -223,7 +224,133 @@ describe(__filename, () => {
 
             expect(response).toEqual(expected)
             expect(httpProvider.get).toHaveBeenLastCalledWith(
-                `${url}/v1.0/order/active/?`
+                `${url}/v1.1/order/active/?`
+            )
+        })
+
+        it('solana orders', async () => {
+            const expected: ActiveOrdersResponse = {
+                items: [
+                    {
+                        quoteId: '6f3dc6f8-33d3-478b-9f70-2f7c2becc488',
+                        orderHash:
+                            '0x496755a88564d8ded6759dff0252d3e6c3ef1fe42b4fa1bbc3f03bd2674f1078',
+                        deadline: '2024-04-25T13:27:48.000Z',
+                        auctionStartDate: '2024-04-25T13:24:36.000Z',
+                        auctionEndDate: '2024-04-25T13:27:36.000Z',
+                        remainingMakerAmount: '470444951856649710700841',
+                        order: {
+                            details: {
+                                auction: {
+                                    duration: '120',
+                                    initialRateBump: 0,
+                                    points: [],
+                                    startTime: '1752739636'
+                                }
+                            },
+                            escrowParams: {
+                                dstChainId: 1,
+                                dstSafetyDeposit: '1000',
+                                hashLock:
+                                    '0x11f8dd293e31c96da8ed3c186011fd0eb9036cce32f2e08c1c5fd5001b737907',
+                                srcChainId: 501,
+                                srcSafetyDeposit: '1000',
+                                timeLocks:
+                                    '1318191364591968140515317923577708210251486390651022433320970'
+                            },
+                            extra: {
+                                allowMultipleFills: false,
+                                orderExpirationDelay: '12',
+                                resolverCancellationConfig: {
+                                    cancellationAuctionDuration: 1,
+                                    maxCancellationPremium: '1'
+                                },
+                                salt: '1661142325',
+                                source: 'sdk',
+                                srcAssetIsNative: false
+                            },
+                            orderInfo: {
+                                dstToken:
+                                    '0x0000000000000000000000000000000000000004',
+                                maker: '11111111111111111111111111111112',
+                                minDstAmount: '1000000000',
+                                receiver:
+                                    '0x0000000000000000000000000000000000000002',
+                                srcAmount: '1000000000000000000',
+                                srcToken: '11111111111111111111111111111114'
+                            }
+                        },
+                        srcChainId: NetworkEnum.SOLANA,
+                        dstChainId: NetworkEnum.ARBITRUM,
+                        fills: [],
+                        secretHashes: [
+                            '0x2048b38093dc53876b2bbd230ee8999791153db01de425112f449d018094e116',
+                            '0x7972c1498893bb9b88baddc9decb78d8defdcc7a182a72edd8724498c75f088d',
+                            '0x6d5b8f0b1f8a28564ff65e5f9c4d8a8a6babfb318bca6ecc9d872a3abe8a4ea0'
+                        ]
+                    },
+                    {
+                        quoteId: '8343588a-da1e-407f-b41f-aa86f0ec4266',
+                        orderHash:
+                            '0x153386fa8e0b27b09d1250455521531e392e342571de31ac50836a3b6b9001d8',
+                        signature:
+                            '0x9ef06d325568887caace5f82bba23c821224df23886675fdd63259ee1594269e2768f58fe90a0ae6009184f2f422eb61e9cbd4f6d3c674befd0e55302995d4301c',
+                        deadline: '2023-01-31T11:01:06.000Z',
+                        auctionStartDate: '2023-01-31T10:58:11.000Z',
+                        auctionEndDate: '2023-01-31T11:01:11.000Z',
+                        remainingMakerAmount: '470444951856649710700841',
+                        makerBalance: '470444951856649710700841',
+                        makerAllowance: '470444951856649710700841',
+                        order: {
+                            salt: '102412815605188492728297784997818915205705878873010401762040598952855113412064',
+                            maker: '0xdc8152a435d76fc89ced8255e28f690962c27e52',
+                            receiver:
+                                '0x0000000000000000000000000000000000000000',
+                            makerAsset:
+                                '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+                            takerAsset:
+                                '0xdac17f958d2ee523a2206206994597c13d831ec7',
+                            makerTraits:
+                                '62419173104490761595518734107503940736863610329190665072877236599067968012288',
+                            makingAmount: '30000000',
+                            takingAmount: '20653338'
+                        },
+                        srcChainId: NetworkEnum.ETHEREUM,
+                        dstChainId: NetworkEnum.ARBITRUM,
+                        extension:
+                            '0x00000079000000540000005400000054000000540000002a0000000000000000fb2809a5314473e1165f6b58018e20ed8f07b840423b06000034016627b1dc0000b444e602447208003cfb2809a5314473e1165f6b58018e20ed8f07b840423b06000034016627b1dc0000b444e602447208003cfb2809a5314473e1165f6b58018e20ed8f07b8406627b1c4d1a23c3abeed63c51b86000008',
+                        isMakerContract: true,
+                        fills: [],
+                        secretHashes: [
+                            '0x2048b38093dc53876b2bbd230ee8999791153db01de425112f449d018094e116',
+                            '0x7972c1498893bb9b88baddc9decb78d8defdcc7a182a72edd8724498c75f088d',
+                            '0x6d5b8f0b1f8a28564ff65e5f9c4d8a8a6babfb318bca6ecc9d872a3abe8a4ea0'
+                        ]
+                    }
+                ],
+                meta: {
+                    totalItems: 11,
+                    currentPage: 1,
+                    itemsPerPage: 2,
+                    totalPages: 6
+                }
+            }
+
+            const httpProvider = createHttpProviderFake(expected)
+            const api = new OrdersApi(
+                {
+                    url
+                },
+                httpProvider
+            )
+
+            const response = await api.getActiveOrders(
+                new ActiveOrdersRequest({page: 1, limit: 2})
+            )
+
+            expect(response).toEqual(expected)
+            expect(httpProvider.get).toHaveBeenLastCalledWith(
+                `${url}/v1.1/order/active/?page=1&limit=2`
             )
         })
     })
@@ -310,7 +437,7 @@ describe(__filename, () => {
 
             expect(response).toEqual(expected)
             expect(httpProvider.get).toHaveBeenLastCalledWith(
-                `${url}/v1.0/order/status/${orderHash}`
+                `${url}/v1.1/order/status/${orderHash}`
             )
         })
     })
@@ -438,7 +565,7 @@ describe(__filename, () => {
 
             expect(response).toEqual(expected)
             expect(httpProvider.get).toHaveBeenLastCalledWith(
-                `${url}/v1.0/order/maker/${address}/?limit=1&page=1`
+                `${url}/v1.1/order/maker/${address}/?limit=1&page=1`
             )
         })
 
@@ -563,7 +690,7 @@ describe(__filename, () => {
 
             expect(response).toEqual(expected)
             expect(httpProvider.get).toHaveBeenLastCalledWith(
-                `${url}/v1.0/order/maker/${address}/?`
+                `${url}/v1.1/order/maker/${address}/?`
             )
         })
     })
@@ -595,7 +722,7 @@ describe(__filename, () => {
 
             expect(response).toEqual(expected)
             expect(httpProvider.get).toHaveBeenLastCalledWith(
-                `${url}/v1.0/order/ready-to-accept-secret-fills/${orderHash}`
+                `${url}/v1.1/order/ready-to-accept-secret-fills/${orderHash}`
             )
         })
     })
@@ -622,7 +749,7 @@ describe(__filename, () => {
 
             expect(response).toEqual(expected)
             expect(httpProvider.get).toHaveBeenLastCalledWith(
-                `${url}/v1.0/order/secrets/${orderHash}`
+                `${url}/v1.1/order/secrets/${orderHash}`
             )
         })
     })

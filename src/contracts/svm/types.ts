@@ -29,6 +29,7 @@ export type ParsedCreateSrcEscrowInstructionData = {
         proof: MerkleLeaf[]
         hashedSecret: string
     } | null
+    taker: SolanaAddress
 }
 
 export type ParsedCreateInstructionData = {
@@ -48,4 +49,5 @@ export type ParsedCreateDstEscrowInstructionData = {
     timelocks: TimeLocks
     srcCancellationTimestamp: number
     assetIsNative: boolean
+    taker: SolanaAddress
 }

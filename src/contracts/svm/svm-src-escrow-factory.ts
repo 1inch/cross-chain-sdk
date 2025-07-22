@@ -166,7 +166,8 @@ export class SvmSrcEscrowFactory extends BaseProgram {
                       proof: merkleProof.proof.map(bufferToHex) as MerkleLeaf[],
                       hashedSecret: bufferToHex(merkleProof.hashedSecret)
                   }
-                : null
+                : null,
+            taker: ix.accounts[0].pubkey
         }
     }
 

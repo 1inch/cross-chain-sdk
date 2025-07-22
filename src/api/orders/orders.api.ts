@@ -16,7 +16,7 @@ import {
 import {concatQueryParams} from '../params'
 
 export class OrdersApi {
-    private static Version = 'v1.0'
+    private static Version = 'v1.1'
 
     constructor(
         private readonly config: OrdersApiConfig,
