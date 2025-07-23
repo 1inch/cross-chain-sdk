@@ -109,39 +109,6 @@ export abstract class BaseOrder<
         })
     }
 
-    /**
-     * @param srcChainId id on SRC chain
-     * @param taker executor of tx (signer or msg.sender)
-     * @param amount taking amount (make sure same amount passed to contract)
-     * @param hashLock leaf of a merkle tree for multiple fill
-     */
-    public toDstImmutables(
-        srcChainId: SupportedChain,
-        taker: TDstAddress,
-        amount: bigint,
-        hashLock = this.hashLock
-    ): Immutables<TDstAddress> {
-        const isPartialFill = amount < this.takingAmount
-        const isHashRoot = hashLock.eq(this.hashLock)
-
-        if (isPartialFill && isHashRoot) {
-            throw new Error(
-                'Provide leaf of merkle tree as HashLock for partial fill'
-            )
-        }
-
-        return Immutables.new({
-            hashLock,
-            safetyDeposit: this.dstSafetyDeposit,
-            taker,
-            maker: this.receiver,
-            orderHash: this.getOrderHashBuffer(srcChainId),
-            amount,
-            timeLocks: this.timeLocks,
-            token: this.takerAsset
-        })
-    }
-
     public getMultipleFillIdx(
         fillAmount: bigint,
         remainingAmount = this.makingAmount

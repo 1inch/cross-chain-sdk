@@ -1,18 +1,5 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`SVMCrossChainOrder DstImmutables correct address type passed 1`] = `
-{
-  "amount": "1000000010",
-  "hashlock": "0x11f8dd293e31c96da8ed3c186011fd0eb9036cce32f2e08c1c5fd5001b737907",
-  "maker": "0x0000000000000000000000000000000000000002",
-  "orderHash": "0xf59558e3ddb28b3aaa4953e12efc4c7b0d98c637942be3b5e8615998a5bf65c4",
-  "safetyDeposit": "1000",
-  "taker": "0x000000000000000000000000000000000000000a",
-  "timelocks": "1318191364591968140515317923577708210251486390651022433320970",
-  "token": "0x0000000000000000000000000000000000000004",
-}
-`;
-
 exports[`SVMCrossChainOrder should correct toJSON/fromJSON 1`] = `
 {
   "details": {
