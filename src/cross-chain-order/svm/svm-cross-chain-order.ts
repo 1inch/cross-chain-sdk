@@ -231,6 +231,9 @@ export class SvmCrossChainOrder extends BaseOrder<
         return this.orderConfig.minDstAmount
     }
 
+    /**
+     * Real receiver of funds on dst chain
+     */
     public get receiver(): EvmAddress {
         return this.orderConfig.receiver
     }
