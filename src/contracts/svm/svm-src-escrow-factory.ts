@@ -637,6 +637,9 @@ export class SvmSrcEscrowFactory extends BaseProgram {
         )
     }
 
+    /**
+     * Cancel fill escrow private
+     */
     public cancelPrivate(
         params: ActionParams,
         extra: {
@@ -719,6 +722,9 @@ export class SvmSrcEscrowFactory extends BaseProgram {
         )
     }
 
+    /**
+     * Cancel fill escrow public
+     */
     public cancelPublic(
         params: Immutables<SolanaAddress>,
         payer: SolanaAddress,
@@ -813,6 +819,86 @@ export class SvmSrcEscrowFactory extends BaseProgram {
                     isWritable: false
                 },
                 // 10. system_program
+                {
+                    pubkey: SolanaAddress.SYSTEM_PROGRAM_ID,
+                    isSigner: false,
+                    isWritable: false
+                }
+            ],
+            data
+        )
+    }
+
+    public cancelOrderAccount(
+        params: {
+            orderHash: Buffer
+            maker: SolanaAddress
+            token: SolanaAddress
+        },
+        extra: {
+            /**
+             * TokenProgram or TokenProgram 2022
+             */
+            tokenProgramId: SolanaAddress
+        }
+    ): Instruction {
+        const data = SvmSrcEscrowFactory.coder.instruction.encode(
+            'cancelOrder',
+            {}
+        )
+        const orderAccount = this.getOrderAccount(params.orderHash)
+
+        return new Instruction(
+            this.programId,
+            [
+                // 1. creator
+                {
+                    pubkey: params.maker,
+                    isSigner: true,
+                    isWritable: true
+                },
+                // 2. mint
+                {
+                    pubkey: params.token,
+                    isSigner: false,
+                    isWritable: false
+                },
+                // 3. order
+                {
+                    pubkey: orderAccount,
+                    isSigner: false,
+                    isWritable: true
+                },
+                // 4. order_ata
+                {
+                    pubkey: getAta(
+                        orderAccount,
+                        params.token,
+                        extra.tokenProgramId
+                    ),
+                    isSigner: false,
+                    isWritable: true
+                },
+                // 5. creator_ata (optional)
+                this.optionalAccount(
+                    {
+                        pubkey: getAta(
+                            params.maker,
+                            params.token,
+                            extra.tokenProgramId
+                        ),
+                        isSigner: false,
+                        isWritable: true
+                    },
+                    params.token.isNative()
+                ),
+                // 6. token_program
+                {
+                    pubkey: extra.tokenProgramId,
+                    isSigner: false,
+                    isWritable: false
+                },
+                // 7. system_program
                 {
                     pubkey: SolanaAddress.SYSTEM_PROGRAM_ID,
                     isSigner: false,
