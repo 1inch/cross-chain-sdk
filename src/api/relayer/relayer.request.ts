@@ -56,13 +56,15 @@ export class RelayerRequestSvm {
 
     build(): Jsonify<DataFor<RelayerRequestEvm>> {
         const auction = this.order.details.auction
+        const startTime = Number(auction.startTime)
+        const duration = Number(auction.duration)
 
         return {
             srcChainId: NetworkEnum.SOLANA,
             dstChainId: this.order.escrowParams.dstChainId,
             auctionData: {
-                startTime: Number(auction.startTime),
-                duration: Number(auction.duration),
+                startTime,
+                duration,
                 initialRateBump: Number(auction.initialRateBump),
                 pointsAndTimeDeltas: auction.points.map((p) => ({
                     rateBump: Number(p.coefficient),
@@ -77,10 +79,12 @@ export class RelayerRequestSvm {
                 srcSafetyDeposit: this.order.escrowParams.srcSafetyDeposit,
                 dstSafetyDeposit: this.order.escrowParams.dstSafetyDeposit,
                 timeLocks: this.order.escrowParams.timeLocks,
-                expirationTime: Number(this.order.extra.orderExpirationDelay),
+                expirationTime: Number(
+                    this.order.extra.orderExpirationDelay + startTime + duration
+                ),
                 assetIsNative: this.order.extra.srcAssetIsNative,
                 dstAmount: this.order.orderInfo.minDstAmount,
-                dutchAuctionDataHash: '', // Not available in SolanaOrderJSON
+                dutchAuctionDataHash: this.auctionOrderHash,
                 maxCancellationPremium:
                     this.order.extra.resolverCancellationConfig
                         .maxCancellationPremium,
