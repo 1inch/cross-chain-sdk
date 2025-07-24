@@ -79,9 +79,10 @@ export class RelayerRequestSvm {
                 srcSafetyDeposit: this.order.escrowParams.srcSafetyDeposit,
                 dstSafetyDeposit: this.order.escrowParams.dstSafetyDeposit,
                 timeLocks: this.order.escrowParams.timeLocks,
-                expirationTime: Number(
-                    this.order.extra.orderExpirationDelay + startTime + duration
-                ),
+                expirationTime:
+                    Number(this.order.extra.orderExpirationDelay) +
+                    startTime +
+                    duration,
                 assetIsNative: this.order.extra.srcAssetIsNative,
                 dstAmount: this.order.orderInfo.minDstAmount,
                 dutchAuctionDataHash: this.auctionOrderHash,
