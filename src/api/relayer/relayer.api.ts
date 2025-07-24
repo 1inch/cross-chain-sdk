@@ -13,7 +13,7 @@ export class RelayerApi {
     submit(params: RelayerRequestEvm | RelayerRequestSvm): Promise<void> {
         const url = `${this.config.url}/${RelayerApi.Version}/submit`
 
-        return this.httpClient.post(url, params)
+        return this.httpClient.post(url, params.build())
     }
 
     submitBatch(
@@ -21,7 +21,10 @@ export class RelayerApi {
     ): Promise<void> {
         const url = `${this.config.url}/${RelayerApi.Version}/submit/many`
 
-        return this.httpClient.post(url, params)
+        return this.httpClient.post(
+            url,
+            params.map((p) => p.build())
+        )
     }
 
     submitSecret(orderHash: string, secret: string): Promise<void> {
