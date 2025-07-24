@@ -1,6 +1,6 @@
 {
   "name": "@1inch/cross-chain-sdk",
-  "version": "0.2.1-rc.37",
+  "version": "0.2.1-rc.38",
   "description": "Sdk for creating atomic swaps through 1inch",
   "author": "@1inch",
   "module": "./dist/esm/index.js",
