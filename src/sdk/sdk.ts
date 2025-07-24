@@ -9,6 +9,7 @@ import {
     QuoteCustomPresetParams,
     CrossChainSDKConfigParams
 } from './types'
+import {bufferToHex} from '../utils'
 import {EvmAddress} from '../domains/addresses'
 import {
     FusionApi,
@@ -247,6 +248,7 @@ export class SDK {
 
         const relayerRequest = new RelayerRequestSvm({
             order: order.toJSON(),
+            auctionOrderHash: bufferToHex(order.auction.hashForSolana()),
             quoteId,
             secretHashes: secretHashes.length === 1 ? undefined : secretHashes
         })

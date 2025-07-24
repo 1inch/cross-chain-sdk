@@ -41,6 +41,8 @@ export class RelayerRequestEvm {
 export class RelayerRequestSvm {
     public readonly order: SolanaOrderJSON
 
+    public readonly auctionOrderHash: string
+
     public readonly quoteId: string
 
     public readonly secretHashes?: string[]
@@ -49,6 +51,7 @@ export class RelayerRequestSvm {
         this.order = params.order
         this.quoteId = params.quoteId
         this.secretHashes = params.secretHashes
+        this.auctionOrderHash = params.auctionOrderHash
     }
 
     build(): Jsonify<DataFor<RelayerRequestEvm>> {
@@ -68,7 +71,30 @@ export class RelayerRequestSvm {
             },
             secretHashes: this.secretHashes,
             quoteId: this.quoteId,
-            order: this.order
+            order: {
+                hashLock: this.order.escrowParams.hashLock,
+                amount: this.order.orderInfo.srcAmount,
+                srcSafetyDeposit: this.order.escrowParams.srcSafetyDeposit,
+                dstSafetyDeposit: this.order.escrowParams.dstSafetyDeposit,
+                timeLocks: this.order.escrowParams.timeLocks,
+                expirationTime: Number(this.order.extra.orderExpirationDelay),
+                assetIsNative: this.order.extra.srcAssetIsNative,
+                dstAmount: this.order.orderInfo.minDstAmount,
+                dutchAuctionDataHash: '', // Not available in SolanaOrderJSON
+                maxCancellationPremium:
+                    this.order.extra.resolverCancellationConfig
+                        .maxCancellationPremium,
+                cancellationAuctionDuration: Number(
+                    this.order.extra.resolverCancellationConfig
+                        .cancellationAuctionDuration
+                ),
+                allowMultipleFills: this.order.extra.allowMultipleFills,
+                salt: this.order.extra.salt,
+                maker: this.order.orderInfo.maker,
+                receiver: this.order.orderInfo.receiver,
+                srcMint: this.order.orderInfo.srcToken,
+                dstMint: this.order.orderInfo.dstToken
+            }
         }
     }
 }

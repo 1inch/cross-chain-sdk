@@ -96,7 +96,8 @@ describe('Relayer API', () => {
                     srcToken: '11111111111111111111111111111114'
                 }
             },
-            quoteId: '9a43c86d-f3d7-45b9-8cb6-803d2bdfa08b'
+            quoteId: '9a43c86d-f3d7-45b9-8cb6-803d2bdfa08b',
+            auctionOrderHash: 'her'
         }
 
         const params = new RelayerRequestSvm(orderData)
@@ -105,7 +106,7 @@ describe('Relayer API', () => {
 
         expect(httpProvider.post).toHaveBeenCalledWith(
             'https://test.com/relayer/v1.1/submit',
-            orderData
+            params.build()
         )
     })
 
@@ -157,21 +158,26 @@ describe('Relayer API', () => {
                     srcToken: '11111111111111111111111111111114'
                 }
             },
-            quoteId: '9a43c86d-f3d7-45b9-8cb6-803d2bdfa08b'
+            quoteId: '9a43c86d-f3d7-45b9-8cb6-803d2bdfa08b',
+            auctionOrderHash: 'her'
         }
 
         const params = new RelayerRequestSvm(orderData)
 
         const batch = [
             params,
-            new RelayerRequestSvm({...orderData, quoteId: 'other'})
+            new RelayerRequestSvm({
+                ...orderData,
+                quoteId: 'other',
+                auctionOrderHash: 'her'
+            })
         ]
 
         await relayer.submitBatch(batch)
 
         expect(httpProvider.post).toHaveBeenCalledWith(
             'https://test.com/relayer/v1.1/submit/many',
-            batch
+            batch.map((b) => b.build())
         )
     })
 
