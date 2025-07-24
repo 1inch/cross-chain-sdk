@@ -874,11 +874,7 @@ export class SvmSrcEscrowFactory extends BaseProgram {
                 },
                 // 4. order_ata
                 {
-                    pubkey: getAta(
-                        orderAccount,
-                        params.token,
-                        extra.tokenProgramId
-                    ),
+                    pubkey: getAta(orderAccount, token, extra.tokenProgramId),
                     isSigner: false,
                     isWritable: true
                 },
@@ -887,7 +883,7 @@ export class SvmSrcEscrowFactory extends BaseProgram {
                     {
                         pubkey: getAta(
                             params.maker,
-                            params.token,
+                            token,
                             extra.tokenProgramId
                         ),
                         isSigner: false,
