@@ -52,11 +52,23 @@ export class RelayerRequestSvm {
     }
 
     build(): Jsonify<DataFor<RelayerRequestEvm>> {
+        const auction = this.order.details.auction
+
         return {
-            order: this.order,
-            quoteId: this.quoteId,
             srcChainId: NetworkEnum.SOLANA,
-            secretHashes: this.secretHashes
+            dstChainId: this.order.escrowParams.dstChainId,
+            auctionData: {
+                startTime: Number(auction.startTime),
+                duration: Number(auction.duration),
+                initialRateBump: Number(auction.initialRateBump),
+                pointsAndTimeDeltas: auction.points.map((p) => ({
+                    rateBump: Number(p.coefficient),
+                    timeDelta: Number(p.delay)
+                }))
+            },
+            secretHashes: this.secretHashes,
+            quoteId: this.quoteId,
+            order: this.order
         }
     }
 }
