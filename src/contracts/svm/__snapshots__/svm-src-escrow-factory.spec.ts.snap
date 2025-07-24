@@ -215,3 +215,35 @@ exports[`SVM Escrow src factory should generate withdrawPublic instruction 1`] =
   "programId": "2g4JDRMD7G3dK1PHmCnDAycKzd6e5sdhxqGBbs264zwz",
 }
 `;
+
+exports[`SVM Escrow src factory should parse create instruction 2 1`] = `
+{
+  "dutchAuctionDataHash": "0xadbb6721b4fce525bf9d4665dc3c5f53b59dd965131d541ed5da6e393da9bb68",
+  "escrowParams": {
+    "dstChainId": 1,
+    "dstSafetyDeposit": 187114474260000n,
+    "hashLock": "0xca4293ac3931ba233bc5306d86ba1ac660fb602ebf20b592af09de3b0448dae3",
+    "srcChainId": 501,
+    "srcSafetyDeposit": 15213n,
+    "timeLocks": "0x0000000000000240000001c80000002400000390000003180000027c000000b4",
+  },
+  "expirationTime": 1753378539n,
+  "extraDetails": {
+    "allowMultipleFills": false,
+    "resolverCancellationConfig": {
+      "cancellationAuctionDuration": 1,
+      "maxCancellationPremium": "1",
+    },
+    "salt": 1504783724301932776n,
+    "srcAssetIsNative": undefined,
+  },
+  "orderInfo": {
+    "dstToken": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+    "maker": "93FP8NG2JrScb9xzNsJrzAze8gJJtr1TgQWUCHDgP3BW",
+    "minDstAmount": 17339608n,
+    "receiver": "0x962a836519109e162754161000d65d9dc027fa0f",
+    "srcAmount": 100000000n,
+    "srcToken": "So11111111111111111111111111111111111111112",
+  },
+}
+`;

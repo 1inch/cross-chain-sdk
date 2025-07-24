@@ -1,7 +1,9 @@
 import {parseEther, parseUnits} from 'ethers'
+import {utils} from '@coral-xyz/anchor'
 import {Buffer} from 'buffer'
 import {randomBytes} from 'crypto'
 import {SvmSrcEscrowFactory} from './svm-src-escrow-factory'
+import {Instruction} from './instruction'
 import {NetworkEnum} from '../../chains'
 import {SvmCrossChainOrder} from '../../cross-chain-order/svm/svm-cross-chain-order'
 import {EvmAddress, SolanaAddress} from '../../domains/addresses'
@@ -169,6 +171,36 @@ describe('SVM Escrow src factory', () => {
         )
     })
 
+    it('should parse create instruction 2', async () => {
+        const parsedIx = SvmSrcEscrowFactory.parseCreateInstruction(
+            new Instruction(
+                SolanaAddress.fromString(
+                    '2g4JDRMD7G3dK1PHmCnDAycKzd6e5sdhxqGBbs264zwz'
+                ),
+                [
+                    '93FP8NG2JrScb9xzNsJrzAze8gJJtr1TgQWUCHDgP3BW',
+                    'So11111111111111111111111111111111111111112',
+                    '2g4JDRMD7G3dK1PHmCnDAycKzd6e5sdhxqGBbs264zwz',
+                    '2vuuBQYhg1P7Q7yVDJrv3ja9iAYC7CxK6FSDvLyneALv',
+                    'DEAoThiQK9eC8VqzuSZkjgfRC2Szyh7CWGBXuUZoxk4Y',
+                    'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL',
+                    'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
+                    'SysvarRent111111111111111111111111111111111',
+                    '11111111111111111111111111111111'
+                ].map((a) => ({
+                    pubkey: SolanaAddress.fromString(a),
+                    isSigner: false,
+                    isWritable: false
+                })),
+                utils.bytes.bs58.decode(
+                    '3T7oY5vzz2tcbgKBeEE6yPcWzZmv8wNGmRQ6GbgZPMBUPk25Z7RBfHYMVj6zHqGAwJ9bcpnjSvGN44dzVmagvePQL3XvErpnw1uV3YS3YtwnmioBijKQi3xE5PxuTSL8fSvmaiMarJ1r2eTr2Y1QNT7bxp3bzXjhenoqmUjLJN7fmgGGCmGZockGeGgAUW9vDgKA3SarB9jTUEAMGh8KUe9TN4on4XTUoqDxYFbkcANQiAAyVKh4DVskzDEMypZn6AT3wAKLUcs7fgYumKWHJUjbgQjnz8Mc4WmisX2eNtrDTGMsGDjSxPCFhQeWNWhVKag2ykqSFbFTBRsGFoe49RnF7pZBDwL8zfs1ks'
+                )
+            )
+        )
+
+        expect(parsedIx).toBeDefined()
+        expect(parsedIx).toMatchSnapshot()
+    })
     it('should generate withdrawPublic instruction', () => {
         const immutables = Immutables.new({
             orderHash: Buffer.from(
