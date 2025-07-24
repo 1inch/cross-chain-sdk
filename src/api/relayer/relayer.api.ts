@@ -1,5 +1,5 @@
 import {HttpProviderConnector} from '@1inch/fusion-sdk'
-import {RelayerRequest} from './relayer.request'
+import {RelayerRequestEvm, RelayerRequestSvm} from './relayer.request'
 import {RelayerApiConfig} from './types'
 
 export class RelayerApi {
@@ -10,13 +10,15 @@ export class RelayerApi {
         private readonly httpClient: HttpProviderConnector
     ) {}
 
-    submit(params: RelayerRequest): Promise<void> {
+    submit(params: RelayerRequestEvm | RelayerRequestSvm): Promise<void> {
         const url = `${this.config.url}/${RelayerApi.Version}/submit`
 
         return this.httpClient.post(url, params)
     }
 
-    submitBatch(params: RelayerRequest[]): Promise<void> {
+    submitBatch(
+        params: RelayerRequestEvm[] | RelayerRequestSvm[]
+    ): Promise<void> {
         const url = `${this.config.url}/${RelayerApi.Version}/submit/many`
 
         return this.httpClient.post(url, params)

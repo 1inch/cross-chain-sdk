@@ -17,3 +17,12 @@ export type FixedLengthArray<
     N extends number,
     R extends T[] = []
 > = R['length'] extends N ? R : FixedLengthArray<T, N, [T, ...R]>
+
+type NonFunctionPropertyNames<T> = {
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    [K in keyof T]: T[K] extends Function ? never : K
+}[keyof T]
+
+type NonFunctionProperties<T> = Pick<T, NonFunctionPropertyNames<T>>
+
+export type DataFor<T> = NonFunctionProperties<T>

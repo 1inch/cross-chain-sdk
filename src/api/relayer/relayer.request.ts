@@ -1,8 +1,10 @@
 import {LimitOrderV4Struct} from '@1inch/fusion-sdk'
-import {RelayerRequestParams} from './types'
-import {SupportedChain} from '../../chains'
+import {Jsonify} from 'type-fest'
+import {SolanaOrderJSON} from 'cross-chain-order'
+import {DataFor} from '../../type-utils'
+import {NetworkEnum, SupportedChain} from '../../chains'
 
-export class RelayerRequest {
+export class RelayerRequestEvm {
     public readonly order: LimitOrderV4Struct
 
     public readonly signature: string
@@ -15,7 +17,7 @@ export class RelayerRequest {
 
     public readonly secretHashes?: string[]
 
-    constructor(params: RelayerRequestParams) {
+    constructor(params: DataFor<RelayerRequestEvm>) {
         this.order = params.order
         this.signature = params.signature
         this.quoteId = params.quoteId
@@ -24,17 +26,36 @@ export class RelayerRequest {
         this.secretHashes = params.secretHashes
     }
 
-    static new(params: RelayerRequestParams): RelayerRequest {
-        return new RelayerRequest(params)
-    }
-
-    build(): RelayerRequestParams {
+    build(): Jsonify<DataFor<RelayerRequestEvm>> {
         return {
             order: this.order,
             signature: this.signature,
             quoteId: this.quoteId,
             extension: this.extension,
             srcChainId: this.srcChainId,
+            secretHashes: this.secretHashes
+        }
+    }
+}
+
+export class RelayerRequestSvm {
+    public readonly order: SolanaOrderJSON
+
+    public readonly quoteId: string
+
+    public readonly secretHashes?: string[]
+
+    constructor(params: Readonly<DataFor<RelayerRequestSvm>>) {
+        this.order = params.order
+        this.quoteId = params.quoteId
+        this.secretHashes = params.secretHashes
+    }
+
+    build(): Jsonify<DataFor<RelayerRequestEvm>> {
+        return {
+            order: this.order,
+            quoteId: this.quoteId,
+            srcChainId: NetworkEnum.SOLANA,
             secretHashes: this.secretHashes
         }
     }

@@ -1,5 +1,6 @@
 import {encodeCancelOrder, MakerTraits} from '@1inch/fusion-sdk'
 import assert from 'assert'
+import {SvmCrossChainOrder} from 'cross-chain-order'
 import {
     OrderInfo,
     OrderParams,
@@ -13,7 +14,7 @@ import {
     FusionApi,
     Quote,
     QuoterRequest,
-    RelayerRequest,
+    RelayerRequestEvm,
     QuoterCustomPresetRequest,
     ActiveOrdersRequest,
     ActiveOrdersRequestParams,
@@ -26,10 +27,11 @@ import {
     ReadyToAcceptSecretFills,
     PublishedSecretsResponse,
     ReadyToExecutePublicActions,
-    QuoterRequestParams
+    QuoterRequestParams,
+    RelayerRequestSvm
 } from '../api'
 import {EvmCrossChainOrder} from '../cross-chain-order/evm'
-import {isEvm, SupportedChain} from '../chains'
+import {isEvm, NetworkEnum, SupportedChain} from '../chains'
 
 export class SDK {
     public readonly api: FusionApi
@@ -210,7 +212,7 @@ export class SDK {
             order.getTypedData(srcChainId)
         )
 
-        const relayerRequest = new RelayerRequest({
+        const relayerRequest = new RelayerRequestEvm({
             srcChainId,
             order: orderStruct,
             signature,
@@ -228,6 +230,46 @@ export class SDK {
             orderHash: order.getOrderHash(srcChainId),
             extension: relayerRequest.extension
         }
+    }
+
+    /**
+     * Announce solana order to relayer before on chain creation,
+     * It's required because on chain data does not contains auction details
+     *
+     * @param order
+     * @param quoteId
+     * @param secretHashes
+     *
+     * @returns orderHash
+     */
+    public async announceOrder(
+        order: SvmCrossChainOrder,
+        quoteId: string,
+        secretHashes: string[]
+    ): Promise<string> {
+        if (!order.multipleFillsAllowed && secretHashes.length > 1) {
+            throw new Error(
+                'with disabled multiple fills you provided secretHashes > 1'
+            )
+        } else if (order.multipleFillsAllowed && secretHashes) {
+            const secretCount = order.hashLock.getPartsCount() + 1n
+
+            if (secretHashes.length !== Number(secretCount)) {
+                throw new Error(
+                    'secretHashes length should be equal to number of secrets'
+                )
+            }
+        }
+
+        const relayerRequest = new RelayerRequestSvm({
+            order: order.toJSON(),
+            quoteId,
+            secretHashes: secretHashes.length === 1 ? undefined : secretHashes
+        })
+
+        await this.api.submitOrder(relayerRequest)
+
+        return order.getOrderHash(NetworkEnum.SOLANA)
     }
 
     async placeOrder(quote: Quote, params: OrderParams): Promise<OrderInfo> {

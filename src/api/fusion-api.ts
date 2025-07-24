@@ -6,7 +6,7 @@ import {
     QuoterCustomPresetRequest,
     Quote
 } from './quoter'
-import {RelayerApi, RelayerRequest} from './relayer'
+import {RelayerApi, RelayerRequestEvm, RelayerRequestSvm} from './relayer'
 import {
     ActiveOrdersRequest,
     ActiveOrdersResponse,
@@ -96,11 +96,11 @@ export class FusionApi {
         return this.ordersApi.getPublishedSecrets(orderHash)
     }
 
-    submitOrder(params: RelayerRequest): Promise<void> {
+    submitOrder(params: RelayerRequestEvm | RelayerRequestSvm): Promise<void> {
         return this.relayerApi.submit(params)
     }
 
-    submitOrderBatch(params: RelayerRequest[]): Promise<void> {
+    submitOrderBatch(params: RelayerRequestEvm[]): Promise<void> {
         return this.relayerApi.submitBatch(params)
     }
 
