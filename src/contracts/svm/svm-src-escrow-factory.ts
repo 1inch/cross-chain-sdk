@@ -847,6 +847,9 @@ export class SvmSrcEscrowFactory extends BaseProgram {
             {}
         )
         const orderAccount = this.getOrderAccount(params.orderHash)
+        const token = params.token.isNative()
+            ? SolanaAddress.WRAPPED_NATIVE
+            : params.token
 
         return new Instruction(
             this.programId,
@@ -859,7 +862,7 @@ export class SvmSrcEscrowFactory extends BaseProgram {
                 },
                 // 2. mint
                 {
-                    pubkey: params.token,
+                    pubkey: token,
                     isSigner: false,
                     isWritable: false
                 },
