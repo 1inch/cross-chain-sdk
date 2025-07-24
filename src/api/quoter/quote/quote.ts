@@ -1,7 +1,12 @@
 import {UINT_40_MAX} from '@1inch/byte-utils'
 import {randBigInt} from '@1inch/fusion-sdk'
 import assert from 'assert'
-import {CrossChainOrderParamsData, Presets} from './types'
+import {
+    EvmCrossChainOrderParamsData,
+    Presets,
+    SvmCrossChainOrderParamsData
+} from './types'
+import {SvmCrossChainOrder} from '../../../cross-chain-order'
 import {EvmAddress, SolanaAddress} from '../../../domains/addresses'
 import {TimeLocks} from '../../../domains/time-locks'
 import {Cost, PresetEnum, QuoterResponse, TimeLocksRaw} from '../types'
@@ -125,7 +130,9 @@ export class Quote<
         )
     }
 
-    createEvmOrder(params: CrossChainOrderParamsData): EvmCrossChainOrder {
+    public createEvmOrder(
+        params: EvmCrossChainOrderParamsData
+    ): EvmCrossChainOrder {
         assert(this.isEvmQuote(), 'cannot create non evm order')
 
         const preset = this.getPreset(params?.preset || this.recommendedPreset)
@@ -197,7 +204,66 @@ export class Quote<
         )
     }
 
-    // todo: create Solana order
+    public createSolanaOrder(
+        params: SvmCrossChainOrderParamsData
+    ): SvmCrossChainOrder {
+        assert(this.isSolanaQuote(), 'cannot create non solana order')
+        assert(
+            this.params.dstTokenAddress instanceof EvmAddress,
+            'dstToken must be evm address'
+        )
+
+        const preset = this.getPreset(params?.preset || this.recommendedPreset)
+
+        const auctionDetails = preset.createAuctionDetails(
+            params.delayAuctionStartTimeBy
+        )
+
+        const allowMultipleFills = preset.allowMultipleFills
+
+        return SvmCrossChainOrder.new(
+            {
+                srcToken: this.params.srcTokenAddress,
+                dstToken: this.params.dstTokenAddress,
+                srcAmount: this.srcTokenAmount,
+                minDstAmount: preset.auctionEndAmount,
+                maker: this.params.walletAddress,
+                receiver: params.receiver
+            },
+            {
+                hashLock: params.hashLock,
+                srcChainId: this.params.srcChain,
+                dstChainId: this.params.dstChain,
+                srcSafetyDeposit: this.srcSafetyDeposit,
+                dstSafetyDeposit: this.dstSafetyDeposit,
+                timeLocks: TimeLocks.new({
+                    srcWithdrawal: BigInt(this.timeLocks.srcWithdrawal),
+                    srcPublicWithdrawal: BigInt(
+                        this.timeLocks.srcPublicWithdrawal
+                    ),
+                    srcCancellation: BigInt(this.timeLocks.srcCancellation),
+                    srcPublicCancellation: BigInt(
+                        this.timeLocks.srcPublicCancellation
+                    ),
+                    dstWithdrawal: BigInt(this.timeLocks.dstWithdrawal),
+                    dstPublicWithdrawal: BigInt(
+                        this.timeLocks.dstPublicWithdrawal
+                    ),
+                    dstCancellation: BigInt(this.timeLocks.dstCancellation)
+                })
+            },
+            {
+                auction: auctionDetails
+            },
+            {
+                allowMultipleFills,
+                orderExpirationDelay: params?.orderExpirationDelay,
+                source: this.params.source,
+                resolverCancellationConfig: params?.resolverCancellationConfig,
+                salt: params?.salt
+            }
+        )
+    }
 
     isEvmQuote(): this is Quote<EvmChain> {
         return isEvm(this.params.srcChain)

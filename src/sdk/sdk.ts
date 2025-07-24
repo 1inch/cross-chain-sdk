@@ -9,7 +9,7 @@ import {
     QuoteCustomPresetParams,
     CrossChainSDKConfigParams
 } from './types'
-import {EvmAddress as Address} from '../domains/addresses'
+import {EvmAddress} from '../domains/addresses'
 import {
     FusionApi,
     Quote,
@@ -93,7 +93,7 @@ export class SDK {
             srcTokenAddress: params.srcTokenAddress,
             dstTokenAddress: params.dstTokenAddress,
             amount: params.amount,
-            walletAddress: params.walletAddress || Address.ZERO.toString(),
+            walletAddress: params.walletAddress || EvmAddress.ZERO.toString(),
             permit: params.permit,
             enableEstimate: !!params.enableEstimate,
             fee: params?.takingFeeBps,
@@ -126,7 +126,7 @@ export class SDK {
             srcTokenAddress: params.srcTokenAddress,
             dstTokenAddress: params.dstTokenAddress,
             amount: params.amount,
-            walletAddress: params.walletAddress || Address.ZERO.toString(),
+            walletAddress: params.walletAddress,
             permit: params.permit,
             enableEstimate: !!params.enableEstimate,
             fee: params?.takingFeeBps,
@@ -153,28 +153,12 @@ export class SDK {
         throw new Error('unknown request src chain')
     }
 
-    async createOrder(
-        quote: Quote,
-        params: OrderParams
-    ): Promise<PreparedOrder> {
+    createOrder(quote: Quote, params: OrderParams): PreparedOrder {
         if (!quote.quoteId) {
             throw new Error('request quote with enableEstimate=true')
         }
 
-        assert(quote.isEvmQuote(), 'cannot use non-evm quote')
-
-        const order = quote.createEvmOrder({
-            hashLock: params.hashLock,
-            receiver: params.receiver
-                ? Address.fromString(params.receiver)
-                : undefined,
-            preset: params.preset,
-            nonce: params.nonce,
-            takingFeeReceiver: params.fee?.takingFeeReceiver,
-            permit: params.permit,
-            isPermit2: params.isPermit2
-        })
-
+        const order = this.quoteToOrder(quote, params)
         const hash = order.getOrderHash(quote.srcChainId)
 
         return {order, hash, quoteId: quote.quoteId}
@@ -273,7 +257,12 @@ export class SDK {
     }
 
     async placeOrder(quote: Quote, params: OrderParams): Promise<OrderInfo> {
-        const {order, quoteId} = await this.createOrder(quote, params)
+        const {order, quoteId} = this.createOrder(quote, params)
+
+        assert(
+            order instanceof EvmCrossChainOrder,
+            'solana order must be announced with announceOrder and placed onchain'
+        )
 
         return this.submitOrder(
             quote.srcChainId,
@@ -307,5 +296,33 @@ export class SDK {
             orderHash,
             new MakerTraits(BigInt(orderData.order.makerTraits))
         )
+    }
+
+    private quoteToOrder(
+        quote: Quote,
+        params: OrderParams
+    ): SvmCrossChainOrder | EvmCrossChainOrder {
+        if (quote.isEvmQuote()) {
+            quote.createEvmOrder({
+                hashLock: params.hashLock,
+                receiver: params.receiver
+                    ? EvmAddress.fromString(params.receiver)
+                    : undefined,
+                preset: params.preset,
+                nonce: params.nonce,
+                takingFeeReceiver: params.fee?.takingFeeReceiver,
+                permit: params.permit,
+                isPermit2: params.isPermit2
+            })
+        }
+
+        assert(params.receiver, 'receiver is required for solana order')
+
+        return quote.createSolanaOrder({
+            hashLock: params.hashLock,
+            receiver: EvmAddress.fromString(params.receiver),
+            preset: params.preset,
+            takingFeeReceiver: params.fee?.takingFeeReceiver
+        })
     }
 }

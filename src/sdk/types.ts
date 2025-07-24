@@ -3,6 +3,7 @@ import {
     HttpProviderConnector,
     LimitOrderV4Struct
 } from '@1inch/fusion-sdk'
+import {SvmCrossChainOrder} from 'cross-chain-order'
 import {CustomPreset, PresetEnum} from '../api'
 import {EvmCrossChainOrder} from '../cross-chain-order/evm'
 import {SupportedChain} from '../chains'
@@ -24,7 +25,7 @@ export type QuoteParams<
     srcTokenAddress: string
     dstTokenAddress: string
     amount: string
-    walletAddress?: string
+    walletAddress: string
     enableEstimate?: boolean
     permit?: string
     takingFeeBps?: number // 100 == 1%
@@ -69,7 +70,7 @@ export type OrderInfo = {
 }
 
 export type PreparedOrder = {
-    order: EvmCrossChainOrder
+    order: EvmCrossChainOrder | SvmCrossChainOrder
     hash: string
     quoteId: string
 }
