@@ -6,7 +6,7 @@ import {AddressForChain} from '../../type-utils'
 
 export function createAddress<Chain extends SupportedChain>(
     // hex/base58/bigint
-    address: string,
+    address: string | bigint,
     chainId: Chain,
     complement?: AddressComplement
 ): AddressForChain<Chain> {
