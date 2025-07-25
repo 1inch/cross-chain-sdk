@@ -44,7 +44,7 @@ export type CreateOrderData = {
     safetyDeposit: BN
     timelocks: FixedLengthArray<BN, 4>
     expirationTime: number
-    assetsIsNative: boolean
+    assetIsNative: boolean
     dstAmount: FixedLengthArray<BN, 4>
     dutchAuctionDataHash: FixedLengthArray<number, 32>
     maxCancellationPremium: BN

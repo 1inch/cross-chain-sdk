@@ -100,7 +100,7 @@ export class SvmSrcEscrowFactory extends BaseProgram {
         }
 
         const extraDetails: ParsedCreateInstructionData['extraDetails'] = {
-            srcAssetIsNative: data.assetsIsNative,
+            srcAssetIsNative: data.assetIsNative,
             resolverCancellationConfig: new ResolverCancellationConfig(
                 BigInt(data.maxCancellationPremium),
                 data.cancellationAuctionDuration

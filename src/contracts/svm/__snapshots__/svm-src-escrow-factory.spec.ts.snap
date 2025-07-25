@@ -235,7 +235,7 @@ exports[`SVM Escrow src factory should parse create instruction 2 1`] = `
       "maxCancellationPremium": "1",
     },
     "salt": 1504783724301932776n,
-    "srcAssetIsNative": undefined,
+    "srcAssetIsNative": true,
   },
   "orderInfo": {
     "dstToken": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
