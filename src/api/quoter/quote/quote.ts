@@ -149,9 +149,7 @@ export class Quote<
             ? (params.nonce ?? randBigInt(UINT_40_MAX))
             : params.nonce
 
-        const takerAsset = this.params.dstTokenAddress.isNative()
-            ? EvmAddress.NATIVE
-            : this.params.dstTokenAddress
+        const takerAsset = this.params.dstTokenAddress.zeroAsNative()
 
         return EvmCrossChainOrder.new(
             this.srcEscrowFactory,
