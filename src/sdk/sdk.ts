@@ -1,16 +1,22 @@
 import {encodeCancelOrder, MakerTraits} from '@1inch/fusion-sdk'
+import {PaginationRequest} from '@1inch/fusion-sdk/dist/types/src/api'
+import {utils} from '@coral-xyz/anchor'
 import assert from 'assert'
-import {SvmCrossChainOrder} from 'cross-chain-order'
 import {
     OrderInfo,
     OrderParams,
     PreparedOrder,
     QuoteParams,
     QuoteCustomPresetParams,
-    CrossChainSDKConfigParams
+    CrossChainSDKConfigParams,
+    SolanaOrderCancellationData
 } from './types'
+import {
+    ResolverCancellationConfig,
+    SvmCrossChainOrder
+} from '../cross-chain-order'
 import {bufferToHex} from '../utils'
-import {EvmAddress} from '../domains/addresses'
+import {EvmAddress, SolanaAddress} from '../domains/addresses'
 import {
     FusionApi,
     Quote,
@@ -29,7 +35,8 @@ import {
     PublishedSecretsResponse,
     ReadyToExecutePublicActions,
     QuoterRequestParams,
-    RelayerRequestSvm
+    RelayerRequestSvm,
+    PaginationOutput
 } from '../api'
 import {EvmCrossChainOrder} from '../cross-chain-order/evm'
 import {isEvm, NetworkEnum, SupportedChain} from '../chains'
@@ -298,6 +305,34 @@ export class SDK {
             orderHash,
             new MakerTraits(BigInt(orderData.order.makerTraits))
         )
+    }
+
+    /**
+     * Returns on chain created orders which can be cancelled by resolver for premium
+     */
+    public async getCancellableOrders(
+        page = 1,
+        limit = 100
+    ): Promise<PaginationOutput<SolanaOrderCancellationData>> {
+        const orders = await this.api.getCancellableOrders(
+            new PaginationRequest(page, limit)
+        )
+
+        return {
+            ...orders,
+            items: orders.items.map((o) => ({
+                maker: SolanaAddress.fromString(o.maker),
+                token: SolanaAddress.fromString(o.order.orderInfo.srcToken),
+                orderHash: utils.bytes.bs58.decode(o.orderHash),
+                cancellationConfig: new ResolverCancellationConfig(
+                    BigInt(
+                        o.order.extra.resolverCancellationConfig
+                            .maxCancellationPremium
+                    ),
+                    o.order.extra.resolverCancellationConfig.cancellationAuctionDuration
+                )
+            }))
+        }
     }
 
     private quoteToOrder(

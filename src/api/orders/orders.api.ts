@@ -6,6 +6,7 @@ import {
 } from './orders.request'
 import {
     ActiveOrdersResponse,
+    CancellableOrdersResponse,
     OrdersApiConfig,
     OrdersByMakerResponse,
     OrderStatusResponse,
@@ -14,6 +15,7 @@ import {
     ReadyToExecutePublicActions
 } from './types'
 import {concatQueryParams} from '../params'
+import {PaginationRequest} from '../../api/pagination'
 
 export class OrdersApi {
     private static Version = 'v1.1'
@@ -67,6 +69,24 @@ export class OrdersApi {
         orderHash: string
     ): Promise<PublishedSecretsResponse> {
         const url = `${this.config.url}/${OrdersApi.Version}/order/secrets/${orderHash}`
+
+        return this.httpClient.get(url)
+    }
+
+    async getCancellableOrders(
+        pagination?: PaginationRequest
+    ): Promise<CancellableOrdersResponse> {
+        const qp: Record<string, number> = {}
+
+        if (pagination?.page !== undefined) {
+            qp.page = pagination.page
+        }
+
+        if (pagination?.limit) {
+            qp.limit = pagination.limit
+        }
+
+        const url = `${this.config.url}/${OrdersApi.Version}/order/cancelable-by-resolvers${concatQueryParams(qp)}`
 
         return this.httpClient.get(url)
     }

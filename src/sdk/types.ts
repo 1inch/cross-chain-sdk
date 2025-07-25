@@ -3,11 +3,14 @@ import {
     HttpProviderConnector,
     LimitOrderV4Struct
 } from '@1inch/fusion-sdk'
-import {SvmCrossChainOrder} from 'cross-chain-order'
+import {
+    ResolverCancellationConfig,
+    SvmCrossChainOrder,
+    EvmCrossChainOrder
+} from '../cross-chain-order'
 import {CustomPreset, PresetEnum} from '../api'
-import {EvmCrossChainOrder} from '../cross-chain-order/evm'
 import {SupportedChain} from '../chains'
-import {HashLock} from '../domains/hash-lock'
+import {HashLock, SolanaAddress} from '../domains'
 
 export type CrossChainSDKConfigParams = {
     url: string
@@ -73,4 +76,11 @@ export type PreparedOrder = {
     order: EvmCrossChainOrder | SvmCrossChainOrder
     hash: string
     quoteId: string
+}
+
+export type SolanaOrderCancellationData = {
+    orderHash: Buffer
+    maker: SolanaAddress
+    token: SolanaAddress
+    cancellationConfig: ResolverCancellationConfig
 }

@@ -17,8 +17,10 @@ import {
     OrdersByMakerResponse,
     ReadyToAcceptSecretFills,
     PublishedSecretsResponse,
-    ReadyToExecutePublicActions
+    ReadyToExecutePublicActions,
+    CancellableOrdersResponse
 } from './orders'
+import {PaginationRequest} from './pagination'
 
 export class FusionApi {
     private readonly quoterApi: QuoterApi
@@ -94,6 +96,12 @@ export class FusionApi {
 
     getPublishedSecrets(orderHash: string): Promise<PublishedSecretsResponse> {
         return this.ordersApi.getPublishedSecrets(orderHash)
+    }
+
+    getCancellableOrders(
+        pagination?: PaginationRequest
+    ): Promise<CancellableOrdersResponse> {
+        return this.ordersApi.getCancellableOrders(pagination)
     }
 
     submitOrder(params: RelayerRequestEvm | RelayerRequestSvm): Promise<void> {

@@ -228,6 +228,30 @@ export type PublishedSecretsResponse = {
     secretHashes?: string[]
 }
 
+export type CancellableOrderData = {
+    orderHash: string
+    txSignature: string
+    maker: string
+    order: {
+        orderInfo: {
+            srcToken: string
+            dstToken: string
+            maker: string
+            srcAmount: string
+            minDstAmount: string
+            receiver: string
+        }
+        extra: {
+            resolverCancellationConfig: {
+                maxCancellationPremium: string
+                cancellationAuctionDuration: number
+            }
+        }
+    }
+}
+
+export type CancellableOrdersResponse = PaginationOutput<CancellableOrderData>
+
 export enum PublicAction {
     Withdraw = 'withdraw',
     Cancel = 'cancel'
