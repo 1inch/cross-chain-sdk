@@ -5,7 +5,7 @@ import {isEvm, SupportedChain} from '../../chains'
 import {AddressForChain} from '../../type-utils'
 
 export function createAddress<Chain extends SupportedChain>(
-    // hex/base56/bigint
+    // hex/base58/bigint
     address: string,
     chainId: Chain,
     complement?: AddressComplement
