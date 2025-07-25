@@ -1,5 +1,4 @@
 import {encodeCancelOrder, MakerTraits} from '@1inch/fusion-sdk'
-import {PaginationRequest} from '@1inch/fusion-sdk/dist/types/src/api'
 import {utils} from '@coral-xyz/anchor'
 import assert from 'assert'
 import {
@@ -36,7 +35,8 @@ import {
     ReadyToExecutePublicActions,
     QuoterRequestParams,
     RelayerRequestSvm,
-    PaginationOutput
+    PaginationOutput,
+    PaginationRequest
 } from '../api'
 import {EvmCrossChainOrder} from '../cross-chain-order/evm'
 import {isEvm, NetworkEnum, SupportedChain} from '../chains'
