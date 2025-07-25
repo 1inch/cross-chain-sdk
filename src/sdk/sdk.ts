@@ -330,7 +330,8 @@ export class SDK {
                             .maxCancellationPremium
                     ),
                     o.order.extra.resolverCancellationConfig.cancellationAuctionDuration
-                )
+                ),
+                isAssetNative: o.order.extra.srcAssetIsNative
             }))
         }
     }

@@ -246,6 +246,7 @@ export type CancellableOrderData = {
                 maxCancellationPremium: string
                 cancellationAuctionDuration: number
             }
+            srcAssetIsNative: boolean
         }
     }
 }

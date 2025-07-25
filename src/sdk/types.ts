@@ -83,4 +83,5 @@ export type SolanaOrderCancellationData = {
     maker: SolanaAddress
     token: SolanaAddress
     cancellationConfig: ResolverCancellationConfig
+    isAssetNative: boolean
 }
