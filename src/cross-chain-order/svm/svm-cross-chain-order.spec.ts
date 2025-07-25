@@ -1,5 +1,6 @@
 import {parseEther, parseUnits} from 'ethers'
 import {SvmCrossChainOrder} from './svm-cross-chain-order'
+import {SvmSrcEscrowFactory} from '../../contracts'
 import {NetworkEnum} from '../../chains'
 import {TimeLocks} from '../../domains/time-locks'
 import {HashLock} from '../../domains/hash-lock'
@@ -94,5 +95,53 @@ describe('SVMCrossChainOrder', () => {
 
         expect(json).toMatchSnapshot()
         expect(SvmCrossChainOrder.fromJSON(json)).toEqual(order)
+    })
+
+    it('should create order from create ix', () => {
+        const order = SvmCrossChainOrder.new(
+            {
+                maker: SolanaAddress.fromBigInt(1n),
+                receiver: EvmAddress.fromBigInt(2n),
+                srcToken: SolanaAddress.NATIVE,
+                dstToken: EvmAddress.fromBigInt(4n), // address on dst chain
+                srcAmount: parseEther('1'),
+                minDstAmount: parseUnits('1000', 6)
+            },
+            {
+                srcChainId: NetworkEnum.SOLANA,
+                dstChainId: NetworkEnum.ETHEREUM,
+                srcSafetyDeposit: 1000n,
+                dstSafetyDeposit: 1000n,
+                timeLocks: TimeLocks.fromDurations({
+                    srcFinalityLock: 10n,
+                    srcPrivateWithdrawal: 200n,
+                    srcPublicWithdrawal: 100n,
+                    srcPrivateCancellation: 100n,
+                    dstFinalityLock: 10n,
+                    dstPrivateWithdrawal: 100n,
+                    dstPublicWithdrawal: 100n
+                }),
+                hashLock: HashLock.forSingleFill(
+                    '0x4a52dc502242a54e1d3a609cb31e0160a504d9a26467fcf9a52b7a79060ef8f1'
+                )
+            },
+            {
+                auction: AuctionDetails.noAuction(120n, 1752739636n)
+            },
+            {
+                allowMultipleFills: false,
+                salt: 0x63030535n
+            }
+        )
+
+        const ix = SvmSrcEscrowFactory.DEFAULT.createOrder(order, {
+            srcTokenProgramId: SolanaAddress.TOKEN_PROGRAM_ID
+        })
+
+        const data = SvmSrcEscrowFactory.parseCreateInstruction(ix)
+
+        expect(
+            SvmCrossChainOrder.fromContractOrder(data, order.auction)
+        ).toEqual(order)
     })
 })
