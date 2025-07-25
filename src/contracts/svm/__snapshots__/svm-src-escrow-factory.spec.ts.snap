@@ -228,7 +228,7 @@ exports[`SVM Escrow src factory should parse create instruction 2 1`] = `
     "timeLocks": "0x0000000000000240000001c80000002400000390000003180000027c000000b4",
   },
   "expirationTime": 1753378539n,
-  "extraDetails": {
+  "extra": {
     "allowMultipleFills": false,
     "resolverCancellationConfig": {
       "cancellationAuctionDuration": 1,

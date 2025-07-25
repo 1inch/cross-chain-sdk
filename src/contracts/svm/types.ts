@@ -37,7 +37,7 @@ export type ParsedCreateSrcEscrowInstructionData = {
 export type ParsedCreateInstructionData = {
     orderInfo: OrderInfoData
     escrowParams: SolanaEscrowParams
-    extraDetails: Omit<Required<SolanaExtra>, 'orderExpirationDelay' | 'source'>
+    extra: Omit<Required<SolanaExtra>, 'orderExpirationDelay' | 'source'>
     expirationTime: bigint
     dutchAuctionDataHash: string
 }

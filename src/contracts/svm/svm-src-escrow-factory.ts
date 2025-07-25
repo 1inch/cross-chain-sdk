@@ -99,7 +99,7 @@ export class SvmSrcEscrowFactory extends BaseProgram {
             timeLocks: TimeLocks.fromBigInt(bnArrayToBigInt(data.timelocks))
         }
 
-        const extraDetails: ParsedCreateInstructionData['extraDetails'] = {
+        const extraDetails: ParsedCreateInstructionData['extra'] = {
             srcAssetIsNative: data.assetIsNative,
             resolverCancellationConfig: new ResolverCancellationConfig(
                 BigInt(data.maxCancellationPremium),
@@ -112,7 +112,7 @@ export class SvmSrcEscrowFactory extends BaseProgram {
         return {
             orderInfo,
             escrowParams,
-            extraDetails,
+            extra: extraDetails,
             expirationTime: BigInt(data.expirationTime),
             dutchAuctionDataHash: bufferToHex(data.dutchAuctionDataHash)
         }
