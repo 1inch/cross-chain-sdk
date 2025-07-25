@@ -366,4 +366,64 @@ describe('EvmCrossChainOrder', () => {
         expect(decodedOrder.receiver).toStrictEqual(receiver)
         expect(decodedOrder.takerAsset).toStrictEqual(takerAsset)
     })
+
+    it('Should return correct receiver/taker asset for solana chain native dst', () => {
+        const factoryAddress = Address.fromBigInt(1n)
+        const receiver = SolanaAddress.fromBigInt(UINT_256_MAX)
+        const takerAsset = SolanaAddress.NATIVE
+        const orderData: EvmCrossChainOrderInfo = {
+            maker: Address.fromBigInt(2n),
+            makerAsset: EvmAddress.fromString(
+                '0xdac17f958d2ee523a2206206994597c13d831ec7'
+            ),
+            takerAsset,
+            makingAmount: 100_000000n,
+            takingAmount: 90_000000n,
+            receiver
+        }
+
+        const escrowParams: EvmEscrowParams = {
+            hashLock: HashLock.forSingleFill(getRandomBytes32()),
+            srcChainId: NetworkEnum.ETHEREUM,
+            dstChainId: NetworkEnum.SOLANA,
+            srcSafetyDeposit: 1000n,
+            dstSafetyDeposit: 1000n,
+            timeLocks: TimeLocks.new({
+                srcWithdrawal: 1n,
+                srcPublicWithdrawal: 2n,
+                srcCancellation: 3n,
+                srcPublicCancellation: 4n,
+                dstWithdrawal: 1n,
+                dstPublicWithdrawal: 2n,
+                dstCancellation: 3n
+            })
+        }
+        const order = EvmCrossChainOrder.new(
+            factoryAddress,
+            orderData,
+            escrowParams,
+            {
+                auction: new AuctionDetails({
+                    startTime: BigInt(now()),
+                    duration: 180n,
+                    points: [],
+                    initialRateBump: 100_000
+                }),
+                whitelist: [{address: Address.fromBigInt(100n), allowFrom: 0n}]
+            },
+            {
+                nonce: 1n
+            }
+        )
+
+        const decodedOrder = EvmCrossChainOrder.fromDataAndExtension(
+            order.build(),
+            Extension.decode(order.extension.encode())
+        )
+
+        expect(decodedOrder).toEqual(order)
+
+        expect(decodedOrder.receiver).toStrictEqual(receiver)
+        expect(decodedOrder.takerAsset).toStrictEqual(takerAsset)
+    })
 })
