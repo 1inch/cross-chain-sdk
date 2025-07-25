@@ -15,7 +15,7 @@ export class RelayerRequestEvm {
 
     public readonly srcChainId: SupportedChain
 
-    public readonly secretHashes?: string[]
+    public readonly secretHashes: string[] | undefined
 
     constructor(params: DataFor<RelayerRequestEvm>) {
         this.order = params.order
@@ -45,7 +45,7 @@ export class RelayerRequestSvm {
 
     public readonly quoteId: string
 
-    public readonly secretHashes?: string[]
+    public readonly secretHashes: string[] | undefined
 
     constructor(params: Readonly<DataFor<RelayerRequestSvm>>) {
         this.order = params.order
@@ -54,7 +54,7 @@ export class RelayerRequestSvm {
         this.auctionOrderHash = params.auctionOrderHash
     }
 
-    build(): Jsonify<DataFor<RelayerRequestEvm>> {
+    build(): RelayerRequestSvmSerialzied {
         const auction = this.order.details.auction
         const startTime = Number(auction.startTime)
         const duration = Number(auction.duration)
@@ -101,5 +101,40 @@ export class RelayerRequestSvm {
                 dstMint: this.order.orderInfo.dstToken
             }
         }
+    }
+}
+
+type RelayerRequestSvmSerialzied = {
+    srcChainId: NetworkEnum.SOLANA
+    dstChainId: number
+    auctionData: {
+        startTime: number
+        duration: number
+        initialRateBump: number
+        pointsAndTimeDeltas: Array<{
+            rateBump: number
+            timeDelta: number
+        }>
+    }
+    secretHashes: string[] | undefined
+    quoteId: string
+    order: {
+        hashLock: string
+        amount: string
+        srcSafetyDeposit: string
+        dstSafetyDeposit: string
+        timeLocks: string
+        expirationTime: number
+        assetIsNative: boolean
+        dstAmount: string
+        dutchAuctionDataHash: string
+        maxCancellationPremium: string
+        cancellationAuctionDuration: number
+        allowMultipleFills: boolean
+        salt: string
+        maker: string
+        receiver: string
+        srcMint: string
+        dstMint: string
     }
 }
