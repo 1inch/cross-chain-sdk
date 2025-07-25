@@ -466,4 +466,46 @@ describe('SVM Escrow src factory', () => {
 
         expect(ix).toMatchSnapshot()
     })
+
+    it('should generate cancelOwnOrder instruction', () => {
+        const orderHash = Buffer.from(
+            '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+            'hex'
+        )
+
+        const ix = SvmSrcEscrowFactory.DEFAULT.cancelOwnOrder(
+            {
+                orderHash,
+                maker: SolanaAddress.fromBigInt(100n),
+                token: SolanaAddress.fromBigInt(200n)
+            },
+            {
+                tokenProgramId: SolanaAddress.TOKEN_2022_PROGRAM_ID
+            }
+        )
+
+        expect(ix).toMatchSnapshot()
+    })
+
+    it('should generate cancelOrderByResolver instruction', () => {
+        const orderHash = Buffer.from(
+            '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+            'hex'
+        )
+
+        const ix = SvmSrcEscrowFactory.DEFAULT.cancelOrderByResolver(
+            {
+                orderHash,
+                resolver: SolanaAddress.fromBigInt(100n),
+                maker: SolanaAddress.fromBigInt(200n),
+                token: SolanaAddress.fromBigInt(300n),
+                rewardLimit: 1000n
+            },
+            {
+                tokenProgramId: SolanaAddress.TOKEN_2022_PROGRAM_ID
+            }
+        )
+
+        expect(ix).toMatchSnapshot()
+    })
 })

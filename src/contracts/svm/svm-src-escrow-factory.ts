@@ -829,7 +829,7 @@ export class SvmSrcEscrowFactory extends BaseProgram {
         )
     }
 
-    public cancelOrderAccount(
+    public cancelOwnOrder(
         params: {
             orderHash: Buffer
             maker: SolanaAddress
@@ -898,6 +898,110 @@ export class SvmSrcEscrowFactory extends BaseProgram {
                     isWritable: false
                 },
                 // 7. system_program
+                {
+                    pubkey: SolanaAddress.SYSTEM_PROGRAM_ID,
+                    isSigner: false,
+                    isWritable: false
+                }
+            ],
+            data
+        )
+    }
+
+    public cancelOrderByResolver(
+        params: {
+            orderHash: Buffer
+            resolver: SolanaAddress
+            maker: SolanaAddress
+            token: SolanaAddress
+            /**
+             * Max reward resolver willing to take. Real reward will be `min(cancellationPremium, rewardLimit)`
+             */
+            rewardLimit: bigint
+        },
+        extra: {
+            /**
+             * TokenProgram or TokenProgram 2022
+             */
+            tokenProgramId: SolanaAddress
+            /**
+             * Whitelist program for resolver access validation
+             */
+            whitelistProgram?: WhitelistContract
+        }
+    ): Instruction {
+        const whitelistProgram =
+            extra.whitelistProgram ?? WhitelistContract.DEFAULT
+        const data = SvmSrcEscrowFactory.coder.instruction.encode(
+            'cancelOrderByResolver',
+            {
+                rewardLimit: new BN(params.rewardLimit.toString())
+            }
+        )
+        const orderAccount = this.getOrderAccount(params.orderHash)
+        const token = params.token.isNative()
+            ? SolanaAddress.WRAPPED_NATIVE
+            : params.token
+
+        return new Instruction(
+            this.programId,
+            [
+                // 1. resolver
+                {
+                    pubkey: params.resolver,
+                    isSigner: true,
+                    isWritable: true
+                },
+                // 2. resolver_access
+                {
+                    pubkey: whitelistProgram.getAccessAccount(params.resolver),
+                    isSigner: false,
+                    isWritable: false
+                },
+                // 3. creator
+                {
+                    pubkey: params.maker,
+                    isSigner: false,
+                    isWritable: true
+                },
+                // 4. mint
+                {
+                    pubkey: token,
+                    isSigner: false,
+                    isWritable: false
+                },
+                // 5. order
+                {
+                    pubkey: orderAccount,
+                    isSigner: false,
+                    isWritable: true
+                },
+                // 6. order_ata
+                {
+                    pubkey: getAta(orderAccount, token, extra.tokenProgramId),
+                    isSigner: false,
+                    isWritable: true
+                },
+                // 7. creator_ata (optional)
+                this.optionalAccount(
+                    {
+                        pubkey: getAta(
+                            params.maker,
+                            token,
+                            extra.tokenProgramId
+                        ),
+                        isSigner: false,
+                        isWritable: true
+                    },
+                    params.token.isNative()
+                ),
+                // 8. token_program
+                {
+                    pubkey: extra.tokenProgramId,
+                    isSigner: false,
+                    isWritable: false
+                },
+                // 9. system_program
                 {
                     pubkey: SolanaAddress.SYSTEM_PROGRAM_ID,
                     isSigner: false,

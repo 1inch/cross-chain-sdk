@@ -1,5 +1,103 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
+exports[`SVM Escrow src factory should generate cancelOrderByResolver instruction 1`] = `
+{
+  "accounts": [
+    {
+      "isSigner": true,
+      "isWritable": true,
+      "pubkey": "11111111111111111111111111111112j",
+    },
+    {
+      "isSigner": false,
+      "isWritable": false,
+      "pubkey": "3HLk3oE7FDLit4H2HNxXL7qbGkKMWVuJkhFsJ6kVQEtn",
+    },
+    {
+      "isSigner": false,
+      "isWritable": true,
+      "pubkey": "11111111111111111111111111111114T",
+    },
+    {
+      "isSigner": false,
+      "isWritable": false,
+      "pubkey": "1111111111111111111111111111116B",
+    },
+    {
+      "isSigner": false,
+      "isWritable": true,
+      "pubkey": "8bJKNzC98NvkDV6N8WyKxFcuxumUaehvxX6Rf15shZU5",
+    },
+    {
+      "isSigner": false,
+      "isWritable": true,
+      "pubkey": "BqUHayDCpxUhKJmguAu4kFxaws2MZD7Z1MwzryBheghR",
+    },
+    {
+      "isSigner": false,
+      "isWritable": true,
+      "pubkey": "DEUm3cBYU2LEibfbGuq2kUekNyqPQyCnXmRmieAKdART",
+    },
+    {
+      "isSigner": false,
+      "isWritable": false,
+      "pubkey": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
+    },
+    {
+      "isSigner": false,
+      "isWritable": false,
+      "pubkey": "11111111111111111111111111111111",
+    },
+  ],
+  "data": "0x158d22ead26c38ece803000000000000",
+  "programId": "2g4JDRMD7G3dK1PHmCnDAycKzd6e5sdhxqGBbs264zwz",
+}
+`;
+
+exports[`SVM Escrow src factory should generate cancelOwnOrder instruction 1`] = `
+{
+  "accounts": [
+    {
+      "isSigner": true,
+      "isWritable": true,
+      "pubkey": "11111111111111111111111111111112j",
+    },
+    {
+      "isSigner": false,
+      "isWritable": false,
+      "pubkey": "11111111111111111111111111111114T",
+    },
+    {
+      "isSigner": false,
+      "isWritable": true,
+      "pubkey": "8bJKNzC98NvkDV6N8WyKxFcuxumUaehvxX6Rf15shZU5",
+    },
+    {
+      "isSigner": false,
+      "isWritable": true,
+      "pubkey": "3cjL471d6sEeVEbg6Xuv7xYySwwigH92s9DbRZm4nmtz",
+    },
+    {
+      "isSigner": false,
+      "isWritable": true,
+      "pubkey": "cKjt7npJFbBC1Lu5FvKmgnVCKYYrBsmCkAWUnSNHYN8",
+    },
+    {
+      "isSigner": false,
+      "isWritable": false,
+      "pubkey": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
+    },
+    {
+      "isSigner": false,
+      "isWritable": false,
+      "pubkey": "11111111111111111111111111111111",
+    },
+  ],
+  "data": "0x5f81edf00831df84",
+  "programId": "2g4JDRMD7G3dK1PHmCnDAycKzd6e5sdhxqGBbs264zwz",
+}
+`;
+
 exports[`SVM Escrow src factory should generate cancelPrivate instruction 1`] = `
 {
   "accounts": [

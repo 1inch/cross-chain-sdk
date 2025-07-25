@@ -35,7 +35,8 @@ describe('Relayer API', () => {
             srcChainId: NetworkEnum.ETHEREUM,
             signature: '0x123signature-here789',
             quoteId: '9a43c86d-f3d7-45b9-8cb6-803d2bdfa08b',
-            extension: '0x'
+            extension: '0x',
+            secretHashes: undefined
         } as const
 
         const params = new RelayerRequestEvm(orderData)
@@ -97,7 +98,8 @@ describe('Relayer API', () => {
                 }
             },
             quoteId: '9a43c86d-f3d7-45b9-8cb6-803d2bdfa08b',
-            auctionOrderHash: 'her'
+            auctionOrderHash: 'her',
+            secretHashes: undefined
         }
 
         const params = new RelayerRequestSvm(orderData)
@@ -159,7 +161,8 @@ describe('Relayer API', () => {
                 }
             },
             quoteId: '9a43c86d-f3d7-45b9-8cb6-803d2bdfa08b',
-            auctionOrderHash: 'her'
+            auctionOrderHash: 'her',
+            secretHashes: undefined
         }
 
         const params = new RelayerRequestSvm(orderData)
@@ -225,7 +228,8 @@ describe('Relayer API', () => {
             srcChainId: NetworkEnum.ETHEREUM,
             signature: '0x123signature-2-here789',
             quoteId: '1a36c861-ffd7-45b9-1cb6-403d3bdfa084',
-            extension: '0x'
+            extension: '0x',
+            secretHashes: undefined
         } as const
 
         const params = [
