@@ -647,6 +647,7 @@ export class SvmSrcEscrowFactory extends BaseProgram {
              * TokenProgram or TokenProgram 2022
              */
             tokenProgramId: SolanaAddress
+            assetIsNative: boolean
         }
     ): Instruction {
         const data = SvmSrcEscrowFactory.coder.instruction.encode(
@@ -654,6 +655,13 @@ export class SvmSrcEscrowFactory extends BaseProgram {
             {}
         )
         const escrowAddress = this.getEscrowAddress(params)
+
+        if (extra.assetIsNative) {
+            assert(
+                params.token.equal(SolanaAddress.WRAPPED_NATIVE),
+                'assetIsNative can be true only when underlying asset is WSOL'
+            )
+        }
 
         return new Instruction(
             this.programId,
@@ -703,7 +711,7 @@ export class SvmSrcEscrowFactory extends BaseProgram {
                         isSigner: false,
                         isWritable: true
                     },
-                    params.token.isNative()
+                    extra.assetIsNative
                 ),
                 // 7. token_program
                 {
@@ -738,6 +746,7 @@ export class SvmSrcEscrowFactory extends BaseProgram {
              * TokenProgram or TokenProgram 2022
              */
             tokenProgramId: SolanaAddress
+            assetIsNative: boolean
         }
     ): Instruction {
         const whitelistProgram = extra.whitelistProgramId
@@ -748,6 +757,14 @@ export class SvmSrcEscrowFactory extends BaseProgram {
             'publicCancelEscrow',
             {}
         )
+
+        if (extra.assetIsNative) {
+            assert(
+                params.token.equal(SolanaAddress.WRAPPED_NATIVE),
+                'assetIsNative can be true only when underlying asset is WSOL'
+            )
+        }
+
         const escrowAddress = this.getEscrowAddress(params)
 
         return new Instruction(
@@ -810,7 +827,7 @@ export class SvmSrcEscrowFactory extends BaseProgram {
                         isSigner: false,
                         isWritable: true
                     },
-                    params.token.isNative()
+                    extra.assetIsNative
                 ),
                 // 9. token_program
                 {
@@ -840,6 +857,7 @@ export class SvmSrcEscrowFactory extends BaseProgram {
              * TokenProgram or TokenProgram 2022
              */
             tokenProgramId: SolanaAddress
+            assetIsNative: boolean
         }
     ): Instruction {
         const data = SvmSrcEscrowFactory.coder.instruction.encode(
@@ -847,9 +865,13 @@ export class SvmSrcEscrowFactory extends BaseProgram {
             {}
         )
         const orderAccount = this.getOrderAccount(params.orderHash)
-        const token = params.token.isNative()
-            ? SolanaAddress.WRAPPED_NATIVE
-            : params.token
+
+        if (extra.assetIsNative) {
+            assert(
+                params.token.equal(SolanaAddress.WRAPPED_NATIVE),
+                'assetIsNative can be true only when underlying asset is WSOL'
+            )
+        }
 
         return new Instruction(
             this.programId,
@@ -862,7 +884,7 @@ export class SvmSrcEscrowFactory extends BaseProgram {
                 },
                 // 2. mint
                 {
-                    pubkey: token,
+                    pubkey: params.token,
                     isSigner: false,
                     isWritable: false
                 },
@@ -874,7 +896,11 @@ export class SvmSrcEscrowFactory extends BaseProgram {
                 },
                 // 4. order_ata
                 {
-                    pubkey: getAta(orderAccount, token, extra.tokenProgramId),
+                    pubkey: getAta(
+                        orderAccount,
+                        params.token,
+                        extra.tokenProgramId
+                    ),
                     isSigner: false,
                     isWritable: true
                 },
@@ -883,13 +909,13 @@ export class SvmSrcEscrowFactory extends BaseProgram {
                     {
                         pubkey: getAta(
                             params.maker,
-                            token,
+                            params.token,
                             extra.tokenProgramId
                         ),
                         isSigner: false,
                         isWritable: true
                     },
-                    params.token.isNative()
+                    extra.assetIsNative
                 ),
                 // 6. token_program
                 {
@@ -928,6 +954,7 @@ export class SvmSrcEscrowFactory extends BaseProgram {
              * Whitelist program for resolver access validation
              */
             whitelistProgram?: WhitelistContract
+            assetIsNative: boolean
         }
     ): Instruction {
         const whitelistProgram =
@@ -939,9 +966,13 @@ export class SvmSrcEscrowFactory extends BaseProgram {
             }
         )
         const orderAccount = this.getOrderAccount(params.orderHash)
-        const token = params.token.isNative()
-            ? SolanaAddress.WRAPPED_NATIVE
-            : params.token
+
+        if (extra.assetIsNative) {
+            assert(
+                params.token.equal(SolanaAddress.WRAPPED_NATIVE),
+                'assetIsNative can be true only when underlying asset is WSOL'
+            )
+        }
 
         return new Instruction(
             this.programId,
@@ -966,7 +997,7 @@ export class SvmSrcEscrowFactory extends BaseProgram {
                 },
                 // 4. mint
                 {
-                    pubkey: token,
+                    pubkey: params.token,
                     isSigner: false,
                     isWritable: false
                 },
@@ -978,7 +1009,11 @@ export class SvmSrcEscrowFactory extends BaseProgram {
                 },
                 // 6. order_ata
                 {
-                    pubkey: getAta(orderAccount, token, extra.tokenProgramId),
+                    pubkey: getAta(
+                        orderAccount,
+                        params.token,
+                        extra.tokenProgramId
+                    ),
                     isSigner: false,
                     isWritable: true
                 },
@@ -987,13 +1022,13 @@ export class SvmSrcEscrowFactory extends BaseProgram {
                     {
                         pubkey: getAta(
                             params.maker,
-                            token,
+                            params.token,
                             extra.tokenProgramId
                         ),
                         isSigner: false,
                         isWritable: true
                     },
-                    params.token.isNative()
+                    extra.assetIsNative
                 ),
                 // 8. token_program
                 {

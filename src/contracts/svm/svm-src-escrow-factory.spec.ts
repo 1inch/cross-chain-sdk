@@ -427,7 +427,8 @@ describe('SVM Escrow src factory', () => {
         })
 
         const ix = SvmSrcEscrowFactory.DEFAULT.cancelPrivate(immutables, {
-            tokenProgramId: SolanaAddress.TOKEN_2022_PROGRAM_ID
+            tokenProgramId: SolanaAddress.TOKEN_2022_PROGRAM_ID,
+            assetIsNative: false
         })
 
         expect(ix).toMatchSnapshot()
@@ -461,7 +462,8 @@ describe('SVM Escrow src factory', () => {
         const payer = SolanaAddress.fromBigInt(400n)
 
         const ix = SvmSrcEscrowFactory.DEFAULT.cancelPublic(immutables, payer, {
-            tokenProgramId: SolanaAddress.TOKEN_2022_PROGRAM_ID
+            tokenProgramId: SolanaAddress.TOKEN_2022_PROGRAM_ID,
+            assetIsNative: false
         })
 
         expect(ix).toMatchSnapshot()
@@ -480,7 +482,8 @@ describe('SVM Escrow src factory', () => {
                 token: SolanaAddress.fromBigInt(200n)
             },
             {
-                tokenProgramId: SolanaAddress.TOKEN_2022_PROGRAM_ID
+                tokenProgramId: SolanaAddress.TOKEN_2022_PROGRAM_ID,
+                assetIsNative: false
             }
         )
 
@@ -502,7 +505,8 @@ describe('SVM Escrow src factory', () => {
                 rewardLimit: 1000n
             },
             {
-                tokenProgramId: SolanaAddress.TOKEN_2022_PROGRAM_ID
+                tokenProgramId: SolanaAddress.TOKEN_2022_PROGRAM_ID,
+                assetIsNative: false
             }
         )
 
