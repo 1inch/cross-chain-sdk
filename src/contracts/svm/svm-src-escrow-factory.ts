@@ -168,7 +168,7 @@ export class SvmSrcEscrowFactory extends BaseProgram {
                   }
                 : null,
             taker: ix.accounts[0].pubkey,
-            token: ix.accounts[1].pubkey,
+            token: ix.accounts[3].pubkey,
             escrow: ix.accounts[6].pubkey
         }
     }
