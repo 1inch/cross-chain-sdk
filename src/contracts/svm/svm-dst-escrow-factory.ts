@@ -9,13 +9,7 @@ import {bigintToBN} from '../../utils/numbers/bigint-to-bn'
 import {uintAsBeBytes} from '../../utils/numbers/uint-as-be-bytes'
 import {uint256split} from '../../utils/numbers/uint256-split'
 import {getAta, getPda} from '../../utils'
-import {
-    EvmAddress,
-    HashLock,
-    Immutables,
-    SolanaAddress,
-    TimeLocks
-} from '../../domains'
+import {HashLock, Immutables, SolanaAddress, TimeLocks} from '../../domains'
 import {IDL} from '../../idl/cross-chain-escrow-dst'
 import {FixedLengthArray} from '../../type-utils'
 import {bufferToHex} from '../../utils/bytes'
@@ -61,7 +55,7 @@ export class SvmDstEscrowFactory extends BaseProgram {
             hashlock: HashLock.fromString(bufferToHex(data.hashlock)),
             amount: BigInt(data.amount.toString()),
             safetyDeposit: BigInt(data.safetyDeposit.toString()),
-            recipient: EvmAddress.fromBuffer(data.recipient.toBuffer()),
+            recipient: SolanaAddress.fromBuffer(data.recipient.toBuffer()),
             timelocks: TimeLocks.fromBigInt(bnArrayToBigInt(data.timelocks)),
             srcCancellationTimestamp: data.srcCancellationTimestamp,
             assetIsNative: data.assetIsNative,

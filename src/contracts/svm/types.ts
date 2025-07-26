@@ -1,6 +1,5 @@
 import {
     AuctionDetails,
-    EvmAddress,
     HashLock,
     MerkleLeaf,
     SolanaAddress,
@@ -47,7 +46,7 @@ export type ParsedCreateDstEscrowInstructionData = {
     hashlock: HashLock
     amount: bigint
     safetyDeposit: bigint
-    recipient: EvmAddress
+    recipient: SolanaAddress
     timelocks: TimeLocks
     srcCancellationTimestamp: number
     assetIsNative: boolean
