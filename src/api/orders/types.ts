@@ -264,6 +264,10 @@ export type ReadyToExecutePublicAction = {
     chainId: SupportedChain
     escrow: string
     secret?: string
+    /**
+     * Exists only for solana
+     */
+    srcAssetIsNative?: boolean
 }
 
 export type ReadyToExecutePublicActions = {
