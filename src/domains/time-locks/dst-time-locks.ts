@@ -147,4 +147,13 @@ export class DstTimeLocks extends BaseTimeLock {
 
         throw new Error('Unreachable')
     }
+
+    public equal(other: DstTimeLocks): boolean {
+        return (
+            this.deployedAt === other.deployedAt &&
+            this.privateWithdrawal === other.privateWithdrawal &&
+            this.publicWithdrawal === other.publicWithdrawal &&
+            this.privateCancellation === other.privateCancellation
+        )
+    }
 }

@@ -235,12 +235,12 @@ export class EvmCrossChainOrder extends BaseOrder<
         return new EvmCrossChainOrder(
             ext,
             {
-                makerAsset: EvmAddress.fromString(order.makerAsset),
-                takerAsset: EvmAddress.fromString(order.takerAsset),
+                makerAsset: EvmAddress.fromUnknown(order.makerAsset),
+                takerAsset: EvmAddress.fromUnknown(order.takerAsset),
                 makingAmount: BigInt(order.makingAmount),
                 takingAmount: BigInt(order.takingAmount),
-                receiver: EvmAddress.fromString(order.receiver),
-                maker: EvmAddress.fromString(order.maker),
+                receiver: EvmAddress.fromUnknown(order.receiver),
+                maker: EvmAddress.fromUnknown(order.maker),
                 salt: BigInt(order.salt) >> 160n
             },
             {

@@ -184,4 +184,14 @@ export class SrcTimeLocks extends BaseTimeLock {
 
         throw new Error('Unreachable')
     }
+
+    public equal(other: SrcTimeLocks): boolean {
+        return (
+            this.deployedAt === other.deployedAt &&
+            this.privateWithdrawal === other.privateWithdrawal &&
+            this.publicWithdrawal === other.publicWithdrawal &&
+            this.privateCancellation === other.privateCancellation &&
+            this.publicCancellation === other.publicCancellation
+        )
+    }
 }
