@@ -2,13 +2,7 @@ import {parseEther, parseUnits} from 'ethers'
 import {randomBytes} from 'crypto'
 import {SvmDstEscrowFactory} from './svm-dst-escrow-factory'
 import {bufferFromHex, bufferToHex} from '../../utils/bytes'
-import {
-    EvmAddress,
-    HashLock,
-    Immutables,
-    SolanaAddress,
-    TimeLocks
-} from '../../domains'
+import {HashLock, Immutables, SolanaAddress, TimeLocks} from '../../domains'
 
 describe('SVM Escrow dst factory', () => {
     it('should generate create escrow instruction', () => {
@@ -78,7 +72,7 @@ describe('SVM Escrow dst factory', () => {
         expect(parsed.amount).toEqual(immutables.amount)
         expect(parsed.safetyDeposit).toEqual(immutables.safetyDeposit)
         expect(parsed.recipient).toEqual(
-            EvmAddress.fromBuffer(immutables.maker.toBuffer())
+            SolanaAddress.fromBuffer(immutables.maker.toBuffer())
         )
         expect(parsed.assetIsNative).toEqual(false)
         expect(parsed.srcCancellationTimestamp).toEqual(
