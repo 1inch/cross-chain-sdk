@@ -1,5 +1,5 @@
 import {BitMask, UINT_32_MAX, UINT_64_MAX} from '@1inch/byte-utils'
-import {AuctionCalculator, randBigInt} from '@1inch/fusion-sdk'
+import {AuctionCalculator, randBigInt, UINT_256_MAX} from '@1inch/fusion-sdk'
 import {keccak256} from 'ethers'
 import {utils} from '@coral-xyz/anchor'
 import assert from 'assert'
@@ -32,7 +32,7 @@ export type SolanaOrderJSON = {
         dstToken: string // evm address
         maker: string // base58 solana address
         srcAmount: string // u64 bigint
-        minDstAmount: string // u64 bigint
+        minDstAmount: string // u256 bigint
         receiver: string // evm address
     }
     escrowParams: {
@@ -69,7 +69,7 @@ export type OrderInfoData = {
     dstToken: EvmAddress
     maker: SolanaAddress
     srcAmount: bigint // u64
-    minDstAmount: bigint // u64
+    minDstAmount: bigint // u256
     receiver: EvmAddress
 }
 
@@ -92,7 +92,7 @@ export class SvmCrossChainOrder extends BaseOrder<
         maker: SolanaAddress
         receiver: EvmAddress
         srcAmount: bigint // u64
-        minDstAmount: bigint // u64
+        minDstAmount: bigint // u256
         deadline: number // u32
         salt: bigint // u64
 
@@ -142,7 +142,7 @@ export class SvmCrossChainOrder extends BaseOrder<
 
         assertUInteger(deadline, UINT_32_MAX)
         assertUInteger(orderInfo.srcAmount, UINT_64_MAX)
-        assertUInteger(orderInfo.minDstAmount, UINT_64_MAX)
+        assertUInteger(orderInfo.minDstAmount, UINT_256_MAX)
 
         // todo more asserts
 
