@@ -147,7 +147,8 @@ export class SvmCrossChainOrder extends BaseOrder<
         // todo more asserts
 
         const source = extra.source ?? SvmCrossChainOrder.DefaultExtra.source
-        const isSaltContainsSource = extra.salt && extra.salt > UINT_32_MAX
+        const isSaltContainsSource =
+            extra.salt && (extra.salt & UINT_32_MAX) !== extra.salt
 
         const salt = isSaltContainsSource
             ? extra.salt!
@@ -437,7 +438,7 @@ export class SvmCrossChainOrder extends BaseOrder<
                 source: this.orderConfig.source,
                 allowMultipleFills: this.multipleFillsAllowed,
                 // use only last bits because high ones set from source
-                salt: (this.salt & UINT_32_MAX).toString()
+                salt: this.salt.toString()
             }
         }
     }

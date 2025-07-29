@@ -25,7 +25,7 @@ exports[`SVMCrossChainOrder should correct toJSON/fromJSON 1`] = `
       "cancellationAuctionDuration": 1,
       "maxCancellationPremium": "1",
     },
-    "salt": "1661142325",
+    "salt": "1504783725580453173",
     "source": "sdk",
     "srcAssetIsNative": false,
   },
