@@ -471,13 +471,14 @@ export class SvmCrossChainOrder extends BaseOrder<
          * HashLock corresponding to the fill amount secret
          * Can be omitted  for orders where `multipleFillsAllowed` is false
          */
-        hashLock = this.hashLock
+        hashLock = this.hashLock,
+        fillAmount = this.makingAmount
     ): SolanaAddress {
         return new SvmSrcEscrowFactory(programId).getEscrowAddress({
             orderHash: this.getOrderHashBuffer(),
             hashLock,
             taker,
-            amount: this.makingAmount
+            amount: fillAmount
         })
     }
 
@@ -494,6 +495,10 @@ export class SvmCrossChainOrder extends BaseOrder<
          */
         taker: SolanaAddress
         /**
+         * Making filled amount
+         */
+        fillAmount?: bigint
+        /**
          * HashLock corresponding to the fill amount secret
          * Can be omitted  for orders where `multipleFillsAllowed` is false
          */
@@ -507,7 +512,8 @@ export class SvmCrossChainOrder extends BaseOrder<
         const escrowAddress = this.getSrcEscrowAddress(
             params.programId,
             params.taker,
-            params.hashLock
+            params.hashLock,
+            params.fillAmount
         )
 
         return getAta(escrowAddress, this.makerAsset, params.tokenProgramId)
