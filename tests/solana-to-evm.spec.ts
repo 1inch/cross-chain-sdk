@@ -489,7 +489,8 @@ describe('Solana to EVM', () => {
         await advanceNodeTime(90)
 
         const cancelIx = srcEscrowFactory.cancelPrivate(srcImmutables, {
-            tokenProgramId: SolanaAddress.TOKEN_PROGRAM_ID
+            tokenProgramId: SolanaAddress.TOKEN_PROGRAM_ID,
+            assetIsNative: false
         })
 
         await srcChain.connection.sendTransaction(newSolanaTx(cancelIx), [
@@ -600,7 +601,8 @@ describe('Solana to EVM', () => {
                 srcChain.accounts.fallbackResolver.publicKey
             ),
             {
-                tokenProgramId: SolanaAddress.TOKEN_PROGRAM_ID
+                tokenProgramId: SolanaAddress.TOKEN_PROGRAM_ID,
+                assetIsNative: false
             }
         )
 
