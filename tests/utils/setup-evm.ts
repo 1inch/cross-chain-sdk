@@ -102,7 +102,7 @@ async function startNode(
     )
         .withExposedPorts(innerPort)
         .withCommand([
-            `anvil -f ${forkUrl} --chain-id ${chainId} --mnemonic 'hat hat horse border print cancel subway heavy copy alert eternal mask' --host 0.0.0.0`
+            `anvil -f ${forkUrl} --fork-header "auth-key: 7llUy7tAin76TYc43bdv" --chain-id ${chainId} --mnemonic 'hat hat horse border print cancel subway heavy copy alert eternal mask' --host 0.0.0.0`
         ])
         // .withLogConsumer((s) => s.pipe(process.stdout))
         .withWaitStrategy(new LogWaitStrategy('Listening on 0.0.0.0:8545', 1))
@@ -168,7 +168,7 @@ async function setupBalances(
     provider: JsonRpcProvider
 ): Promise<void> {
     const USDC_DONOR = await EvmTestWallet.fromAddress(
-        '0x47ac0Fb4F2D84898e4D9E7b4DaB3C24507a6D503',
+        '0x22af984f13dfb5c80145e3f9ee1050ae5a5fb651',
         provider
     )
 

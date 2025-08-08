@@ -7,6 +7,7 @@ import {BaseProgram} from './base-program'
 import {WhitelistContract} from './whitelist'
 import {
     CreateOrderAccounts,
+    EscrowAddressParams,
     ParsedCreateInstructionData,
     ParsedCreateSrcEscrowInstructionData
 } from './types'
@@ -1050,11 +1051,6 @@ export class SvmSrcEscrowFactory extends BaseProgram {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 type _ = HashLock // to have ability to refer to it in jsdoc
-
-export type EscrowAddressParams = Pick<
-    Immutables<SolanaAddress>,
-    'orderHash' | 'hashLock' | 'taker' | 'amount'
->
 
 export type ActionParams = Pick<
     Immutables<SolanaAddress>,

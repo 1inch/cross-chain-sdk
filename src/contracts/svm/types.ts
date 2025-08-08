@@ -54,3 +54,8 @@ export type ParsedCreateDstEscrowInstructionData = {
     token: SolanaAddress
     escrow: SolanaAddress
 }
+
+export type EscrowAddressParams = Pick<
+    Immutables<SolanaAddress>,
+    'orderHash' | 'hashLock' | 'taker' | 'amount'
+>

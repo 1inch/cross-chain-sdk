@@ -4,7 +4,10 @@ import {Buffer} from 'buffer'
 import {Instruction} from './instruction'
 import {BaseProgram} from './base-program'
 import {WhitelistContract} from './whitelist'
-import {ParsedCreateDstEscrowInstructionData} from './types'
+import {
+    EscrowAddressParams,
+    ParsedCreateDstEscrowInstructionData
+} from './types'
 import {bigintToBN} from '../../utils/numbers/bigint-to-bn'
 import {uintAsBeBytes} from '../../utils/numbers/uint-as-be-bytes'
 import {uint256split} from '../../utils/numbers/uint256-split'
@@ -101,7 +104,7 @@ export class SvmDstEscrowFactory extends BaseProgram {
             this.encoder.encode('escrow'),
             params.orderHash,
             params.hashLock.toBuffer(),
-            params.maker.toBuffer(),
+            params.taker.toBuffer(),
             uintAsBeBytes(params.amount, 64)
         ])
     }
@@ -473,7 +476,3 @@ export class SvmDstEscrowFactory extends BaseProgram {
         )
     }
 }
-export type EscrowAddressParams = Pick<
-    Immutables<SolanaAddress>,
-    'orderHash' | 'hashLock' | 'maker' | 'amount'
->
