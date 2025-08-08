@@ -146,23 +146,29 @@ importers:
 packages:
 
   '@1inch/byte-utils@2.3.0':
-    resolution: {integrity: sha512-SKRlhemGFKc+15uTgSzsEs0T4WTpVv7lwcWdMTtUdf7tXDVCz+Dvr36pLk4UJxeKW/HqHCQXv9w1rF+yCgG4Tw==, tarball: https://npm.pkg.github.com/download/@1inch/byte-utils/2.3.0/08342ba6fd2559af550140b96f6c3320b218d9b5}
+    resolution: {integrity: sha512-SKRlhemGFKc+15uTgSzsEs0T4WTpVv7lwcWdMTtUdf7tXDVCz+Dvr36pLk4UJxeKW/HqHCQXv9w1rF+yCgG4Tw==}
     engines: {node: '>=18.16.0'}
 
   '@1inch/byte-utils@3.0.0':
-    resolution: {integrity: sha512-CuX4E0z/pzo9hKGzFsMi3vPVgHRRh14ZwNEZ5TY1svnKF8PjxWx3t0CjXCW4dyqKGe6TKAzgYqzzxrMrWPDy5Q==, tarball: https://npm.pkg.github.com/download/@1inch/byte-utils/3.0.0/1c573a3e72586540ea6f542099cd18da978118df}
+    resolution: {integrity: sha512-CuX4E0z/pzo9hKGzFsMi3vPVgHRRh14ZwNEZ5TY1svnKF8PjxWx3t0CjXCW4dyqKGe6TKAzgYqzzxrMrWPDy5Q==}
     engines: {node: '>=18.16.0'}
     peerDependencies:
       assert: ^2.0.0
+    peerDependenciesMeta:
+      assert:
+        optional: true
 
   '@1inch/byte-utils@3.1.0':
-    resolution: {integrity: sha512-fMxihTlLKvRvy3gvL16DTWkZGDwQXYSEgCLX/+sazb38+YD7IK3HzKaxvAUzg8ODLwQk5oY/o6pqRQKI+9x+OA==, tarball: https://npm.pkg.github.com/download/@1inch/byte-utils/3.1.0/0dc5c2b673d7f3cd76fb4578849dfed3b9682076}
+    resolution: {integrity: sha512-fMxihTlLKvRvy3gvL16DTWkZGDwQXYSEgCLX/+sazb38+YD7IK3HzKaxvAUzg8ODLwQk5oY/o6pqRQKI+9x+OA==}
     engines: {node: '>=18.16.0'}
     peerDependencies:
       assert: ^2.0.0
+    peerDependenciesMeta:
+      assert:
+        optional: true
 
   '@1inch/eslint-config@3.0.7':
-    resolution: {integrity: sha512-2qsAgDb+fRpSbuHhKz9rChWQx70Xp59K7by72nCbuK6y8/fx7YDokas9ujOZ0nfj0dGUM5xWGB4EXvdWpqcvfA==, tarball: https://npm.pkg.github.com/download/@1inch/eslint-config/3.0.7/5774b1fcbdb11e487651d358463f9976942cf482}
+    resolution: {integrity: sha512-2qsAgDb+fRpSbuHhKz9rChWQx70Xp59K7by72nCbuK6y8/fx7YDokas9ujOZ0nfj0dGUM5xWGB4EXvdWpqcvfA==}
     peerDependencies:
       '@eslint/compat': ^1.1.0
       '@eslint/eslintrc': ^3.1.0
@@ -184,20 +190,30 @@ packages:
       typescript: ^5.5.2
 
   '@1inch/fusion-sdk@2.1.11-rc.2':
-    resolution: {integrity: sha512-OuCS58rj1TolXQA/bO7TI84h/ncm7YjNlA6Fa1L5Rc5qCtdfA3uCdPn8GITotZ2aR6sz4LopGiVxd227k5ltww==, tarball: https://npm.pkg.github.com/download/@1inch/fusion-sdk/2.1.11-rc.2/de181f92011201891c774343f07979b4061566db}
+    resolution: {integrity: sha512-OuCS58rj1TolXQA/bO7TI84h/ncm7YjNlA6Fa1L5Rc5qCtdfA3uCdPn8GITotZ2aR6sz4LopGiVxd227k5ltww==}
     peerDependencies:
       assert: ^2.0.0
       axios: '>=1 <2'
+    peerDependenciesMeta:
+      assert:
+        optional: true
+      axios:
+        optional: true
 
   '@1inch/limit-order-sdk@4.13.0':
-    resolution: {integrity: sha512-n+8EG1aY5wSHkiGv3rqJ/0YQPVqiIu6EPgiOrjnx0+82oydmoEJXaj/tGmFUAuxTJkfYGdzbL/d4vzVGWSXP+Q==, tarball: https://npm.pkg.github.com/download/@1inch/limit-order-sdk/4.13.0/9f5e12d69cb19a0e79b86ddd3169c3db29f10db5}
+    resolution: {integrity: sha512-n+8EG1aY5wSHkiGv3rqJ/0YQPVqiIu6EPgiOrjnx0+82oydmoEJXaj/tGmFUAuxTJkfYGdzbL/d4vzVGWSXP+Q==}
     engines: {node: '>=20.9.0'}
     peerDependencies:
       assert: ^2.0.0
       axios: '>=1 <2'
+    peerDependenciesMeta:
+      assert:
+        optional: true
+      axios:
+        optional: true
 
   '@1inch/tsconfig@1.0.9':
-    resolution: {integrity: sha512-vxtnc3XmekTUOr/KKtJ3VsiYHenyY590ApM0jKWrC6ov/WQB2pQOi99SxSdRPP0pbmtnd8jcSJzLBWDmajXAVg==, tarball: https://npm.pkg.github.com/download/@1inch/tsconfig/1.0.9/853812465b1557724535d5b450ae452668846c35}
+    resolution: {integrity: sha512-TpQKhkwksMaiz26Uh1uWeVs8us6kodwt1i8KEVqqF9/fLL/JEc5Ql3UblqYrL69HJndxHyJRBZ7ziVHdTwCWOw==}
 
   '@adraffy/ens-normalize@1.10.1':
     resolution: {integrity: sha512-96Z2IP3mYmF1Xg2cDm8f1gWGf/HUVedQ3FMifV4kG/PQ4yEP51xDtRAEfhVNt5f/uzpNkZHwWQuUcu6D6K+Ekw==}
@@ -3554,11 +3570,11 @@ snapshots:
   '@1inch/byte-utils@2.3.0': {}
 
   '@1inch/byte-utils@3.0.0(assert@2.1.0)':
-    dependencies:
+    optionalDependencies:
       assert: 2.1.0
 
   '@1inch/byte-utils@3.1.0(assert@2.1.0)':
-    dependencies:
+    optionalDependencies:
       assert: 2.1.0
 
   '@1inch/eslint-config@3.0.7(d1c4c9e69b90c4a66f35c6b296c5d4b1)':
@@ -3587,11 +3603,12 @@ snapshots:
     dependencies:
       '@1inch/byte-utils': 2.3.0
       '@1inch/limit-order-sdk': 4.13.0(assert@2.1.0)(axios@1.8.2)(bufferutil@4.0.9)(utf-8-validate@5.0.10)
-      assert: 2.1.0
-      axios: 1.8.2
       ethers: 6.13.1(bufferutil@4.0.9)(utf-8-validate@5.0.10)
       tslib: 2.6.3
       ws: 8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+    optionalDependencies:
+      assert: 2.1.0
+      axios: 1.8.2
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -3599,9 +3616,10 @@ snapshots:
   '@1inch/limit-order-sdk@4.13.0(assert@2.1.0)(axios@1.8.2)(bufferutil@4.0.9)(utf-8-validate@5.0.10)':
     dependencies:
       '@1inch/byte-utils': 3.0.0(assert@2.1.0)
+      ethers: 6.13.5(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+    optionalDependencies:
       assert: 2.1.0
       axios: 1.8.2
-      ethers: 6.13.5(bufferutil@4.0.9)(utf-8-validate@5.0.10)
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
