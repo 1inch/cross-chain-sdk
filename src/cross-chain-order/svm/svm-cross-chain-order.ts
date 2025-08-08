@@ -3,7 +3,6 @@ import {AuctionCalculator, randBigInt, UINT_256_MAX} from '@1inch/fusion-sdk'
 import {keccak256} from 'ethers'
 import {utils} from '@coral-xyz/anchor'
 import assert from 'assert'
-import {Buffer} from 'buffer'
 import {ResolverCancellationConfig} from './resolver-cancellation-config'
 import {
     SolanaDetails,
