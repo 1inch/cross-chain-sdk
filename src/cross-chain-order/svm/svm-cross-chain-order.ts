@@ -146,8 +146,7 @@ export class SvmCrossChainOrder extends BaseOrder<
         // todo more asserts
 
         const source = extra.source ?? SvmCrossChainOrder.DefaultExtra.source
-        const isSaltContainsSource =
-            extra.salt && (extra.salt & UINT_32_MAX) !== extra.salt
+        const isSaltContainsSource = extra.salt && extra.salt > UINT_32_MAX
 
         const salt = isSaltContainsSource
             ? extra.salt!
