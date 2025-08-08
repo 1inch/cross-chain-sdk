@@ -1,6 +1,7 @@
 import {
     AuctionDetails,
     HashLock,
+    Immutables,
     MerkleLeaf,
     SolanaAddress,
     TimeLocks
