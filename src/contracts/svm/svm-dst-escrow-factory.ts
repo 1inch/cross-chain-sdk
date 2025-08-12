@@ -20,7 +20,7 @@ import {bnArrayToBigInt} from '../../utils/numbers/bn-array-to-big-int'
 
 export class SvmDstEscrowFactory extends BaseProgram {
     static DEFAULT = new SvmDstEscrowFactory(
-        new SolanaAddress('GveV3ToLhvRmeq1Fyg3BMkNetZuG9pZEp4uBGWLrTjve')
+        new SolanaAddress('AMEAktCrii7mVFQKCM9i5hKES4YrV3zFagrawr8BY8pb')
     )
 
     private static readonly coder = new BorshCoder(IDL)

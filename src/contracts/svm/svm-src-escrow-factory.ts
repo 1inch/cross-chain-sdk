@@ -42,7 +42,7 @@ import {FixedLengthArray} from '../../type-utils'
 
 export class SvmSrcEscrowFactory extends BaseProgram {
     static DEFAULT = new SvmSrcEscrowFactory(
-        new SolanaAddress('2g4JDRMD7G3dK1PHmCnDAycKzd6e5sdhxqGBbs264zwz')
+        new SolanaAddress('4yBT18tBcWqCDK8p3RMXdmZMjHr3wJM7jM6HVYemEqGh')
     )
 
     private static readonly coder = new BorshCoder(IDL)
