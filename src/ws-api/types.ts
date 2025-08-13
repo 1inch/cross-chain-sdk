@@ -8,10 +8,10 @@ import {
     PingRpcEvent
 } from '@1inch/fusion-sdk'
 import {Jsonify} from 'type-fest'
-import {AddressLike, Immutables} from '../domains'
-import {PaginationOutput} from '../api/types'
-import {ActiveOrder, OrderType, PublicSecret} from '../api/orders'
-import {SupportedChain} from '../chains'
+import {AddressLike, Immutables} from '../domains/index.js'
+import {PaginationOutput} from '../api/types.js'
+import {ActiveOrder, OrderType, PublicSecret} from '../api/orders/index.js'
+import {SupportedChain} from '../chains.js'
 
 export type OrderEventType =
     | OrderCreatedEvent

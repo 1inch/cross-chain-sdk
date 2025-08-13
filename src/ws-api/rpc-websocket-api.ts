@@ -4,9 +4,9 @@ import {
     RpcEvent,
     WsProviderConnector
 } from '@1inch/fusion-sdk'
-import {OnGetSecretsCb, RpcEventType, RpcMethod} from './types'
-import {ActiveOrder, PaginationOutput} from '../api/'
-import {PaginationParams, PaginationRequest} from '../api/pagination'
+import {OnGetSecretsCb, RpcEventType, RpcMethod} from './types.js'
+import {ActiveOrder, PaginationOutput} from '../api//index.js'
+import {PaginationParams, PaginationRequest} from '../api/pagination.js'
 
 export class RpcWebsocketApi {
     public readonly provider: WsProviderConnector

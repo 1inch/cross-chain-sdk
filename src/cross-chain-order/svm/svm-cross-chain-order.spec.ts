@@ -1,11 +1,11 @@
 import {parseEther, parseUnits} from 'ethers'
-import {SvmCrossChainOrder} from './svm-cross-chain-order'
-import {SvmSrcEscrowFactory} from '../../contracts'
-import {NetworkEnum} from '../../chains'
-import {TimeLocks} from '../../domains/time-locks'
-import {HashLock} from '../../domains/hash-lock'
-import {AuctionDetails} from '../../domains/auction-details'
-import {EvmAddress, SolanaAddress} from '../../domains/addresses'
+import {SvmCrossChainOrder} from './svm-cross-chain-order.js'
+import {SvmSrcEscrowFactory} from '../../contracts/index.js'
+import {NetworkEnum} from '../../chains.js'
+import {TimeLocks} from '../../domains/time-locks/index.js'
+import {HashLock} from '../../domains/hash-lock/index.js'
+import {AuctionDetails} from '../../domains/auction-details/index.js'
+import {EvmAddress, SolanaAddress} from '../../domains/addresses/index.js'
 
 describe('SVMCrossChainOrder', () => {
     it('should correct calculate order hash', () => {

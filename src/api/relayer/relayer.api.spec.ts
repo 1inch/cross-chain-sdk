@@ -1,7 +1,7 @@
 import {HttpProviderConnector, NetworkEnum} from '@1inch/fusion-sdk'
-import {RelayerApi} from './relayer.api'
-import {RelayerRequestEvm, RelayerRequestSvm} from './relayer.request'
-import {getRandomBytes32} from '../../test-utils/get-random-bytes-32'
+import {RelayerApi} from './relayer.api.js'
+import {RelayerRequestEvm, RelayerRequestSvm} from './relayer.request.js'
+import {getRandomBytes32} from '../../test-utils/get-random-bytes-32.js'
 
 describe('Relayer API', () => {
     const httpProvider: HttpProviderConnector = {

@@ -1,9 +1,9 @@
 import {LimitOrderV4Struct} from '@1inch/fusion-sdk'
-import {AuctionPoint} from '../../domains'
-import {PaginationOutput} from '../types'
-import {PaginationParams} from '../pagination'
-import {EvmChain, SolanaChain, SupportedChain} from '../../chains'
-import {SolanaOrderJSON} from '../../cross-chain-order'
+import {AuctionPoint} from '../../domains/index.js'
+import {PaginationOutput} from '../types.js'
+import {PaginationParams} from '../pagination.js'
+import {EvmChain, SolanaChain, SupportedChain} from '../../chains.js'
+import {SolanaOrderJSON} from '../../cross-chain-order/index.js'
 
 export type OrdersApiConfig = {
     url: string

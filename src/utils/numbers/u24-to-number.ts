@@ -1,4 +1,4 @@
-import {FixedLengthArray} from '../../type-utils'
+import {FixedLengthArray} from '../../type-utils.js'
 
 export function u24ToNumber(val: [FixedLengthArray<number, 3>]): number {
     const bytes = val[0]

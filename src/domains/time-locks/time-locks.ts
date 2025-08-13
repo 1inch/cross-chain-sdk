@@ -1,7 +1,7 @@
 import {BitMask, BN, UINT_32_MAX} from '@1inch/byte-utils'
 import assert from 'assert'
-import {SrcTimeLocks} from './src-time-locks'
-import {DstTimeLocks} from './dst-time-locks'
+import {SrcTimeLocks} from './src-time-locks.js'
+import {DstTimeLocks} from './dst-time-locks.js'
 
 /**
  * Contains the duration of each stage of swap for source and destination chain

@@ -1,5 +1,5 @@
 import {Address, NetworkEnum} from '@1inch/fusion-sdk'
-import {QuoterRequest} from './quoter.request'
+import {QuoterRequest} from './quoter.request.js'
 
 describe('QuoterRequest', () => {
     it('should return error if native currency', () => {

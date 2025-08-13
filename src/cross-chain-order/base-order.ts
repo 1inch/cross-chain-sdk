@@ -1,11 +1,11 @@
 import {AuctionCalculator, calcTakingAmount} from '@1inch/fusion-sdk'
 import assert from 'assert'
-import {now} from '../utils'
-import {NetworkEnum, SupportedChain} from '../chains'
-import {HashLock} from '../domains/hash-lock'
-import {Immutables} from '../domains/immutables'
-import {TimeLocks} from '../domains/time-locks'
-import {AddressLike} from '../domains/addresses'
+import {now} from '../utils/index.js'
+import {NetworkEnum, SupportedChain} from '../chains.js'
+import {HashLock} from '../domains/hash-lock/index.js'
+import {Immutables} from '../domains/immutables/index.js'
+import {TimeLocks} from '../domains/time-locks/index.js'
+import {AddressLike} from '../domains/addresses/index.js'
 
 export abstract class BaseOrder<
     TSrcAddress extends AddressLike,

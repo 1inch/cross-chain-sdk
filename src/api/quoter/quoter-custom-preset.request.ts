@@ -3,7 +3,7 @@ import {
     CustomPreset,
     CustomPresetPoint,
     QuoterCustomPresetRequestParams
-} from './types'
+} from './types.js'
 
 export class QuoterCustomPresetRequest {
     public readonly customPreset: CustomPreset

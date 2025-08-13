@@ -1,9 +1,9 @@
 import {HttpProviderConnector} from '@1inch/fusion-sdk'
-import {QuoterRequest} from './quoter.request'
-import {QuoterApiConfig, QuoterResponse} from './types'
-import {Quote} from './quote'
-import {QuoterCustomPresetRequest} from './quoter-custom-preset.request'
-import {concatQueryParams} from '../params'
+import {QuoterRequest} from './quoter.request.js'
+import {QuoterApiConfig, QuoterResponse} from './types.js'
+import {Quote} from './quote/index.js'
+import {QuoterCustomPresetRequest} from './quoter-custom-preset.request.js'
+import {concatQueryParams} from '../params.js'
 
 export class QuoterApi {
     private static Version = 'v1.1'

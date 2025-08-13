@@ -1,5 +1,5 @@
-import {AddressComplement} from './address-complement'
-import {EvmAddress} from './evm-address'
+import {AddressComplement} from './address-complement.js'
+import {EvmAddress} from './evm-address.js'
 
 export type HexString = `0x${string}`
 

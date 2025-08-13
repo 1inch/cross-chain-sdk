@@ -1,5 +1,5 @@
 import {BN} from '@coral-xyz/anchor'
-import {FixedLengthArray} from '../../type-utils'
+import {FixedLengthArray} from '../../type-utils.js'
 
 export function bnArrayToBigInt(arr: FixedLengthArray<BN, 4>): bigint {
     const hex =

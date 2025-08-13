@@ -1,4 +1,4 @@
-import {EvmAddress} from './evm-address'
+import {EvmAddress} from './evm-address.js'
 
 describe('EvmAddress', () => {
     it('Should create from buffer', () => {

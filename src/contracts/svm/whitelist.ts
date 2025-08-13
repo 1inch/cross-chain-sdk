@@ -1,6 +1,6 @@
-import {BaseProgram} from './base-program'
-import {SolanaAddress} from '../../domains/addresses'
-import {getPda} from '../../utils'
+import {BaseProgram} from './base-program.js'
+import {SolanaAddress} from '../../domains/addresses/index.js'
+import {getPda} from '../../utils/index.js'
 
 export class WhitelistContract extends BaseProgram {
     static DEFAULT = new WhitelistContract(

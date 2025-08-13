@@ -1,6 +1,6 @@
 import {HttpProviderConnector} from '@1inch/fusion-sdk'
-import {RelayerRequestEvm, RelayerRequestSvm} from './relayer.request'
-import {RelayerApiConfig} from './types'
+import {RelayerRequestEvm, RelayerRequestSvm} from './relayer.request.js'
+import {RelayerApiConfig} from './types.js'
 
 export class RelayerApi {
     private static Version = 'v1.1'

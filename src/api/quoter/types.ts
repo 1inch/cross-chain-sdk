@@ -1,5 +1,5 @@
-import {AuctionPoint} from '../../domains'
-import {SupportedChain} from '../../chains'
+import {AuctionPoint} from '../../domains/index.js'
+import {SupportedChain} from '../../chains.js'
 
 export type QuoterRequestParams<
     SrcChain extends SupportedChain = SupportedChain,

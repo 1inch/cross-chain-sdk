@@ -7,7 +7,7 @@ import {
     PingRpcEvent,
     WebsocketClient
 } from '@1inch/fusion-sdk'
-import {WebSocketApi} from './ws-api'
+import {WebSocketApi} from './ws-api.js'
 import {
     EventType,
     GetActiveOrdersRpcEvent,
@@ -20,10 +20,10 @@ import {
     OrderSecretSharedEvent,
     RpcMethod,
     WebSocketEvent
-} from './types'
-import {castUrl} from './url'
-import {OrderType} from '../api'
-import {NetworkEnum} from '../chains'
+} from './types.js'
+import {castUrl} from './url.js'
+import {OrderType} from '../api/index.js'
+import {NetworkEnum} from '../chains.js'
 
 jest.setTimeout(5 * 60 * 1000)
 

@@ -1,4 +1,4 @@
-import {uint256split} from './uint256-split'
+import {uint256split} from './uint256-split.js'
 
 export function uint256BorchSerialized(val: bigint): Buffer {
     const buffer = Buffer.alloc(32)

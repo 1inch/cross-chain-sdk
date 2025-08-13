@@ -1,1 +1,1 @@
-export {HashLock, MerkleLeaf} from './hash-lock'
+export {HashLock, MerkleLeaf} from './hash-lock.js'

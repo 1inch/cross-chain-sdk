@@ -15,18 +15,22 @@ import {
     EvmEscrowParams,
     EvmExtra,
     OrderInfoData
-} from './types'
-import {InnerOrder} from './inner-order'
-import {EscrowExtension} from './escrow-extension'
-import {AddressComplement} from '../../domains/addresses/address-complement'
-import {now} from '../../utils/time'
-import {createAddress, AddressLike, EvmAddress} from '../../domains/addresses'
-import {BaseOrder} from '../base-order'
-import {TRUE_ERC20} from '../../deployments'
-import {isEvm, isSupportedChain, SupportedChain} from '../../chains'
-import {HashLock} from '../../domains/hash-lock'
-import {TimeLocks} from '../../domains/time-locks'
-import {bufferFromHex} from '../../utils/bytes'
+} from './types.js'
+import {InnerOrder} from './inner-order.js'
+import {EscrowExtension} from './escrow-extension.js'
+import {AddressComplement} from '../../domains/addresses/address-complement.js'
+import {now} from '../../utils/time/index.js'
+import {
+    createAddress,
+    AddressLike,
+    EvmAddress
+} from '../../domains/addresses/index.js'
+import {BaseOrder} from '../base-order.js'
+import {TRUE_ERC20} from '../../deployments.js'
+import {isEvm, isSupportedChain, SupportedChain} from '../../chains.js'
+import {HashLock} from '../../domains/hash-lock/index.js'
+import {TimeLocks} from '../../domains/time-locks/index.js'
+import {bufferFromHex} from '../../utils/bytes.js'
 
 export class EvmCrossChainOrder extends BaseOrder<
     EvmAddress,

@@ -1,12 +1,15 @@
 import {FusionExtension} from '@1inch/fusion-sdk'
-import {EscrowExtension} from './escrow-extension'
-import {AddressComplement} from '../../domains/addresses/address-complement'
-import {AuctionDetails} from '../../domains/auction-details'
-import {EvmAddress as Address, EvmAddress} from '../../domains/addresses'
-import {HashLock} from '../../domains/hash-lock'
-import {TimeLocks} from '../../domains/time-locks'
-import {getRandomBytes32} from '../../test-utils/get-random-bytes-32'
-import {NetworkEnum} from '../../chains'
+import {EscrowExtension} from './escrow-extension.js'
+import {AddressComplement} from '../../domains/addresses/address-complement.js'
+import {AuctionDetails} from '../../domains/auction-details/index.js'
+import {
+    EvmAddress as Address,
+    EvmAddress
+} from '../../domains/addresses/index.js'
+import {HashLock} from '../../domains/hash-lock/index.js'
+import {TimeLocks} from '../../domains/time-locks/index.js'
+import {getRandomBytes32} from '../../test-utils/get-random-bytes-32.js'
+import {NetworkEnum} from '../../chains.js'
 
 describe('EscrowExtension', () => {
     it('Should build/decode', () => {

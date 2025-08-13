@@ -11,14 +11,14 @@ import {
     PublishedSecretsResponse,
     ReadyToAcceptSecretFills,
     ValidationStatus
-} from './types'
-import {OrdersApi} from './orders.api'
+} from './types.js'
+import {OrdersApi} from './orders.api.js'
 import {
     ActiveOrdersRequest,
     OrdersByMakerRequest,
     OrderStatusRequest
-} from './orders.request'
-import {NetworkEnum} from '../../chains'
+} from './orders.request.js'
+import {NetworkEnum} from '../../chains.js'
 
 function createHttpProviderFake<T>(mock: T): HttpProviderConnector {
     return {

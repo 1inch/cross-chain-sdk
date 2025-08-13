@@ -1,4 +1,4 @@
-import {uintAsBeBytes} from './uint-as-be-bytes'
+import {uintAsBeBytes} from './uint-as-be-bytes.js'
 
 describe('uintAsBeBytes', () => {
     it('should convert u64 to big endian buffer', () => {

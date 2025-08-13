@@ -4,9 +4,9 @@ import {
     ActiveOrdersRequestParams,
     OrdersByMakerParams,
     OrderStatusParams
-} from './types'
-import {PaginationRequest} from '../pagination'
-import {SupportedChain} from '../../chains'
+} from './types.js'
+import {PaginationRequest} from '../pagination.js'
+import {SupportedChain} from '../../chains.js'
 
 export class ActiveOrdersRequest {
     public readonly pagination: PaginationRequest

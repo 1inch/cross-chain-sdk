@@ -7,10 +7,10 @@ import {
     ResolverCancellationConfig,
     SvmCrossChainOrder,
     EvmCrossChainOrder
-} from '../cross-chain-order'
-import {CustomPreset, PresetEnum} from '../api'
-import {SupportedChain} from '../chains'
-import {HashLock, SolanaAddress} from '../domains'
+} from '../cross-chain-order/index.js'
+import {CustomPreset, PresetEnum} from '../api/index.js'
+import {SupportedChain} from '../chains.js'
+import {HashLock, SolanaAddress} from '../domains/index.js'
 
 export type CrossChainSDKConfigParams = {
     url: string

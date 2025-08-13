@@ -1,8 +1,8 @@
 import {LimitOrderV4Struct} from '@1inch/fusion-sdk'
 import {Jsonify} from 'type-fest'
 import {SolanaOrderJSON} from 'cross-chain-order'
-import {DataFor} from '../../type-utils'
-import {NetworkEnum, SupportedChain} from '../../chains'
+import {DataFor} from '../../type-utils.js'
+import {NetworkEnum, SupportedChain} from '../../chains.js'
 
 export class RelayerRequestEvm {
     public readonly order: LimitOrderV4Struct

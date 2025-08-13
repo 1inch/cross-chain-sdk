@@ -1,8 +1,8 @@
-import {AuctionDetails} from '../../domains/auction-details'
-import {AddressLike, EvmAddress} from '../../domains/addresses'
-import {HashLock} from '../../domains/hash-lock'
-import {TimeLocks} from '../../domains/time-locks'
-import {EvmChain, SupportedChain} from '../../chains'
+import {AuctionDetails} from '../../domains/auction-details/index.js'
+import {AddressLike, EvmAddress} from '../../domains/addresses/index.js'
+import {HashLock} from '../../domains/hash-lock/index.js'
+import {TimeLocks} from '../../domains/time-locks/index.js'
+import {EvmChain, SupportedChain} from '../../chains.js'
 
 export type EvmCrossChainOrderInfo = {
     /**

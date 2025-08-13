@@ -1,5 +1,5 @@
 import {getBytesCount} from '@1inch/byte-utils'
-import {HashLock} from './hash-lock'
+import {HashLock} from './hash-lock.js'
 
 describe('HashLock', () => {
     it('should create single fill HashLock', () => {

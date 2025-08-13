@@ -1,1 +1,1 @@
-export * from './assert-uinteger'
+export * from './assert-uinteger.js'

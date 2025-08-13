@@ -1,5 +1,5 @@
-import {EvmChain, SolanaChain, SupportedChain} from './chains'
-import {EvmAddress, SolanaAddress} from './domains'
+import {EvmChain, SolanaChain, SupportedChain} from './chains.js'
+import {EvmAddress, SolanaAddress} from './domains/index.js'
 
 export type TupleToUnion<ArrayType> = ArrayType extends readonly unknown[]
     ? ArrayType[number]

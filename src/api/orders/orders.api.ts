@@ -3,7 +3,7 @@ import {
     ActiveOrdersRequest,
     OrdersByMakerRequest,
     OrderStatusRequest
-} from './orders.request'
+} from './orders.request.js'
 import {
     ActiveOrdersResponse,
     CancellableOrdersResponse,
@@ -13,9 +13,9 @@ import {
     PublishedSecretsResponse,
     ReadyToAcceptSecretFills,
     ReadyToExecutePublicActions
-} from './types'
-import {concatQueryParams} from '../params'
-import {PaginationRequest} from '../../api/pagination'
+} from './types.js'
+import {concatQueryParams} from '../params.js'
+import {PaginationRequest} from '../../api/pagination.js'
 
 export class OrdersApi {
     private static Version = 'v1.1'

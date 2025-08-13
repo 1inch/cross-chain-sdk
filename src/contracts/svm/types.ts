@@ -5,9 +5,9 @@ import {
     MerkleLeaf,
     SolanaAddress,
     TimeLocks
-} from '../../domains'
-import {OrderInfoData} from '../../cross-chain-order/svm/svm-cross-chain-order'
-import {SolanaEscrowParams, SolanaExtra} from '../../cross-chain-order'
+} from '../../domains/index.js'
+import {OrderInfoData} from '../../cross-chain-order/svm/svm-cross-chain-order.js'
+import {SolanaEscrowParams, SolanaExtra} from '../../cross-chain-order/index.js'
 
 export type CreateOrderAccounts = {
     creator: SolanaAddress

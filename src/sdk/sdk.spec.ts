@@ -4,8 +4,8 @@ import {
     Web3Like,
     Web3ProviderConnector
 } from '@1inch/fusion-sdk'
-import {SDK} from './sdk'
-import {NetworkEnum} from '../chains'
+import {SDK} from './sdk.js'
+import {NetworkEnum} from '../chains.js'
 
 function createHttpProviderFake<T>(mock: T): HttpProviderConnector {
     return {

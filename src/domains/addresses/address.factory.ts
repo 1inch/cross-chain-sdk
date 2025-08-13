@@ -1,8 +1,8 @@
-import {EvmAddress} from './evm-address'
-import {SolanaAddress} from './solana-address'
-import {AddressComplement} from './address-complement'
-import {isEvm, SupportedChain} from '../../chains'
-import {AddressForChain} from '../../type-utils'
+import {EvmAddress} from './evm-address.js'
+import {SolanaAddress} from './solana-address.js'
+import {AddressComplement} from './address-complement.js'
+import {isEvm, SupportedChain} from '../../chains.js'
+import {AddressForChain} from '../../type-utils.js'
 
 export function createAddress<Chain extends SupportedChain>(
     // hex/base58/bigint

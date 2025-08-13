@@ -1,8 +1,8 @@
 import bs58 from 'bs58'
 import {add0x} from '@1inch/byte-utils'
 import {Buffer} from 'buffer'
-import {NodeMessage} from './node-message'
-import {SolanaAddress} from '../../domains/addresses'
+import {NodeMessage} from './node-message.js'
+import {SolanaAddress} from '../../domains/addresses/index.js'
 
 export class Instruction {
     constructor(

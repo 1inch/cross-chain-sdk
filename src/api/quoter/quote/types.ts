@@ -1,10 +1,10 @@
-import {EvmAddress} from '../../../domains'
-import {PresetEnum} from '../types'
-import {HashLock} from '../../../domains/hash-lock'
-import {Preset} from '../preset'
-import {AddressForChain} from '../../../type-utils'
-import {SupportedChain} from '../../../chains'
-import {ResolverCancellationConfig} from '../../../cross-chain-order/svm'
+import {EvmAddress} from '../../../domains/index.js'
+import {PresetEnum} from '../types.js'
+import {HashLock} from '../../../domains/hash-lock/index.js'
+import {Preset} from '../preset.js'
+import {AddressForChain} from '../../../type-utils.js'
+import {SupportedChain} from '../../../chains.js'
+import {ResolverCancellationConfig} from '../../../cross-chain-order/svm/index.js'
 
 export type EvmCrossChainOrderParamsData = {
     hashLock: HashLock

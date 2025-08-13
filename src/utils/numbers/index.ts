@@ -1,1 +1,1 @@
-export * from './bn-array-to-big-int'
+export * from './bn-array-to-big-int.js'

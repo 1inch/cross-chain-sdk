@@ -1,1 +1,1 @@
-export * from './mul-div'
+export * from './mul-div.js'

@@ -1,4 +1,4 @@
-import {uint256split} from './uint256-split'
+import {uint256split} from './uint256-split.js'
 
 describe('uint256split', () => {
     it('should convert u256 to four u64 bigint', () => {

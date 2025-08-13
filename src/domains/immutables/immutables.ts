@@ -1,11 +1,15 @@
 import {AbiCoder, keccak256} from 'ethers'
 import {add0x, isHexBytes} from '@1inch/byte-utils'
 import assert from 'assert'
-import {DstImmutablesComplement} from './dst-immutables-complement'
-import {HashLock} from '../hash-lock'
-import {TimeLocks} from '../time-locks'
-import {AddressLike, EvmAddress, SolanaAddress} from '../../domains/addresses'
-import {bufferFromHex} from '../../utils/bytes'
+import {DstImmutablesComplement} from './dst-immutables-complement.js'
+import {HashLock} from '../hash-lock/index.js'
+import {TimeLocks} from '../time-locks/index.js'
+import {
+    AddressLike,
+    EvmAddress,
+    SolanaAddress
+} from '../../domains/addresses/index.js'
+import {bufferFromHex} from '../../utils/bytes.js'
 
 /**
  * Contract representation of class

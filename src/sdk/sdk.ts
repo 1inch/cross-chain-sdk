@@ -9,13 +9,13 @@ import {
     QuoteCustomPresetParams,
     CrossChainSDKConfigParams,
     SolanaOrderCancellationData
-} from './types'
+} from './types.js'
 import {
     ResolverCancellationConfig,
     SvmCrossChainOrder
-} from '../cross-chain-order'
-import {bufferToHex} from '../utils'
-import {EvmAddress, SolanaAddress} from '../domains/addresses'
+} from '../cross-chain-order/index.js'
+import {bufferToHex} from '../utils/index.js'
+import {EvmAddress, SolanaAddress} from '../domains/addresses/index.js'
 import {
     FusionApi,
     Quote,
@@ -37,9 +37,9 @@ import {
     RelayerRequestSvm,
     PaginationOutput,
     PaginationRequest
-} from '../api'
-import {EvmCrossChainOrder} from '../cross-chain-order/evm'
-import {isEvm, NetworkEnum, SupportedChain} from '../chains'
+} from '../api/index.js'
+import {EvmCrossChainOrder} from '../cross-chain-order/evm/index.js'
+import {isEvm, NetworkEnum, SupportedChain} from '../chains.js'
 
 export class SDK {
     public readonly api: FusionApi

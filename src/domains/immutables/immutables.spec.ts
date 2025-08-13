@@ -1,7 +1,7 @@
-import {Immutables} from './immutables'
-import {HashLock} from '../../domains/hash-lock'
-import {EvmAddress} from '../../domains/addresses'
-import {TimeLocks} from '../../domains/time-locks'
+import {Immutables} from './immutables.js'
+import {HashLock} from '../../domains/hash-lock/index.js'
+import {EvmAddress} from '../../domains/addresses/index.js'
+import {TimeLocks} from '../../domains/time-locks/index.js'
 
 describe('Immutables', function () {
     const immutables = Immutables.new({

@@ -1,6 +1,9 @@
-import {PresetData} from './types'
-import {AuctionDetails, AuctionPoint} from '../../domains/auction-details'
-import {EvmAddress as Address} from '../../domains/addresses'
+import {PresetData} from './types.js'
+import {
+    AuctionDetails,
+    AuctionPoint
+} from '../../domains/auction-details/index.js'
+import {EvmAddress as Address} from '../../domains/addresses/index.js'
 
 export class Preset {
     public readonly auctionDuration: bigint

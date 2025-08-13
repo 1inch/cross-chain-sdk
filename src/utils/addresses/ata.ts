@@ -1,5 +1,5 @@
 import {web3} from '@coral-xyz/anchor'
-import {SolanaAddress, AddressLike} from '../../domains/addresses'
+import {SolanaAddress, AddressLike} from '../../domains/addresses/index.js'
 
 const SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID: web3.PublicKey =
     new web3.PublicKey('ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL')

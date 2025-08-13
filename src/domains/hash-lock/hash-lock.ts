@@ -3,7 +3,7 @@ import {SimpleMerkleTree} from '@openzeppelin/merkle-tree'
 import {BitMask, BN, getBytesCount, isHexBytes} from '@1inch/byte-utils'
 import assert from 'assert'
 import {Buffer} from 'buffer'
-import {bufferFromHex} from '../../utils/bytes'
+import {bufferFromHex} from '../../utils/bytes.js'
 
 export class HashLock {
     public static Web3Type = 'bytes32'

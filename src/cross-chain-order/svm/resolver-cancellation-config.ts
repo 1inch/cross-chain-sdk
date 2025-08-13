@@ -1,6 +1,6 @@
 import {UINT_64_MAX} from '@1inch/byte-utils'
 import assert from 'assert'
-import {assertUInteger} from '../../utils/validation'
+import {assertUInteger} from '../../utils/validation/index.js'
 
 export class ResolverCancellationConfig {
     public static BASE_1E3 = 1000n

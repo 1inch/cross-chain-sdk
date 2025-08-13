@@ -11,5 +11,10 @@ module.exports = {
     collectCoverageFrom: ['**/*.(t|j)s'],
     testTimeout: 20_000,
     coverageDirectory: '../coverage',
-    testEnvironment: 'node'
+    testEnvironment: 'node',
+    moduleNameMapper: {
+        '^bn.js$': 'bn.js',
+        '^@solana/web3.js$': '@solana/web3.js',
+        '(.+)\\.js': '$1'
+    }
 }

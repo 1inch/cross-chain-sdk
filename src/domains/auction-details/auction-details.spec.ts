@@ -1,5 +1,5 @@
-import {AuctionDetails} from './auction-details'
-import {hashForSolana} from './hasher'
+import {AuctionDetails} from './auction-details.js'
+import {hashForSolana} from './hasher.js'
 
 describe('Auction details', () => {
     it('Should encode/decode details', () => {

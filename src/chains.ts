@@ -1,4 +1,4 @@
-import {TupleToUnion} from './type-utils'
+import {TupleToUnion} from './type-utils.js'
 
 export enum NetworkEnum {
     ETHEREUM = 1,

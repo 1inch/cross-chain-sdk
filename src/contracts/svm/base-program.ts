@@ -1,5 +1,5 @@
-import {AccountMeta} from './instruction'
-import {SolanaAddress} from '../../domains/addresses'
+import {AccountMeta} from './instruction.js'
+import {SolanaAddress} from '../../domains/addresses/index.js'
 
 export abstract class BaseProgram {
     protected encoder = new TextEncoder()

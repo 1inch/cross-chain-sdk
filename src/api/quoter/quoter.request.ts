@@ -1,15 +1,15 @@
 import {isValidAmount} from '@1inch/fusion-sdk'
 import assert from 'assert'
-import {QuoterRequestParams} from './types'
+import {QuoterRequestParams} from './types.js'
 import {
     EvmChain,
     isEvm,
     isSolana,
     SolanaChain,
     SupportedChain
-} from '../../chains'
-import {createAddress, EvmAddress, SolanaAddress} from '../../domains'
-import type {AddressForChain} from '../../type-utils'
+} from '../../chains.js'
+import {createAddress, EvmAddress, SolanaAddress} from '../../domains/index.js'
+import type {AddressForChain} from '../../type-utils.js'
 
 export class QuoterRequest<
     SrcChain extends SupportedChain = SupportedChain,

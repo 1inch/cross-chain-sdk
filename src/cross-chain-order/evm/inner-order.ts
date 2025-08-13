@@ -1,6 +1,6 @@
 import {FusionOrder} from '@1inch/fusion-sdk'
-import {EscrowExtension} from './escrow-extension'
-import {EvmExtra, OrderInfoData} from './types'
+import {EscrowExtension} from './escrow-extension.js'
+import {EvmExtra, OrderInfoData} from './types.js'
 
 /**
  * Inner order class, not intended for public usage

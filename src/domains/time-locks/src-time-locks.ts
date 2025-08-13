@@ -1,7 +1,7 @@
 import {UINT_32_MAX} from '@1inch/byte-utils'
 import assert from 'assert'
-import {BaseTimeLock} from './base-time-lock'
-import {now} from '../../utils/time'
+import {BaseTimeLock} from './base-time-lock.js'
+import {now} from '../../utils/time/index.js'
 
 export enum SrcStage {
     FinalityLock,

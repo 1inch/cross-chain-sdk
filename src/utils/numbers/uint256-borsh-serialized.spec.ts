@@ -1,4 +1,4 @@
-import {uint256BorchSerialized} from './uint256-borsh-serialized'
+import {uint256BorchSerialized} from './uint256-borsh-serialized.js'
 
 describe('uint256BorchSerialized', () => {
     it('should correctly serialize a uint256 value', () => {

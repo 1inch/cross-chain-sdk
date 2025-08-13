@@ -5,23 +5,23 @@ import {
     EvmCrossChainOrderParamsData,
     Presets,
     SvmCrossChainOrderParamsData
-} from './types'
-import {SvmCrossChainOrder} from '../../../cross-chain-order'
-import {EvmAddress, SolanaAddress} from '../../../domains/addresses'
-import {TimeLocks} from '../../../domains/time-locks'
-import {Cost, PresetEnum, QuoterResponse, TimeLocksRaw} from '../types'
-import {Preset} from '../preset'
-import {QuoterRequest} from '../quoter.request'
-import {EvmCrossChainOrder} from '../../../cross-chain-order/evm'
+} from './types.js'
+import {SvmCrossChainOrder} from '../../../cross-chain-order/index.js'
+import {EvmAddress, SolanaAddress} from '../../../domains/addresses/index.js'
+import {TimeLocks} from '../../../domains/time-locks/index.js'
+import {Cost, PresetEnum, QuoterResponse, TimeLocksRaw} from '../types.js'
+import {Preset} from '../preset.js'
+import {QuoterRequest} from '../quoter.request.js'
+import {EvmCrossChainOrder} from '../../../cross-chain-order/evm/index.js'
 import {
     EvmChain,
     isEvm,
     isSolana,
     SolanaChain,
     SupportedChain
-} from '../../../chains'
-import {AuctionWhitelistItem} from '../../../cross-chain-order/evm/types'
-import {AddressForChain} from '../../../type-utils'
+} from '../../../chains.js'
+import {AuctionWhitelistItem} from '../../../cross-chain-order/evm/types.js'
+import {AddressForChain} from '../../../type-utils.js'
 
 type Whitelist<SrcChain extends SupportedChain> = SrcChain extends EvmChain
     ? EvmAddress[]

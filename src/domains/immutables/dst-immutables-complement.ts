@@ -1,4 +1,4 @@
-import {AddressLike} from '../addresses'
+import {AddressLike} from '../addresses/index.js'
 
 export class DstImmutablesComplement<A extends AddressLike> {
     private constructor(

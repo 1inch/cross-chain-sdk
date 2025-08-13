@@ -1,10 +1,10 @@
 import {isAddress} from 'ethers'
 import {Address} from '@1inch/fusion-sdk'
 import {Buffer} from 'buffer'
-import {AddressLike, HexString} from './types'
-import {AddressComplement} from './address-complement'
-import {isBigintString} from '../../utils/numbers/is-bigint-string'
-import {bufferFromHex} from '../../utils/bytes'
+import {AddressLike, HexString} from './types.js'
+import {AddressComplement} from './address-complement.js'
+import {isBigintString} from '../../utils/numbers/is-bigint-string.js'
+import {bufferFromHex} from '../../utils/bytes.js'
 
 export class EvmAddress implements AddressLike {
     static readonly ZERO = new EvmAddress(Address.ZERO_ADDRESS)

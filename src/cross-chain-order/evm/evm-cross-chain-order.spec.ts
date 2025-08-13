@@ -1,18 +1,18 @@
 import {Extension} from '@1inch/fusion-sdk'
 import {UINT_256_MAX} from '@1inch/byte-utils'
-import {EvmCrossChainOrder} from './evm-cross-chain-order'
-import {EvmCrossChainOrderInfo, EvmEscrowParams} from './types'
-import {AuctionDetails} from '../../domains/auction-details'
-import {now} from '../../utils'
+import {EvmCrossChainOrder} from './evm-cross-chain-order.js'
+import {EvmCrossChainOrderInfo, EvmEscrowParams} from './types.js'
+import {AuctionDetails} from '../../domains/auction-details/index.js'
+import {now} from '../../utils/index.js'
 import {
     EvmAddress as Address,
     EvmAddress,
     SolanaAddress
-} from '../../domains/addresses'
-import {HashLock} from '../../domains/hash-lock'
-import {TimeLocks} from '../../domains/time-locks'
-import {getRandomBytes32} from '../../test-utils/get-random-bytes-32'
-import {NetworkEnum} from '../../chains'
+} from '../../domains/addresses/index.js'
+import {HashLock} from '../../domains/hash-lock/index.js'
+import {TimeLocks} from '../../domains/time-locks/index.js'
+import {getRandomBytes32} from '../../test-utils/get-random-bytes-32.js'
+import {NetworkEnum} from '../../chains.js'
 
 describe('EvmCrossChainOrder', () => {
     it('Should encode/decode raw order', () => {

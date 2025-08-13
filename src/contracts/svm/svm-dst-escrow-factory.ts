@@ -1,22 +1,27 @@
 import {BN, BorshCoder, web3} from '@coral-xyz/anchor'
 import assert from 'assert'
 import {Buffer} from 'buffer'
-import {Instruction} from './instruction'
-import {BaseProgram} from './base-program'
-import {WhitelistContract} from './whitelist'
+import {Instruction} from './instruction.js'
+import {BaseProgram} from './base-program.js'
+import {WhitelistContract} from './whitelist.js'
 import {
     EscrowAddressParams,
     ParsedCreateDstEscrowInstructionData
-} from './types'
-import {bigintToBN} from '../../utils/numbers/bigint-to-bn'
-import {uintAsBeBytes} from '../../utils/numbers/uint-as-be-bytes'
-import {uint256split} from '../../utils/numbers/uint256-split'
-import {getAta, getPda} from '../../utils'
-import {HashLock, Immutables, SolanaAddress, TimeLocks} from '../../domains'
-import {IDL} from '../../idl/cross-chain-escrow-dst'
-import {FixedLengthArray} from '../../type-utils'
-import {bufferToHex} from '../../utils/bytes'
-import {bnArrayToBigInt} from '../../utils/numbers/bn-array-to-big-int'
+} from './types.js'
+import {bigintToBN} from '../../utils/numbers/bigint-to-bn.js'
+import {uintAsBeBytes} from '../../utils/numbers/uint-as-be-bytes.js'
+import {uint256split} from '../../utils/numbers/uint256-split.js'
+import {getAta, getPda} from '../../utils/index.js'
+import {
+    HashLock,
+    Immutables,
+    SolanaAddress,
+    TimeLocks
+} from '../../domains/index.js'
+import {IDL} from '../../idl/cross-chain-escrow-dst.js'
+import {FixedLengthArray} from '../../type-utils.js'
+import {bufferToHex} from '../../utils/bytes.js'
+import {bnArrayToBigInt} from '../../utils/numbers/bn-array-to-big-int.js'
 
 export class SvmDstEscrowFactory extends BaseProgram {
     static DEFAULT = new SvmDstEscrowFactory(

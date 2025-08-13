@@ -3,27 +3,30 @@ import {AuctionCalculator, randBigInt, UINT_256_MAX} from '@1inch/fusion-sdk'
 import {keccak256} from 'ethers'
 import {utils} from '@coral-xyz/anchor'
 import assert from 'assert'
-import {ResolverCancellationConfig} from './resolver-cancellation-config'
+import {ResolverCancellationConfig} from './resolver-cancellation-config.js'
 import {
     SolanaDetails,
     SolanaExtra,
     SolanaEscrowParams,
     OrderHashParams
-} from './types'
-import {SvmSrcEscrowFactory} from '../../contracts'
-import {hashForSolana} from '../../domains/auction-details/hasher'
-import {uint256BorchSerialized} from '../../utils/numbers/uint256-borsh-serialized'
-import {uintAsBeBytes} from '../../utils/numbers/uint-as-be-bytes'
-import {EvmAddress, SolanaAddress} from '../../domains/addresses'
-import {isSupportedChain, NetworkEnum, SupportedChain} from '../../chains'
-import {HashLock} from '../../domains/hash-lock'
-import {TimeLocks} from '../../domains/time-locks'
-import {BaseOrder} from '../base-order'
-import {assertUInteger, getAta} from '../../utils'
-import {AuctionDetails, AuctionPoint} from '../../domains/auction-details'
-import {injectTrackCode} from '../source-track'
-import {bufferFromHex} from '../../utils/bytes'
-import {ParsedCreateInstructionData} from '../../contracts/svm/types'
+} from './types.js'
+import {SvmSrcEscrowFactory} from '../../contracts/index.js'
+import {hashForSolana} from '../../domains/auction-details/hasher.js'
+import {uint256BorchSerialized} from '../../utils/numbers/uint256-borsh-serialized.js'
+import {uintAsBeBytes} from '../../utils/numbers/uint-as-be-bytes.js'
+import {EvmAddress, SolanaAddress} from '../../domains/addresses/index.js'
+import {isSupportedChain, NetworkEnum, SupportedChain} from '../../chains.js'
+import {HashLock} from '../../domains/hash-lock/index.js'
+import {TimeLocks} from '../../domains/time-locks/index.js'
+import {BaseOrder} from '../base-order.js'
+import {assertUInteger, getAta} from '../../utils/index.js'
+import {
+    AuctionDetails,
+    AuctionPoint
+} from '../../domains/auction-details/index.js'
+import {injectTrackCode} from '../source-track.js'
+import {bufferFromHex} from '../../utils/bytes.js'
+import {ParsedCreateInstructionData} from '../../contracts/svm/types.js'
 
 export type SolanaOrderJSON = {
     orderInfo: {

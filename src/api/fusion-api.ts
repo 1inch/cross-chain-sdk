@@ -1,12 +1,16 @@
 import {AxiosProviderConnector} from '@1inch/fusion-sdk'
-import {FusionApiConfig} from './types'
+import {FusionApiConfig} from './types.js'
 import {
     QuoterApi,
     QuoterRequest,
     QuoterCustomPresetRequest,
     Quote
-} from './quoter'
-import {RelayerApi, RelayerRequestEvm, RelayerRequestSvm} from './relayer'
+} from './quoter/index.js'
+import {
+    RelayerApi,
+    RelayerRequestEvm,
+    RelayerRequestSvm
+} from './relayer/index.js'
 import {
     ActiveOrdersRequest,
     ActiveOrdersResponse,
@@ -19,8 +23,8 @@ import {
     PublishedSecretsResponse,
     ReadyToExecutePublicActions,
     CancellableOrdersResponse
-} from './orders'
-import {PaginationRequest} from './pagination'
+} from './orders/index.js'
+import {PaginationRequest} from './pagination.js'
 
 export class FusionApi {
     private readonly quoterApi: QuoterApi

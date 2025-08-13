@@ -1,8 +1,13 @@
 import {parseEther, parseUnits} from 'ethers'
 import {randomBytes} from 'crypto'
-import {SvmDstEscrowFactory} from './svm-dst-escrow-factory'
-import {bufferFromHex, bufferToHex} from '../../utils/bytes'
-import {HashLock, Immutables, SolanaAddress, TimeLocks} from '../../domains'
+import {SvmDstEscrowFactory} from './svm-dst-escrow-factory.js'
+import {bufferFromHex, bufferToHex} from '../../utils/bytes.js'
+import {
+    HashLock,
+    Immutables,
+    SolanaAddress,
+    TimeLocks
+} from '../../domains/index.js'
 
 describe('SVM Escrow dst factory', () => {
     it('should generate create escrow instruction', () => {

@@ -1,5 +1,5 @@
 import {web3} from '@coral-xyz/anchor'
-import {AddressLike, SolanaAddress} from '../../domains/addresses'
+import {AddressLike, SolanaAddress} from '../../domains/addresses/index.js'
 
 export function getPda(
     programId: AddressLike,

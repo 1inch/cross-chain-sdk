@@ -3,10 +3,10 @@ import {hexToUint8Array, uint8ArrayToHex} from '@1inch/byte-utils'
 import {hexlify} from 'ethers'
 import {UINT_160_MAX} from '@1inch/fusion-sdk'
 import {web3} from '@coral-xyz/anchor'
-import {AddressLike, HexString} from './types'
-import {AddressComplement} from './address-complement'
-import {EvmAddress} from './evm-address'
-import {isBigintString} from '../../utils/numbers/is-bigint-string'
+import {AddressLike, HexString} from './types.js'
+import {AddressComplement} from './address-complement.js'
+import {EvmAddress} from './evm-address.js'
+import {isBigintString} from '../../utils/numbers/is-bigint-string.js'
 
 export class SolanaAddress implements AddressLike {
     public static ASSOCIATED_TOKE_PROGRAM_ID = new SolanaAddress(

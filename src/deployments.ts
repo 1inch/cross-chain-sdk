@@ -1,5 +1,5 @@
-import {NetworkEnum} from './chains'
-import {EvmAddress} from './domains/addresses'
+import {NetworkEnum} from './chains.js'
+import {EvmAddress} from './domains/addresses/index.js'
 
 const TrueERC20 = EvmAddress.fromString(
     '0xda0000d4000015a526378bb6fafc650cea5966f8'

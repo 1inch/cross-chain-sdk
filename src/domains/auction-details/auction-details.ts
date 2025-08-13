@@ -2,9 +2,9 @@ import {
     AuctionDetails as BaseAuctionDetails,
     Extension
 } from '@1inch/fusion-sdk'
-import {AuctionPoint} from './types'
-import {hashForSolana} from './hasher'
-import {now} from '../../utils'
+import {AuctionPoint} from './types.js'
+import {hashForSolana} from './hasher.js'
+import {now} from '../../utils/index.js'
 
 export class AuctionDetails extends BaseAuctionDetails {
     static decode(data: string): AuctionDetails {

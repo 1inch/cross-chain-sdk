@@ -1,2 +1,2 @@
-export * from './svm'
-export * from './evm'
+export * from './svm/index.js'
+export * from './evm/index.js'

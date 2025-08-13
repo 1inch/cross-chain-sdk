@@ -1,8 +1,8 @@
 import {UINT_32_MAX} from '@1inch/byte-utils'
 import {now} from '@1inch/fusion-sdk'
-import {TimeLocks} from './time-locks'
-import {SrcStage} from './src-time-locks'
-import {DstStage} from './dst-time-locks'
+import {TimeLocks} from './time-locks.js'
+import {SrcStage} from './src-time-locks.js'
+import {DstStage} from './dst-time-locks.js'
 
 describe('TimeLocks', () => {
     it('Should encode/decode', () => {

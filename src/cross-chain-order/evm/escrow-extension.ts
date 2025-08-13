@@ -8,17 +8,17 @@ import {
     ZX
 } from '@1inch/fusion-sdk'
 import assert from 'assert'
-import {AddressComplement} from '../../domains/addresses/address-complement'
-import {AuctionDetails} from '../../domains/auction-details'
-import {HashLock} from '../../domains/hash-lock'
-import {TimeLocks} from '../../domains/time-locks'
-import {SupportedChain} from '../../chains'
+import {AddressComplement} from '../../domains/addresses/address-complement.js'
+import {AuctionDetails} from '../../domains/auction-details/index.js'
+import {HashLock} from '../../domains/hash-lock/index.js'
+import {TimeLocks} from '../../domains/time-locks/index.js'
+import {SupportedChain} from '../../chains.js'
 import {
     AddressLike,
     EvmAddress as Address,
     EvmAddress,
     createAddress
-} from '../../domains/addresses'
+} from '../../domains/addresses/index.js'
 
 /**
  * Same as FusionExtension, but with extra data at the end
