@@ -1,4 +1,3 @@
-import {BN} from '@coral-xyz/anchor'
 import {ResolverCancellationConfig} from './resolver-cancellation-config.js'
 import {SvmCrossChainOrder} from './svm-cross-chain-order.js'
 import {HashLock} from '../../domains/hash-lock/index.js'
@@ -6,6 +5,7 @@ import {TimeLocks} from '../../domains/time-locks/index.js'
 import {NetworkEnum, SupportedChain} from '../../chains.js'
 import {AuctionDetails} from '../../domains/auction-details/index.js'
 import {FixedLengthArray} from '../../type-utils.js'
+import {BN} from '../../utils/numbers/bn.js'
 
 export type SolanaEscrowParams = {
     hashLock: HashLock

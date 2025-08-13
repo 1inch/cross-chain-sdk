@@ -1,4 +1,4 @@
-import {BN, BorshCoder, web3} from '@coral-xyz/anchor'
+import {BorshCoder, web3} from '@coral-xyz/anchor'
 import assert from 'assert'
 import {Buffer} from 'buffer'
 import {Instruction} from './instruction.js'
@@ -22,6 +22,7 @@ import {IDL} from '../../idl/cross-chain-escrow-dst.js'
 import {FixedLengthArray} from '../../type-utils.js'
 import {bufferToHex} from '../../utils/bytes.js'
 import {bnArrayToBigInt} from '../../utils/numbers/bn-array-to-big-int.js'
+import {BN} from '../../utils/numbers/bn.js'
 
 export class SvmDstEscrowFactory extends BaseProgram {
     static DEFAULT = new SvmDstEscrowFactory(

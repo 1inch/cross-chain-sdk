@@ -1,4 +1,4 @@
-import {BN} from '@coral-xyz/anchor'
+import {BN} from './bn.js'
 import {FixedLengthArray} from '../../type-utils.js'
 
 export function bnArrayToBigInt(arr: FixedLengthArray<BN, 4>): bigint {
