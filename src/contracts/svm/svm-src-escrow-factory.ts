@@ -1,4 +1,4 @@
-import {BN, BorshCoder} from '@coral-xyz/anchor'
+import {BorshCoder} from '@coral-xyz/anchor'
 import assert from 'assert'
 import {Buffer} from 'buffer'
 import {Immutables} from 'domains/immutables'
@@ -39,6 +39,7 @@ import {bnArrayToBigInt} from '../../utils/numbers/bn-array-to-big-int.js'
 import {ResolverCancellationConfig} from '../../cross-chain-order/index.js'
 import {u24ToNumber} from '../../utils/numbers/u24-to-number.js'
 import {FixedLengthArray} from '../../type-utils.js'
+import {BN} from '../../utils/numbers/bn.js'
 
 export class SvmSrcEscrowFactory extends BaseProgram {
     static DEFAULT = new SvmSrcEscrowFactory(
