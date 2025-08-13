@@ -1,4 +1,4 @@
-import anchor from '@coral-xyz/anchor'
+import {BN} from '@coral-xyz/anchor'
 
-export const {BN} = anchor
+export {BN}
 export type BN = typeof BN

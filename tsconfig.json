@@ -1,7 +1,7 @@
 {
   "extends": "@1inch/tsconfig",
   "compilerOptions": {
-    "target": "ES2021",
+    "target": "ES2024",
     "lib": ["ES2021"],
     "module": "ESNext",
     "moduleResolution": "bundler",
