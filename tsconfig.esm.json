@@ -3,7 +3,6 @@
     "compilerOptions": {
         "outDir": "./dist/esm",
         "module": "ESNext",
-        "moduleResolution": "Bundler",
         "declaration": false,
         "composite": false,
         "resolveJsonModule": true,

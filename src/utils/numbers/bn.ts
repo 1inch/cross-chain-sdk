@@ -1,4 +1,3 @@
-import {BN} from '@coral-xyz/anchor'
+import BN from 'bn.js'
 
 export {BN}
-export type BN = typeof BN
