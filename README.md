@@ -13,217 +13,367 @@ Sdk for creating atomic swaps through 1inch
 
 # Setup
 ```typescript
-const privateKey =  '0x'  
-const rpc = 'https://ethereum-rpc.publicnode.com'  
-const authKey = 'auth-key'  
-const source = 'sdk-tutorial'  
-  
-const web3 = new Web3(rpc)  
-const walletAddress = web3.eth.accounts.privateKeyToAccount(privateKey).address  
-  
-const sdk = new SDK({  
-    url: 'https://api.1inch.dev/fusion-plus',  
-    authKey,  
-    blockchainProvider: new PrivateKeyProviderConnector(privateKey, web3) // only required for order creation  
-})  
+const privateKey =  '0x'
+const rpc = 'https://ethereum-rpc.publicnode.com'
+const authKey = 'auth-key'
+const source = 'sdk-tutorial'
+
+const web3 = new Web3(rpc)
+const walletAddress = web3.eth.accounts.privateKeyToAccount(privateKey).address
+
+const sdk = new SDK({
+    url: 'https://api.1inch.dev/fusion-plus',
+    authKey,
+    blockchainProvider: new PrivateKeyProviderConnector(privateKey, web3) // only required for order creation
+})
 ```
 
 # Order creation
 To create order it is required that wallet has enough allowance of `srcTokenAddress`  for `Limit Order Protocol` on source chain
 ```typescript
-// 10 USDT (Polygon) -> BNB (BSC)  
-  
-// estimate    
-const quote = await sdk.getQuote({  
-	amount: '10000000',  
-	srcChainId: NetworkEnum.POLYGON,  
-	dstChainId: NetworkEnum.BINANCE,  
-	enableEstimate: true,  
-	srcTokenAddress: '0xc2132d05d31c914a87c6611c10748aeb04b58e8f', // USDT  
-	dstTokenAddress: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee', // BNB  
-	walletAddress  
-})  
+// 10 USDT (Polygon) -> BNB (BSC)
 
-const preset = PresetEnum.fast  
+// estimate
+const quote = await sdk.getQuote({
+	amount: '10000000',
+	srcChainId: NetworkEnum.POLYGON,
+	dstChainId: NetworkEnum.BINANCE,
+	enableEstimate: true,
+	srcTokenAddress: '0xc2132d05d31c914a87c6611c10748aeb04b58e8f', // USDT
+	dstTokenAddress: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee', // BNB
+	walletAddress
+})
 
-// generate secrets  
-const secrets = Array.from({  
-	length: quote.presets[preset].secretsCount  
-}).map(() => '0x' + randomBytes(32).toString('hex'))  
+const preset = PresetEnum.fast
 
-const hashLock =  
-	secrets.length === 1  
-		? HashLock.forSingleFill(secrets[0])  
-		: HashLock.forMultipleFills(HashLock.getMerkleLeaves(secrets))  
+// generate secrets
+const secrets = Array.from({
+	length: quote.presets[preset].secretsCount
+}).map(() => '0x' + randomBytes(32).toString('hex'))
 
-const secretHashes = secrets.map((s) => HashLock.hashSecret(s))  
+const hashLock =
+	secrets.length === 1
+		? HashLock.forSingleFill(secrets[0])
+		: HashLock.forMultipleFills(HashLock.getMerkleLeaves(secrets))
 
-// create order  
-const {hash, quoteId, order} = await sdk.createOrder(quote, {  
-	walletAddress,  
-	hashLock,  
-	preset,  
-	source,  
-	secretHashes  
-})  
-console.log({hash}, 'order created')  
+const secretHashes = secrets.map((s) => HashLock.hashSecret(s))
+
+// create order
+const {hash, quoteId, order} = await sdk.createOrder(quote, {
+	walletAddress,
+	hashLock,
+	preset,
+	source,
+	secretHashes
+})
+console.log({hash}, 'order created')
 ```
 
 # Order submission
 ```typescript
-// submit order  
-const _orderInfo = await sdk.submitOrder(  
-	quote.srcChainId,  
-	order,  
-	quoteId,  
-	secretHashes  
-)  
-console.log({hash}, 'order submitted')  
+// submit order
+const _orderInfo = await sdk.submitOrder(
+	quote.srcChainId,
+	order,
+	quoteId,
+	secretHashes
+)
+console.log({hash}, 'order submitted')
 ```
 
 # Secret submission
 Each time when resolver deploys source and destination escrow - user must submit appropriate secret, so resolver can finish swap
 
 ```typescript
- // submit secrets for deployed escrows  
-while (true) {  
-	const secretsToShare = await sdk.getReadyToAcceptSecretFills(hash)  
+ // submit secrets for deployed escrows
+while (true) {
+	const secretsToShare = await sdk.getReadyToAcceptSecretFills(hash)
 
-	if (secretsToShare.fills.length) {  
-		for (const {idx} of secretsToShare.fills) {  
-			await sdk.submitSecret(hash, secrets[idx])  
+	if (secretsToShare.fills.length) {
+		for (const {idx} of secretsToShare.fills) {
+			await sdk.submitSecret(hash, secrets[idx])
 
-			console.log({idx}, 'shared secret')  
-		}  
-	}  
+			console.log({idx}, 'shared secret')
+		}
+	}
 
-	// check if order finished  
-	const {status} = await sdk.getOrderStatus(hash)  
+	// check if order finished
+	const {status} = await sdk.getOrderStatus(hash)
 
-	if (  
-		status === OrderStatus.Executed ||  
-		status === OrderStatus.Expired ||  
-		status === OrderStatus.Refunded  
-	) {  
-		break  
-	}  
+	if (
+		status === OrderStatus.Executed ||
+		status === OrderStatus.Expired ||
+		status === OrderStatus.Refunded
+	) {
+		break
+	}
 
-	await sleep(1000)  
-}  
+	await sleep(1000)
+}
 
-const statusResponse = await sdk.getOrderStatus(hash)  
+const statusResponse = await sdk.getOrderStatus(hash)
 
-console.log(statusResponse)  
+console.log(statusResponse)
 ```
 
 # Whole script
 ```typescript
-import {  
-    HashLock,  
-    NetworkEnum,  
-    OrderStatus,  
-    PresetEnum,  
-    PrivateKeyProviderConnector,  
-    SDK  
-} from '@1inch/cross-chain-sdk'  
-import Web3 from 'web3'  
-import {randomBytes} from 'node:crypto'  
-  
-const privateKey =  '0x'  
-const rpc = 'https://ethereum-rpc.publicnode.com'  
-const authKey = 'auth-key'  
-const source = 'sdk-tutorial'  
-  
-const web3 = new Web3(rpc)  
-const walletAddress = web3.eth.accounts.privateKeyToAccount(privateKey).address  
-  
-const sdk = new SDK({  
-    url: 'https://api.1inch.dev/fusion-plus',  
-    authKey,  
-    blockchainProvider: new PrivateKeyProviderConnector(privateKey, web3) // only required for order creation  
-})  
-  
-async function sleep(ms: number): Promise<void> {  
-    return new Promise((resolve) => setTimeout(resolve, ms))  
-}  
-  
-async function main(): Promise<void> {  
-    // 10 USDT (Polygon) -> BNB (BSC)  
-  
-    // estimate    
-    const quote = await sdk.getQuote({  
-        amount: '10000000',  
-        srcChainId: NetworkEnum.POLYGON,  
-        dstChainId: NetworkEnum.BINANCE,  
-        enableEstimate: true,  
-        srcTokenAddress: '0xc2132d05d31c914a87c6611c10748aeb04b58e8f', // USDT  
-        dstTokenAddress: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee', // BNB  
-        walletAddress  
-    })  
-  
-    const preset = PresetEnum.fast  
-  
-    // generate secrets  
-    const secrets = Array.from({  
-        length: quote.presets[preset].secretsCount  
-    }).map(() => '0x' + randomBytes(32).toString('hex'))  
-  
-    const hashLock =  
-        secrets.length === 1  
-            ? HashLock.forSingleFill(secrets[0])  
-            : HashLock.forMultipleFills(HashLock.getMerkleLeaves(secrets))  
-  
-    const secretHashes = secrets.map((s) => HashLock.hashSecret(s))  
-    
-    // create order  
-    const {hash, quoteId, order} = await sdk.createOrder(quote, {  
-        walletAddress,  
-        hashLock,  
-        preset,  
-        source,  
-        secretHashes  
-    })  
-    console.log({hash}, 'order created')  
-  
-    // submit order  
-    const _orderInfo = await sdk.submitOrder(  
-        quote.srcChainId,  
-        order,  
-        quoteId,  
-        secretHashes  
-    )  
-    console.log({hash}, 'order submitted')  
-  
-    // submit secrets for deployed escrows  
-    while (true) {  
-        const secretsToShare = await sdk.getReadyToAcceptSecretFills(hash)  
-  
-        if (secretsToShare.fills.length) {  
-            for (const {idx} of secretsToShare.fills) {  
-                await sdk.submitSecret(hash, secrets[idx])  
-  
-                console.log({idx}, 'shared secret')  
-            }  
-        }  
-  
-        // check if order finished  
-        const {status} = await sdk.getOrderStatus(hash)  
-  
-        if (  
-            status === OrderStatus.Executed ||  
-            status === OrderStatus.Expired ||  
-            status === OrderStatus.Refunded  
-        ) {  
-            break  
-        }  
-  
-        await sleep(1000)  
-    }  
-  
-    const statusResponse = await sdk.getOrderStatus(hash)  
-  
-    console.log(statusResponse)  
-}  
-  
+import {
+    HashLock,
+    NetworkEnum,
+    OrderStatus,
+    PresetEnum,
+    PrivateKeyProviderConnector,
+    SDK
+} from '@1inch/cross-chain-sdk'
+import Web3 from 'web3'
+import {randomBytes} from 'node:crypto'
+
+const privateKey =  '0x'
+const rpc = 'https://ethereum-rpc.publicnode.com'
+const authKey = 'auth-key'
+const source = 'sdk-tutorial'
+
+const web3 = new Web3(rpc)
+const walletAddress = web3.eth.accounts.privateKeyToAccount(privateKey).address
+
+const sdk = new SDK({
+    url: 'https://api.1inch.dev/fusion-plus',
+    authKey,
+    blockchainProvider: new PrivateKeyProviderConnector(privateKey, web3) // only required for order creation
+})
+
+async function sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+async function main(): Promise<void> {
+    // 10 USDT (Polygon) -> BNB (BSC)
+
+    // estimate
+    const quote = await sdk.getQuote({
+        amount: '10000000',
+        srcChainId: NetworkEnum.POLYGON,
+        dstChainId: NetworkEnum.BINANCE,
+        enableEstimate: true,
+        srcTokenAddress: '0xc2132d05d31c914a87c6611c10748aeb04b58e8f', // USDT
+        dstTokenAddress: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee', // BNB
+        walletAddress
+    })
+
+    const preset = PresetEnum.fast
+
+    // generate secrets
+    const secrets = Array.from({
+        length: quote.presets[preset].secretsCount
+    }).map(() => '0x' + randomBytes(32).toString('hex'))
+
+    const hashLock =
+        secrets.length === 1
+            ? HashLock.forSingleFill(secrets[0])
+            : HashLock.forMultipleFills(HashLock.getMerkleLeaves(secrets))
+
+    const secretHashes = secrets.map((s) => HashLock.hashSecret(s))
+
+    // create order
+    const {hash, quoteId, order} = await sdk.createOrder(quote, {
+        walletAddress,
+        hashLock,
+        preset,
+        source,
+        secretHashes
+    })
+    console.log({hash}, 'order created')
+
+    // submit order
+    const _orderInfo = await sdk.submitOrder(
+        quote.srcChainId,
+        order,
+        quoteId,
+        secretHashes
+    )
+    console.log({hash}, 'order submitted')
+
+    // submit secrets for deployed escrows
+    while (true) {
+        const secretsToShare = await sdk.getReadyToAcceptSecretFills(hash)
+
+        if (secretsToShare.fills.length) {
+            for (const {idx} of secretsToShare.fills) {
+              
+                // it is responsobility of client to check whether is safe to share secret (check escrow addresses and so on)
+                await sdk.submitSecret(hash, secrets[idx])
+
+                console.log({idx}, 'shared secret')
+            }
+        }
+
+        // check if order finished
+        const {status} = await sdk.getOrderStatus(hash)
+
+        if (
+            status === OrderStatus.Executed ||
+            status === OrderStatus.Expired ||
+            status === OrderStatus.Refunded
+        ) {
+            break
+        }
+
+        await sleep(1000)
+    }
+
+    const statusResponse = await sdk.getOrderStatus(hash)
+
+    console.log(statusResponse)
+}
+
 main()
 ```
+
+
+# Solana
+Swaps to/from solana is performed similar to evm to evm swaps, except addresses format, also orders from solana must be published both onchain and to relayer
+
+## Solana -> EVM
+
+Full example
+
+<details>
+<summary>Click to expand code example</summary>
+
+```typescript
+/* eslint-disable max-depth */
+import {
+  NetworkEnum,
+  SDK,
+  SolanaAddress,
+  HashLock,
+  EvmAddress,
+  SvmSrcEscrowFactory,
+  OrderStatus
+} from '@1inch/cross-chain-sdk'
+import { utils, web3 } from '@coral-xyz/anchor'
+import assert from 'node:assert'
+import { randomBytes } from 'node:crypto'
+import { setTimeout } from 'node:timers/promises'
+
+const authKey = process.env.DEV_PORTAL_API_TOKEN
+assert(authKey, 'please provide auth key in DEV_PORTAL_API_TOKEN env. You can grab it at https://portal.1inch.dev')
+
+const signerPrivateKey = process.env.SOLANA_PRIVATE_KEY
+assert(signerPrivateKey, 'please provide solana private key of the maker wallet in SOLANA_PRIVATE_KEY')
+const makerSigner = web3.Keypair.fromSecretKey(utils.bytes.bs58.decode(signerPrivateKey))
+
+const SOLANA_RPC = 'https://api.mainnet-beta.solana.com'
+const sdk = new SDK({
+  url: 'https://api.1inch.dev/fusion-plus',
+  authKey
+})
+
+const USDT_SOL = 'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB'
+const USDT_ETHEREUM = '0xdac17f958d2ee523a2206206994597c13d831ec7'
+
+const maker = makerSigner.publicKey.toBase58()
+const receiver = '0x962a836519109e162754161000D65d9Dc027Fa0F'
+
+const srcToken = SolanaAddress.fromString(USDT_SOL)
+const dstToken = EvmAddress.fromString(USDT_ETHEREUM) // use EvmAddress.NATIVE for native token
+const amount = 10_000_000n // 10 USDT
+
+const srcChainId = NetworkEnum.SOLANA
+const dstChainId = NetworkEnum.ETHEREUM
+
+async function main(): Promise<void> {
+  console.log(
+    `creating order from wallet ${maker} for [${srcChainId}] ${amount} ${srcToken} -> ${dstToken} [${dstChainId}]`
+  )
+
+  const quote = await sdk.getQuote({
+    amount: amount.toString(),
+    srcChainId,
+    dstChainId,
+    srcTokenAddress: srcToken.toString(),
+    dstTokenAddress: dstToken.toString(),
+    enableEstimate: true,
+    walletAddress: maker
+  })
+
+  console.log('got quote', quote)
+
+  const preset = quote.getPreset(quote.recommendedPreset)
+  assert(quote.quoteId)
+
+  const secrets = Array.from({ length: preset.secretsCount }).map(getSecret)
+  const secretHashes = secrets.map(HashLock.hashSecret)
+  const leaves = HashLock.getMerkleLeaves(secrets)
+
+  const hashLock = secrets.length > 1 ? HashLock.forMultipleFills(leaves) : HashLock.forSingleFill(secrets[0])
+
+  const order = quote.createSolanaOrder({
+    hashLock,
+    receiver: EvmAddress.fromString(receiver),
+    preset: quote.recommendedPreset
+  })
+  const orderHash = await sdk.announceOrder(order, quote.quoteId, secretHashes)
+
+  console.log('announced order to relayer', orderHash)
+
+  const ix = SvmSrcEscrowFactory.DEFAULT.createOrder(order, {
+    srcTokenProgramId: SolanaAddress.TOKEN_PROGRAM_ID
+  })
+
+  const tx = new web3.Transaction().add({
+    data: ix.data,
+    programId: new web3.PublicKey(ix.programId.toBuffer()),
+    keys: ix.accounts.map((a) => ({
+      isSigner: a.isSigner,
+      isWritable: a.isWritable,
+      pubkey: new web3.PublicKey(a.pubkey.toBuffer())
+    }))
+  })
+
+  const connection = new web3.Connection(SOLANA_RPC)
+
+  const result = await connection.sendTransaction(tx, [makerSigner])
+
+  console.log('submitted order', result)
+  await setTimeout(5000) // wait for tx lending
+
+  const alreadyShared = new Set<number>()
+
+  while (true) {
+    const readyToAcceptSecretes = await sdk.getReadyToAcceptSecretFills(orderHash)
+    const idxes = readyToAcceptSecretes.fills.map((f) => f.idx)
+
+    for (const idx of idxes) {
+      if (!alreadyShared.has(idx)) {
+        // it is responsobility of client to check whether is safe to share secret (check escrow addresses and so on)
+        await sdk.submitSecret(orderHash, secrets[idx])
+        alreadyShared.add(idx)
+
+        console.log('submitted secret', secrets[idx])
+      }
+    }
+
+    // check if order finished
+    const { status } = await sdk.getOrderStatus(orderHash)
+
+    if (status === OrderStatus.Executed || status === OrderStatus.Expired || status === OrderStatus.Refunded) {
+      break
+    }
+
+    await setTimeout(5000)
+  }
+
+  const statusResponse = await sdk.getOrderStatus(orderHash)
+  console.log(statusResponse)
+}
+
+function getSecret(): string {
+  return '0x' + randomBytes(32).toString('hex')
+}
+
+main()
+```
+
+</details>
