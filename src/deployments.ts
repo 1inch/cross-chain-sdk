@@ -1,7 +1,12 @@
-import {Address, NetworkEnum} from '@1inch/fusion-sdk'
+import {NetworkEnum} from './chains.js'
+import {EvmAddress} from './domains/addresses/index.js'
 
-const TrueERC20 = new Address('0xda0000d4000015a526378bb6fafc650cea5966f8')
-const ZKTrueERC20 = new Address('0xd66097c27eb8dee404bac235737932260edc6f3b')
+const TrueERC20 = EvmAddress.fromString(
+    '0xda0000d4000015a526378bb6fafc650cea5966f8'
+)
+const ZKTrueERC20 = EvmAddress.fromString(
+    '0xd66097c27eb8dee404bac235737932260edc6f3b'
+)
 
 export const TRUE_ERC20 = {
     [NetworkEnum.ETHEREUM]: TrueERC20,
@@ -19,22 +24,22 @@ export const TRUE_ERC20 = {
     [NetworkEnum.UNICHAIN]: TrueERC20
 }
 
-const ESCROW_FACTORY_ADDRESS = new Address(
+const ESCROW_FACTORY_ADDRESS = EvmAddress.fromString(
     '0xa7bcb4eac8964306f9e3764f67db6a7af6ddf99a'
 )
-const ESCROW_ZK_FACTORY_ADDRESS = new Address(
+const ESCROW_ZK_FACTORY_ADDRESS = EvmAddress.fromString(
     '0x584aeab186d81dbb52a8a14820c573480c3d4773'
 )
-const ESCROW_SRC_IMPLEMENTATION_ADDRESS = new Address(
+const ESCROW_SRC_IMPLEMENTATION_ADDRESS = EvmAddress.fromString(
     '0xcd70bf33cfe59759851db21c83ea47b6b83bef6a'
 )
-const ESCROW_ZK_SRC_IMPLEMENTATION_ADDRESS = new Address(
+const ESCROW_ZK_SRC_IMPLEMENTATION_ADDRESS = EvmAddress.fromString(
     '0xddc60c7babfc55d8030f51910b157e179f7a41fc'
 )
-const ESCROW_DST_IMPLEMENTATION_ADDRESS = new Address(
+const ESCROW_DST_IMPLEMENTATION_ADDRESS = EvmAddress.fromString(
     '0x9c3e06659f1c34f930ce97fcbce6e04ae88e535b'
 )
-const ESCROW_ZK_DST_IMPLEMENTATION_ADDRESS = new Address(
+const ESCROW_ZK_DST_IMPLEMENTATION_ADDRESS = EvmAddress.fromString(
     '0xdc4ccc2fc2475d0ed3fddd563c44f2bf6a3900c9'
 )
 

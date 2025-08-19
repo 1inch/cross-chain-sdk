@@ -4,7 +4,7 @@ import {
     OnOrderInvalidCb,
     WsProviderConnector
 } from '@1inch/fusion-sdk'
-import {orderEvents} from './constants'
+import {orderEvents} from './constants.js'
 import {
     EventType,
     OnOrderCancelledCb,
@@ -14,7 +14,7 @@ import {
     OnOrderNotEnoughBalanceCb,
     OnOrderSecretSharedCb,
     OrderEventType
-} from './types'
+} from './types.js'
 
 export class ActiveOrdersWebSocketApi {
     public readonly provider!: WsProviderConnector

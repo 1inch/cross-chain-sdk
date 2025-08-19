@@ -1,12 +1,12 @@
 import {HttpProviderConnector} from '@1inch/fusion-sdk'
-import {QuoterRequest} from './quoter.request'
-import {QuoterApiConfig, QuoterResponse} from './types'
-import {Quote} from './quote'
-import {QuoterCustomPresetRequest} from './quoter-custom-preset.request'
-import {concatQueryParams} from '../params'
+import {QuoterRequest} from './quoter.request.js'
+import {QuoterApiConfig, QuoterResponse} from './types.js'
+import {Quote} from './quote/index.js'
+import {QuoterCustomPresetRequest} from './quoter-custom-preset.request.js'
+import {concatQueryParams} from '../params.js'
 
 export class QuoterApi {
-    private static Version = 'v1.0'
+    private static Version = 'v1.1'
 
     constructor(
         private readonly config: QuoterApiConfig,
@@ -19,7 +19,15 @@ export class QuoterApi {
 
         const res = await this.httpClient.get<QuoterResponse>(url)
 
-        return new Quote(params, res)
+        if (params.isEvmRequest()) {
+            return Quote.fromEVMQuote(params, res)
+        }
+
+        if (params.isSolanaRequest()) {
+            return Quote.fromSolanaQuote(params, res)
+        }
+
+        throw new Error('unknown chain request')
     }
 
     async getQuoteWithCustomPreset(
@@ -38,6 +46,14 @@ export class QuoterApi {
 
         const res = await this.httpClient.post<QuoterResponse>(url, bodyParams)
 
-        return new Quote(params, res)
+        if (params.isEvmRequest()) {
+            return Quote.fromEVMQuote(params, res)
+        }
+
+        if (params.isSolanaRequest()) {
+            return Quote.fromSolanaQuote(params, res)
+        }
+
+        throw new Error('unknown chain request')
     }
 }

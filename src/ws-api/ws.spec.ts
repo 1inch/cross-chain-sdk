@@ -1,14 +1,13 @@
 import {WebSocket, WebSocketServer} from 'ws'
 import {
     GetAllowMethodsRpcEvent,
-    NetworkEnum,
     OrderFilledEvent,
     OrderFilledPartiallyEvent,
     OrderInvalidEvent,
     PingRpcEvent,
     WebsocketClient
 } from '@1inch/fusion-sdk'
-import {WebSocketApi} from './ws-api'
+import {WebSocketApi} from './ws-api.js'
 import {
     EventType,
     GetActiveOrdersRpcEvent,
@@ -21,9 +20,10 @@ import {
     OrderSecretSharedEvent,
     RpcMethod,
     WebSocketEvent
-} from './types'
-import {castUrl} from './url'
-import {OrderType} from '../api'
+} from './types.js'
+import {castUrl} from './url.js'
+import {OrderType} from '../api/index.js'
+import {NetworkEnum} from '../chains.js'
 
 jest.setTimeout(5 * 60 * 1000)
 
@@ -133,7 +133,7 @@ describe(__filename, () => {
                 lazyInit: true
             })
 
-            expect(() => wsSdk.send({id: 1})).toThrowError()
+            expect(() => wsSdk.send({id: 1})).toThrow()
         })
 
         it('should be possible to initialize not in lazy mode', (done) => {

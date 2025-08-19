@@ -1,12 +1,16 @@
 import {AxiosProviderConnector} from '@1inch/fusion-sdk'
-import {FusionApiConfig} from './types'
+import {FusionApiConfig} from './types.js'
 import {
     QuoterApi,
     QuoterRequest,
     QuoterCustomPresetRequest,
     Quote
-} from './quoter'
-import {RelayerApi, RelayerRequest} from './relayer'
+} from './quoter/index.js'
+import {
+    RelayerApi,
+    RelayerRequestEvm,
+    RelayerRequestSvm
+} from './relayer/index.js'
 import {
     ActiveOrdersRequest,
     ActiveOrdersResponse,
@@ -17,8 +21,10 @@ import {
     OrdersByMakerResponse,
     ReadyToAcceptSecretFills,
     PublishedSecretsResponse,
-    ReadyToExecutePublicActions
-} from './orders'
+    ReadyToExecutePublicActions,
+    CancellableOrdersResponse
+} from './orders/index.js'
+import {PaginationRequest} from './pagination.js'
 
 export class FusionApi {
     private readonly quoterApi: QuoterApi
@@ -96,11 +102,17 @@ export class FusionApi {
         return this.ordersApi.getPublishedSecrets(orderHash)
     }
 
-    submitOrder(params: RelayerRequest): Promise<void> {
+    getCancellableOrders(
+        pagination?: PaginationRequest
+    ): Promise<CancellableOrdersResponse> {
+        return this.ordersApi.getCancellableOrders(pagination)
+    }
+
+    submitOrder(params: RelayerRequestEvm | RelayerRequestSvm): Promise<void> {
         return this.relayerApi.submit(params)
     }
 
-    submitOrderBatch(params: RelayerRequest[]): Promise<void> {
+    submitOrderBatch(params: RelayerRequestEvm[]): Promise<void> {
         return this.relayerApi.submitBatch(params)
     }
 

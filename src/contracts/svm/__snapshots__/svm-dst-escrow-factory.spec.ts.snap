@@ -1,0 +1,227 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`SVM Escrow dst factory should generate cancelPrivate instruction 1`] = `
+{
+  "accounts": [
+    {
+      "isSigner": true,
+      "isWritable": true,
+      "pubkey": "11111111111111111111111111111112j",
+    },
+    {
+      "isSigner": false,
+      "isWritable": false,
+      "pubkey": "7on3yxZPgQgehEo4dxTNg2vV3ECWF8T8QVo3JJSGdcHk",
+    },
+    {
+      "isSigner": false,
+      "isWritable": true,
+      "pubkey": "6YU9WSvKZq4hkwvEUbT6Zou8a2aNLmvzUQuD8DUtxgeW",
+    },
+    {
+      "isSigner": false,
+      "isWritable": true,
+      "pubkey": "5PgtTz1kSpEpEfoQKDVQbuX3ay12YXCyjE8mGHG6vVeZ",
+    },
+    {
+      "isSigner": false,
+      "isWritable": true,
+      "pubkey": "A4zgefDchm9xaifwaEUSrNnB3B96XSNeLJh8s9ACR87o",
+    },
+    {
+      "isSigner": false,
+      "isWritable": false,
+      "pubkey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+    },
+    {
+      "isSigner": false,
+      "isWritable": false,
+      "pubkey": "11111111111111111111111111111111",
+    },
+  ],
+  "data": "0xe8dbdf29dbecdcbe",
+  "programId": "AMEAktCrii7mVFQKCM9i5hKES4YrV3zFagrawr8BY8pb",
+}
+`;
+
+exports[`SVM Escrow dst factory should generate create escrow instruction 1`] = `
+{
+  "accounts": [
+    {
+      "isSigner": true,
+      "isWritable": true,
+      "pubkey": "CTF3k9CXyCjtCvpPMtG24Bo8r8qaQudTgqaSsp6A64tx",
+    },
+    {
+      "isSigner": false,
+      "isWritable": false,
+      "pubkey": "7on3yxZPgQgehEo4dxTNg2vV3ECWF8T8QVo3JJSGdcHk",
+    },
+    {
+      "isSigner": false,
+      "isWritable": true,
+      "pubkey": "6EdXXGGUP1nb4dzFkaTXXMAreSSDY18USHGBqT5raivs",
+    },
+    {
+      "isSigner": false,
+      "isWritable": true,
+      "pubkey": "EKjL2ap5bpQgPpDcvVCxBikxpCHCT3tbLZGRC9L398nR",
+    },
+    {
+      "isSigner": false,
+      "isWritable": true,
+      "pubkey": "58bZoHDLEE27zXo17eRs4XQTdW6jqzANPy2CsnXssMzK",
+    },
+    {
+      "isSigner": false,
+      "isWritable": false,
+      "pubkey": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+    },
+    {
+      "isSigner": false,
+      "isWritable": false,
+      "pubkey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+    },
+    {
+      "isSigner": false,
+      "isWritable": false,
+      "pubkey": "SysvarRent111111111111111111111111111111111",
+    },
+    {
+      "isSigner": false,
+      "isWritable": false,
+      "pubkey": "11111111111111111111111111111111",
+    },
+  ],
+  "data": "0x181ec828051c0777663e58c85e0ac6721b6fe635eda03279e9552866f45938dc00effaac1fd0ac0b6e6b426ba6241e7544d5b6802897f93d68e6ed09cbc816058cf67096ff1494de00ca9a3b00000000e803000000000000b96a60f72dcd59fa0e8378cd0f86bbda0a6dc305d1a228705c9d620ada73b62c0a000000d2000000360100009a0100000a0000006e000000d2000000ddbe7b686400000000",
+  "programId": "AMEAktCrii7mVFQKCM9i5hKES4YrV3zFagrawr8BY8pb",
+}
+`;
+
+exports[`SVM Escrow dst factory should generate withdrawPublic instruction 1`] = `
+{
+  "accounts": [
+    {
+      "isSigner": false,
+      "isWritable": true,
+      "pubkey": "11111111111111111111111111111112j",
+    },
+    {
+      "isSigner": false,
+      "isWritable": true,
+      "pubkey": "1111111111111111111111111111116B",
+    },
+    {
+      "isSigner": true,
+      "isWritable": true,
+      "pubkey": "1111111111111111111111111111117u",
+    },
+    {
+      "isSigner": false,
+      "isWritable": false,
+      "pubkey": "2zZpm8A7fzg6QY2QdQk79quxsw9VfWQXRwJb4FzWV44Q",
+    },
+    {
+      "isSigner": false,
+      "isWritable": false,
+      "pubkey": "So11111111111111111111111111111111111111112",
+    },
+    {
+      "isSigner": false,
+      "isWritable": true,
+      "pubkey": "AbGn8NgtX4Thu5ogKVYw62oM4EtVjB2TYUAPRaDTYGjW",
+    },
+    {
+      "isSigner": false,
+      "isWritable": true,
+      "pubkey": "BAQ5JYmWsxu66xZXgztCr5B1zeeoqTBTzqsGJFsma7K1",
+    },
+    {
+      "isSigner": false,
+      "isWritable": false,
+      "pubkey": "AMEAktCrii7mVFQKCM9i5hKES4YrV3zFagrawr8BY8pb",
+    },
+    {
+      "isSigner": false,
+      "isWritable": false,
+      "pubkey": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+    },
+    {
+      "isSigner": false,
+      "isWritable": false,
+      "pubkey": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
+    },
+    {
+      "isSigner": false,
+      "isWritable": false,
+      "pubkey": "11111111111111111111111111111111",
+    },
+  ],
+  "data": "0x9839f0c05223960b0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+  "programId": "AMEAktCrii7mVFQKCM9i5hKES4YrV3zFagrawr8BY8pb",
+}
+`;
+
+exports[`SVM Escrow dst factory should handle native token correctly in withdrawPublic 1`] = `
+{
+  "accounts": [
+    {
+      "isSigner": false,
+      "isWritable": true,
+      "pubkey": "1111111111111111111111111111113K6",
+    },
+    {
+      "isSigner": false,
+      "isWritable": true,
+      "pubkey": "1111111111111111111111111111113eF",
+    },
+    {
+      "isSigner": true,
+      "isWritable": true,
+      "pubkey": "1111111111111111111111111111112yw",
+    },
+    {
+      "isSigner": false,
+      "isWritable": false,
+      "pubkey": "5PNk2Whp2vBteBhECGvCGtwh8yhQxr6RgfbkB9pfzGvk",
+    },
+    {
+      "isSigner": false,
+      "isWritable": false,
+      "pubkey": "So11111111111111111111111111111111111111112",
+    },
+    {
+      "isSigner": false,
+      "isWritable": true,
+      "pubkey": "2jtnCVgzB4ZWMvCytEF9doVWnyyvnCCxmbK83rhkorGD",
+    },
+    {
+      "isSigner": false,
+      "isWritable": true,
+      "pubkey": "H2kdXAixnRtNuQg6SKnYXHXEEb3pSWqaude4f9qcmm4M",
+    },
+    {
+      "isSigner": false,
+      "isWritable": false,
+      "pubkey": "AMEAktCrii7mVFQKCM9i5hKES4YrV3zFagrawr8BY8pb",
+    },
+    {
+      "isSigner": false,
+      "isWritable": false,
+      "pubkey": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+    },
+    {
+      "isSigner": false,
+      "isWritable": false,
+      "pubkey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+    },
+    {
+      "isSigner": false,
+      "isWritable": false,
+      "pubkey": "11111111111111111111111111111111",
+    },
+  ],
+  "data": "0x9839f0c05223960bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "programId": "AMEAktCrii7mVFQKCM9i5hKES4YrV3zFagrawr8BY8pb",
+}
+`;

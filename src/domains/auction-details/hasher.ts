@@ -1,0 +1,20 @@
+import {BorshCoder} from '@coral-xyz/anchor'
+import {keccak256} from 'ethers'
+import {AuctionDetails} from './auction-details.js'
+import {uintAsBeBytes} from '../../utils/numbers/uint-as-be-bytes.js'
+import {bufferFromHex} from '../../utils/bytes.js'
+import {IDL} from '../../idl/cross-chain-escrow-src.js'
+
+export function hashForSolana(details: AuctionDetails): Buffer {
+    const bytes = new BorshCoder(IDL).types.encode('auctionData', {
+        startTime: Number(details.startTime),
+        duration: Number(details.duration),
+        initialRateBump: [uintAsBeBytes(details.initialRateBump, 24)],
+        pointsAndTimeDeltas: details.points.map((p) => ({
+            rateBump: [uintAsBeBytes(BigInt(p.coefficient), 24)],
+            timeDelta: p.delay
+        }))
+    })
+
+    return bufferFromHex(keccak256(bytes))
+}

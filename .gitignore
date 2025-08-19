@@ -1,6 +1,7 @@
 # compiled output
 /dist
 /node_modules
+/cache
 
 .npmrc
 CHANGELOG.md
@@ -38,5 +39,6 @@ lerna-debug.log*
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+codebook.toml
 
 CHANGELOG.md

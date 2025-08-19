@@ -1,0 +1,1059 @@
+import {BorshCoder} from '@coral-xyz/anchor'
+import assert from 'assert'
+import {Buffer} from 'buffer'
+import {Immutables} from 'domains/immutables'
+import {Instruction} from './instruction.js'
+import {BaseProgram} from './base-program.js'
+import {WhitelistContract} from './whitelist.js'
+import {
+    CreateOrderAccounts,
+    EscrowAddressParams,
+    ParsedCreateInstructionData,
+    ParsedCreateSrcEscrowInstructionData
+} from './types.js'
+import {NetworkEnum} from '../../chains.js'
+import {uintAsBeBytes} from '../../utils/numbers/uint-as-be-bytes.js'
+import {
+    AuctionDetails,
+    EvmAddress,
+    HashLock,
+    MerkleLeaf,
+    SolanaAddress,
+    TimeLocks
+} from '../../domains/index.js'
+import {getAta, getPda} from '../../utils/index.js'
+import {
+    OrderInfoData,
+    SvmCrossChainOrder
+} from '../../cross-chain-order/svm/svm-cross-chain-order.js'
+import {IDL} from '../../idl/cross-chain-escrow-src.js'
+import {uint256split} from '../../utils/numbers/uint256-split.js'
+import {hashForSolana} from '../../domains/auction-details/hasher.js'
+import {bigintToBN} from '../../utils/numbers/bigint-to-bn.js'
+import {bufferFromHex, bufferToHex} from '../../utils/bytes.js'
+import {
+    CreateOrderData,
+    SolanaEscrowParams
+} from '../../cross-chain-order/svm/types.js'
+import {bnArrayToBigInt} from '../../utils/numbers/bn-array-to-big-int.js'
+import {ResolverCancellationConfig} from '../../cross-chain-order/index.js'
+import {u24ToNumber} from '../../utils/numbers/u24-to-number.js'
+import {FixedLengthArray} from '../../type-utils.js'
+import {BN} from '../../utils/numbers/bn.js'
+
+export class SvmSrcEscrowFactory extends BaseProgram {
+    static DEFAULT = new SvmSrcEscrowFactory(
+        new SolanaAddress('4yBT18tBcWqCDK8p3RMXdmZMjHr3wJM7jM6HVYemEqGh')
+    )
+
+    private static readonly coder = new BorshCoder(IDL)
+
+    constructor(programId: SolanaAddress) {
+        super(programId)
+    }
+
+    static parseCreateInstruction(
+        ix: Instruction
+    ): ParsedCreateInstructionData {
+        const decodeIx = this.coder.instruction.decode(ix.data) as unknown as {
+            name: string
+            data: CreateOrderData
+        }
+
+        assert(decodeIx, 'cannot decode create instruction')
+        assert(decodeIx.name === 'create', 'provided not create instruction')
+
+        const data = decodeIx.data
+
+        const accounts: CreateOrderAccounts = {
+            creator: ix.accounts[0].pubkey,
+            mint: ix.accounts[1].pubkey,
+            creatorAta: ix.accounts[2].pubkey,
+            order: ix.accounts[3].pubkey,
+            orderAta: ix.accounts[4].pubkey,
+            associatedTokenProgram: ix.accounts[5].pubkey,
+            tokenProgram: ix.accounts[6].pubkey,
+            rent: ix.accounts[7].pubkey,
+            systemProgram: ix.accounts[8].pubkey
+        }
+
+        const orderInfo: OrderInfoData = {
+            srcToken: accounts.mint,
+            dstToken: EvmAddress.fromBuffer(
+                Buffer.from(data.dstChainParams.token)
+            ),
+            maker: accounts.creator,
+            srcAmount: BigInt(data.amount.toString()),
+            minDstAmount: bnArrayToBigInt(data.dstAmount),
+            receiver: EvmAddress.fromBuffer(
+                Buffer.from(data.dstChainParams.makerAddress)
+            )
+        }
+
+        const escrowParams: SolanaEscrowParams = {
+            hashLock: HashLock.fromBuffer(Buffer.from(data.hashlock)),
+            srcChainId: NetworkEnum.SOLANA,
+            dstChainId: data.dstChainParams.chainId,
+            srcSafetyDeposit: BigInt(data.safetyDeposit.toString()),
+            dstSafetyDeposit: BigInt(
+                data.dstChainParams.safetyDeposit.toString()
+            ),
+            timeLocks: TimeLocks.fromBigInt(bnArrayToBigInt(data.timelocks))
+        }
+
+        const extraDetails: ParsedCreateInstructionData['extra'] = {
+            srcAssetIsNative: data.assetIsNative,
+            resolverCancellationConfig: new ResolverCancellationConfig(
+                BigInt(data.maxCancellationPremium.toString()),
+                data.cancellationAuctionDuration
+            ),
+            allowMultipleFills: data.allowMultipleFills,
+            salt: BigInt(data.salt.toString())
+        }
+
+        return {
+            orderInfo,
+            escrowParams,
+            extra: extraDetails,
+            expirationTime: BigInt(data.expirationTime),
+            dutchAuctionDataHash: bufferToHex(data.dutchAuctionDataHash)
+        }
+    }
+
+    static parseCreateEscrowInstruction(
+        ix: Instruction
+    ): ParsedCreateSrcEscrowInstructionData {
+        const decodeIx = this.coder.instruction.decode(ix.data) as {
+            name: string
+            data: {
+                amount: BN
+                dutchAuctionData: {
+                    startTime: number
+                    duration: number
+                    initialRateBump: [FixedLengthArray<number, 3>]
+                    pointsAndTimeDeltas: {
+                        rateBump: [FixedLengthArray<number, 3>]
+                        timeDelta: number
+                    }[]
+                }
+                merkleProof: null | {
+                    index: BN
+                    proof: FixedLengthArray<number, 32>[]
+                    hashedSecret: FixedLengthArray<number, 32>
+                }
+            }
+        }
+
+        assert(decodeIx, 'cannot decode create instruction')
+        assert(decodeIx.name === 'createEscrow', 'not createEscrow instruction')
+
+        const {amount, dutchAuctionData, merkleProof} = decodeIx.data
+
+        const auction = new AuctionDetails({
+            startTime: BigInt(dutchAuctionData.startTime),
+            duration: BigInt(dutchAuctionData.duration),
+            initialRateBump: u24ToNumber(dutchAuctionData.initialRateBump),
+            points: dutchAuctionData.pointsAndTimeDeltas.map((pt) => ({
+                coefficient: u24ToNumber(pt.rateBump),
+                delay: pt.timeDelta
+            }))
+        })
+
+        return {
+            amount: BigInt(amount.toString()),
+            dutchAuctionData: auction,
+            merkleProof: merkleProof
+                ? {
+                      index: Number(merkleProof.index.toString()),
+                      proof: merkleProof.proof.map(bufferToHex) as MerkleLeaf[],
+                      hashedSecret: bufferToHex(merkleProof.hashedSecret)
+                  }
+                : null,
+            taker: ix.accounts[0].pubkey,
+            token: ix.accounts[3].pubkey,
+            escrow: ix.accounts[6].pubkey
+        }
+    }
+
+    static parsePrivateWithdrawInstruction(ix: Instruction): {secret: string} {
+        const decoded = this.coder.instruction.decode(ix.data) as {
+            name: string
+            data: {secret: FixedLengthArray<number, 32>}
+        }
+
+        assert(decoded, 'cannot decode withdraw instruction')
+        assert(decoded.name === 'withdraw', 'not withdraw instruction')
+
+        return {
+            secret: bufferToHex(decoded.data.secret)
+        }
+    }
+
+    static parsePublicWithdrawInstruction(ix: Instruction): {secret: string} {
+        const decoded = this.coder.instruction.decode(ix.data) as {
+            name: string
+            data: {secret: FixedLengthArray<number, 32>}
+        }
+
+        assert(decoded, 'cannot decode publicWithdraw instruction')
+        assert(
+            decoded.name === 'publicWithdraw',
+            'not publicWithdraw instruction'
+        )
+
+        return {
+            secret: bufferToHex(decoded.data.secret)
+        }
+    }
+
+    public getOrderAccount(orderHash: Buffer): SolanaAddress {
+        return getPda(this.programId, [this.encoder.encode('order'), orderHash])
+    }
+
+    public getEscrowAddress(params: EscrowAddressParams): SolanaAddress {
+        return getPda(this.programId, [
+            this.encoder.encode('escrow'),
+            params.orderHash,
+            params.hashLock.toBuffer(),
+            params.taker.toBuffer(),
+            uintAsBeBytes(params.amount, 64)
+        ])
+    }
+
+    public createOrder(
+        order: SvmCrossChainOrder,
+        extra: {
+            srcTokenProgramId: SolanaAddress
+        }
+    ): Instruction {
+        const data = SvmSrcEscrowFactory.coder.instruction.encode('create', {
+            hashlock: order.hashLock.toBuffer(),
+            amount: new BN(order.makingAmount.toString()),
+            safetyDeposit: new BN(order.srcSafetyDeposit.toString()),
+            timelocks: uint256split(order.timeLocks.build()).map(bigintToBN),
+            expirationTime: Number(order.deadline),
+            assetIsNative: order.srcAssetIsNative,
+            dstAmount: uint256split(order.takingAmount).map(bigintToBN),
+            dutchAuctionDataHash: hashForSolana(order.auction),
+            maxCancellationPremium: new BN(
+                order.resolverCancellationConfig.maxCancellationPremium.toString()
+            ),
+            cancellationAuctionDuration:
+                order.resolverCancellationConfig.cancellationAuctionDuration,
+            allowMultipleFills: order.multipleFillsAllowed,
+            salt: new BN(order.salt.toString()),
+            dstChainParams: {
+                chainId: order.dstChainId,
+                makerAddress: bufferFromHex(order.receiver.toString(), 32),
+                token: bufferFromHex(order.takerAsset.toString(), 32),
+                safetyDeposit: new BN(order.dstSafetyDeposit.toString())
+            }
+        })
+
+        const orderAccount = order.getOrderAccount(this.programId)
+
+        return new Instruction(
+            this.programId,
+            [
+                // 1. maker
+                {pubkey: order.maker, isWritable: true, isSigner: true},
+                // 2. src mint
+                {
+                    pubkey: order.makerAsset,
+                    isWritable: false,
+                    isSigner: false
+                },
+                // 3. src_maker_ata
+                this.optionalAccount(
+                    {
+                        pubkey: getAta(
+                            order.maker,
+                            order.makerAsset,
+                            extra.srcTokenProgramId
+                        ),
+                        isSigner: false,
+                        isWritable: true
+                    },
+                    order.srcAssetIsNative
+                ),
+                // 4. order
+                {
+                    pubkey: orderAccount,
+                    isSigner: false,
+                    isWritable: true
+                },
+                // 5. order_ata
+                {
+                    pubkey: getAta(
+                        orderAccount,
+                        order.makerAsset,
+                        extra.srcTokenProgramId
+                    ),
+                    isSigner: false,
+                    isWritable: true
+                },
+                // 6. associated_token_program
+                {
+                    pubkey: SolanaAddress.ASSOCIATED_TOKE_PROGRAM_ID,
+                    isSigner: false,
+                    isWritable: false
+                },
+                // 7. token_program
+                {
+                    pubkey: extra.srcTokenProgramId,
+                    isSigner: false,
+                    isWritable: false
+                },
+                // 8. rent
+                {
+                    pubkey: SolanaAddress.SYSVAR_RENT_ID,
+                    isSigner: false,
+                    isWritable: false
+                },
+                // 9. system_program
+                {
+                    pubkey: SolanaAddress.SYSTEM_PROGRAM_ID,
+                    isSigner: false,
+                    isWritable: false
+                }
+            ],
+            data
+        )
+    }
+
+    public createEscrow(
+        immutables: ActionParams,
+        auction: AuctionDetails,
+        extra: {
+            /**
+             * If not passed, than `WhitelistContract.DEFAULT` will be used
+             * @see WhitelistContract.DEFAULT
+             */
+            whitelistProgramId?: SolanaAddress
+            /**
+             * TokenProgram or TokenProgram 2022
+             */
+            tokenProgramId: SolanaAddress
+            /**
+             * Required if order allows partial fills
+             */
+            merkleProof?: {
+                /**
+                 * Merkle proof for index `idx`
+                 *
+                 * @see HashLock.getProof
+                 */
+                proof: MerkleLeaf[]
+                /**
+                 * @see SvmCrossChainOrder.getMultipleFillIdx
+                 */
+                idx: number
+                /**
+                 * Hash of secret at index `idx`
+                 */
+                secretHash: Buffer
+            }
+        }
+    ): Instruction {
+        const merkleProof = extra.merkleProof || null
+        const whitelistProgram = extra.whitelistProgramId
+            ? new WhitelistContract(extra.whitelistProgramId)
+            : WhitelistContract.DEFAULT
+
+        const data = SvmSrcEscrowFactory.coder.instruction.encode(
+            'createEscrow',
+            {
+                amount: new BN(immutables.amount.toString()),
+                dutchAuctionData: {
+                    startTime: Number(auction.startTime),
+                    duration: Number(auction.duration),
+                    initialRateBump: [
+                        uintAsBeBytes(auction.initialRateBump, 24)
+                    ],
+                    pointsAndTimeDeltas: auction.points.map((p) => ({
+                        rateBump: [uintAsBeBytes(BigInt(p.coefficient), 24)],
+                        timeDelta: p.delay
+                    }))
+                },
+                merkleProof: merkleProof && {
+                    proof: merkleProof.proof.map((x) => bufferFromHex(x)),
+                    index: new BN(merkleProof.idx),
+                    hashedSecret: merkleProof.secretHash
+                }
+            }
+        )
+
+        const orderAccount = this.getOrderAccount(immutables.orderHash)
+        const escrowAddress = this.getEscrowAddress(immutables)
+
+        return new Instruction(
+            this.programId,
+            [
+                // 1. taker
+                {
+                    pubkey: immutables.taker,
+                    isSigner: true,
+                    isWritable: true
+                },
+                // 2. resolver_access
+                {
+                    pubkey: whitelistProgram.getAccessAccount(immutables.taker),
+                    isSigner: false,
+                    isWritable: false
+                },
+                // 3. maker
+                {
+                    pubkey: immutables.maker,
+                    isSigner: false,
+                    isWritable: true
+                },
+                // 4. mint
+                {
+                    pubkey: immutables.token,
+                    isSigner: false,
+                    isWritable: false
+                },
+                // 5. order
+                {
+                    pubkey: orderAccount,
+                    isSigner: false,
+                    isWritable: true
+                },
+                // 6. order ata
+                {
+                    pubkey: getAta(
+                        orderAccount,
+                        immutables.token,
+                        extra.tokenProgramId
+                    ),
+                    isSigner: false,
+                    isWritable: true
+                },
+                // 7. escrow
+                {
+                    pubkey: escrowAddress,
+                    isSigner: false,
+                    isWritable: true
+                },
+                // 8. escrow ata
+                {
+                    pubkey: getAta(
+                        escrowAddress,
+                        immutables.token,
+                        extra.tokenProgramId
+                    ),
+                    isSigner: false,
+                    isWritable: true
+                },
+                // 9. associated_token_program
+                {
+                    pubkey: SolanaAddress.ASSOCIATED_TOKE_PROGRAM_ID,
+                    isSigner: false,
+                    isWritable: false
+                },
+                // 10. token_program
+                {
+                    pubkey: extra.tokenProgramId,
+                    isSigner: false,
+                    isWritable: false
+                },
+                // 11. system_program
+                {
+                    pubkey: SolanaAddress.SYSTEM_PROGRAM_ID,
+                    isSigner: false,
+                    isWritable: false
+                }
+            ],
+            data
+        )
+    }
+
+    public withdrawPrivate(
+        params: ActionParams,
+        secret: Buffer,
+        extra: {
+            /**
+             * TokenProgram or TokenProgram 2022
+             */
+            tokenProgramId: SolanaAddress
+        }
+    ): Instruction {
+        const data = SvmSrcEscrowFactory.coder.instruction.encode('withdraw', {
+            secret
+        })
+        const escrowAddress = this.getEscrowAddress(params)
+
+        return new Instruction(
+            this.programId,
+            [
+                // 1. taker
+                {
+                    pubkey: params.taker,
+                    isSigner: true,
+                    isWritable: true
+                },
+                // 2. maker asset
+                {
+                    pubkey: params.token,
+                    isSigner: false,
+                    isWritable: false
+                },
+                // 3. escrow
+                {
+                    pubkey: escrowAddress,
+                    isWritable: true,
+                    isSigner: false
+                },
+                // 4. escrow ata
+                {
+                    pubkey: getAta(
+                        escrowAddress,
+                        params.token,
+                        extra.tokenProgramId
+                    ),
+                    isSigner: false,
+                    isWritable: true
+                },
+                // 5. taker ata
+                {
+                    pubkey: getAta(
+                        params.taker,
+                        params.token,
+                        extra.tokenProgramId
+                    ),
+                    isSigner: false,
+                    isWritable: true
+                },
+                // 6. token_program
+                {
+                    pubkey: extra.tokenProgramId,
+                    isSigner: false,
+                    isWritable: false
+                },
+                // 7. system_program
+                {
+                    pubkey: SolanaAddress.SYSTEM_PROGRAM_ID,
+                    isSigner: false,
+                    isWritable: false
+                }
+            ],
+            data
+        )
+    }
+
+    public withdrawPublic(
+        params: ActionParams,
+        secret: Buffer,
+        resolver: SolanaAddress,
+        extra: {
+            /**
+             * If not passed, than `WhitelistContract.DEFAULT` will be used
+             * @see WhitelistContract.DEFAULT
+             */
+            whitelistProgramId?: SolanaAddress
+            /**
+             * TokenProgram or TokenProgram 2022
+             */
+            tokenProgramId: SolanaAddress
+        }
+    ): Instruction {
+        const whitelistProgram = extra.whitelistProgramId
+            ? new WhitelistContract(extra.whitelistProgramId)
+            : WhitelistContract.DEFAULT
+
+        const data = SvmSrcEscrowFactory.coder.instruction.encode(
+            'publicWithdraw',
+            {
+                secret
+            }
+        )
+        const escrowAddress = this.getEscrowAddress(params)
+
+        return new Instruction(
+            this.programId,
+            [
+                // 1. taker
+                {
+                    pubkey: params.taker,
+                    isSigner: false,
+                    isWritable: true
+                },
+                // 2. payer
+                {
+                    pubkey: resolver,
+                    isSigner: true,
+                    isWritable: true
+                },
+                // 3. resolver_access
+                {
+                    pubkey: whitelistProgram.getAccessAccount(resolver),
+                    isSigner: false,
+                    isWritable: false
+                },
+                // 4. mint
+                {
+                    pubkey: params.token,
+                    isSigner: false,
+                    isWritable: false
+                },
+                // 5. escrow
+                {
+                    pubkey: escrowAddress,
+                    isWritable: true,
+                    isSigner: false
+                },
+                // 6. escrow ata
+                {
+                    pubkey: getAta(
+                        escrowAddress,
+                        params.token,
+                        extra.tokenProgramId
+                    ),
+                    isSigner: false,
+                    isWritable: true
+                },
+                // 7. taker ata
+                {
+                    pubkey: getAta(
+                        params.taker,
+                        params.token,
+                        extra.tokenProgramId
+                    ),
+                    isSigner: false,
+                    isWritable: true
+                },
+                // 8. token_program
+                {
+                    pubkey: extra.tokenProgramId,
+                    isSigner: false,
+                    isWritable: false
+                },
+                // 9. system_program
+                {
+                    pubkey: SolanaAddress.SYSTEM_PROGRAM_ID,
+                    isSigner: false,
+                    isWritable: false
+                }
+            ],
+            data
+        )
+    }
+
+    /**
+     * Cancel fill escrow private
+     */
+    public cancelPrivate(
+        params: ActionParams,
+        extra: {
+            /**
+             * TokenProgram or TokenProgram 2022
+             */
+            tokenProgramId: SolanaAddress
+            assetIsNative: boolean
+        }
+    ): Instruction {
+        const data = SvmSrcEscrowFactory.coder.instruction.encode(
+            'cancelEscrow',
+            {}
+        )
+        const escrowAddress = this.getEscrowAddress(params)
+
+        if (extra.assetIsNative) {
+            assert(
+                params.token.equal(SolanaAddress.WRAPPED_NATIVE),
+                'assetIsNative can be true only when underlying asset is WSOL'
+            )
+        }
+
+        return new Instruction(
+            this.programId,
+            [
+                // 1. taker
+                {
+                    pubkey: params.taker,
+                    isSigner: true,
+                    isWritable: true
+                },
+                // 2. maker
+                {
+                    pubkey: params.maker,
+                    isSigner: false,
+                    isWritable: true
+                },
+                // 3. mint
+                {
+                    pubkey: params.token,
+                    isSigner: false,
+                    isWritable: false
+                },
+                // 4. escrow
+                {
+                    pubkey: escrowAddress,
+                    isSigner: false,
+                    isWritable: true
+                },
+                // 5. escrow_ata
+                {
+                    pubkey: getAta(
+                        escrowAddress,
+                        params.token,
+                        extra.tokenProgramId
+                    ),
+                    isSigner: false,
+                    isWritable: true
+                },
+                // 6. maker_ata (optional)
+                this.optionalAccount(
+                    {
+                        pubkey: getAta(
+                            params.maker,
+                            params.token,
+                            extra.tokenProgramId
+                        ),
+                        isSigner: false,
+                        isWritable: true
+                    },
+                    extra.assetIsNative
+                ),
+                // 7. token_program
+                {
+                    pubkey: extra.tokenProgramId,
+                    isSigner: false,
+                    isWritable: false
+                },
+                // 8. system_program
+                {
+                    pubkey: SolanaAddress.SYSTEM_PROGRAM_ID,
+                    isSigner: false,
+                    isWritable: false
+                }
+            ],
+            data
+        )
+    }
+
+    /**
+     * Cancel fill escrow public
+     */
+    public cancelPublic(
+        params: Immutables<SolanaAddress>,
+        payer: SolanaAddress,
+        extra: {
+            /**
+             * If not passed, than `WhitelistContract.DEFAULT` will be used
+             * @see WhitelistContract.DEFAULT
+             */
+            whitelistProgramId?: SolanaAddress
+            /**
+             * TokenProgram or TokenProgram 2022
+             */
+            tokenProgramId: SolanaAddress
+            assetIsNative: boolean
+        }
+    ): Instruction {
+        const whitelistProgram = extra.whitelistProgramId
+            ? new WhitelistContract(extra.whitelistProgramId)
+            : WhitelistContract.DEFAULT
+
+        const data = SvmSrcEscrowFactory.coder.instruction.encode(
+            'publicCancelEscrow',
+            {}
+        )
+
+        if (extra.assetIsNative) {
+            assert(
+                params.token.equal(SolanaAddress.WRAPPED_NATIVE),
+                'assetIsNative can be true only when underlying asset is WSOL'
+            )
+        }
+
+        const escrowAddress = this.getEscrowAddress(params)
+
+        return new Instruction(
+            this.programId,
+            [
+                // 1. taker
+                {
+                    pubkey: params.taker,
+                    isSigner: false,
+                    isWritable: true
+                },
+                // 2. maker
+                {
+                    pubkey: params.maker,
+                    isSigner: false,
+                    isWritable: true
+                },
+                // 3. mint
+                {
+                    pubkey: params.token,
+                    isSigner: false,
+                    isWritable: false
+                },
+                // 4. payer
+                {
+                    pubkey: payer,
+                    isSigner: true,
+                    isWritable: true
+                },
+                // 5. resolver_access
+                {
+                    pubkey: whitelistProgram.getAccessAccount(payer),
+                    isSigner: false,
+                    isWritable: false
+                },
+                // 6. escrow
+                {
+                    pubkey: escrowAddress,
+                    isSigner: false,
+                    isWritable: true
+                },
+                // 7. escrow_ata
+                {
+                    pubkey: getAta(
+                        escrowAddress,
+                        params.token,
+                        extra.tokenProgramId
+                    ),
+                    isSigner: false,
+                    isWritable: true
+                },
+                // 8. maker_ata (optional)
+                this.optionalAccount(
+                    {
+                        pubkey: getAta(
+                            params.maker,
+                            params.token,
+                            extra.tokenProgramId
+                        ),
+                        isSigner: false,
+                        isWritable: true
+                    },
+                    extra.assetIsNative
+                ),
+                // 9. token_program
+                {
+                    pubkey: extra.tokenProgramId,
+                    isSigner: false,
+                    isWritable: false
+                },
+                // 10. system_program
+                {
+                    pubkey: SolanaAddress.SYSTEM_PROGRAM_ID,
+                    isSigner: false,
+                    isWritable: false
+                }
+            ],
+            data
+        )
+    }
+
+    public cancelOwnOrder(
+        params: {
+            orderHash: Buffer
+            maker: SolanaAddress
+            token: SolanaAddress
+        },
+        extra: {
+            /**
+             * TokenProgram or TokenProgram 2022
+             */
+            tokenProgramId: SolanaAddress
+            assetIsNative: boolean
+        }
+    ): Instruction {
+        const data = SvmSrcEscrowFactory.coder.instruction.encode(
+            'cancelOrder',
+            {}
+        )
+        const orderAccount = this.getOrderAccount(params.orderHash)
+
+        if (extra.assetIsNative) {
+            assert(
+                params.token.equal(SolanaAddress.WRAPPED_NATIVE),
+                'assetIsNative can be true only when underlying asset is WSOL'
+            )
+        }
+
+        return new Instruction(
+            this.programId,
+            [
+                // 1. creator
+                {
+                    pubkey: params.maker,
+                    isSigner: true,
+                    isWritable: true
+                },
+                // 2. mint
+                {
+                    pubkey: params.token,
+                    isSigner: false,
+                    isWritable: false
+                },
+                // 3. order
+                {
+                    pubkey: orderAccount,
+                    isSigner: false,
+                    isWritable: true
+                },
+                // 4. order_ata
+                {
+                    pubkey: getAta(
+                        orderAccount,
+                        params.token,
+                        extra.tokenProgramId
+                    ),
+                    isSigner: false,
+                    isWritable: true
+                },
+                // 5. creator_ata (optional)
+                this.optionalAccount(
+                    {
+                        pubkey: getAta(
+                            params.maker,
+                            params.token,
+                            extra.tokenProgramId
+                        ),
+                        isSigner: false,
+                        isWritable: true
+                    },
+                    extra.assetIsNative
+                ),
+                // 6. token_program
+                {
+                    pubkey: extra.tokenProgramId,
+                    isSigner: false,
+                    isWritable: false
+                },
+                // 7. system_program
+                {
+                    pubkey: SolanaAddress.SYSTEM_PROGRAM_ID,
+                    isSigner: false,
+                    isWritable: false
+                }
+            ],
+            data
+        )
+    }
+
+    public cancelOrderByResolver(
+        params: {
+            orderHash: Buffer
+            resolver: SolanaAddress
+            maker: SolanaAddress
+            token: SolanaAddress
+            /**
+             * Max reward resolver willing to take. Real reward will be `min(cancellationPremium, rewardLimit)`
+             */
+            rewardLimit: bigint
+        },
+        extra: {
+            /**
+             * TokenProgram or TokenProgram 2022
+             */
+            tokenProgramId: SolanaAddress
+            /**
+             * Whitelist program for resolver access validation
+             */
+            whitelistProgram?: WhitelistContract
+            assetIsNative: boolean
+        }
+    ): Instruction {
+        const whitelistProgram =
+            extra.whitelistProgram ?? WhitelistContract.DEFAULT
+        const data = SvmSrcEscrowFactory.coder.instruction.encode(
+            'cancelOrderByResolver',
+            {
+                rewardLimit: new BN(params.rewardLimit.toString())
+            }
+        )
+        const orderAccount = this.getOrderAccount(params.orderHash)
+
+        if (extra.assetIsNative) {
+            assert(
+                params.token.equal(SolanaAddress.WRAPPED_NATIVE),
+                'assetIsNative can be true only when underlying asset is WSOL'
+            )
+        }
+
+        return new Instruction(
+            this.programId,
+            [
+                // 1. resolver
+                {
+                    pubkey: params.resolver,
+                    isSigner: true,
+                    isWritable: true
+                },
+                // 2. resolver_access
+                {
+                    pubkey: whitelistProgram.getAccessAccount(params.resolver),
+                    isSigner: false,
+                    isWritable: false
+                },
+                // 3. creator
+                {
+                    pubkey: params.maker,
+                    isSigner: false,
+                    isWritable: true
+                },
+                // 4. mint
+                {
+                    pubkey: params.token,
+                    isSigner: false,
+                    isWritable: false
+                },
+                // 5. order
+                {
+                    pubkey: orderAccount,
+                    isSigner: false,
+                    isWritable: true
+                },
+                // 6. order_ata
+                {
+                    pubkey: getAta(
+                        orderAccount,
+                        params.token,
+                        extra.tokenProgramId
+                    ),
+                    isSigner: false,
+                    isWritable: true
+                },
+                // 7. creator_ata (optional)
+                this.optionalAccount(
+                    {
+                        pubkey: getAta(
+                            params.maker,
+                            params.token,
+                            extra.tokenProgramId
+                        ),
+                        isSigner: false,
+                        isWritable: true
+                    },
+                    extra.assetIsNative
+                ),
+                // 8. token_program
+                {
+                    pubkey: extra.tokenProgramId,
+                    isSigner: false,
+                    isWritable: false
+                },
+                // 9. system_program
+                {
+                    pubkey: SolanaAddress.SYSTEM_PROGRAM_ID,
+                    isSigner: false,
+                    isWritable: false
+                }
+            ],
+            data
+        )
+    }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+type _ = HashLock // to have ability to refer to it in jsdoc
+
+export type ActionParams = Pick<
+    Immutables<SolanaAddress>,
+    'amount' | 'taker' | 'maker' | 'token' | 'hashLock' | 'orderHash'
+>

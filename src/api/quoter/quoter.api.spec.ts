@@ -1,9 +1,9 @@
 import {HttpProviderConnector, NetworkEnum} from '@1inch/fusion-sdk'
-import {QuoterApi} from './quoter.api'
-import {QuoterRequest} from './quoter.request'
-import {Quote} from './quote'
-import {PresetEnum, QuoterResponse} from './types'
-import {QuoterCustomPresetRequest} from './quoter-custom-preset.request'
+import {QuoterApi} from './quoter.api.js'
+import {QuoterRequest} from './quoter.request.js'
+import {Quote} from './quote/index.js'
+import {PresetEnum, QuoterResponse} from './types.js'
+import {QuoterCustomPresetRequest} from './quoter-custom-preset.request.js'
 
 describe('Quoter API', () => {
     let httpProvider: HttpProviderConnector
@@ -19,7 +19,7 @@ describe('Quoter API', () => {
         }
     })
 
-    const params = QuoterRequest.new({
+    const params = QuoterRequest.forEVM({
         srcChain: NetworkEnum.ETHEREUM,
         dstChain: NetworkEnum.POLYGON,
         srcTokenAddress: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
@@ -137,7 +137,7 @@ describe('Quoter API', () => {
         }
     }
 
-    const QuoterResponseMock = new Quote(params, ResponseMock)
+    const QuoterResponseMock = Quote.fromEVMQuote(params, ResponseMock)
 
     it('should get quote with disabled estimate', async () => {
         const quoter = new QuoterApi(
@@ -151,7 +151,7 @@ describe('Quoter API', () => {
 
         expect(res).toStrictEqual(QuoterResponseMock)
         expect(httpProvider.get).toHaveBeenCalledWith(
-            'https://test.com/quoter/v1.0/quote/receive/?srcChain=1&dstChain=137&srcTokenAddress=0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2&dstTokenAddress=0x2791bca1f2de4661ed88a30c99a7a9449aa84174&amount=100000000000000000&walletAddress=0x00000000219ab540356cbb839cbe05303d7705fa&source=sdk'
+            'https://test.com/quoter/v1.1/quote/receive/?srcChain=1&dstChain=137&srcTokenAddress=0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2&dstTokenAddress=0x2791bca1f2de4661ed88a30c99a7a9449aa84174&amount=100000000000000000&walletAddress=0x00000000219ab540356cbb839cbe05303d7705fa&source=sdk'
         )
     })
 
@@ -163,7 +163,7 @@ describe('Quoter API', () => {
             httpProvider
         )
 
-        const params = QuoterRequest.new({
+        const params = QuoterRequest.forEVM({
             srcChain: NetworkEnum.ETHEREUM,
             dstChain: NetworkEnum.POLYGON,
             srcTokenAddress: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
@@ -174,11 +174,11 @@ describe('Quoter API', () => {
             source: '0x6b175474e89094c44da98b954eedeac495271d0f'
         })
 
-        const QuoterResponseMock = new Quote(params, ResponseMock)
+        const QuoterResponseMock = Quote.fromEVMQuote(params, ResponseMock)
         const res = await quoter.getQuote(params)
         expect(res).toStrictEqual(QuoterResponseMock)
         expect(httpProvider.get).toHaveBeenCalledWith(
-            'https://test.com/quoter/v1.0/quote/receive/?srcChain=1&dstChain=137&srcTokenAddress=0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2&dstTokenAddress=0x2791bca1f2de4661ed88a30c99a7a9449aa84174&amount=100000000000000000&walletAddress=0x00000000219ab540356cbb839cbe05303d7705fa&fee=1&source=0x6b175474e89094c44da98b954eedeac495271d0f'
+            'https://test.com/quoter/v1.1/quote/receive/?srcChain=1&dstChain=137&srcTokenAddress=0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2&dstTokenAddress=0x2791bca1f2de4661ed88a30c99a7a9449aa84174&amount=100000000000000000&walletAddress=0x00000000219ab540356cbb839cbe05303d7705fa&fee=1&source=0x6b175474e89094c44da98b954eedeac495271d0f'
         )
     })
 
@@ -190,7 +190,7 @@ describe('Quoter API', () => {
             httpProvider
         )
 
-        const params = QuoterRequest.new({
+        const params = QuoterRequest.forEVM({
             srcChain: NetworkEnum.ETHEREUM,
             dstChain: NetworkEnum.POLYGON,
             srcTokenAddress: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
@@ -213,11 +213,11 @@ describe('Quoter API', () => {
             }
         })
 
-        const QuoterResponseMock = new Quote(params, ResponseMock)
+        const QuoterResponseMock = Quote.fromEVMQuote(params, ResponseMock)
         const res = await quoter.getQuoteWithCustomPreset(params, body)
         expect(res).toStrictEqual(QuoterResponseMock)
         expect(httpProvider.post).toHaveBeenCalledWith(
-            'https://test.com/quoter/v1.0/quote/receive/?srcChain=1&dstChain=137&srcTokenAddress=0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2&dstTokenAddress=0x2791bca1f2de4661ed88a30c99a7a9449aa84174&amount=100000000000000000&walletAddress=0x00000000219ab540356cbb839cbe05303d7705fa&fee=1&source=0x6b175474e89094c44da98b954eedeac495271d0f',
+            'https://test.com/quoter/v1.1/quote/receive/?srcChain=1&dstChain=137&srcTokenAddress=0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2&dstTokenAddress=0x2791bca1f2de4661ed88a30c99a7a9449aa84174&amount=100000000000000000&walletAddress=0x00000000219ab540356cbb839cbe05303d7705fa&fee=1&source=0x6b175474e89094c44da98b954eedeac495271d0f',
             body.build()
         )
     })

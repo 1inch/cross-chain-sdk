@@ -7,10 +7,10 @@ on:
         type: choice
         description: Version
         options:
+          - prerelease
           - patch
           - minor
           - major
-          - prerelease
 jobs:
   release:
     runs-on: ubuntu-latest

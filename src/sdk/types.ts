@@ -3,9 +3,14 @@ import {
     HttpProviderConnector,
     LimitOrderV4Struct
 } from '@1inch/fusion-sdk'
-import {CustomPreset, PresetEnum} from '../api'
-import {CrossChainOrder, HashLock} from '../cross-chain-order'
-import {SupportedChain} from '../chains'
+import {
+    ResolverCancellationConfig,
+    SvmCrossChainOrder,
+    EvmCrossChainOrder
+} from '../cross-chain-order/index.js'
+import {CustomPreset, PresetEnum} from '../api/index.js'
+import {SupportedChain} from '../chains.js'
+import {HashLock, SolanaAddress} from '../domains/index.js'
 
 export type CrossChainSDKConfigParams = {
     url: string
@@ -14,13 +19,16 @@ export type CrossChainSDKConfigParams = {
     httpProvider?: HttpProviderConnector
 }
 
-export type QuoteParams = {
-    srcChainId: SupportedChain
-    dstChainId: SupportedChain
+export type QuoteParams<
+    SrcChain extends SupportedChain = SupportedChain,
+    DstChain extends SupportedChain = SupportedChain
+> = {
+    srcChainId: SrcChain
+    dstChainId: DstChain
     srcTokenAddress: string
     dstTokenAddress: string
     amount: string
-    walletAddress?: string
+    walletAddress: string
     enableEstimate?: boolean
     permit?: string
     takingFeeBps?: number // 100 == 1%
@@ -65,7 +73,15 @@ export type OrderInfo = {
 }
 
 export type PreparedOrder = {
-    order: CrossChainOrder
+    order: EvmCrossChainOrder | SvmCrossChainOrder
     hash: string
     quoteId: string
+}
+
+export type SolanaOrderCancellationData = {
+    orderHash: Buffer
+    maker: SolanaAddress
+    token: SolanaAddress
+    cancellationConfig: ResolverCancellationConfig
+    isAssetNative: boolean
 }

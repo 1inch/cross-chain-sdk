@@ -3,20 +3,22 @@ import {
     ActiveOrdersRequest,
     OrdersByMakerRequest,
     OrderStatusRequest
-} from './orders.request'
+} from './orders.request.js'
 import {
     ActiveOrdersResponse,
+    CancellableOrdersResponse,
     OrdersApiConfig,
     OrdersByMakerResponse,
     OrderStatusResponse,
     PublishedSecretsResponse,
     ReadyToAcceptSecretFills,
     ReadyToExecutePublicActions
-} from './types'
-import {concatQueryParams} from '../params'
+} from './types.js'
+import {concatQueryParams} from '../params.js'
+import {PaginationRequest} from '../../api/pagination.js'
 
 export class OrdersApi {
-    private static Version = 'v1.0'
+    private static Version = 'v1.1'
 
     constructor(
         private readonly config: OrdersApiConfig,
@@ -67,6 +69,24 @@ export class OrdersApi {
         orderHash: string
     ): Promise<PublishedSecretsResponse> {
         const url = `${this.config.url}/${OrdersApi.Version}/order/secrets/${orderHash}`
+
+        return this.httpClient.get(url)
+    }
+
+    async getCancellableOrders(
+        pagination?: PaginationRequest
+    ): Promise<CancellableOrdersResponse> {
+        const qp: Record<string, number> = {}
+
+        if (pagination?.page !== undefined) {
+            qp.page = pagination.page
+        }
+
+        if (pagination?.limit) {
+            qp.limit = pagination.limit
+        }
+
+        const url = `${this.config.url}/${OrdersApi.Version}/order/cancelable-by-resolvers${concatQueryParams(qp)}`
 
         return this.httpClient.get(url)
     }

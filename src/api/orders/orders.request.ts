@@ -1,12 +1,10 @@
-import {isHexString} from '@1inch/byte-utils'
-import {isValidAddress} from '@1inch/fusion-sdk'
 import {
     ActiveOrdersRequestParams,
     OrdersByMakerParams,
     OrderStatusParams
-} from './types'
-import {PaginationRequest} from '../pagination'
-import {SupportedChain} from '../../chains'
+} from './types.js'
+import {PaginationRequest} from '../pagination.js'
+import {SupportedChain} from '../../chains.js'
 
 export class ActiveOrdersRequest {
     public readonly pagination: PaginationRequest
@@ -28,14 +26,6 @@ export class OrderStatusRequest {
 
     constructor(params: OrderStatusParams) {
         this.orderHash = params.orderHash
-
-        if (this.orderHash.length !== 66) {
-            throw Error(`orderHash length should be equals 66`)
-        }
-
-        if (!isHexString(this.orderHash)) {
-            throw Error(`orderHash have to be hex`)
-        }
     }
 
     build(): OrderStatusParams {
@@ -74,22 +64,6 @@ export class OrdersByMakerRequest {
         this.withToken = params.withToken
         this.timestampFrom = params.timestampFrom
         this.timestampTo = params.timestampTo
-
-        if (!isValidAddress(this.address)) {
-            throw Error(`${this.address} is invalid address`)
-        }
-
-        if (this.srcToken && !isValidAddress(this.srcToken)) {
-            throw Error(`${this.srcToken} is invalid address`)
-        }
-
-        if (this.dstToken && !isValidAddress(this.dstToken)) {
-            throw Error(`${this.dstToken} is invalid address`)
-        }
-
-        if (this.withToken && !isValidAddress(this.withToken)) {
-            throw Error(`${this.withToken} is invalid address`)
-        }
     }
 
     buildQueryParams(): Omit<OrdersByMakerParams, 'address'> {

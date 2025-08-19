@@ -1,10 +1,10 @@
 import {Address, NetworkEnum} from '@1inch/fusion-sdk'
-import {QuoterRequest} from './quoter.request'
+import {QuoterRequest} from './quoter.request.js'
 
-describe(__filename, () => {
+describe('QuoterRequest', () => {
     it('should return error if native currency', () => {
         expect(() =>
-            QuoterRequest.new({
+            QuoterRequest.forEVM({
                 srcChain: NetworkEnum.ETHEREUM,
                 dstChain: NetworkEnum.ARBITRUM,
                 srcTokenAddress: Address.NATIVE_CURRENCY.toString(),
@@ -18,7 +18,7 @@ describe(__filename, () => {
 
     it('returns error dstTokenAddress equals ZERO_ADDRESS', () => {
         expect(() =>
-            QuoterRequest.new({
+            QuoterRequest.forEVM({
                 srcChain: NetworkEnum.ETHEREUM,
                 dstChain: NetworkEnum.ARBITRUM,
                 srcTokenAddress: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
@@ -32,7 +32,7 @@ describe(__filename, () => {
 
     it('returns error if walletAddress invalid', () => {
         expect(() =>
-            QuoterRequest.new({
+            QuoterRequest.forEVM({
                 srcChain: NetworkEnum.ETHEREUM,
                 dstChain: NetworkEnum.ARBITRUM,
                 srcTokenAddress: '0x6b175474e89094c44da98b954eedeac495271d0f',
@@ -46,7 +46,7 @@ describe(__filename, () => {
 
     it('returns error if amount is invalid', () => {
         expect(() =>
-            QuoterRequest.new({
+            QuoterRequest.forEVM({
                 srcChain: NetworkEnum.ETHEREUM,
                 dstChain: NetworkEnum.ARBITRUM,
                 srcTokenAddress: '0x6b175474e89094c44da98b954eedeac495271d0f',
@@ -60,7 +60,7 @@ describe(__filename, () => {
 
     it('returns error if fee is provided and source not', () => {
         expect(() =>
-            QuoterRequest.new({
+            QuoterRequest.forEVM({
                 srcChain: NetworkEnum.ETHEREUM,
                 dstChain: NetworkEnum.ARBITRUM,
                 srcTokenAddress: '0x6b175474e89094c44da98b954eedeac495271d0f',

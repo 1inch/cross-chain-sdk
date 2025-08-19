@@ -1,8 +1,12 @@
-import {SupportedChain} from '../../chains'
+import {AuctionPoint} from '../../domains/index.js'
+import {SupportedChain} from '../../chains.js'
 
-export type QuoterRequestParams = {
-    srcChain: SupportedChain
-    dstChain: SupportedChain
+export type QuoterRequestParams<
+    SrcChain extends SupportedChain = SupportedChain,
+    DstChain extends SupportedChain = SupportedChain
+> = {
+    srcChain: SrcChain
+    dstChain: DstChain
     srcTokenAddress: string
     dstTokenAddress: string
     amount: string
@@ -74,11 +78,6 @@ export type PresetData = {
     }
     exclusiveResolver: string | null
     secretsCount: number
-}
-
-export type AuctionPoint = {
-    delay: number
-    coefficient: number
 }
 
 export type Cost = {

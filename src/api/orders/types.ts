@@ -1,8 +1,9 @@
 import {LimitOrderV4Struct} from '@1inch/fusion-sdk'
-import {PaginationOutput} from '../types'
-import {AuctionPoint} from '../quoter'
-import {PaginationParams} from '../pagination'
-import {SupportedChain} from '../../chains'
+import {AuctionPoint} from '../../domains/index.js'
+import {PaginationOutput} from '../types.js'
+import {PaginationParams} from '../pagination.js'
+import {EvmChain, SolanaChain, SupportedChain} from '../../chains.js'
+import {SolanaOrderJSON} from '../../cross-chain-order/index.js'
 
 export type OrdersApiConfig = {
     url: string
@@ -21,21 +22,28 @@ export type FillInfo = {
 export type ActiveOrder = {
     quoteId: string
     orderHash: string
-    signature: string
     deadline: string
     auctionStartDate: string
     auctionEndDate: string
-    remainingMakerAmount: string
-    makerBalance: string
-    makerAllowance: string
-    order: LimitOrderV4Struct
-    extension: string
-    srcChainId: SupportedChain
     dstChainId: SupportedChain
-    isMakerContract: boolean
+    remainingMakerAmount: string
     secretHashes?: string[]
     fills: FillInfo[]
-}
+} & (
+    | {
+          srcChainId: EvmChain
+          order: LimitOrderV4Struct
+          isMakerContract: boolean
+          signature: string
+          makerBalance: string
+          makerAllowance: string
+          extension: string
+      }
+    | {
+          srcChainId: SolanaChain
+          order: SolanaOrderJSON
+      }
+)
 
 export type ActiveOrdersResponse = PaginationOutput<ActiveOrder>
 
@@ -101,24 +109,48 @@ export type EscrowEventData = {
     escrow: string
     side: EscrowEventSide
     action: EscrowEventAction
+    /**
+     * Unix timestamp in ms
+     */
     blockTimestamp: number
 }
 
 export type OrderStatusResponse = {
+    orderHash: string
     status: OrderStatus
-    order: LimitOrderV4Struct
-    extension: string
-    points: AuctionPoint[] | null
-    cancelTx: string | null
+    validation: ValidationStatus
+    points: AuctionPoint[]
+    approximateTakingAmount: string
+    positiveSurplus: string
     fills: Fill[]
-    createdAt: string
+    /**
+     * unix timestamp in sec
+     */
     auctionStartDate: number
+    /**
+     * in sec
+     */
     auctionDuration: number
     initialRateBump: number
-    isNativeCurrency: boolean
-    fromTokenToUsdPrice: string
-    toTokenToUsdPrice: string
-}
+
+    /**
+     * unix timestamp in ms
+     */
+    createdAt: number
+    srcTokenPriceUsd: string | null
+    dstTokenPriceUsd: string | null
+    cancelTx: string | null
+    dstChainId: SupportedChain
+    cancelable: boolean
+    takerAsset: string
+    /**
+     * hex encoded with 0x prefix
+     */
+    timeLocks: string
+} & (
+    | {srcChainId: EvmChain; order: LimitOrderV4Struct; extension: string}
+    | {srcChainId: SolanaChain; order: SolanaOrderJSON}
+)
 
 export type OrdersByMakerParams = {
     address: string
@@ -196,6 +228,31 @@ export type PublishedSecretsResponse = {
     secretHashes?: string[]
 }
 
+export type CancellableOrderData = {
+    orderHash: string
+    txSignature: string
+    maker: string
+    order: {
+        orderInfo: {
+            srcToken: string
+            dstToken: string
+            maker: string
+            srcAmount: string
+            minDstAmount: string
+            receiver: string
+        }
+        extra: {
+            resolverCancellationConfig: {
+                maxCancellationPremium: string
+                cancellationAuctionDuration: number
+            }
+            srcAssetIsNative: boolean
+        }
+    }
+}
+
+export type CancellableOrdersResponse = PaginationOutput<CancellableOrderData>
+
 export enum PublicAction {
     Withdraw = 'withdraw',
     Cancel = 'cancel'
@@ -207,6 +264,10 @@ export type ReadyToExecutePublicAction = {
     chainId: SupportedChain
     escrow: string
     secret?: string
+    /**
+     * Exists only for solana
+     */
+    srcAssetIsNative?: boolean
 }
 
 export type ReadyToExecutePublicActions = {

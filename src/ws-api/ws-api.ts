@@ -7,10 +7,10 @@ import {
     WsProviderConnector,
     WsApiConfig
 } from '@1inch/fusion-sdk'
-import {ActiveOrdersWebSocketApi} from './active-websocket-orders-api'
-import {RpcWebsocketApi} from './rpc-websocket-api'
-import {WebSocketEvent} from './types'
-import {castUrl} from './url'
+import {ActiveOrdersWebSocketApi} from './active-websocket-orders-api.js'
+import {RpcWebsocketApi} from './rpc-websocket-api.js'
+import {WebSocketEvent} from './types.js'
+import {castUrl} from './url.js'
 
 export class WebSocketApi {
     private static Version = 'v1.0'

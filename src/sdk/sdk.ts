@@ -1,17 +1,26 @@
-import {Address, encodeCancelOrder, MakerTraits} from '@1inch/fusion-sdk'
+import {encodeCancelOrder, MakerTraits} from '@1inch/fusion-sdk'
+import {utils} from '@coral-xyz/anchor'
+import assert from 'assert'
 import {
     OrderInfo,
     OrderParams,
     PreparedOrder,
     QuoteParams,
     QuoteCustomPresetParams,
-    CrossChainSDKConfigParams
-} from './types'
+    CrossChainSDKConfigParams,
+    SolanaOrderCancellationData
+} from './types.js'
+import {
+    ResolverCancellationConfig,
+    SvmCrossChainOrder
+} from '../cross-chain-order/index.js'
+import {bufferToHex} from '../utils/index.js'
+import {EvmAddress, SolanaAddress} from '../domains/addresses/index.js'
 import {
     FusionApi,
     Quote,
     QuoterRequest,
-    RelayerRequest,
+    RelayerRequestEvm,
     QuoterCustomPresetRequest,
     ActiveOrdersRequest,
     ActiveOrdersRequestParams,
@@ -23,10 +32,14 @@ import {
     OrderStatusResponse,
     ReadyToAcceptSecretFills,
     PublishedSecretsResponse,
-    ReadyToExecutePublicActions
-} from '../api'
-import {CrossChainOrder} from '../cross-chain-order'
-import {SupportedChain} from '../chains'
+    ReadyToExecutePublicActions,
+    QuoterRequestParams,
+    RelayerRequestSvm,
+    PaginationOutput,
+    PaginationRequest
+} from '../api/index.js'
+import {EvmCrossChainOrder} from '../cross-chain-order/evm/index.js'
+import {isEvm, NetworkEnum, SupportedChain} from '../chains.js'
 
 export class SDK {
     public readonly api: FusionApi
@@ -82,70 +95,78 @@ export class SDK {
     }
 
     async getQuote(params: QuoteParams): Promise<Quote> {
-        const request = new QuoterRequest({
+        const quoteParams: QuoterRequestParams = {
             srcChain: params.srcChainId,
             dstChain: params.dstChainId,
             srcTokenAddress: params.srcTokenAddress,
             dstTokenAddress: params.dstTokenAddress,
             amount: params.amount,
-            walletAddress:
-                params.walletAddress || Address.ZERO_ADDRESS.toString(),
+            walletAddress: params.walletAddress || EvmAddress.ZERO.toString(),
             permit: params.permit,
             enableEstimate: !!params.enableEstimate,
             fee: params?.takingFeeBps,
             source: params.source,
             isPermit2: params.isPermit2
-        })
+        }
 
-        return this.api.getQuote(request)
+        if (QuoterRequest.isEvmRequest(quoteParams)) {
+            const req = QuoterRequest.forEVM(quoteParams)
+
+            return this.api.getQuote(req)
+        }
+
+        if (QuoterRequest.isSolanaRequest(quoteParams)) {
+            const req = QuoterRequest.forSolana(quoteParams)
+
+            return this.api.getQuote(req)
+        }
+
+        throw new Error('unknown request src chain')
     }
 
     async getQuoteWithCustomPreset(
         params: QuoteParams,
         body: QuoteCustomPresetParams
     ): Promise<Quote> {
-        const paramsRequest = new QuoterRequest({
+        const quoteParams: QuoterRequestParams = {
             srcChain: params.srcChainId,
             dstChain: params.dstChainId,
             srcTokenAddress: params.srcTokenAddress,
             dstTokenAddress: params.dstTokenAddress,
             amount: params.amount,
-            walletAddress:
-                params.walletAddress || Address.ZERO_ADDRESS.toString(),
+            walletAddress: params.walletAddress,
             permit: params.permit,
             enableEstimate: !!params.enableEstimate,
             fee: params?.takingFeeBps,
             source: params.source,
             isPermit2: params.isPermit2
-        })
+        }
 
         const bodyRequest = new QuoterCustomPresetRequest({
             customPreset: body.customPreset
         })
 
-        return this.api.getQuoteWithCustomPreset(paramsRequest, bodyRequest)
+        if (QuoterRequest.isEvmRequest(quoteParams)) {
+            const req = QuoterRequest.forEVM(quoteParams)
+
+            return this.api.getQuoteWithCustomPreset(req, bodyRequest)
+        }
+
+        if (QuoterRequest.isSolanaRequest(quoteParams)) {
+            const req = QuoterRequest.forSolana(quoteParams)
+
+            return this.api.getQuoteWithCustomPreset(req, bodyRequest)
+        }
+
+        throw new Error('unknown request src chain')
     }
 
-    async createOrder(
-        quote: Quote,
-        params: OrderParams
-    ): Promise<PreparedOrder> {
+    createOrder(quote: Quote, params: OrderParams): PreparedOrder {
         if (!quote.quoteId) {
             throw new Error('request quote with enableEstimate=true')
         }
 
-        const order = quote.createOrder({
-            hashLock: params.hashLock,
-            receiver: params.receiver
-                ? new Address(params.receiver)
-                : undefined,
-            preset: params.preset,
-            nonce: params.nonce,
-            takingFeeReceiver: params.fee?.takingFeeReceiver,
-            permit: params.permit,
-            isPermit2: params.isPermit2
-        })
-
+        const order = this.quoteToOrder(quote, params)
         const hash = order.getOrderHash(quote.srcChainId)
 
         return {order, hash, quoteId: quote.quoteId}
@@ -153,7 +174,7 @@ export class SDK {
 
     public async submitOrder(
         srcChainId: SupportedChain,
-        order: CrossChainOrder,
+        order: EvmCrossChainOrder,
         quoteId: string,
         secretHashes: string[]
     ): Promise<OrderInfo> {
@@ -183,7 +204,7 @@ export class SDK {
             order.getTypedData(srcChainId)
         )
 
-        const relayerRequest = new RelayerRequest({
+        const relayerRequest = new RelayerRequestEvm({
             srcChainId,
             order: orderStruct,
             signature,
@@ -203,8 +224,54 @@ export class SDK {
         }
     }
 
+    /**
+     * Announce solana order to relayer before on chain creation,
+     * It's required because on chain data does not contains auction details
+     *
+     * @param order
+     * @param quoteId
+     * @param secretHashes
+     *
+     * @returns orderHash
+     */
+    public async announceOrder(
+        order: SvmCrossChainOrder,
+        quoteId: string,
+        secretHashes: string[]
+    ): Promise<string> {
+        if (!order.multipleFillsAllowed && secretHashes.length > 1) {
+            throw new Error(
+                'with disabled multiple fills you provided secretHashes > 1'
+            )
+        } else if (order.multipleFillsAllowed && secretHashes) {
+            const secretCount = order.hashLock.getPartsCount() + 1n
+
+            if (secretHashes.length !== Number(secretCount)) {
+                throw new Error(
+                    'secretHashes length should be equal to number of secrets'
+                )
+            }
+        }
+
+        const relayerRequest = new RelayerRequestSvm({
+            order: order.toJSON(),
+            auctionOrderHash: bufferToHex(order.auction.hashForSolana()),
+            quoteId,
+            secretHashes: secretHashes.length === 1 ? undefined : secretHashes
+        })
+
+        await this.api.submitOrder(relayerRequest)
+
+        return order.getOrderHash(NetworkEnum.SOLANA)
+    }
+
     async placeOrder(quote: Quote, params: OrderParams): Promise<OrderInfo> {
-        const {order, quoteId} = await this.createOrder(quote, params)
+        const {order, quoteId} = this.createOrder(quote, params)
+
+        assert(
+            order instanceof EvmCrossChainOrder,
+            'solana order must be announced with announceOrder and placed onchain'
+        )
 
         return this.submitOrder(
             quote.srcChainId,
@@ -214,6 +281,11 @@ export class SDK {
         )
     }
 
+    /**
+     * Only for orders with src chain in EVM
+     *
+     * @throws Error for non EVM srcChain
+     */
     async buildCancelOrderCallData(orderHash: string): Promise<string> {
         const getOrderRequest = new OrderStatusRequest({orderHash})
         const orderData = await this.api.getOrderStatus(getOrderRequest)
@@ -224,11 +296,71 @@ export class SDK {
             )
         }
 
-        const {order} = orderData
+        assert(
+            isEvm(orderData.srcChainId) && 'extension' in orderData, // extension check needed for TS
+            'expected evm src chain'
+        )
 
         return encodeCancelOrder(
             orderHash,
-            new MakerTraits(BigInt(order.makerTraits))
+            new MakerTraits(BigInt(orderData.order.makerTraits))
         )
+    }
+
+    /**
+     * Returns on chain created orders which can be cancelled by resolver for premium
+     */
+    public async getCancellableOrders(
+        page = 1,
+        limit = 100
+    ): Promise<PaginationOutput<SolanaOrderCancellationData>> {
+        const orders = await this.api.getCancellableOrders(
+            new PaginationRequest(page, limit)
+        )
+
+        return {
+            ...orders,
+            items: orders.items.map((o) => ({
+                maker: SolanaAddress.fromString(o.maker),
+                token: SolanaAddress.fromString(o.order.orderInfo.srcToken),
+                orderHash: utils.bytes.bs58.decode(o.orderHash),
+                cancellationConfig: new ResolverCancellationConfig(
+                    BigInt(
+                        o.order.extra.resolverCancellationConfig
+                            .maxCancellationPremium
+                    ),
+                    o.order.extra.resolverCancellationConfig.cancellationAuctionDuration
+                ),
+                isAssetNative: o.order.extra.srcAssetIsNative
+            }))
+        }
+    }
+
+    private quoteToOrder(
+        quote: Quote,
+        params: OrderParams
+    ): SvmCrossChainOrder | EvmCrossChainOrder {
+        if (quote.isEvmQuote()) {
+            quote.createEvmOrder({
+                hashLock: params.hashLock,
+                receiver: params.receiver
+                    ? EvmAddress.fromString(params.receiver)
+                    : undefined,
+                preset: params.preset,
+                nonce: params.nonce,
+                takingFeeReceiver: params.fee?.takingFeeReceiver,
+                permit: params.permit,
+                isPermit2: params.isPermit2
+            })
+        }
+
+        assert(params.receiver, 'receiver is required for solana order')
+
+        return quote.createSolanaOrder({
+            hashLock: params.hashLock,
+            receiver: EvmAddress.fromString(params.receiver),
+            preset: params.preset,
+            takingFeeReceiver: params.fee?.takingFeeReceiver
+        })
     }
 }

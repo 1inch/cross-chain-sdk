@@ -4,7 +4,8 @@ import {
     Web3Like,
     Web3ProviderConnector
 } from '@1inch/fusion-sdk'
-import {SDK} from './sdk'
+import {SDK} from './sdk.js'
+import {NetworkEnum} from '../chains.js'
 
 function createHttpProviderFake<T>(mock: T): HttpProviderConnector {
     return {
@@ -47,7 +48,9 @@ describe(__filename, () => {
             auctionStartDate: 1674491231,
             auctionDuration: 180,
             initialRateBump: 50484,
+            srcChainId: NetworkEnum.ETHEREUM,
             status: 'filled',
+            extension: '0x',
             createdAt: '2023-01-23T16:26:38.803Z',
             fromTokenToUsdPrice: '0.01546652159249409068',
             toTokenToUsdPrice: '1.00135361305236370022',
