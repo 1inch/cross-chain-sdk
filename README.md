@@ -407,7 +407,7 @@ import {
   PrivateKeyProviderConnector,
   OrderStatus
 } from '@1inch/cross-chain-sdk-solana'
-import { JsonRpcProvider, TransactionRequest } from 'ethers'
+import { JsonRpcProvider, TransactionRequest, computeAddress } from 'ethers'
 import assert from 'node:assert'
 import { randomBytes } from 'node:crypto'
 import { setTimeout } from 'node:timers/promises'
@@ -439,7 +439,7 @@ const sdk = new SDK({
   blockchainProvider: connector
 })
 
-const maker = '0x962a836519109e162754161000D65d9Dc027Fa0F'
+const maker = computeAddress(signerPrivateKey)
 const receiver = '93FP8NG2JrScb9xzNsJrzAze8gJJtr1TgQWUCHDgP3BW'
 
 const USDT_SOL = 'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB'
