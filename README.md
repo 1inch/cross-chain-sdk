@@ -201,7 +201,7 @@ async function main(): Promise<void> {
         if (secretsToShare.fills.length) {
             for (const {idx} of secretsToShare.fills) {
 
-                // it is responsobility of client to check whether is safe to share secret (check escrow addresses and so on)
+                // it is responsibility of the client to check whether is safe to share secret (check escrow addresses and so on)
                 await sdk.submitSecret(hash, secrets[idx])
 
                 console.log({idx}, 'shared secret')
@@ -353,7 +353,7 @@ async function main(): Promise<void> {
 
     for (const idx of idxes) {
       if (!alreadyShared.has(idx)) {
-        // it is responsobility of client to check whether is safe to share secret (check escrow addresses and so on)
+        // it is responsibility of the client to check whether is safe to share secret (check escrow addresses and so on)
         await sdk.submitSecret(orderHash, secrets[idx])
         alreadyShared.add(idx)
 
@@ -490,6 +490,7 @@ async function main(): Promise<void> {
 
     for (const idx of idxes) {
       if (!alreadyShared.has(idx)) {
+        // it is responsibility of the client to check whether is safe to share secret (check escrow addresses and so on)
         await sdk.submitSecret(orderHash, secrets[idx]).catch((err) => console.error('failed to submit secret', err))
         alreadyShared.add(idx)
 
