@@ -102,7 +102,7 @@ async function startNode(
     )
         .withExposedPorts(innerPort)
         .withCommand([
-            `anvil -f ${forkUrl} --fork-header "auth-key: 7llUy7tAin76TYc43bdv" --chain-id ${chainId} --mnemonic 'hat hat horse border print cancel subway heavy copy alert eternal mask' --host 0.0.0.0`
+            `anvil -f ${forkUrl} --chain-id ${chainId} --mnemonic 'hat hat horse border print cancel subway heavy copy alert eternal mask' --host 0.0.0.0`
         ])
         // .withLogConsumer((s) => s.pipe(process.stdout))
         .withWaitStrategy(new LogWaitStrategy('Listening on 0.0.0.0:8545', 1))
