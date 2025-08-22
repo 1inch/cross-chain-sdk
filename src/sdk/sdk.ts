@@ -341,7 +341,7 @@ export class SDK {
         params: OrderParams
     ): SvmCrossChainOrder | EvmCrossChainOrder {
         if (quote.isEvmQuote()) {
-            quote.createEvmOrder({
+            return quote.createEvmOrder({
                 hashLock: params.hashLock,
                 receiver: params.receiver
                     ? EvmAddress.fromString(params.receiver)
