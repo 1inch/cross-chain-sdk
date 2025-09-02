@@ -259,6 +259,7 @@ export enum PublicAction {
 }
 
 export type ReadyToExecutePublicAction = {
+    side: EscrowEventSide
     action: PublicAction
     immutables: ChainImmutables
     chainId: SupportedChain
