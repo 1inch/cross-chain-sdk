@@ -5,6 +5,7 @@ import {
     CHAIN_TO_WRAPPER
 } from '@1inch/fusion-sdk'
 import {UINT_256_MAX} from '@1inch/byte-utils'
+import assert from 'assert'
 import {EvmCrossChainOrder} from './evm-cross-chain-order.js'
 import {EvmCrossChainOrderInfo, EvmEscrowParams} from './types.js'
 import {AuctionDetails} from '../../domains/auction-details/index.js'
@@ -420,7 +421,7 @@ describe('EvmCrossChainOrder', () => {
                 nonce: 1n
             }
         )
-
+        console.log('---order ', order.salt)
         const decodedOrder = EvmCrossChainOrder.fromDataAndExtension(
             order.build(),
             Extension.decode(order.extension.encode())
@@ -435,12 +436,19 @@ describe('EvmCrossChainOrder', () => {
 
 describe('EvmCrossChainOrder Native', () => {
     it('should correctly detect that order is from native asset', () => {
+        assert(
+            14731471305425731835501358456506963481282622950074n <= UINT_256_MAX,
+            'salt too big'
+        )
+
         const ethOrderFactory = new ProxyFactory(
             FusionAddress.fromBigInt(1n),
             FusionAddress.fromBigInt(2n)
         )
         const chainId = NetworkEnum.ETHEREUM
-        const escrowFactory = EvmAddress.fromBigInt(1n)
+        const escrowFactory = EvmAddress.fromString(
+            '0xa7bcb4eac8964306f9e3764f67db6a7af6ddf99a'
+        )
 
         const maker = EvmAddress.fromString(
             '0x00000000219ab540356cbb839cbe05303d7705fa'
@@ -454,8 +462,8 @@ describe('EvmCrossChainOrder Native', () => {
 
         const orderInfo = {
             takerAsset,
-            makingAmount: 1000000000000000000n,
-            takingAmount: 1420000000n,
+            makingAmount: 100n,
+            takingAmount: 142n,
             maker,
             salt: 10n,
             receiver

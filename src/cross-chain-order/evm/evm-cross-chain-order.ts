@@ -48,6 +48,12 @@ export class EvmCrossChainOrder extends BaseOrder<
         extra?: EvmExtra
     ) {
         super()
+        console.log('in constructorrrrrr', orderInfo.salt)
+        console.log('extension', extension)
+        // console.log(
+        //     (orderInfo!.salt! << 160n) |
+        //         (BigInt(keccak256(extension.build().encode())) & UINT_160_MAX)
+        // )
         this.inner = new InnerOrder(extension, orderInfo, extra)
     }
 
@@ -251,8 +257,6 @@ export class EvmCrossChainOrder extends BaseOrder<
         escrowParams: EvmEscrowParams,
         extra?: EvmExtra
     ): EvmCrossChainOrder {
-        assert(isEvm(chainId), `Not supported chain ${chainId}`)
-
         const _orderInfo = {
             ...orderInfo,
             makerAsset: EvmAddress.fromString(
@@ -272,7 +276,7 @@ export class EvmCrossChainOrder extends BaseOrder<
             {...extra, optimizeReceiverAddress: false}
         )
 
-        _order.inner = InnerOrder.fromNative(
+        const nativeOrder = FusionOrder.fromNative(
             chainId,
             ethOrdersFactory,
             _order.inner.escrowExtension.address,
@@ -280,8 +284,8 @@ export class EvmCrossChainOrder extends BaseOrder<
                 takerAsset: new Address(_orderInfo.takerAsset.toString()),
                 makingAmount: _orderInfo.makingAmount,
                 takingAmount: _orderInfo.takingAmount,
-                maker: _orderInfo.maker.inner,
-                salt: _order.salt,
+                maker: new Address(_orderInfo.maker.toString()),
+                // salt: _order.salt, // todo: fix salt issue
                 receiver: new Address(_orderInfo.receiver.toString())
             },
             {
@@ -292,7 +296,21 @@ export class EvmCrossChainOrder extends BaseOrder<
                 })),
                 resolvingStartTime: details.resolvingStartTime
             },
-            {...extra, optimizeReceiverAddress: false}
+            extra
+        )
+
+        _order.inner = new InnerOrder(
+            _order.escrowExtension,
+            {
+                makerAsset: new EvmAddress(nativeOrder.makerAsset),
+                takerAsset: new EvmAddress(nativeOrder.takerAsset),
+                makingAmount: nativeOrder.makingAmount,
+                takingAmount: nativeOrder.takingAmount,
+                maker: new EvmAddress(nativeOrder.maker),
+                // salt: nativeOrder.salt,
+                receiver: new EvmAddress(nativeOrder.receiver)
+            },
+            extra
         )
 
         return _order

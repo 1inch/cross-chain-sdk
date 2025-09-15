@@ -4,7 +4,7 @@ import {
     Address,
     Details,
     Extra,
-    OrderInfoData as FusionOrderInfoData
+    OrderInfoData as FusionOrderInfoData, FusionExtension
 } from '@1inch/fusion-sdk'
 import {EscrowExtension} from './escrow-extension.js'
 import {EvmExtra, OrderInfoData} from './types.js'
@@ -72,7 +72,11 @@ export class InnerOrder extends FusionOrder {
             },
             extra
         )
-
+        console.log('---nativeOrder.extension ', FusionExtension.decode(nativeOrder.extension.encode()).build())
+        console.log(
+            '---post interaction ',
+            nativeOrder.extension.postInteraction.slice(0, -(160 * 2))
+        )
         const escrowExtension = EscrowExtension.fromExtension(
             nativeOrder.extension
         )
