@@ -1,12 +1,16 @@
 import {
     AuctionCalculator,
+    CHAIN_TO_WRAPPER,
+    FusionOrder,
     EIP712TypedData,
     Extension,
     Interaction,
     LimitOrderV4Struct,
     MakerTraits,
+    ProxyFactory,
     SettlementPostInteractionData,
-    ZX
+    ZX,
+    Address
 } from '@1inch/fusion-sdk'
 import assert from 'assert'
 import {
@@ -36,9 +40,9 @@ export class EvmCrossChainOrder extends BaseOrder<
     EvmAddress,
     LimitOrderV4Struct
 > {
-    private inner: InnerOrder
+    protected inner: InnerOrder
 
-    private constructor(
+    constructor(
         extension: EscrowExtension,
         orderInfo: OrderInfoData,
         extra?: EvmExtra
@@ -217,6 +221,83 @@ export class EvmCrossChainOrder extends BaseOrder<
         )
     }
 
+    static isNativeOrder(
+        chainId: number,
+        ethOrderFactory: ProxyFactory,
+        order: LimitOrderV4Struct,
+        signature: string
+    ): boolean {
+        return FusionOrder.isNativeOrder(
+            chainId,
+            ethOrderFactory,
+            order,
+            signature
+        )
+    }
+
+    /**
+     * Create new order from native asset
+     *
+     *
+     * Note, that such order should be submitted on-chain through `NativeOrderFactory.create` AND off-chain through submit to relayer
+     * @see NativeOrderFactory.create https://github.com/1inch/limit-order-protocol/blob/feature/new-eth-orders/contracts/extensions/NativeOrderFactory.sol#L53
+     */
+    static fromNative(
+        chainId: number,
+        ethOrdersFactory: ProxyFactory,
+        escrowFactory: EvmAddress,
+        orderInfo: Omit<EvmCrossChainOrderInfo, 'makerAsset'>,
+        details: EvmDetails,
+        escrowParams: EvmEscrowParams,
+        extra?: EvmExtra
+    ): EvmCrossChainOrder {
+        assert(isEvm(chainId), `Not supported chain ${chainId}`)
+
+        const _orderInfo = {
+            ...orderInfo,
+            makerAsset: EvmAddress.fromString(
+                CHAIN_TO_WRAPPER[chainId].toString()
+            ),
+            receiver:
+                orderInfo.receiver && !orderInfo.receiver.isZero()
+                    ? orderInfo.receiver
+                    : orderInfo.maker
+        }
+
+        const _order = EvmCrossChainOrder.new(
+            escrowFactory,
+            _orderInfo,
+            escrowParams,
+            details,
+            {...extra, optimizeReceiverAddress: false}
+        )
+
+        _order.inner = InnerOrder.fromNative(
+            chainId,
+            ethOrdersFactory,
+            _order.inner.escrowExtension.address,
+            {
+                takerAsset: new Address(_orderInfo.takerAsset.toString()),
+                makingAmount: _orderInfo.makingAmount,
+                takingAmount: _orderInfo.takingAmount,
+                maker: _orderInfo.maker.inner,
+                salt: _order.salt,
+                receiver: new Address(_orderInfo.receiver.toString())
+            },
+            {
+                auction: details.auction,
+                whitelist: details.whitelist.map((item) => ({
+                    address: item.address.inner,
+                    allowFrom: item.allowFrom
+                })),
+                resolvingStartTime: details.resolvingStartTime
+            },
+            {...extra, optimizeReceiverAddress: false}
+        )
+
+        return _order
+    }
+
     /**
      * Create CrossChainOrder from order data and extension
      *
@@ -259,6 +340,25 @@ export class EvmCrossChainOrder extends BaseOrder<
                 allowPartialFills: makerTraits.isPartialFillAllowed()
             }
         )
+    }
+
+    public isNative(
+        chainId: number,
+        ethOrderFactory: ProxyFactory,
+        signature: string
+    ): boolean {
+        return this.inner.isNative(chainId, ethOrderFactory, signature)
+    }
+
+    /**
+     * Returns signature for submitting native order on-chain
+     * Only valid if order is native
+     *
+     * @see EvmCrossChainOrder.isNative
+     * @see EvmCrossChainOrder.fromNative
+     */
+    public nativeSignature(maker: EvmAddress): string {
+        return this.inner.nativeSignature(maker.inner)
     }
 
     public build(): LimitOrderV4Struct {
