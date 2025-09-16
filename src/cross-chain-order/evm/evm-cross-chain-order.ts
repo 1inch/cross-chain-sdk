@@ -10,7 +10,6 @@ import {
     ProxyFactory,
     SettlementPostInteractionData,
     ZX,
-    Address,
     NetworkEnum
 } from '@1inch/fusion-sdk'
 import assert from 'assert'
@@ -271,28 +270,10 @@ export class EvmCrossChainOrder extends BaseOrder<
             {...extra, optimizeReceiverAddress: false}
         )
 
-        _order.inner = InnerOrder.fromNativeOrder(
+        _order.inner = _order.inner.toNativeOrder(
             chainId,
             ethOrdersFactory,
-            _order.inner.escrowExtension.address,
-            {
-                takerAsset: new Address(_orderInfo.takerAsset.toString()),
-                makingAmount: _orderInfo.makingAmount,
-                takingAmount: _orderInfo.takingAmount,
-                maker: new Address(_orderInfo.maker.toString()),
-                salt: _order.salt,
-                receiver: new Address(_orderInfo.receiver.toString())
-            },
-            {
-                auction: details.auction,
-                whitelist: details.whitelist.map((item) => ({
-                    address: item.address.inner,
-                    allowFrom: item.allowFrom
-                })),
-                resolvingStartTime: details.resolvingStartTime
-            },
-            _order.inner.escrowExtension,
-            {...extra, optimizeReceiverAddress: false}
+            extra
         )
 
         return _order

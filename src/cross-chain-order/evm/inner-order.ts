@@ -1,11 +1,5 @@
-import {
-    FusionOrder,
-    ProxyFactory,
-    Address,
-    Details,
-    Extra,
-    OrderInfoData as FusionOrderInfoData
-} from '@1inch/fusion-sdk'
+import {FusionOrder, ProxyFactory, Extra} from '@1inch/fusion-sdk'
+import {LimitOrder} from '@1inch/limit-order-sdk'
 import {EscrowExtension} from './escrow-extension.js'
 import {EvmExtra, OrderInfoData} from './types.js'
 import {EvmAddress} from '../../domains/index.js'
@@ -39,53 +33,38 @@ export class InnerOrder extends FusionOrder {
         this.escrowExtension = extension
     }
 
-    /**
-     * Create InnerOrder from native asset
-     */
-    public static fromNativeOrder(
+    toNativeOrder(
         chainId: number,
         ethOrdersFactory: ProxyFactory,
-        settlementExtension: Address,
-        orderInfo: Omit<FusionOrderInfoData, 'makerAsset'>,
-        details: Details,
-        extension: EscrowExtension,
         extra?: Extra
     ): InnerOrder {
-        const nativeOrder = InnerOrder.fromNative(
+        const limitOrder = LimitOrder.fromNative(
             chainId,
             ethOrdersFactory,
-            settlementExtension,
             {
-                takerAsset: orderInfo.takerAsset,
-                makingAmount: orderInfo.makingAmount,
-                takingAmount: orderInfo.takingAmount,
-                maker: orderInfo.maker,
-                // salt: orderInfo.salt, // todo: fix salt issue too big
-                receiver: orderInfo.receiver
+                takerAsset: this.takerAsset,
+                makingAmount: this.makingAmount,
+                takingAmount: this.takingAmount,
+                maker: this.maker,
+                salt: this.salt,
+                receiver: this.receiver
             },
-            {
-                auction: details.auction,
-                whitelist: details.whitelist.map((item) => ({
-                    address: item.address,
-                    allowFrom: item.allowFrom
-                })),
-                resolvingStartTime: details.resolvingStartTime
-            },
-            {...extra, optimizeReceiverAddress: false}
+            this.inner.makerTraits,
+            this.escrowExtension.build()
         )
 
         return new InnerOrder(
-            extension,
+            this.escrowExtension,
             {
-                makerAsset: new EvmAddress(nativeOrder.makerAsset),
-                takerAsset: new EvmAddress(nativeOrder.takerAsset),
-                makingAmount: nativeOrder.makingAmount,
-                takingAmount: nativeOrder.takingAmount,
-                maker: new EvmAddress(nativeOrder.maker),
-                // salt: nativeOrder.salt, // todo: fix salt issue too big
-                receiver: new EvmAddress(nativeOrder.receiver)
+                makerAsset: new EvmAddress(limitOrder.makerAsset),
+                takerAsset: new EvmAddress(limitOrder.takerAsset),
+                makingAmount: limitOrder.makingAmount,
+                takingAmount: limitOrder.takingAmount,
+                maker: new EvmAddress(limitOrder.maker),
+                salt: limitOrder.salt >> 160n,
+                receiver: new EvmAddress(limitOrder.receiver)
             },
-            {...extra, optimizeReceiverAddress: false}
+            extra
         )
     }
 }
