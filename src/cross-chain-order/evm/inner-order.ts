@@ -4,7 +4,7 @@ import {
     Address,
     Details,
     Extra,
-    OrderInfoData as FusionOrderInfoData, FusionExtension
+    OrderInfoData as FusionOrderInfoData
 } from '@1inch/fusion-sdk'
 import {EscrowExtension} from './escrow-extension.js'
 import {EvmExtra, OrderInfoData} from './types.js'
@@ -42,15 +42,16 @@ export class InnerOrder extends FusionOrder {
     /**
      * Create InnerOrder from native asset
      */
-    public static fromNative(
+    public static fromNativeOrder(
         chainId: number,
         ethOrdersFactory: ProxyFactory,
         settlementExtension: Address,
         orderInfo: Omit<FusionOrderInfoData, 'makerAsset'>,
         details: Details,
+        extension: EscrowExtension,
         extra?: Extra
     ): InnerOrder {
-        const nativeOrder = FusionOrder.fromNative(
+        const nativeOrder = InnerOrder.fromNative(
             chainId,
             ethOrdersFactory,
             settlementExtension,
@@ -59,7 +60,7 @@ export class InnerOrder extends FusionOrder {
                 makingAmount: orderInfo.makingAmount,
                 takingAmount: orderInfo.takingAmount,
                 maker: orderInfo.maker,
-                salt: orderInfo.salt,
+                // salt: orderInfo.salt, // todo: fix salt issue too big
                 receiver: orderInfo.receiver
             },
             {
@@ -70,29 +71,21 @@ export class InnerOrder extends FusionOrder {
                 })),
                 resolvingStartTime: details.resolvingStartTime
             },
-            extra
-        )
-        console.log('---nativeOrder.extension ', FusionExtension.decode(nativeOrder.extension.encode()).build())
-        console.log(
-            '---post interaction ',
-            nativeOrder.extension.postInteraction.slice(0, -(160 * 2))
-        )
-        const escrowExtension = EscrowExtension.fromExtension(
-            nativeOrder.extension
+            {...extra, optimizeReceiverAddress: false}
         )
 
         return new InnerOrder(
-            escrowExtension,
+            extension,
             {
                 makerAsset: new EvmAddress(nativeOrder.makerAsset),
                 takerAsset: new EvmAddress(nativeOrder.takerAsset),
                 makingAmount: nativeOrder.makingAmount,
                 takingAmount: nativeOrder.takingAmount,
                 maker: new EvmAddress(nativeOrder.maker),
-                salt: nativeOrder.salt,
+                // salt: nativeOrder.salt, // todo: fix salt issue too big
                 receiver: new EvmAddress(nativeOrder.receiver)
             },
-            extra
+            {...extra, optimizeReceiverAddress: false}
         )
     }
 }

@@ -10,7 +10,8 @@ import {
     ProxyFactory,
     SettlementPostInteractionData,
     ZX,
-    Address
+    Address,
+    NetworkEnum
 } from '@1inch/fusion-sdk'
 import assert from 'assert'
 import {
@@ -48,12 +49,6 @@ export class EvmCrossChainOrder extends BaseOrder<
         extra?: EvmExtra
     ) {
         super()
-        console.log('in constructorrrrrr', orderInfo.salt)
-        console.log('extension', extension)
-        // console.log(
-        //     (orderInfo!.salt! << 160n) |
-        //         (BigInt(keccak256(extension.build().encode())) & UINT_160_MAX)
-        // )
         this.inner = new InnerOrder(extension, orderInfo, extra)
     }
 
@@ -260,7 +255,7 @@ export class EvmCrossChainOrder extends BaseOrder<
         const _orderInfo = {
             ...orderInfo,
             makerAsset: EvmAddress.fromString(
-                CHAIN_TO_WRAPPER[chainId].toString()
+                CHAIN_TO_WRAPPER[chainId as NetworkEnum].toString()
             ),
             receiver:
                 orderInfo.receiver && !orderInfo.receiver.isZero()
@@ -276,7 +271,7 @@ export class EvmCrossChainOrder extends BaseOrder<
             {...extra, optimizeReceiverAddress: false}
         )
 
-        const nativeOrder = FusionOrder.fromNative(
+        _order.inner = InnerOrder.fromNativeOrder(
             chainId,
             ethOrdersFactory,
             _order.inner.escrowExtension.address,
@@ -285,7 +280,7 @@ export class EvmCrossChainOrder extends BaseOrder<
                 makingAmount: _orderInfo.makingAmount,
                 takingAmount: _orderInfo.takingAmount,
                 maker: new Address(_orderInfo.maker.toString()),
-                // salt: _order.salt, // todo: fix salt issue
+                salt: _order.salt,
                 receiver: new Address(_orderInfo.receiver.toString())
             },
             {
@@ -296,21 +291,8 @@ export class EvmCrossChainOrder extends BaseOrder<
                 })),
                 resolvingStartTime: details.resolvingStartTime
             },
-            extra
-        )
-
-        _order.inner = new InnerOrder(
-            _order.escrowExtension,
-            {
-                makerAsset: new EvmAddress(nativeOrder.makerAsset),
-                takerAsset: new EvmAddress(nativeOrder.takerAsset),
-                makingAmount: nativeOrder.makingAmount,
-                takingAmount: nativeOrder.takingAmount,
-                maker: new EvmAddress(nativeOrder.maker),
-                // salt: nativeOrder.salt,
-                receiver: new EvmAddress(nativeOrder.receiver)
-            },
-            extra
+            _order.inner.escrowExtension,
+            {...extra, optimizeReceiverAddress: false}
         )
 
         return _order
