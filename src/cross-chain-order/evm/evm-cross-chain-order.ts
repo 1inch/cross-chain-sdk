@@ -11,7 +11,7 @@ import {
     ZX,
     NetworkEnum
 } from '@1inch/fusion-sdk'
-import {LimitOrder, ProxyFactory} from '@1inch/limit-order-sdk'
+import {ProxyFactory} from '@1inch/limit-order-sdk'
 import assert from 'assert'
 import {
     EvmCrossChainOrderInfo,

@@ -17,7 +17,7 @@ import {
 import {HashLock} from '../../domains/hash-lock/index.js'
 import {TimeLocks} from '../../domains/time-locks/index.js'
 import {getRandomBytes32} from '../../test-utils/get-random-bytes-32.js'
-import {NetworkEnum, EvmChain} from '../../chains.js'
+import {NetworkEnum, EvmChain, SupportedChain} from '../../chains.js'
 
 describe('EvmCrossChainOrder', () => {
     it('Should encode/decode raw order', () => {
@@ -707,5 +707,82 @@ describe('EvmCrossChainOrder Native', () => {
                 regularOrder.nativeSignature(maker)
             )
         ).toEqual(false)
+    })
+
+    it('should create native order for EVM to Solana (ETH to SOL)', () => {
+        const ethOrderFactory = new ProxyFactory(
+            FusionAddress.fromBigInt(1n),
+            FusionAddress.fromBigInt(2n)
+        )
+        const chainId = NetworkEnum.ETHEREUM
+        const escrowFactory = EvmAddress.fromString(
+            '0x0000000000000000000000000000000000000001'
+        )
+        const maker = EvmAddress.fromString(
+            '0x00000000219ab540356cbb839cbe05303d7705fa'
+        )
+        const takerAsset = EvmAddress.fromString(
+            '0x0000000000000000000000000000000000000000'
+        )
+
+        const orderInfo = {
+            takerAsset,
+            makingAmount: 1000000000000000000n,
+            takingAmount: 1420000000n,
+            maker
+        }
+
+        const details = {
+            auction: new AuctionDetails({
+                duration: 180n,
+                startTime: 1673548149n,
+                initialRateBump: 50000,
+                points: [
+                    {
+                        coefficient: 20000,
+                        delay: 12
+                    }
+                ]
+            }),
+            whitelist: [
+                {
+                    address: EvmAddress.fromString(
+                        '0x00000000219ab540356cbb839cbe05303d7705fa'
+                    ),
+                    allowFrom: 0n
+                }
+            ]
+        }
+
+        const escrowParams = {
+            hashLock: HashLock.forSingleFill(getRandomBytes32()),
+            srcChainId: NetworkEnum.ETHEREUM as EvmChain,
+            dstChainId: NetworkEnum.SOLANA as SupportedChain,
+            srcSafetyDeposit: 1000000000000000000n,
+            dstSafetyDeposit: 1000000000000000000n,
+            timeLocks: TimeLocks.new({
+                srcWithdrawal: 1n,
+                srcPublicWithdrawal: 2n,
+                srcCancellation: 3n,
+                srcPublicCancellation: 4n,
+                dstWithdrawal: 1n,
+                dstPublicWithdrawal: 2n,
+                dstCancellation: 3n
+            })
+        }
+
+        const order = EvmCrossChainOrder.fromNative(
+            chainId,
+            ethOrderFactory,
+            escrowFactory,
+            orderInfo,
+            details,
+            escrowParams
+        )
+
+        expect(order.makerAsset.toString()).toBe(
+            CHAIN_TO_WRAPPER[chainId].toString()
+        )
+        expect(order.dstChainId).toBe(NetworkEnum.SOLANA)
     })
 })

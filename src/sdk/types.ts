@@ -6,8 +6,7 @@ import {
 import {
     ResolverCancellationConfig,
     SvmCrossChainOrder,
-    EvmCrossChainOrder,
-    EscrowExtension
+    EvmCrossChainOrder
 } from '../cross-chain-order/index.js'
 import {CustomPreset, PaginationOutput, PresetEnum} from '../api/index.js'
 import {EvmChain, SupportedChain} from '../chains.js'

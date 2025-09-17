@@ -1,5 +1,5 @@
 import {AxiosProviderConnector} from '@1inch/fusion-sdk'
-import {FusionApiConfig, PaginationOutput} from './types.js'
+import {FusionApiConfig} from './types.js'
 import {
     QuoterApi,
     QuoterRequest,
@@ -22,7 +22,7 @@ import {
     ReadyToAcceptSecretFills,
     PublishedSecretsResponse,
     ReadyToExecutePublicActions,
-    CancellableOrdersResponse, SvmCancellableOrderData, EvmCancellableOrderData
+    CancellableOrdersResponse
 } from './orders/index.js'
 import {PaginationRequest} from './pagination.js'
 import {ChainType} from '../domains/index.js'
