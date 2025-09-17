@@ -1,5 +1,5 @@
 import {AxiosProviderConnector} from '@1inch/fusion-sdk'
-import {FusionApiConfig} from './types.js'
+import {FusionApiConfig, PaginationOutput} from './types.js'
 import {
     QuoterApi,
     QuoterRequest,
@@ -22,9 +22,10 @@ import {
     ReadyToAcceptSecretFills,
     PublishedSecretsResponse,
     ReadyToExecutePublicActions,
-    CancellableOrdersResponse
+    CancellableOrdersResponse, SvmCancellableOrderData, EvmCancellableOrderData
 } from './orders/index.js'
 import {PaginationRequest} from './pagination.js'
+import {ChainType} from '../domains/index.js'
 
 export class FusionApi {
     private readonly quoterApi: QuoterApi
@@ -102,10 +103,11 @@ export class FusionApi {
         return this.ordersApi.getPublishedSecrets(orderHash)
     }
 
-    getCancellableOrders(
-        pagination?: PaginationRequest
+    public async getCancellableOrders(
+        chainType: ChainType,
+        pagination: PaginationRequest
     ): Promise<CancellableOrdersResponse> {
-        return this.ordersApi.getCancellableOrders(pagination)
+        return this.ordersApi.getCancellableOrders(chainType, pagination)
     }
 
     submitOrder(params: RelayerRequestEvm | RelayerRequestSvm): Promise<void> {

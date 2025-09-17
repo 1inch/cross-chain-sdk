@@ -2,13 +2,14 @@ import {encodeCancelOrder, MakerTraits} from '@1inch/fusion-sdk'
 import {utils} from '@coral-xyz/anchor'
 import assert from 'assert'
 import {
+    CrossChainSDKConfigParams,
+    EvmOrderCancellationData,
     OrderInfo,
     OrderParams,
     PreparedOrder,
-    QuoteParams,
     QuoteCustomPresetParams,
-    CrossChainSDKConfigParams,
-    SolanaOrderCancellationData
+    QuoteParams,
+    SvmOrderCancellationData
 } from './types.js'
 import {
     ResolverCancellationConfig,
@@ -17,29 +18,32 @@ import {
 import {bufferToHex} from '../utils/index.js'
 import {EvmAddress, SolanaAddress} from '../domains/addresses/index.js'
 import {
-    FusionApi,
-    Quote,
-    QuoterRequest,
-    RelayerRequestEvm,
-    QuoterCustomPresetRequest,
     ActiveOrdersRequest,
     ActiveOrdersRequestParams,
     ActiveOrdersResponse,
+    EvmCancellableOrderData,
+    FusionApi,
     OrdersByMakerParams,
     OrdersByMakerRequest,
     OrdersByMakerResponse,
     OrderStatusRequest,
     OrderStatusResponse,
-    ReadyToAcceptSecretFills,
-    PublishedSecretsResponse,
-    ReadyToExecutePublicActions,
-    QuoterRequestParams,
-    RelayerRequestSvm,
     PaginationOutput,
-    PaginationRequest
+    PaginationRequest,
+    PublishedSecretsResponse,
+    Quote,
+    QuoterCustomPresetRequest,
+    QuoterRequest,
+    QuoterRequestParams,
+    ReadyToAcceptSecretFills,
+    ReadyToExecutePublicActions,
+    RelayerRequestEvm,
+    RelayerRequestSvm,
+    SvmCancellableOrderData
 } from '../api/index.js'
 import {EvmCrossChainOrder} from '../cross-chain-order/evm/index.js'
 import {isEvm, NetworkEnum, SupportedChain} from '../chains.js'
+import {ChainType} from '../domains/index.js'
 
 export class SDK {
     public readonly api: FusionApi
@@ -311,29 +315,69 @@ export class SDK {
      * Returns on chain created orders which can be cancelled by resolver for premium
      */
     public async getCancellableOrders(
+        chainType: ChainType = ChainType.SVM,
         page = 1,
         limit = 100
-    ): Promise<PaginationOutput<SolanaOrderCancellationData>> {
+    ): Promise<
+        | PaginationOutput<EvmOrderCancellationData>
+        | PaginationOutput<SvmOrderCancellationData>
+    > {
         const orders = await this.api.getCancellableOrders(
+            chainType,
             new PaginationRequest(page, limit)
         )
 
+        if (chainType === ChainType.EVM) {
+            return {
+                ...orders,
+                items: orders.items.map((o) => {
+                    assert(this.isEvmOrder(o), 'expected evm order')
+
+                    return {
+                        maker: EvmAddress.fromString(o.maker),
+                        orderHash: o.orderHash,
+                        srcChainId: o.srcChainId,
+                        dstChainId: o.dstChainId,
+                        order: o.order,
+                        extension: o.extension,
+                        remainingMakerAmount: BigInt(o.remainingMakerAmount)
+                    }
+                })
+            }
+        }
+
         return {
             ...orders,
-            items: orders.items.map((o) => ({
-                maker: SolanaAddress.fromString(o.maker),
-                token: SolanaAddress.fromString(o.order.orderInfo.srcToken),
-                orderHash: utils.bytes.bs58.decode(o.orderHash),
-                cancellationConfig: new ResolverCancellationConfig(
-                    BigInt(
-                        o.order.extra.resolverCancellationConfig
-                            .maxCancellationPremium
+            items: orders.items.map((o) => {
+                assert(this.isSvmOrder(o), 'expected svm order')
+
+                return {
+                    maker: SolanaAddress.fromString(o.maker),
+                    token: SolanaAddress.fromString(o.order.orderInfo.srcToken),
+                    orderHash: utils.bytes.bs58.decode(o.orderHash),
+                    cancellationConfig: new ResolverCancellationConfig(
+                        BigInt(
+                            o.order.extra.resolverCancellationConfig
+                                .maxCancellationPremium
+                        ),
+                        o.order.extra.resolverCancellationConfig.cancellationAuctionDuration
                     ),
-                    o.order.extra.resolverCancellationConfig.cancellationAuctionDuration
-                ),
-                isAssetNative: o.order.extra.srcAssetIsNative
-            }))
+                    isAssetNative: o.order.extra.srcAssetIsNative
+                }
+            })
         }
+    }
+
+    private isEvmOrder(
+        order: EvmCancellableOrderData | SvmCancellableOrderData
+    ): order is EvmCancellableOrderData {
+        return 'extension' in order && 'srcChainId' in order
+    }
+
+    private isSvmOrder(
+        order: EvmCancellableOrderData | SvmCancellableOrderData
+    ): order is SvmCancellableOrderData {
+        return 'token' in order || !('extension' in order)
     }
 
     private quoteToOrder(

@@ -19,6 +19,8 @@ import {
     OrderStatusRequest
 } from './orders.request.js'
 import {NetworkEnum} from '../../chains.js'
+import {PaginationRequest} from '../pagination.js'
+import {ChainType} from '../../domains/index.js'
 
 function createHttpProviderFake<T>(mock: T): HttpProviderConnector {
     return {
@@ -876,6 +878,102 @@ describe(__filename, () => {
             expect(response).toEqual(expected)
             expect(httpProvider.get).toHaveBeenLastCalledWith(
                 `${url}/v1.1/order/secrets/${orderHash}`
+            )
+        })
+    })
+
+    describe('getCancellableOrders', () => {
+        it('should get cancellable orders with default SVM chain type', async () => {
+            const url = 'https://test.com/orders'
+
+            const expected = {
+                items: [
+                    {
+                        orderHash: 'base58OrderHash123',
+                        maker: '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM',
+                        order: {
+                            orderInfo: {
+                                srcToken:
+                                    'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v'
+                            },
+                            extra: {
+                                resolverCancellationConfig: {
+                                    maxCancellationPremium: '1000000',
+                                    cancellationAuctionDuration: 3600
+                                },
+                                srcAssetIsNative: false
+                            }
+                        },
+                        token: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v'
+                    }
+                ],
+                meta: {
+                    totalItems: 1,
+                    currentPage: 1,
+                    totalPages: 1
+                }
+            }
+
+            const httpProvider = createHttpProviderFake(expected)
+            const api = new OrdersApi({url}, httpProvider)
+
+            const pagination = new PaginationRequest(1, 10)
+            const response = await api.getCancellableOrders(
+                ChainType.SVM,
+                pagination
+            )
+
+            expect(response).toEqual(expected)
+            expect(httpProvider.get).toHaveBeenLastCalledWith(
+                `${url}/v1.1/order/cancelable-by-resolvers?page=1&limit=10&chainType=Solana`
+            )
+        })
+
+        it('should get cancellable orders for EVM chain type', async () => {
+            const url = 'https://test.com/orders'
+
+            const expected = {
+                items: [
+                    {
+                        orderHash:
+                            '0x077662b5ae8bb705353ad71e9a3bd55f24bb67b276ae70d7a4fcae05c5818781',
+                        maker: '0xe91d153e0b41518a2ce8dd3d7944fa863463a970',
+                        srcChainId: 1,
+                        dstChainId: 137,
+                        order: {
+                            makerAsset:
+                                '0xe91d153e0b41518a2ce8dd3d7944fa863463a971',
+                            takerAsset:
+                                '0xe91d153e0b41518a2ce8dd3d7944fa863463a97d',
+                            makingAmount: '11',
+                            takingAmount: '10',
+                            maker: '0xe91d153e0b41518a2ce8dd3d7944fa863463a970',
+                            receiver:
+                                '0xe91d153e0b41518a2ce8dd3d7944fa863463a971',
+                            salt: '0x1'
+                        },
+                        extension: 'ExtensionEncodedData'
+                    }
+                ],
+                meta: {
+                    totalItems: 1,
+                    currentPage: 1,
+                    totalPages: 1
+                }
+            }
+
+            const httpProvider = createHttpProviderFake(expected)
+            const api = new OrdersApi({url}, httpProvider)
+
+            const pagination = new PaginationRequest(1, 10)
+            const response = await api.getCancellableOrders(
+                ChainType.EVM,
+                pagination
+            )
+
+            expect(response).toEqual(expected)
+            expect(httpProvider.get).toHaveBeenLastCalledWith(
+                `${url}/v1.1/order/cancelable-by-resolvers?page=1&limit=10&chainType=EVM`
             )
         })
     })

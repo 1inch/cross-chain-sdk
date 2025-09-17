@@ -5,7 +5,7 @@ import {
     Web3ProviderConnector
 } from '@1inch/fusion-sdk'
 import {SDK} from './sdk.js'
-import {HashLock} from '../domains/index.js'
+import {ChainType, HashLock, SolanaAddress} from '../domains/index.js'
 import {NetworkEnum} from '../chains.js'
 import {
     Quote,
@@ -13,6 +13,7 @@ import {
     QuoterResponse,
     QuoterRequest
 } from '../api/quoter/index.js'
+import {ResolverCancellationConfig} from '../cross-chain-order/index.js'
 
 function createHttpProviderFake<T>(mock: T): HttpProviderConnector {
     return {
@@ -239,5 +240,178 @@ describe(__filename, () => {
         })
 
         expect(order).toBeDefined()
+    })
+
+    describe('getCancellableOrders', () => {
+        it('should get cancellable orders with default SVM chain type', async () => {
+            const mockApiResponse = {
+                items: [
+                    {
+                        orderHash:
+                            'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB',
+                        txSignature: 'txSig123',
+                        maker: '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM',
+                        order: {
+                            orderInfo: {
+                                srcToken:
+                                    'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
+                                dstToken:
+                                    'So11111111111111111111111111111111111111112',
+                                maker: '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM',
+                                srcAmount: '1000000',
+                                minDstAmount: '500000',
+                                receiver:
+                                    '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM'
+                            },
+                            extra: {
+                                resolverCancellationConfig: {
+                                    maxCancellationPremium: '1000000',
+                                    cancellationAuctionDuration: 3600
+                                },
+                                srcAssetIsNative: false
+                            }
+                        }
+                    }
+                ],
+                meta: {
+                    totalItems: 1,
+                    currentPage: 1,
+                    totalPages: 1,
+                    itemsPerPage: 100
+                }
+            }
+
+            const httpProvider = createHttpProviderFake(undefined)
+            const sdk = new SDK({
+                url,
+                httpProvider,
+                blockchainProvider: web3ProviderConnector
+            })
+
+            jest.spyOn(sdk.api, 'getCancellableOrders').mockResolvedValue(
+                mockApiResponse
+            )
+
+            const result = await sdk.getCancellableOrders()
+
+            expect(result.items.length).toBe(1)
+            expect(result.items[0]).toMatchObject({
+                maker: expect.any(SolanaAddress),
+                token: expect.any(SolanaAddress),
+                orderHash: expect.any(Uint8Array),
+                cancellationConfig: expect.any(ResolverCancellationConfig),
+                isAssetNative: false
+            })
+            expect(result.meta.totalItems).toBe(1)
+
+            expect(sdk.api.getCancellableOrders).toHaveBeenCalledWith(
+                ChainType.SVM,
+                expect.objectContaining({
+                    page: 1,
+                    limit: 100
+                })
+            )
+        })
+
+        it('should get cancellable orders for EVM chain type', async () => {
+            const mockApiResponse = {
+                items: [
+                    {
+                        orderHash:
+                            '0x077662b5ae8bb705353ad71e9a3bd55f24bb67b276ae70d7a4fcae05c5818781',
+                        maker: '0xe91d153e0b41518a2ce8dd3d7944fa863463a970',
+                        srcChainId: 1,
+                        dstChainId: 137,
+                        order: {
+                            makerAsset:
+                                '0xe91d153e0b41518a2ce8dd3d7944fa863463a971',
+                            takerAsset:
+                                '0xe91d153e0b41518a2ce8dd3d7944fa863463a97d',
+                            makingAmount: '11',
+                            takingAmount: '10',
+                            maker: '0xe91d153e0b41518a2ce8dd3d7944fa863463a970',
+                            receiver:
+                                '0xe91d153e0b41518a2ce8dd3d7944fa863463a971',
+                            salt: '0x1',
+                            makerTraits: '0'
+                        },
+                        extension: 'ExtensionEncodedData',
+                        remainingMakerAmount: '5'
+                    }
+                ],
+                meta: {
+                    totalItems: 1,
+                    currentPage: 1,
+                    totalPages: 1,
+                    itemsPerPage: 10
+                }
+            }
+
+            const httpProvider = createHttpProviderFake(undefined)
+            const sdk = new SDK({
+                url,
+                httpProvider,
+                blockchainProvider: web3ProviderConnector
+            })
+
+            jest.spyOn(sdk.api, 'getCancellableOrders').mockResolvedValue(
+                mockApiResponse
+            )
+
+            const result = await sdk.getCancellableOrders(ChainType.EVM, 1, 10)
+
+            expect(result.items.length).toBe(1)
+            expect(result.items[0]).toMatchObject({
+                maker: expect.any(Object), // EvmAddress
+                orderHash:
+                    '0x077662b5ae8bb705353ad71e9a3bd55f24bb67b276ae70d7a4fcae05c5818781',
+                srcChainId: 1,
+                dstChainId: 137,
+                order: expect.any(Object),
+                extension: 'ExtensionEncodedData'
+            })
+            expect(result.meta.totalItems).toBe(1)
+
+            expect(sdk.api.getCancellableOrders).toHaveBeenCalledWith(
+                ChainType.EVM,
+                expect.objectContaining({
+                    page: 1,
+                    limit: 10
+                })
+            )
+        })
+
+        it('should handle pagination parameters correctly', async () => {
+            const mockResponse = {
+                items: [],
+                meta: {
+                    totalItems: 0,
+                    currentPage: 2,
+                    totalPages: 1,
+                    itemsPerPage: 50
+                }
+            }
+
+            const httpProvider = createHttpProviderFake(undefined)
+            const sdk = new SDK({
+                url,
+                httpProvider,
+                blockchainProvider: web3ProviderConnector
+            })
+
+            jest.spyOn(sdk.api, 'getCancellableOrders').mockResolvedValue(
+                mockResponse
+            )
+
+            await sdk.getCancellableOrders(ChainType.SVM, 2, 50)
+
+            expect(sdk.api.getCancellableOrders).toHaveBeenCalledWith(
+                ChainType.SVM,
+                expect.objectContaining({
+                    page: 2,
+                    limit: 50
+                })
+            )
+        })
     })
 })

@@ -228,7 +228,7 @@ export type PublishedSecretsResponse = {
     secretHashes?: string[]
 }
 
-export type CancellableOrderData = {
+export type SvmCancellableOrderData = {
     orderHash: string
     txSignature: string
     maker: string
@@ -251,7 +251,19 @@ export type CancellableOrderData = {
     }
 }
 
-export type CancellableOrdersResponse = PaginationOutput<CancellableOrderData>
+export type EvmCancellableOrderData = {
+    orderHash: string
+    maker: string
+    srcChainId: number
+    dstChainId: number
+    order: LimitOrderV4Struct
+    extension: string
+    remainingMakerAmount: string
+}
+
+export type CancellableOrdersResponse =
+    | PaginationOutput<SvmCancellableOrderData>
+    | PaginationOutput<EvmCancellableOrderData>
 
 export enum PublicAction {
     Withdraw = 'withdraw',

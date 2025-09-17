@@ -16,6 +16,7 @@ import {
 } from './types.js'
 import {concatQueryParams} from '../params.js'
 import {PaginationRequest} from '../../api/pagination.js'
+import {ChainType} from '../../domains/index.js'
 
 export class OrdersApi {
     private static Version = 'v1.1'
@@ -73,10 +74,11 @@ export class OrdersApi {
         return this.httpClient.get(url)
     }
 
-    async getCancellableOrders(
-        pagination?: PaginationRequest
+    public async getCancellableOrders(
+        chainType: ChainType,
+        pagination: PaginationRequest
     ): Promise<CancellableOrdersResponse> {
-        const qp: Record<string, number> = {}
+        const qp: Record<string, number | string> = {}
 
         if (pagination?.page !== undefined) {
             qp.page = pagination.page
@@ -85,6 +87,8 @@ export class OrdersApi {
         if (pagination?.limit) {
             qp.limit = pagination.limit
         }
+
+        qp.chainType = chainType
 
         const url = `${this.config.url}/${OrdersApi.Version}/order/cancelable-by-resolvers${concatQueryParams(qp)}`
 

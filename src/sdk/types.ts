@@ -6,11 +6,12 @@ import {
 import {
     ResolverCancellationConfig,
     SvmCrossChainOrder,
-    EvmCrossChainOrder
+    EvmCrossChainOrder,
+    EscrowExtension
 } from '../cross-chain-order/index.js'
-import {CustomPreset, PresetEnum} from '../api/index.js'
-import {SupportedChain} from '../chains.js'
-import {HashLock, SolanaAddress} from '../domains/index.js'
+import {CustomPreset, PaginationOutput, PresetEnum} from '../api/index.js'
+import {EvmChain, SupportedChain} from '../chains.js'
+import {EvmAddress, HashLock, SolanaAddress} from '../domains/index.js'
 
 export type CrossChainSDKConfigParams = {
     url: string
@@ -78,10 +79,27 @@ export type PreparedOrder = {
     quoteId: string
 }
 
-export type SolanaOrderCancellationData = {
+export type OrderCancellationData =
+    | PaginationOutput<SvmOrderCancellationData>
+    | PaginationOutput<EvmOrderCancellationData>
+
+export type SvmOrderCancellationData = {
     orderHash: Buffer
     maker: SolanaAddress
     token: SolanaAddress
     cancellationConfig: ResolverCancellationConfig
     isAssetNative: boolean
+}
+
+export type EvmOrderCancellationData<
+    SrcChain extends EvmChain = EvmChain,
+    DstChain extends SupportedChain = SupportedChain
+> = {
+    orderHash: string
+    maker: EvmAddress
+    srcChainId: SrcChain
+    dstChainId: DstChain
+    order: LimitOrderV4Struct
+    extension: string
+    remainingMakerAmount: bigint
 }
