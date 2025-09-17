@@ -5,8 +5,13 @@ import {
     Web3ProviderConnector
 } from '@1inch/fusion-sdk'
 import {SDK} from './sdk.js'
-import {ChainType, HashLock, SolanaAddress} from '../domains/index.js'
-import {NetworkEnum} from '../chains.js'
+import {
+    ChainType,
+    HashLock,
+    SolanaAddress,
+    EvmAddress
+} from '../domains/index.js'
+import {EvmChain, NetworkEnum} from '../chains.js'
 import {
     Quote,
     PresetEnum,
@@ -14,6 +19,11 @@ import {
     QuoterRequest
 } from '../api/quoter/index.js'
 import {ResolverCancellationConfig} from '../cross-chain-order/index.js'
+import {EvmCrossChainOrder} from '../cross-chain-order/evm/index.js'
+import {AuctionDetails} from '../domains/auction-details/index.js'
+import {TimeLocks} from '../domains/time-locks/index.js'
+import {getRandomBytes32} from '../test-utils/get-random-bytes-32.js'
+import {now} from '../utils/index.js'
 
 function createHttpProviderFake<T>(mock: T): HttpProviderConnector {
     return {
@@ -412,6 +422,180 @@ describe(__filename, () => {
                     limit: 50
                 })
             )
+        })
+    })
+
+    describe('submitOrder', () => {
+        it('should submit order successfully', async () => {
+            const httpProvider = createHttpProviderFake(undefined)
+            const sdk = new SDK({
+                url,
+                httpProvider,
+                blockchainProvider: web3ProviderConnector
+            })
+
+            jest.spyOn(sdk.api, 'submitOrder').mockResolvedValue(undefined)
+            jest.spyOn(
+                web3ProviderConnector,
+                'signTypedData'
+            ).mockResolvedValue('0xsignature')
+
+            const factoryAddress = EvmAddress.fromBigInt(1n)
+            const orderData = {
+                maker: EvmAddress.fromBigInt(2n),
+                makerAsset: EvmAddress.fromString(
+                    '0xdac17f958d2ee523a2206206994597c13d831ec7'
+                ),
+                takerAsset: EvmAddress.fromString(
+                    '0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9'
+                ),
+                makingAmount: 100_000000n,
+                takingAmount: 90_000000n
+            }
+
+            const secrets = [
+                getRandomBytes32(),
+                getRandomBytes32(),
+                getRandomBytes32()
+            ]
+            const leaves = HashLock.getMerkleLeaves(secrets)
+            const escrowParams = {
+                hashLock: HashLock.forMultipleFills(leaves),
+                srcChainId: NetworkEnum.ETHEREUM as EvmChain,
+                dstChainId: NetworkEnum.ARBITRUM as EvmChain,
+                srcSafetyDeposit: 1000n,
+                dstSafetyDeposit: 1000n,
+                timeLocks: TimeLocks.new({
+                    srcWithdrawal: 1n,
+                    srcPublicWithdrawal: 2n,
+                    srcCancellation: 3n,
+                    srcPublicCancellation: 4n,
+                    dstWithdrawal: 1n,
+                    dstPublicWithdrawal: 2n,
+                    dstCancellation: 3n
+                })
+            }
+
+            const order = EvmCrossChainOrder.new(
+                factoryAddress,
+                orderData,
+                escrowParams,
+                {
+                    auction: new AuctionDetails({
+                        startTime: BigInt(now()),
+                        duration: 180n,
+                        points: [],
+                        initialRateBump: 100_000
+                    }),
+                    whitelist: [
+                        {address: EvmAddress.fromBigInt(100n), allowFrom: 0n}
+                    ]
+                },
+                {
+                    nonce: 1n,
+                    allowMultipleFills: true
+                }
+            )
+
+            const result = await sdk.submitOrder(
+                NetworkEnum.ETHEREUM,
+                order,
+                'quote-id-123',
+                secrets
+            )
+
+            expect(result.quoteId).toBe('quote-id-123')
+            expect(result.signature).toBe('0xsignature')
+            expect(result.order).toBeDefined()
+            expect(result.orderHash).toBeDefined()
+        })
+    })
+
+    describe('submitNativeOrder', () => {
+        it('should submit native order successfully', async () => {
+            const httpProvider = createHttpProviderFake(undefined)
+            const sdk = new SDK({
+                url,
+                httpProvider,
+                blockchainProvider: web3ProviderConnector
+            })
+
+            jest.spyOn(sdk.api, 'submitOrder').mockResolvedValue(undefined)
+
+            const factoryAddress = EvmAddress.fromBigInt(1n)
+            const maker = EvmAddress.fromString(
+                '0x00000000219ab540356cbb839cbe05303d7705fa'
+            )
+
+            const orderData = {
+                maker,
+                takerAsset: EvmAddress.fromString(
+                    '0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9'
+                ),
+                makingAmount: 1000000000000000000n,
+                takingAmount: 1420000000n
+            }
+
+            const nativeSecrets = [
+                getRandomBytes32(),
+                getRandomBytes32(),
+                getRandomBytes32()
+            ]
+            const nativeLeaves = HashLock.getMerkleLeaves(nativeSecrets)
+            const escrowParams = {
+                hashLock: HashLock.forMultipleFills(nativeLeaves),
+                srcChainId: NetworkEnum.ETHEREUM as EvmChain,
+                dstChainId: NetworkEnum.ARBITRUM as EvmChain,
+                srcSafetyDeposit: 1000n,
+                dstSafetyDeposit: 1000n,
+                timeLocks: TimeLocks.new({
+                    srcWithdrawal: 1n,
+                    srcPublicWithdrawal: 2n,
+                    srcCancellation: 3n,
+                    srcPublicCancellation: 4n,
+                    dstWithdrawal: 1n,
+                    dstPublicWithdrawal: 2n,
+                    dstCancellation: 3n
+                })
+            }
+
+            const order = EvmCrossChainOrder.new(
+                factoryAddress,
+                {
+                    ...orderData,
+                    makerAsset: EvmAddress.fromString(
+                        '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
+                    ) // WETH
+                },
+                escrowParams,
+                {
+                    auction: new AuctionDetails({
+                        startTime: BigInt(now()),
+                        duration: 180n,
+                        points: [],
+                        initialRateBump: 100_000
+                    }),
+                    whitelist: [
+                        {address: EvmAddress.fromBigInt(100n), allowFrom: 0n}
+                    ]
+                },
+                {
+                    allowMultipleFills: true
+                }
+            )
+
+            const result = await sdk.submitNativeOrder(
+                NetworkEnum.ETHEREUM,
+                order,
+                maker,
+                'quote-id-123',
+                nativeSecrets
+            )
+
+            expect(result.quoteId).toBe('quote-id-123')
+            expect(result.signature).toBeDefined()
+            expect(result.order).toBeDefined()
+            expect(result.orderHash).toBeDefined()
         })
     })
 })
