@@ -17,10 +17,10 @@ importers:
         version: 3.1.0(assert@2.1.0)
       '@1inch/fusion-sdk':
         specifier: 2.1.12-rc.0
-        version: 2.1.12-rc.0(assert@2.1.0)(axios@1.8.2)(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+        version: 2.1.12-rc.0(assert@2.1.0)(axios@1.11.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10)
       '@1inch/limit-order-sdk':
         specifier: 5.0.6-rc.0
-        version: 5.0.6-rc.0(assert@2.1.0)(axios@1.8.2)(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+        version: 5.0.6-rc.0(assert@2.1.0)(axios@1.11.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10)
       '@coral-xyz/anchor':
         specifier: 0.31.1
         version: 0.31.1(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)
@@ -34,8 +34,8 @@ importers:
         specifier: ^2.0.0
         version: 2.1.0
       axios:
-        specifier: 1.8.2
-        version: 1.8.2
+        specifier: 1.11.0
+        version: 1.11.0
       bn.js:
         specifier: 5.2.2
         version: 5.2.2
@@ -1377,8 +1377,8 @@ packages:
     resolution: {integrity: sha512-wvUjBtSGN7+7SjNpq/9M2Tg350UZD3q62IFZLbRAR1bSMlCo1ZaeW+BJ+D090e4hIIZLBcTDWe4Mh4jvUDajzQ==}
     engines: {node: '>= 0.4'}
 
-  axios@1.8.2:
-    resolution: {integrity: sha512-ls4GYBm5aig9vWx8AWDSGLpnpDQRtWAfrjU+EuytuODrFBkqesN2RkOQCBzrA1RQNHw1SmRMSDDDSwzNAYQ6Rg==}
+  axios@1.11.0:
+    resolution: {integrity: sha512-1Lx3WLFQWm3ooKDYZD1eXmoGO9fxYQjrycfHFC8P0sCfQVXyROp0p9PFWBehewBOdCwHc+f/b8I0fMto5eSfwA==}
 
   b4a@1.7.1:
     resolution: {integrity: sha512-ZovbrBV0g6JxK5cGUF1Suby1vLfKjv4RWi8IxoaO/Mon8BDD9I21RxjHFtgQ+kskJqLAVyQZly3uMBui+vhc8Q==}
@@ -3618,27 +3618,27 @@ snapshots:
       semver: 7.7.2
       typescript: 5.9.2
 
-  '@1inch/fusion-sdk@2.1.12-rc.0(assert@2.1.0)(axios@1.8.2)(bufferutil@4.0.9)(utf-8-validate@5.0.10)':
+  '@1inch/fusion-sdk@2.1.12-rc.0(assert@2.1.0)(axios@1.11.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10)':
     dependencies:
       '@1inch/byte-utils': 3.1.0(assert@2.1.0)
-      '@1inch/limit-order-sdk': 5.0.6-rc.0(assert@2.1.0)(axios@1.8.2)(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+      '@1inch/limit-order-sdk': 5.0.6-rc.0(assert@2.1.0)(axios@1.11.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10)
       ethers: 6.13.1(bufferutil@4.0.9)(utf-8-validate@5.0.10)
       tslib: 2.6.3
       ws: 8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10)
     optionalDependencies:
       assert: 2.1.0
-      axios: 1.8.2
+      axios: 1.11.0
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
 
-  '@1inch/limit-order-sdk@5.0.6-rc.0(assert@2.1.0)(axios@1.8.2)(bufferutil@4.0.9)(utf-8-validate@5.0.10)':
+  '@1inch/limit-order-sdk@5.0.6-rc.0(assert@2.1.0)(axios@1.11.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10)':
     dependencies:
       '@1inch/byte-utils': 3.0.0(assert@2.1.0)
       ethers: 6.13.5(bufferutil@4.0.9)(utf-8-validate@5.0.10)
     optionalDependencies:
       assert: 2.1.0
-      axios: 1.8.2
+      axios: 1.11.0
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -5122,7 +5122,7 @@ snapshots:
     dependencies:
       possible-typed-array-names: 1.1.0
 
-  axios@1.8.2:
+  axios@1.11.0:
     dependencies:
       follow-redirects: 1.15.11
       form-data: 4.0.4
