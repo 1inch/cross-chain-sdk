@@ -212,7 +212,7 @@ export class Quote<
             enablePermit2: params.isPermit2
         }
 
-        return this._createOrderEvmOrder(
+        return this._createEvmOrder(
             this.srcEscrowFactory,
             orderInfo,
             escrowParams,
@@ -294,7 +294,7 @@ export class Quote<
         return this.presets[type] as Preset
     }
 
-    private _createOrderEvmOrder(
+    private _createEvmOrder(
         escrowFactory: EvmAddress,
         orderInfo: EvmCrossChainOrderInfo,
         escrowParams: EvmEscrowParams,

@@ -76,7 +76,7 @@ export class OrdersApi {
 
     public async getCancellableOrders(
         chainType: ChainType,
-        pagination: PaginationRequest
+        pagination?: PaginationRequest
     ): Promise<CancellableOrdersResponse> {
         const qp: Record<string, number | string> = {}
 

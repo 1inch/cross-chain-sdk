@@ -10,6 +10,7 @@ import {EvmCrossChainOrderInfo, EvmEscrowParams} from './types.js'
 import {AuctionDetails} from '../../domains/auction-details/index.js'
 import {now} from '../../utils/index.js'
 import {
+    createAddress,
     EvmAddress as Address,
     EvmAddress,
     SolanaAddress
@@ -782,6 +783,13 @@ describe('EvmCrossChainOrder Native', () => {
 
         expect(order.makerAsset.toString()).toBe(
             CHAIN_TO_WRAPPER[chainId].toString()
+        )
+        expect(order.receiver).toStrictEqual(
+            createAddress<NetworkEnum.SOLANA>(
+                maker.toString(),
+                NetworkEnum.SOLANA,
+                order.escrowExtension.dstAddressFirstPart
+            )
         )
         expect(order.dstChainId).toBe(NetworkEnum.SOLANA)
     })

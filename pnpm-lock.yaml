@@ -16,8 +16,8 @@ importers:
         specifier: 3.1.0
         version: 3.1.0(assert@2.1.0)
       '@1inch/fusion-sdk':
-        specifier: 2.1.11-rc.5
-        version: 2.1.11-rc.5(assert@2.1.0)(axios@1.8.2)(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+        specifier: 2.1.12-rc.0
+        version: 2.1.12-rc.0(assert@2.1.0)(axios@1.8.2)(bufferutil@4.0.9)(utf-8-validate@5.0.10)
       '@1inch/limit-order-sdk':
         specifier: 5.0.6-rc.0
         version: 5.0.6-rc.0(assert@2.1.0)(axios@1.8.2)(bufferutil@4.0.9)(utf-8-validate@5.0.10)
@@ -194,8 +194,8 @@ packages:
       prettier: ^3.3.2
       typescript: ^5.5.2
 
-  '@1inch/fusion-sdk@2.1.11-rc.5':
-    resolution: {integrity: sha512-GKzSV+j9mafXrRPrB64e3Yfiin/gPjfX1RSJpLcTfQdoPp8ElKkDeALJ27Tr1a+WRRl4PDZg/t76xYR8zWhLow==}
+  '@1inch/fusion-sdk@2.1.12-rc.0':
+    resolution: {integrity: sha512-rYbe2wP9/lj6VdIW3V81Ech4Vv5DeH8lbA3gnG+UHxG5QQohi7VtUF9A2GFSsOwlfc2cb1fHKWwxJFHPRLqF+A==}
     peerDependencies:
       assert: ^2.0.0
       axios: '>=1 <2'
@@ -3618,7 +3618,7 @@ snapshots:
       semver: 7.7.2
       typescript: 5.9.2
 
-  '@1inch/fusion-sdk@2.1.11-rc.5(assert@2.1.0)(axios@1.8.2)(bufferutil@4.0.9)(utf-8-validate@5.0.10)':
+  '@1inch/fusion-sdk@2.1.12-rc.0(assert@2.1.0)(axios@1.8.2)(bufferutil@4.0.9)(utf-8-validate@5.0.10)':
     dependencies:
       '@1inch/byte-utils': 3.1.0(assert@2.1.0)
       '@1inch/limit-order-sdk': 5.0.6-rc.0(assert@2.1.0)(axios@1.8.2)(bufferutil@4.0.9)(utf-8-validate@5.0.10)

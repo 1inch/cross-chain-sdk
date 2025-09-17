@@ -105,7 +105,7 @@ export class FusionApi {
 
     public async getCancellableOrders(
         chainType: ChainType,
-        pagination: PaginationRequest
+        pagination?: PaginationRequest
     ): Promise<CancellableOrdersResponse> {
         return this.ordersApi.getCancellableOrders(chainType, pagination)
     }
