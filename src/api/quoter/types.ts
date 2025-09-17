@@ -42,6 +42,8 @@ export type QuoterResponse = {
     srcSafetyDeposit: string
     dstSafetyDeposit: string
     autoK: number
+    nativeOrderFactoryAddress?: string
+    nativeOrderImplAddress?: string
 }
 
 export type TimeLocksRaw = {
