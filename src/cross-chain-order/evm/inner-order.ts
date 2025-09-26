@@ -1,5 +1,5 @@
-import {FusionOrder, ProxyFactory, Extra} from '@1inch/fusion-sdk'
-import {LimitOrder} from '@1inch/limit-order-sdk'
+import {FusionOrder} from '@1inch/fusion-sdk'
+import {LimitOrder, ProxyFactory} from '@1inch/limit-order-sdk'
 import {EscrowExtension} from './escrow-extension.js'
 import {EvmExtra, OrderInfoData} from './types.js'
 import {EvmAddress} from '../../domains/index.js'
@@ -36,7 +36,7 @@ export class InnerOrder extends FusionOrder {
     toNativeOrder(
         chainId: number,
         ethOrdersFactory: ProxyFactory,
-        extra?: Extra
+        extra?: EvmExtra
     ): InnerOrder {
         const limitOrder = LimitOrder.fromNative(
             chainId,
