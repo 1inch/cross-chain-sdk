@@ -230,6 +230,154 @@ async function main(): Promise<void> {
 main()
 ```
 
+## Full example Native Asset CrossChain Swap
+```typescript
+import {
+    EvmCrossChainOrder,
+    HashLock,
+    NetworkEnum,
+    OrderStatus,
+    PrivateKeyProviderConnector,
+    SDK,
+    EvmAddress,
+    NativeOrdersFactory,
+    Address
+} from '@1inch/cross-chain-sdk'
+import {JsonRpcProvider, Wallet} from 'ethers'
+import {randomBytes} from 'node:crypto'
+import assert from "node:assert";
+
+const NativeOrderFactoryAddress = '0x4bc5a9d205adf1091d596bc2e1aa0d6b9dc3b12c' // todo: move to SDK
+const PRIVATE_KEY =  '0x'
+const WEB3_NODE_URL = 'https://'
+const AUTH_KEY = 'auth-key'
+
+const ethersRpcProvider = new JsonRpcProvider(WEB3_NODE_URL)
+
+const ethersProviderConnector = {
+    eth: {
+        call(transactionConfig): Promise<string> {
+            return ethersRpcProvider.call(transactionConfig)
+        }
+    },
+    extend(): void {}
+}
+
+const connector = new PrivateKeyProviderConnector(
+    PRIVATE_KEY,
+    ethersProviderConnector
+)
+
+const wallet = new Wallet(PRIVATE_KEY, ethersRpcProvider)
+
+const sdk = new SDK({
+    url: 'https://api.1inch.dev/fusion-plus',
+    authKey: AUTH_KEY,
+    blockchainProvider: connector,
+})
+
+async function sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+async function main(): Promise<void> {
+    // estimate
+    const quote = await sdk.getQuote({
+        amount: '400000000000000000',
+        srcChainId: NetworkEnum.AVALANCHE,
+        dstChainId: NetworkEnum.BINANCE,
+        enableEstimate: true,
+        srcTokenAddress: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee', // AVAX
+        dstTokenAddress: '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d', // USDC
+        walletAddress: wallet.address
+    })
+
+    const preset = quote.recommendedPreset
+
+    // generate secrets
+    const secrets = Array.from({
+        length: quote.presets[preset].secretsCount
+    }).map(() => '0x' + randomBytes(32).toString('hex'))
+
+    const hashLock =
+        secrets.length === 1
+            ? HashLock.forSingleFill(secrets[0])
+            : HashLock.forMultipleFills(HashLock.getMerkleLeaves(secrets))
+
+    const secretHashes = secrets.map((s) => HashLock.hashSecret(s))
+
+    // create order
+    const {hash, quoteId, order} = sdk.createOrder(quote, {
+        walletAddress: wallet.address,
+        hashLock,
+        preset,
+        source: 'sdk-tutorial',
+        secretHashes
+    })
+
+    assert(order instanceof EvmCrossChainOrder)
+
+    console.log({hash}, 'order created')
+
+    // submit order
+    const orderInfo = await sdk.submitNativeOrder(
+        quote.srcChainId,
+        order,
+        EvmAddress.fromString(wallet.address),
+        quoteId,
+        secretHashes
+    )
+    console.log({hash}, 'order submitted')
+
+    const factory = new NativeOrdersFactory(new Address(NativeOrderFactoryAddress))
+    const call = factory.create(new Address(wallet.address), orderInfo.order)
+
+    const txRes = await wallet.sendTransaction({
+        to: call.to.toString(),
+        data: call.data,
+        value: call.value
+    })
+
+    console.log({txHash: txRes.hash}, 'transaction broadcasted')
+
+    await wallet.provider.waitForTransaction(txRes.hash, 3)
+
+    // submit secrets for deployed escrows
+    while (true) {
+        const secretsToShare = await sdk.getReadyToAcceptSecretFills(hash)
+
+        if (secretsToShare.fills.length) {
+            for (const {idx} of secretsToShare.fills) {
+
+                // it is responsibility of the client to check whether is safe to share secret (check escrow addresses and so on)
+                await sdk.submitSecret(hash, secrets[idx])
+
+                console.log({idx}, 'shared secret')
+            }
+        }
+
+        // check if order finished
+        const {status} = await sdk.getOrderStatus(hash)
+
+        if (
+            status === OrderStatus.Executed ||
+            status === OrderStatus.Expired ||
+            status === OrderStatus.Refunded
+        ) {
+            break
+        }
+
+        await sleep(1000)
+    }
+
+    const statusResponse = await sdk.getOrderStatus(hash)
+
+    console.log(statusResponse)
+}
+
+main()
+```
+
 
 # Solana
 Swaps to/from solana is performed similar to evm to evm swaps, except addresses format, also orders from solana must be published both onchain and to relayer
