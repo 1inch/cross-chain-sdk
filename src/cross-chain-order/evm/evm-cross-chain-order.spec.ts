@@ -1,10 +1,16 @@
-import {Extension} from '@1inch/fusion-sdk'
+import {
+    Extension,
+    Address as FusionAddress,
+    CHAIN_TO_WRAPPER
+} from '@1inch/fusion-sdk'
+import {ProxyFactory} from '@1inch/limit-order-sdk'
 import {UINT_256_MAX} from '@1inch/byte-utils'
 import {EvmCrossChainOrder} from './evm-cross-chain-order.js'
 import {EvmCrossChainOrderInfo, EvmEscrowParams} from './types.js'
 import {AuctionDetails} from '../../domains/auction-details/index.js'
 import {now} from '../../utils/index.js'
 import {
+    createAddress,
     EvmAddress as Address,
     EvmAddress,
     SolanaAddress
@@ -12,7 +18,7 @@ import {
 import {HashLock} from '../../domains/hash-lock/index.js'
 import {TimeLocks} from '../../domains/time-locks/index.js'
 import {getRandomBytes32} from '../../test-utils/get-random-bytes-32.js'
-import {NetworkEnum} from '../../chains.js'
+import {NetworkEnum, EvmChain, SupportedChain} from '../../chains.js'
 
 describe('EvmCrossChainOrder', () => {
     it('Should encode/decode raw order', () => {
@@ -425,5 +431,366 @@ describe('EvmCrossChainOrder', () => {
 
         expect(decodedOrder.receiver).toStrictEqual(receiver)
         expect(decodedOrder.takerAsset).toStrictEqual(takerAsset)
+    })
+})
+
+describe('EvmCrossChainOrder Native', () => {
+    it('should correctly detect that order is from native asset', () => {
+        const ethOrderFactory = new ProxyFactory(
+            FusionAddress.fromBigInt(1n),
+            FusionAddress.fromBigInt(2n)
+        )
+
+        const chainId = NetworkEnum.ETHEREUM
+        const escrowFactory = EvmAddress.fromString(
+            '0xa7bcb4eac8964306f9e3764f67db6a7af6ddf99a'
+        )
+
+        const maker = EvmAddress.fromString(
+            '0x00000000219ab540356cbb839cbe05303d7705fa'
+        )
+        const takerAsset = EvmAddress.fromString(
+            '0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9'
+        )
+
+        const orderInfo = {
+            takerAsset,
+            makingAmount: 100n,
+            takingAmount: 142n,
+            maker
+        }
+
+        const details = {
+            auction: new AuctionDetails({
+                duration: 180n,
+                startTime: 1673548149n,
+                initialRateBump: 50000,
+                points: [
+                    {
+                        coefficient: 20000,
+                        delay: 12
+                    }
+                ]
+            }),
+            whitelist: [
+                {
+                    address: EvmAddress.fromString(
+                        '0x00000000219ab540356cbb839cbe05303d7705fa'
+                    ),
+                    allowFrom: 0n
+                }
+            ]
+        }
+
+        const escrowParams = {
+            hashLock: HashLock.forSingleFill(getRandomBytes32()),
+            srcChainId: NetworkEnum.ETHEREUM as EvmChain,
+            dstChainId: NetworkEnum.ARBITRUM as EvmChain,
+            srcSafetyDeposit: 1000000000000000000n,
+            dstSafetyDeposit: 1000000000000000000n,
+            timeLocks: TimeLocks.new({
+                srcWithdrawal: 1n,
+                srcPublicWithdrawal: 2n,
+                srcCancellation: 3n,
+                srcPublicCancellation: 4n,
+                dstWithdrawal: 1n,
+                dstPublicWithdrawal: 2n,
+                dstCancellation: 3n
+            })
+        }
+
+        const order = EvmCrossChainOrder.fromNative(
+            chainId,
+            ethOrderFactory,
+            escrowFactory,
+            orderInfo,
+            details,
+            escrowParams
+        )
+
+        expect(
+            order.isNative(
+                chainId,
+                ethOrderFactory,
+                order.nativeSignature(maker)
+            )
+        ).toEqual(true)
+
+        expect(
+            EvmCrossChainOrder.fromDataAndExtension(
+                order.build(),
+                order.extension
+            ).isNative(chainId, ethOrderFactory, order.nativeSignature(maker))
+        ).toEqual(true)
+    })
+
+    it('should correctly detect that order is from native asset (no salt)', () => {
+        const ethOrderFactory = new ProxyFactory(
+            FusionAddress.fromBigInt(1n),
+            FusionAddress.fromBigInt(2n)
+        )
+
+        const chainId = NetworkEnum.ETHEREUM
+        const escrowFactory = EvmAddress.fromString(
+            '0xa7bcb4eac8964306f9e3764f67db6a7af6ddf99a'
+        )
+        const maker = EvmAddress.fromString(
+            '0x00000000219ab540356cbb839cbe05303d7705fa'
+        )
+        const takerAsset = EvmAddress.fromString(
+            '0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9'
+        )
+
+        const orderInfo = {
+            takerAsset,
+            makingAmount: 1000000000000000000n,
+            takingAmount: 1420000000n,
+            maker
+        }
+
+        const details = {
+            auction: new AuctionDetails({
+                duration: 180n,
+                startTime: 1673548149n,
+                initialRateBump: 50000,
+                points: [
+                    {
+                        coefficient: 20000,
+                        delay: 12
+                    }
+                ]
+            }),
+            whitelist: [
+                {
+                    address: EvmAddress.fromString(
+                        '0x00000000219ab540356cbb839cbe05303d7705fa'
+                    ),
+                    allowFrom: 0n
+                }
+            ]
+        }
+
+        const escrowParams = {
+            hashLock: HashLock.fromString(
+                '0x1234567890123456789012345678901234567890123456789012345678901234'
+            ),
+            srcChainId: NetworkEnum.ETHEREUM as EvmChain,
+            dstChainId: NetworkEnum.POLYGON as EvmChain,
+            srcSafetyDeposit: 1000000000000000000n,
+            dstSafetyDeposit: 1000000000000000000n,
+            timeLocks: TimeLocks.new({
+                srcWithdrawal: 1673548149n,
+                srcPublicWithdrawal: 1673548150n,
+                srcCancellation: 1673548151n,
+                srcPublicCancellation: 1673548152n,
+                dstWithdrawal: 1673548153n,
+                dstPublicWithdrawal: 1673548154n,
+                dstCancellation: 1673548155n
+            })
+        }
+
+        const order = EvmCrossChainOrder.fromNative(
+            chainId,
+            ethOrderFactory,
+            escrowFactory,
+            orderInfo,
+            details,
+            escrowParams
+        )
+
+        expect(order.makerAsset.toString()).toBe(
+            CHAIN_TO_WRAPPER[chainId].toString()
+        )
+        expect(order.takerAsset.toString()).toBe(takerAsset.toString())
+        expect(order.makingAmount).toBe(1000000000000000000n)
+        expect(order.takingAmount).toBe(1420000000n)
+
+        const decodedOrder = EvmCrossChainOrder.fromDataAndExtension(
+            order.build(),
+            Extension.decode(order.extension.encode())
+        )
+        expect(decodedOrder.makerAsset.toString()).toBe(
+            order.makerAsset.toString()
+        )
+        expect(decodedOrder.maker.toString()).toBe(order.maker.toString())
+    })
+
+    it('should correctly detect that order is NOT from native asset', () => {
+        const ethOrderFactory = new ProxyFactory(
+            FusionAddress.fromBigInt(1n),
+            FusionAddress.fromBigInt(2n)
+        )
+        const chainId = NetworkEnum.ETHEREUM
+        const escrowFactory = EvmAddress.fromString(
+            '0xa7bcb4eac8964306f9e3764f67db6a7af6ddf99a'
+        )
+        const maker = EvmAddress.fromString(
+            '0x00000000219ab540356cbb839cbe05303d7705fa'
+        )
+        const takerAsset = EvmAddress.fromString(
+            '0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9'
+        )
+        const makerAsset = EvmAddress.fromString(
+            '0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9'
+        )
+
+        const orderInfo = {
+            takerAsset,
+            makingAmount: 1000000000000000000n,
+            takingAmount: 1420000000n,
+            maker,
+            makerAsset
+        }
+
+        const details = {
+            auction: new AuctionDetails({
+                duration: 180n,
+                startTime: 1673548149n,
+                initialRateBump: 50000,
+                points: [
+                    {
+                        coefficient: 20000,
+                        delay: 12
+                    }
+                ]
+            }),
+            whitelist: [
+                {
+                    address: EvmAddress.fromString(
+                        '0x00000000219ab540356cbb839cbe05303d7705fa'
+                    ),
+                    allowFrom: 0n
+                }
+            ]
+        }
+
+        const escrowParams = {
+            hashLock: HashLock.fromString(
+                '0x1234567890123456789012345678901234567890123456789012345678901234'
+            ),
+            srcChainId: NetworkEnum.ETHEREUM as EvmChain,
+            dstChainId: NetworkEnum.POLYGON as EvmChain,
+            srcSafetyDeposit: 1000000000000000000n,
+            dstSafetyDeposit: 1000000000000000000n,
+            timeLocks: TimeLocks.new({
+                srcWithdrawal: 1673548149n,
+                srcPublicWithdrawal: 1673548150n,
+                srcCancellation: 1673548151n,
+                srcPublicCancellation: 1673548152n,
+                dstWithdrawal: 1673548153n,
+                dstPublicWithdrawal: 1673548154n,
+                dstCancellation: 1673548155n
+            })
+        }
+
+        const regularOrder = EvmCrossChainOrder.new(
+            escrowFactory,
+            orderInfo,
+            escrowParams,
+            details
+        )
+
+        expect(
+            regularOrder.isNative(
+                chainId,
+                ethOrderFactory,
+                regularOrder.nativeSignature(maker)
+            )
+        ).toEqual(false)
+
+        expect(
+            EvmCrossChainOrder.fromDataAndExtension(
+                regularOrder.build(),
+                regularOrder.extension
+            ).isNative(
+                chainId,
+                ethOrderFactory,
+                regularOrder.nativeSignature(maker)
+            )
+        ).toEqual(false)
+    })
+
+    it('should create native order for EVM to Solana (ETH to SOL)', () => {
+        const ethOrderFactory = new ProxyFactory(
+            FusionAddress.fromBigInt(1n),
+            FusionAddress.fromBigInt(2n)
+        )
+        const chainId = NetworkEnum.ETHEREUM
+        const escrowFactory = EvmAddress.fromString(
+            '0x0000000000000000000000000000000000000001'
+        )
+        const maker = EvmAddress.fromString(
+            '0x00000000219ab540356cbb839cbe05303d7705fa'
+        )
+        const takerAsset = EvmAddress.fromString(
+            '0x0000000000000000000000000000000000000000'
+        )
+
+        const orderInfo = {
+            takerAsset,
+            makingAmount: 1000000000000000000n,
+            takingAmount: 1420000000n,
+            maker
+        }
+
+        const details = {
+            auction: new AuctionDetails({
+                duration: 180n,
+                startTime: 1673548149n,
+                initialRateBump: 50000,
+                points: [
+                    {
+                        coefficient: 20000,
+                        delay: 12
+                    }
+                ]
+            }),
+            whitelist: [
+                {
+                    address: EvmAddress.fromString(
+                        '0x00000000219ab540356cbb839cbe05303d7705fa'
+                    ),
+                    allowFrom: 0n
+                }
+            ]
+        }
+
+        const escrowParams = {
+            hashLock: HashLock.forSingleFill(getRandomBytes32()),
+            srcChainId: NetworkEnum.ETHEREUM as EvmChain,
+            dstChainId: NetworkEnum.SOLANA as SupportedChain,
+            srcSafetyDeposit: 1000000000000000000n,
+            dstSafetyDeposit: 1000000000000000000n,
+            timeLocks: TimeLocks.new({
+                srcWithdrawal: 1n,
+                srcPublicWithdrawal: 2n,
+                srcCancellation: 3n,
+                srcPublicCancellation: 4n,
+                dstWithdrawal: 1n,
+                dstPublicWithdrawal: 2n,
+                dstCancellation: 3n
+            })
+        }
+
+        const order = EvmCrossChainOrder.fromNative(
+            chainId,
+            ethOrderFactory,
+            escrowFactory,
+            orderInfo,
+            details,
+            escrowParams
+        )
+
+        expect(order.makerAsset.toString()).toBe(
+            CHAIN_TO_WRAPPER[chainId].toString()
+        )
+        expect(order.receiver).toStrictEqual(
+            createAddress<NetworkEnum.SOLANA>(
+                maker.toString(),
+                NetworkEnum.SOLANA,
+                order.escrowExtension.dstAddressFirstPart
+            )
+        )
+        expect(order.dstChainId).toBe(NetworkEnum.SOLANA)
     })
 })

@@ -66,11 +66,6 @@ export class QuoterRequest<
         const srcToken = EvmAddress.fromString(params.srcTokenAddress)
         const dstToken = createAddress(params.dstTokenAddress, params.dstChain)
 
-        assert(
-            !srcToken.isNative(),
-            `cannot swap ${EvmAddress.NATIVE}: wrap native currency to it's wrapper fist`
-        )
-
         if (isEvm(params.dstChain)) {
             assert(
                 !dstToken.isZero(),

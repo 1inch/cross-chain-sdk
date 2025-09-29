@@ -23,7 +23,11 @@ export {
     HttpProviderConnector,
     WsProviderConnector,
     PingRpcEvent,
-    GetAllowMethodsRpcEvent
+    GetAllowMethodsRpcEvent,
+    CancellationAuction,
+    ProxyFactory,
+    NativeOrdersFactory,
+    NativeOrdersImpl
 } from '@1inch/fusion-sdk'
 export {
     SupportedChains,

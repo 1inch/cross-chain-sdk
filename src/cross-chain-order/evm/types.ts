@@ -46,6 +46,7 @@ export type EvmExtra = {
     source?: string
     allowMultipleFills?: boolean
     allowPartialFills?: boolean
+    optimizeReceiverAddress?: boolean
 }
 
 export type AuctionWhitelistItem = {

@@ -1,12 +1,19 @@
 import {UINT_40_MAX} from '@1inch/byte-utils'
 import {randBigInt} from '@1inch/fusion-sdk'
+import {ProxyFactory, Address} from '@1inch/limit-order-sdk'
 import assert from 'assert'
 import {
     EvmCrossChainOrderParamsData,
     Presets,
     SvmCrossChainOrderParamsData
 } from './types.js'
-import {SvmCrossChainOrder} from '../../../cross-chain-order/index.js'
+import {
+    EvmCrossChainOrderInfo,
+    EvmDetails,
+    EvmEscrowParams,
+    EvmExtra,
+    SvmCrossChainOrder
+} from '../../../cross-chain-order/index.js'
 import {EvmAddress, SolanaAddress} from '../../../domains/addresses/index.js'
 import {TimeLocks} from '../../../domains/time-locks/index.js'
 import {Cost, PresetEnum, QuoterResponse, TimeLocksRaw} from '../types.js'
@@ -47,7 +54,8 @@ export class Quote<
         public readonly recommendedPreset: PresetEnum,
         public readonly prices: Cost,
         public readonly volume: Cost,
-        public readonly slippage: number
+        public readonly slippage: number,
+        public readonly nativeOrderFactory?: ProxyFactory
     ) {}
 
     get srcChainId(): SrcChain {
@@ -90,7 +98,14 @@ export class Quote<
             response.recommendedPreset,
             response.prices,
             response.volume,
-            response.autoK
+            response.autoK,
+            response.nativeOrderFactoryAddress &&
+            response.nativeOrderImplAddress
+                ? new ProxyFactory(
+                      new Address(response.nativeOrderFactoryAddress),
+                      new Address(response.nativeOrderImplAddress)
+                  )
+                : undefined
         )
     }
 
@@ -151,54 +166,58 @@ export class Quote<
 
         const takerAsset = this.params.dstTokenAddress.zeroAsNative()
 
-        return EvmCrossChainOrder.new(
+        const orderInfo = {
+            makerAsset: this.params.srcTokenAddress,
+            takerAsset: takerAsset,
+            makingAmount: this.srcTokenAmount,
+            takingAmount: preset.auctionEndAmount,
+            maker: this.params.walletAddress,
+            receiver: params.receiver
+        }
+
+        const escrowParams = {
+            hashLock: params.hashLock,
+            srcChainId: this.params.srcChain,
+            dstChainId: this.params.dstChain,
+            srcSafetyDeposit: this.srcSafetyDeposit,
+            dstSafetyDeposit: this.dstSafetyDeposit,
+            timeLocks: TimeLocks.new({
+                srcWithdrawal: BigInt(this.timeLocks.srcWithdrawal),
+                srcPublicWithdrawal: BigInt(this.timeLocks.srcPublicWithdrawal),
+                srcCancellation: BigInt(this.timeLocks.srcCancellation),
+                srcPublicCancellation: BigInt(
+                    this.timeLocks.srcPublicCancellation
+                ),
+                dstWithdrawal: BigInt(this.timeLocks.dstWithdrawal),
+                dstPublicWithdrawal: BigInt(this.timeLocks.dstPublicWithdrawal),
+                dstCancellation: BigInt(this.timeLocks.dstCancellation)
+            })
+        }
+
+        const details = {
+            auction: auctionDetails,
+            whitelist: this.getWhitelist(
+                auctionDetails.startTime,
+                preset.exclusiveResolver
+            )
+        }
+
+        const extra = {
+            nonce,
+            permit: params.permit,
+            allowPartialFills,
+            allowMultipleFills,
+            orderExpirationDelay: params?.orderExpirationDelay,
+            source: this.params.source,
+            enablePermit2: params.isPermit2
+        }
+
+        return this._createEvmOrder(
             this.srcEscrowFactory,
-            {
-                makerAsset: this.params.srcTokenAddress,
-                takerAsset: takerAsset,
-                makingAmount: this.srcTokenAmount,
-                takingAmount: preset.auctionEndAmount,
-                maker: this.params.walletAddress,
-                receiver: params.receiver
-            },
-            {
-                hashLock: params.hashLock,
-                srcChainId: this.params.srcChain,
-                dstChainId: this.params.dstChain,
-                srcSafetyDeposit: this.srcSafetyDeposit,
-                dstSafetyDeposit: this.dstSafetyDeposit,
-                timeLocks: TimeLocks.new({
-                    srcWithdrawal: BigInt(this.timeLocks.srcWithdrawal),
-                    srcPublicWithdrawal: BigInt(
-                        this.timeLocks.srcPublicWithdrawal
-                    ),
-                    srcCancellation: BigInt(this.timeLocks.srcCancellation),
-                    srcPublicCancellation: BigInt(
-                        this.timeLocks.srcPublicCancellation
-                    ),
-                    dstWithdrawal: BigInt(this.timeLocks.dstWithdrawal),
-                    dstPublicWithdrawal: BigInt(
-                        this.timeLocks.dstPublicWithdrawal
-                    ),
-                    dstCancellation: BigInt(this.timeLocks.dstCancellation)
-                })
-            },
-            {
-                auction: auctionDetails,
-                whitelist: this.getWhitelist(
-                    auctionDetails.startTime,
-                    preset.exclusiveResolver
-                )
-            },
-            {
-                nonce,
-                permit: params.permit,
-                allowPartialFills,
-                allowMultipleFills,
-                orderExpirationDelay: params?.orderExpirationDelay,
-                source: this.params.source,
-                enablePermit2: params.isPermit2
-            }
+            orderInfo,
+            escrowParams,
+            details,
+            extra
         )
     }
 
@@ -273,6 +292,39 @@ export class Quote<
 
     getPreset(type = this.recommendedPreset): Preset {
         return this.presets[type] as Preset
+    }
+
+    private _createEvmOrder(
+        escrowFactory: EvmAddress,
+        orderInfo: EvmCrossChainOrderInfo,
+        escrowParams: EvmEscrowParams,
+        details: EvmDetails,
+        extra?: EvmExtra
+    ): EvmCrossChainOrder {
+        if (this.params.srcTokenAddress.isNative()) {
+            assert(
+                this.nativeOrderFactory,
+                'expected nativeOrderFactory to be set for order from native asset'
+            )
+
+            return EvmCrossChainOrder.fromNative(
+                escrowParams.srcChainId,
+                this.nativeOrderFactory,
+                escrowFactory,
+                orderInfo,
+                details,
+                escrowParams,
+                extra
+            )
+        }
+
+        return EvmCrossChainOrder.new(
+            escrowFactory,
+            orderInfo,
+            escrowParams,
+            details,
+            extra
+        )
     }
 
     private getWhitelist(

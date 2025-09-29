@@ -1,6 +1,8 @@
 import {FusionOrder} from '@1inch/fusion-sdk'
+import {LimitOrder, ProxyFactory} from '@1inch/limit-order-sdk'
 import {EscrowExtension} from './escrow-extension.js'
 import {EvmExtra, OrderInfoData} from './types.js'
+import {EvmAddress} from '../../domains/index.js'
 
 /**
  * Inner order class, not intended for public usage
@@ -29,5 +31,40 @@ export class InnerOrder extends FusionOrder {
         )
 
         this.escrowExtension = extension
+    }
+
+    toNativeOrder(
+        chainId: number,
+        ethOrdersFactory: ProxyFactory,
+        extra?: EvmExtra
+    ): InnerOrder {
+        const limitOrder = LimitOrder.fromNative(
+            chainId,
+            ethOrdersFactory,
+            {
+                takerAsset: this.takerAsset,
+                makingAmount: this.makingAmount,
+                takingAmount: this.takingAmount,
+                maker: this.maker,
+                salt: this.salt,
+                receiver: this.receiver
+            },
+            this.inner.makerTraits,
+            this.escrowExtension.build()
+        )
+
+        return new InnerOrder(
+            this.escrowExtension,
+            {
+                makerAsset: new EvmAddress(limitOrder.makerAsset),
+                takerAsset: new EvmAddress(limitOrder.takerAsset),
+                makingAmount: limitOrder.makingAmount,
+                takingAmount: limitOrder.takingAmount,
+                maker: new EvmAddress(limitOrder.maker),
+                salt: limitOrder.salt >> 160n,
+                receiver: new EvmAddress(limitOrder.receiver)
+            },
+            extra
+        )
     }
 }

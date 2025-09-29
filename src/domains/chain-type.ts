@@ -1,4 +1,4 @@
 export enum ChainType {
-    EVM,
-    SVM
+    EVM = 'EVM',
+    SVM = 'Solana'
 }
