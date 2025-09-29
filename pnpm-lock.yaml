@@ -16,11 +16,11 @@ importers:
         specifier: 3.1.0
         version: 3.1.0(assert@2.1.0)
       '@1inch/fusion-sdk':
-        specifier: 2.1.12-rc.0
-        version: 2.1.12-rc.0(assert@2.1.0)(axios@1.12.2)(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+        specifier: 2.1.12-rc.1
+        version: 2.1.12-rc.1(assert@2.1.0)(axios@1.12.2)(bufferutil@4.0.9)(utf-8-validate@5.0.10)
       '@1inch/limit-order-sdk':
-        specifier: 5.0.6-rc.0
-        version: 5.0.6-rc.0(assert@2.1.0)(axios@1.12.2)(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+        specifier: 5.2.2
+        version: 5.2.2(assert@2.1.0)(axios@1.12.2)(bufferutil@4.0.9)(utf-8-validate@5.0.10)
       '@coral-xyz/anchor':
         specifier: 0.31.1
         version: 0.31.1(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)
@@ -57,7 +57,7 @@ importers:
     devDependencies:
       '@1inch/eslint-config':
         specifier: 3.0.7
-        version: 3.0.7(@eslint/compat@1.3.1(eslint@9.31.0))(@eslint/eslintrc@3.3.1)(@eslint/js@9.35.0)(@stylistic/eslint-plugin@2.13.0(eslint@9.31.0)(typescript@5.9.2))(@typescript-eslint/eslint-plugin@7.18.0(@typescript-eslint/parser@7.18.0(eslint@9.31.0)(typescript@5.9.2))(eslint@9.31.0)(typescript@5.9.2))(@typescript-eslint/parser@7.18.0(eslint@9.31.0)(typescript@5.9.2))(eslint-config-prettier@9.1.2(eslint@9.31.0))(eslint-config-standard@17.1.0(eslint-plugin-import@2.32.0(@typescript-eslint/parser@7.18.0(eslint@9.31.0)(typescript@5.9.2))(eslint-import-resolver-typescript@3.10.1)(eslint@9.31.0))(eslint-plugin-n@17.23.0(eslint@9.31.0)(typescript@5.9.2))(eslint-plugin-promise@6.6.0(eslint@9.31.0))(eslint@9.31.0))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0)(eslint@9.31.0))(eslint-plugin-import@2.32.0(@typescript-eslint/parser@7.18.0(eslint@9.31.0)(typescript@5.9.2))(eslint-import-resolver-typescript@3.10.1)(eslint@9.31.0))(eslint-plugin-n@17.23.0(eslint@9.31.0)(typescript@5.9.2))(eslint-plugin-prettier@5.5.4(eslint-config-prettier@9.1.2(eslint@9.31.0))(eslint@9.31.0)(prettier@3.6.2))(eslint-plugin-promise@6.6.0(eslint@9.31.0))(eslint-plugin-unused-imports@4.2.0(@typescript-eslint/eslint-plugin@7.18.0(@typescript-eslint/parser@7.18.0(eslint@9.31.0)(typescript@5.9.2))(eslint@9.31.0)(typescript@5.9.2))(eslint@9.31.0))(eslint@9.31.0)(globals@15.15.0)(prettier@3.6.2)(typescript@5.9.2)
+        version: 3.0.7(7d00bf0d73ebe2126cd009507f12b3e2)
       '@1inch/tsconfig':
         specifier: 1.0.9
         version: 1.0.9
@@ -108,7 +108,7 @@ importers:
         version: 9.1.2(eslint@9.31.0)
       eslint-config-standard:
         specifier: ^17.1.0
-        version: 17.1.0(eslint-plugin-import@2.32.0(@typescript-eslint/parser@7.18.0(eslint@9.31.0)(typescript@5.9.2))(eslint-import-resolver-typescript@3.10.1)(eslint@9.31.0))(eslint-plugin-n@17.23.0(eslint@9.31.0)(typescript@5.9.2))(eslint-plugin-promise@6.6.0(eslint@9.31.0))(eslint@9.31.0)
+        version: 17.1.0(eslint-plugin-import@2.32.0)(eslint-plugin-n@17.23.0(eslint@9.31.0)(typescript@5.9.2))(eslint-plugin-promise@6.6.0(eslint@9.31.0))(eslint@9.31.0)
       eslint-import-resolver-typescript:
         specifier: ^3.10.1
         version: 3.10.1(eslint-plugin-import@2.32.0)(eslint@9.31.0)
@@ -155,13 +155,10 @@ importers:
 packages:
 
   '@1inch/byte-utils@3.0.0':
-    resolution: {integrity: sha512-CuX4E0z/pzo9hKGzFsMi3vPVgHRRh14ZwNEZ5TY1svnKF8PjxWx3t0CjXCW4dyqKGe6TKAzgYqzzxrMrWPDy5Q==}
+    resolution: {integrity: sha512-CuX4E0z/pzo9hKGzFsMi3vPVgHRRh14ZwNEZ5TY1svnKF8PjxWx3t0CjXCW4dyqKGe6TKAzgYqzzxrMrWPDy5Q==, tarball: https://npm.pkg.github.com/download/@1inch/byte-utils/3.0.0/1c573a3e72586540ea6f542099cd18da978118df}
     engines: {node: '>=18.16.0'}
     peerDependencies:
       assert: ^2.0.0
-    peerDependenciesMeta:
-      assert:
-        optional: true
 
   '@1inch/byte-utils@3.1.0':
     resolution: {integrity: sha512-fMxihTlLKvRvy3gvL16DTWkZGDwQXYSEgCLX/+sazb38+YD7IK3HzKaxvAUzg8ODLwQk5oY/o6pqRQKI+9x+OA==}
@@ -194,28 +191,18 @@ packages:
       prettier: ^3.3.2
       typescript: ^5.5.2
 
-  '@1inch/fusion-sdk@2.1.12-rc.0':
-    resolution: {integrity: sha512-rYbe2wP9/lj6VdIW3V81Ech4Vv5DeH8lbA3gnG+UHxG5QQohi7VtUF9A2GFSsOwlfc2cb1fHKWwxJFHPRLqF+A==}
+  '@1inch/fusion-sdk@2.1.12-rc.1':
+    resolution: {integrity: sha512-giFA1Ts447G9uAA9ze2tX5czz/orYLiYSANnw2VMUpwqRJF9faPHH8rAlqqMs65wZT92iztfPus8hgRa9V8UiQ==, tarball: https://npm.pkg.github.com/download/@1inch/fusion-sdk/2.1.12-rc.1/b2e4c7d240684b1e408f87ccab35c686e02262c1}
     peerDependencies:
       assert: ^2.0.0
       axios: '>=1 <2'
-    peerDependenciesMeta:
-      assert:
-        optional: true
-      axios:
-        optional: true
 
-  '@1inch/limit-order-sdk@5.0.6-rc.0':
-    resolution: {integrity: sha512-Jhx0rlrygvtj4RZRfHEJJ3AvpRlTig3zYtU1Zh8IIikjwXCqxMstTtxsndjekBOJerbkQn58042HSoIWg487vA==}
+  '@1inch/limit-order-sdk@5.2.2':
+    resolution: {integrity: sha512-zUvo4kpc1hCUx2znUUhYrRl2vdAsao6ubJIUngtM5Kpz07zHKLIIS/FarY2AktZeHQiUTotTrj7C1h9HjCQYow==, tarball: https://npm.pkg.github.com/download/@1inch/limit-order-sdk/5.2.2/aeb73020904916ec6f2032d3aa8a7acd1980d2c5}
     engines: {node: '>=20.9.0'}
     peerDependencies:
       assert: ^2.0.0
       axios: '>=1 <2'
-    peerDependenciesMeta:
-      assert:
-        optional: true
-      axios:
-        optional: true
 
   '@1inch/tsconfig@1.0.9':
     resolution: {integrity: sha512-TpQKhkwksMaiz26Uh1uWeVs8us6kodwt1i8KEVqqF9/fLL/JEc5Ql3UblqYrL69HJndxHyJRBZ7ziVHdTwCWOw==}
@@ -3589,15 +3576,15 @@ packages:
 snapshots:
 
   '@1inch/byte-utils@3.0.0(assert@2.1.0)':
-    optionalDependencies:
+    dependencies:
       assert: 2.1.0
 
   '@1inch/byte-utils@3.1.0(assert@2.1.0)':
     optionalDependencies:
       assert: 2.1.0
 
-  ? '@1inch/eslint-config@3.0.7(@eslint/compat@1.3.1(eslint@9.31.0))(@eslint/eslintrc@3.3.1)(@eslint/js@9.35.0)(@stylistic/eslint-plugin@2.13.0(eslint@9.31.0)(typescript@5.9.2))(@typescript-eslint/eslint-plugin@7.18.0(@typescript-eslint/parser@7.18.0(eslint@9.31.0)(typescript@5.9.2))(eslint@9.31.0)(typescript@5.9.2))(@typescript-eslint/parser@7.18.0(eslint@9.31.0)(typescript@5.9.2))(eslint-config-prettier@9.1.2(eslint@9.31.0))(eslint-config-standard@17.1.0(eslint-plugin-import@2.32.0(@typescript-eslint/parser@7.18.0(eslint@9.31.0)(typescript@5.9.2))(eslint-import-resolver-typescript@3.10.1)(eslint@9.31.0))(eslint-plugin-n@17.23.0(eslint@9.31.0)(typescript@5.9.2))(eslint-plugin-promise@6.6.0(eslint@9.31.0))(eslint@9.31.0))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0)(eslint@9.31.0))(eslint-plugin-import@2.32.0(@typescript-eslint/parser@7.18.0(eslint@9.31.0)(typescript@5.9.2))(eslint-import-resolver-typescript@3.10.1)(eslint@9.31.0))(eslint-plugin-n@17.23.0(eslint@9.31.0)(typescript@5.9.2))(eslint-plugin-prettier@5.5.4(eslint-config-prettier@9.1.2(eslint@9.31.0))(eslint@9.31.0)(prettier@3.6.2))(eslint-plugin-promise@6.6.0(eslint@9.31.0))(eslint-plugin-unused-imports@4.2.0(@typescript-eslint/eslint-plugin@7.18.0(@typescript-eslint/parser@7.18.0(eslint@9.31.0)(typescript@5.9.2))(eslint@9.31.0)(typescript@5.9.2))(eslint@9.31.0))(eslint@9.31.0)(globals@15.15.0)(prettier@3.6.2)(typescript@5.9.2)'
-  : dependencies:
+  '@1inch/eslint-config@3.0.7(7d00bf0d73ebe2126cd009507f12b3e2)':
+    dependencies:
       '@eslint/compat': 1.3.1(eslint@9.31.0)
       '@eslint/eslintrc': 3.3.1
       '@eslint/js': 9.35.0
@@ -3606,7 +3593,7 @@ snapshots:
       '@typescript-eslint/parser': 7.18.0(eslint@9.31.0)(typescript@5.9.2)
       eslint: 9.31.0
       eslint-config-prettier: 9.1.2(eslint@9.31.0)
-      eslint-config-standard: 17.1.0(eslint-plugin-import@2.32.0(@typescript-eslint/parser@7.18.0(eslint@9.31.0)(typescript@5.9.2))(eslint-import-resolver-typescript@3.10.1)(eslint@9.31.0))(eslint-plugin-n@17.23.0(eslint@9.31.0)(typescript@5.9.2))(eslint-plugin-promise@6.6.0(eslint@9.31.0))(eslint@9.31.0)
+      eslint-config-standard: 17.1.0(eslint-plugin-import@2.32.0)(eslint-plugin-n@17.23.0(eslint@9.31.0)(typescript@5.9.2))(eslint-plugin-promise@6.6.0(eslint@9.31.0))(eslint@9.31.0)
       eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0)(eslint@9.31.0)
       eslint-plugin-import: 2.32.0(@typescript-eslint/parser@7.18.0(eslint@9.31.0)(typescript@5.9.2))(eslint-import-resolver-typescript@3.10.1)(eslint@9.31.0)
       eslint-plugin-n: 17.23.0(eslint@9.31.0)(typescript@5.9.2)
@@ -3618,27 +3605,25 @@ snapshots:
       semver: 7.7.2
       typescript: 5.9.2
 
-  '@1inch/fusion-sdk@2.1.12-rc.0(assert@2.1.0)(axios@1.12.2)(bufferutil@4.0.9)(utf-8-validate@5.0.10)':
+  '@1inch/fusion-sdk@2.1.12-rc.1(assert@2.1.0)(axios@1.12.2)(bufferutil@4.0.9)(utf-8-validate@5.0.10)':
     dependencies:
       '@1inch/byte-utils': 3.1.0(assert@2.1.0)
-      '@1inch/limit-order-sdk': 5.0.6-rc.0(assert@2.1.0)(axios@1.12.2)(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+      '@1inch/limit-order-sdk': 5.2.2(assert@2.1.0)(axios@1.12.2)(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+      assert: 2.1.0
+      axios: 1.12.2
       ethers: 6.13.1(bufferutil@4.0.9)(utf-8-validate@5.0.10)
       tslib: 2.6.3
       ws: 8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10)
-    optionalDependencies:
-      assert: 2.1.0
-      axios: 1.12.2
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
 
-  '@1inch/limit-order-sdk@5.0.6-rc.0(assert@2.1.0)(axios@1.12.2)(bufferutil@4.0.9)(utf-8-validate@5.0.10)':
+  '@1inch/limit-order-sdk@5.2.2(assert@2.1.0)(axios@1.12.2)(bufferutil@4.0.9)(utf-8-validate@5.0.10)':
     dependencies:
       '@1inch/byte-utils': 3.0.0(assert@2.1.0)
-      ethers: 6.13.5(bufferutil@4.0.9)(utf-8-validate@5.0.10)
-    optionalDependencies:
       assert: 2.1.0
       axios: 1.12.2
+      ethers: 6.13.5(bufferutil@4.0.9)(utf-8-validate@5.0.10)
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -5674,7 +5659,7 @@ snapshots:
     dependencies:
       eslint: 9.31.0
 
-  eslint-config-standard@17.1.0(eslint-plugin-import@2.32.0(@typescript-eslint/parser@7.18.0(eslint@9.31.0)(typescript@5.9.2))(eslint-import-resolver-typescript@3.10.1)(eslint@9.31.0))(eslint-plugin-n@17.23.0(eslint@9.31.0)(typescript@5.9.2))(eslint-plugin-promise@6.6.0(eslint@9.31.0))(eslint@9.31.0):
+  eslint-config-standard@17.1.0(eslint-plugin-import@2.32.0)(eslint-plugin-n@17.23.0(eslint@9.31.0)(typescript@5.9.2))(eslint-plugin-promise@6.6.0(eslint@9.31.0))(eslint@9.31.0):
     dependencies:
       eslint: 9.31.0
       eslint-plugin-import: 2.32.0(@typescript-eslint/parser@7.18.0(eslint@9.31.0)(typescript@5.9.2))(eslint-import-resolver-typescript@3.10.1)(eslint@9.31.0)
@@ -5704,7 +5689,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-module-utils@2.12.1(@typescript-eslint/parser@7.18.0(eslint@9.31.0)(typescript@5.9.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0)(eslint@9.31.0))(eslint@9.31.0):
+  eslint-module-utils@2.12.1(@typescript-eslint/parser@7.18.0(eslint@9.31.0)(typescript@5.9.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.10.1)(eslint@9.31.0):
     dependencies:
       debug: 3.2.7
     optionalDependencies:
@@ -5733,7 +5718,7 @@ snapshots:
       doctrine: 2.1.0
       eslint: 9.31.0
       eslint-import-resolver-node: 0.3.9
-      eslint-module-utils: 2.12.1(@typescript-eslint/parser@7.18.0(eslint@9.31.0)(typescript@5.9.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0)(eslint@9.31.0))(eslint@9.31.0)
+      eslint-module-utils: 2.12.1(@typescript-eslint/parser@7.18.0(eslint@9.31.0)(typescript@5.9.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.10.1)(eslint@9.31.0)
       hasown: 2.0.2
       is-core-module: 2.16.1
       is-glob: 4.0.3

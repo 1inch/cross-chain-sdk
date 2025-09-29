@@ -247,7 +247,6 @@ import {JsonRpcProvider, Wallet} from 'ethers'
 import {randomBytes} from 'node:crypto'
 import assert from "node:assert";
 
-const NativeOrderFactoryAddress = '0x4bc5a9d205adf1091d596bc2e1aa0d6b9dc3b12c' // todo: move to SDK
 const PRIVATE_KEY =  '0x'
 const WEB3_NODE_URL = 'https://'
 const AUTH_KEY = 'auth-key'
@@ -329,7 +328,7 @@ async function main(): Promise<void> {
     )
     console.log({hash}, 'order submitted')
 
-    const factory = new NativeOrdersFactory(new Address(NativeOrderFactoryAddress))
+    const factory = NativeOrdersFactory.default(NetworkEnum.AVALANCHE)
     const call = factory.create(new Address(wallet.address), orderInfo.order)
 
     const txRes = await wallet.sendTransaction({
