@@ -540,7 +540,7 @@ export class SvmCrossChainOrder extends BaseOrder<
             details.duration,
             details.initialRateBump,
             details.points,
-            0n // no taker fee
+            {gasBumpEstimate: 0n, gasPriceEstimate: 0n} // no gas cost for cross-chain
         )
     }
 }

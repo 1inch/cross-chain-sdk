@@ -1,41 +1,64 @@
+import {ZX} from '@1inch/fusion-sdk'
+import {DstImmutablesComplementData} from './types.js'
 import {AddressLike} from '../addresses/index.js'
+import {FeeParameters} from '../fee-parameters/index.js'
 
+/**
+ * Complement data for destination chain immutables.
+ * Contains the additional fields needed to construct dst escrow.
+ */
 export class DstImmutablesComplement<A extends AddressLike> {
+    static readonly Web3Type = `tuple(${[
+        'address maker',
+        'uint256 amount',
+        'address token',
+        'uint256 safetyDeposit',
+        'uint256 chainId',
+        'bytes parameters'
+    ]})`
+
     private constructor(
         public readonly maker: A,
         public readonly amount: bigint,
         public readonly token: A,
         public readonly taker: A,
-        public readonly safetyDeposit: bigint
+        public readonly safetyDeposit: bigint,
+        public readonly chainId: bigint,
+        public readonly parameters: string
     ) {}
 
-    public static new<A extends AddressLike>(params: {
+    static new<A extends AddressLike>(params: {
         maker: A
         amount: bigint
         token: A
         taker: A
         safetyDeposit: bigint
+        chainId: bigint
+        feeParameters?: FeeParameters
     }): DstImmutablesComplement<A> {
         return new DstImmutablesComplement(
             params.maker,
             params.amount,
             params.token,
             params.taker,
-            params.safetyDeposit
+            params.safetyDeposit,
+            params.chainId,
+            params.feeParameters?.toString() ?? ZX
         )
     }
 
-    public toJSON(): {
-        maker: string
-        amount: string
-        token: string
-        safetyDeposit: string
-    } {
+    get feeParameters(): FeeParameters | null {
+        return FeeParameters.fromHex(this.parameters)
+    }
+
+    toJSON(): DstImmutablesComplementData {
         return {
             maker: this.maker.toString(),
             amount: this.amount.toString(),
             token: this.token.toString(),
-            safetyDeposit: this.safetyDeposit.toString()
+            safetyDeposit: this.safetyDeposit.toString(),
+            chainId: this.chainId.toString(),
+            parameters: this.parameters
         }
     }
 }

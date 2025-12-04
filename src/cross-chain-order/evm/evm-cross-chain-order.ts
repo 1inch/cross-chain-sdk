@@ -7,7 +7,7 @@ import {
     Interaction,
     LimitOrderV4Struct,
     MakerTraits,
-    SettlementPostInteractionData,
+    Whitelist,
     ZX,
     NetworkEnum
 } from '@1inch/fusion-sdk'
@@ -177,13 +177,13 @@ export class EvmCrossChainOrder extends BaseOrder<
             'Chains must be different'
         )
 
-        const postInteractionData = SettlementPostInteractionData.new({
-            whitelist: details.whitelist.map((i) => ({
+        const whitelist = Whitelist.new(
+            details.resolvingStartTime ?? BigInt(now()),
+            details.whitelist.map((i) => ({
                 address: i.address.inner,
                 allowFrom: i.allowFrom
-            })),
-            resolvingStartTime: details.resolvingStartTime ?? BigInt(now())
-        })
+            }))
+        )
 
         if (!isEvm(escrowParams.dstChainId) && !orderInfo.receiver) {
             throw new Error('Receiver is required for non EVM chain')
@@ -194,20 +194,22 @@ export class EvmCrossChainOrder extends BaseOrder<
             EvmAddress.ZERO
         ]
 
+        const makerPermit = extra?.permit
+            ? new Interaction(orderInfo.makerAsset.inner, extra.permit)
+            : undefined
+
         const ext = new EscrowExtension(
             escrowFactory,
             details.auction,
-            postInteractionData,
-            extra?.permit
-                ? new Interaction(orderInfo.makerAsset.inner, extra.permit)
-                : undefined,
+            whitelist,
             escrowParams.hashLock,
             escrowParams.dstChainId,
             orderInfo.takerAsset,
             escrowParams.srcSafetyDeposit,
             escrowParams.dstSafetyDeposit,
             escrowParams.timeLocks,
-            complement
+            complement,
+            {makerPermit, fees: details.fees}
         )
 
         return new EvmCrossChainOrder(

@@ -1,3 +1,4 @@
+import {Fees} from '@1inch/fusion-sdk'
 import {AuctionDetails} from '../../domains/auction-details/index.js'
 import {AddressLike, EvmAddress} from '../../domains/addresses/index.js'
 import {HashLock} from '../../domains/hash-lock/index.js'
@@ -61,6 +62,10 @@ export type EvmDetails = {
      * Time from which order can be executed
      */
     resolvingStartTime?: bigint
+    /**
+     * Fee configuration for integrator and resolver fees
+     */
+    fees?: Fees
 }
 
 export type EvmEscrowParams = {

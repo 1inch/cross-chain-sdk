@@ -19,7 +19,7 @@ import {PaginationRequest} from '../../api/pagination.js'
 import {ChainType} from '../../domains/index.js'
 
 export class OrdersApi {
-    private static Version = 'v1.1'
+    private static readonly Version = 'v1.2'
 
     constructor(
         private readonly config: OrdersApiConfig,

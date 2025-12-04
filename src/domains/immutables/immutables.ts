@@ -2,8 +2,10 @@ import {AbiCoder, keccak256} from 'ethers'
 import {add0x, isHexBytes} from '@1inch/byte-utils'
 import assert from 'assert'
 import {DstImmutablesComplement} from './dst-immutables-complement.js'
+import {ImmutablesData} from './types.js'
 import {HashLock} from '../hash-lock/index.js'
 import {TimeLocks} from '../time-locks/index.js'
+import {FeeParameters} from '../fee-parameters/index.js'
 import {
     AddressLike,
     EvmAddress,
@@ -11,29 +13,14 @@ import {
 } from '../../domains/addresses/index.js'
 import {bufferFromHex} from '../../utils/bytes.js'
 
-/**
- * Contract representation of class
- */
-export type ImmutablesData = {
-    /**
-     * hex encoded with 0x prefix
-     */
-    orderHash: string
-    hashlock: string
-    maker: string
-    taker: string
-    token: string
-    amount: string
-    safetyDeposit: string
-    timelocks: string
-}
+const EMPTY_PARAMETERS = '0x'
 
 /**
- * Contains escrow params for both source and destination chains
- * Determinate addresses of escrow contracts
+ * Contains escrow params for both source and destination chains.
+ * Determines addresses of escrow contracts.
  */
 export class Immutables<A extends AddressLike = AddressLike> {
-    public static readonly Web3Type = `tuple(${[
+    static readonly Web3Type = `tuple(${[
         'bytes32 orderHash',
         'bytes32 hashlock',
         'address maker',
@@ -41,26 +28,25 @@ export class Immutables<A extends AddressLike = AddressLike> {
         'address token',
         'uint256 amount',
         'uint256 safetyDeposit',
-        'uint256 timelocks'
+        'uint256 timelocks',
+        'bytes parameters'
     ]})`
 
     private constructor(
         public readonly orderHash: Buffer,
         public readonly hashLock: HashLock,
         public readonly maker: A,
-        /**
-         * Address who can withdraw funds, also to this address funds will be transferred in case of public withdrawal
-         */
         public readonly taker: A,
         public readonly token: A,
         public readonly amount: bigint,
         public readonly safetyDeposit: bigint,
-        public readonly timeLocks: TimeLocks
+        public readonly timeLocks: TimeLocks,
+        public readonly parameters: string
     ) {
         this.token = this.token.zeroAsNative() as A
     }
 
-    public static new<A extends AddressLike>(params: {
+    static new<A extends AddressLike>(params: {
         orderHash: Buffer
         hashLock: HashLock
         maker: A
@@ -69,6 +55,7 @@ export class Immutables<A extends AddressLike = AddressLike> {
         amount: bigint
         safetyDeposit: bigint
         timeLocks: TimeLocks
+        parameters?: string
     }): Immutables<A> {
         return new Immutables(
             params.orderHash,
@@ -78,40 +65,43 @@ export class Immutables<A extends AddressLike = AddressLike> {
             params.token,
             params.amount,
             params.safetyDeposit,
-            params.timeLocks
+            params.timeLocks,
+            params.parameters ?? EMPTY_PARAMETERS
         )
     }
 
-    /**
-     * Create instance from encoded bytes
-     * @param bytes 0x prefixed hex string
-     */
-    public static fromABIEncoded(bytes: string): Immutables<EvmAddress> {
-        assert(isHexBytes(bytes))
-        const res = AbiCoder.defaultAbiCoder().decode(
+    static fromABIEncoded(bytes: string): Immutables<EvmAddress> {
+        assert(isHexBytes(bytes), 'Invalid hex bytes')
+        const result = AbiCoder.defaultAbiCoder().decode(
             [Immutables.Web3Type],
             bytes
         )
-        const data = res.at(0) as ImmutablesData
+        const data = result[0] as ImmutablesData
 
         return Immutables.fromJSON(data) as Immutables<EvmAddress>
     }
 
-    public static fromJSON<T extends AddressLike = AddressLike>(
+    static fromJSON<T extends AddressLike = AddressLike>(
         data: ImmutablesData
     ): Immutables<T> {
         const isSolanaAddress = data.maker.length === 66
         const isEvmAddress = data.maker.length === 42
-        assert(isSolanaAddress || isEvmAddress, 'invalid addresses length')
+        assert(isSolanaAddress || isEvmAddress, 'Invalid address length')
 
         if (isSolanaAddress) {
-            assert(data.taker.length === 66, 'invalid solana taker address len')
-            assert(data.token.length === 66, 'invalid solana token address len')
+            assert(
+                data.taker.length === 66,
+                'Invalid Solana taker address length'
+            )
+            assert(
+                data.token.length === 66,
+                'Invalid Solana token address length'
+            )
         }
 
         if (isEvmAddress) {
-            assert(data.taker.length === 42, 'invalid solana taker address len')
-            assert(data.token.length === 42, 'invalid solana token address len')
+            assert(data.taker.length === 42, 'Invalid EVM taker address length')
+            assert(data.token.length === 42, 'Invalid EVM token address length')
         }
 
         const TypedAddress = isSolanaAddress ? SolanaAddress : EvmAddress
@@ -124,21 +114,30 @@ export class Immutables<A extends AddressLike = AddressLike> {
             TypedAddress.fromBuffer(bufferFromHex(data.token)),
             BigInt(data.amount),
             BigInt(data.safetyDeposit),
-            TimeLocks.fromBigInt(BigInt(data.timelocks))
+            TimeLocks.fromBigInt(BigInt(data.timelocks)),
+            data.parameters ?? EMPTY_PARAMETERS
         ) as unknown as Immutables<T>
     }
 
-    public toJSON(): ImmutablesData {
+    get feeParameters(): FeeParameters | null {
+        return FeeParameters.fromHex(this.parameters)
+    }
+
+    toJSON(): ImmutablesData {
         return this.build()
     }
 
-    public withComplement<D extends AddressLike>(
+    withComplement<D extends AddressLike>(
         dstComplement: DstImmutablesComplement<D>
     ): Immutables<D> {
-        return Immutables.new({...this, ...dstComplement})
+        return Immutables.new({
+            ...this,
+            ...dstComplement,
+            parameters: dstComplement.parameters
+        })
     }
 
-    public withDeployedAt(time: bigint): Immutables<A> {
+    withDeployedAt(time: bigint): Immutables<A> {
         return Immutables.new({
             ...this,
             timeLocks: TimeLocks.fromBigInt(
@@ -147,44 +146,45 @@ export class Immutables<A extends AddressLike = AddressLike> {
         })
     }
 
-    public withTaker(taker: A): Immutables<A> {
+    withTaker(taker: A): Immutables<A> {
         return Immutables.new({...this, taker})
     }
 
-    public withHashLock(hashLock: HashLock): Immutables<A> {
+    withHashLock(hashLock: HashLock): Immutables<A> {
         return Immutables.new({...this, hashLock})
     }
 
-    public withAmount(amount: bigint): Immutables<A> {
+    withAmount(amount: bigint): Immutables<A> {
         return Immutables.new({...this, amount})
     }
 
-    /**
-     * Return keccak256 hash of instance
-     */
-    public hash(): string {
+    withParameters(parameters: string): Immutables<A> {
+        return Immutables.new({...this, parameters})
+    }
+
+    withFeeParameters(fees: FeeParameters): Immutables<A> {
+        return this.withParameters(fees.toString())
+    }
+
+    hash(): string {
         return keccak256(this.toABIEncoded())
     }
 
-    public build(): ImmutablesData {
-        const token = this.token.nativeAsZero()
-
+    build(): ImmutablesData {
         return {
             orderHash: add0x(this.orderHash.toString('hex')),
             hashlock: this.hashLock.toString(),
             maker: this.maker.toHex(),
             taker: this.taker.toHex(),
-            token: token.toHex(),
+            token: this.token.nativeAsZero().toHex(),
             amount: this.amount.toString(),
             safetyDeposit: this.safetyDeposit.toString(),
-            timelocks: this.timeLocks.build().toString()
+            timelocks: this.timeLocks.build().toString(),
+            parameters: this.parameters
         }
     }
 
-    /**
-     * Encode instance as bytes
-     */
-    public toABIEncoded(): string {
+    toABIEncoded(): string {
         return AbiCoder.defaultAbiCoder().encode(
             [Immutables.Web3Type],
             [this.build()]

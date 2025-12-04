@@ -1,6 +1,5 @@
 import {Interaction} from '@1inch/fusion-sdk'
 import {EscrowFactory} from './escrow-factory.js'
-import {EscrowFactoryZksync} from './escrow-factory-zksync.js'
 import {EvmAddress as Address} from '../../domains/addresses/index.js'
 import {
     DstImmutablesComplement,
@@ -9,37 +8,22 @@ import {
 import {MerkleLeaf} from '../../domains/hash-lock/index.js'
 import {NetworkEnum} from '../../chains.js'
 
+/**
+ * Facade for EscrowFactory that provides a unified interface.
+ */
 export class EscrowFactoryFacade implements EscrowFactory {
-    private factory: EscrowFactory
+    private readonly factory: EscrowFactory
 
     constructor(chainId: NetworkEnum, factoryAddress: Address) {
-        this.factory = EscrowFactoryFacade.getFactory(chainId, factoryAddress)
+        this.factory = new EscrowFactory(factoryAddress)
     }
 
     get address(): Address {
         return this.factory.address
     }
 
-    public static getFactory(
-        chainId: NetworkEnum,
-        factoryAddress: Address
-    ): EscrowFactory {
-        switch (chainId) {
-            case NetworkEnum.ZKSYNC:
-                return new EscrowFactoryZksync(factoryAddress)
-            default:
-                return new EscrowFactory(factoryAddress)
-        }
-    }
-
-    public getEscrowAddress(
-        /**
-         * @see Immutables.hash
-         */
+    getEscrowAddress(
         immutablesHash: string,
-        /**
-         * Address of escrow implementation at the same chain as `this.address`
-         */
         implementationAddress: Address
     ): Address {
         return this.factory.getEscrowAddress(
@@ -48,14 +32,8 @@ export class EscrowFactoryFacade implements EscrowFactory {
         )
     }
 
-    public getSrcEscrowAddress(
-        /**
-         * From `SrcEscrowCreated` event (with correct timeLock.deployedAt)
-         */
+    getSrcEscrowAddress(
         srcImmutables: Immutables<Address>,
-        /**
-         * Address of escrow implementation at the same chain as `this.address`
-         */
         implementationAddress: Address
     ): Address {
         return this.factory.getSrcEscrowAddress(
@@ -64,26 +42,11 @@ export class EscrowFactoryFacade implements EscrowFactory {
         )
     }
 
-    public getDstEscrowAddress(
-        /**
-         * From `SrcEscrowCreated` event
-         */
+    getDstEscrowAddress(
         srcImmutables: Immutables<Address>,
-        /**
-         * From `SrcEscrowCreated` event
-         */
         complement: DstImmutablesComplement<Address>,
-        /**
-         * Block time when event `DstEscrowCreated` produced
-         */
         blockTime: bigint,
-        /**
-         * Taker from `DstEscrowCreated` event
-         */
         taker: Address,
-        /**
-         * Address of escrow implementation at the same chain as `this.address`
-         */
         implementationAddress: Address
     ): Address {
         return this.factory.getDstEscrowAddress(
@@ -95,7 +58,7 @@ export class EscrowFactoryFacade implements EscrowFactory {
         )
     }
 
-    public getMultipleFillInteraction(
+    getMultipleFillInteraction(
         proof: MerkleLeaf[],
         idx: number,
         secretHash: string

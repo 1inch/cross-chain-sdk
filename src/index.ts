@@ -4,9 +4,14 @@ export {
     Address,
     MakerTraits,
     Extension,
-    SettlementPostInteractionData,
+    Whitelist,
+    SurplusParams,
+    Fees,
+    IntegratorFee,
+    ResolverFee,
     Interaction,
     AuctionCalculator,
+    AmountCalculator,
     // Execution
     LimitOrderContract,
     TakerTraits,
@@ -29,6 +34,7 @@ export {
     NativeOrdersFactory,
     NativeOrdersImpl
 } from '@1inch/fusion-sdk'
+export {Bps} from '@1inch/limit-order-sdk'
 export {
     SupportedChains,
     SupportedChain,

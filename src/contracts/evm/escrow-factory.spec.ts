@@ -1,6 +1,5 @@
 import {keccak256} from 'ethers'
 import {EscrowFactoryFacade} from './escrow-factory-facade.js'
-import {EscrowFactoryZksync} from './escrow-factory-zksync.js'
 import {EvmAddress as Address} from '../../domains/addresses/index.js'
 import {HashLock} from '../../domains/hash-lock/index.js'
 import {TimeLocks} from '../../domains/time-locks/index.js'

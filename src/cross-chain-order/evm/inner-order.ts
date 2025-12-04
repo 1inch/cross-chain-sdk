@@ -1,4 +1,4 @@
-import {FusionOrder} from '@1inch/fusion-sdk'
+import {FusionOrder, SurplusParams} from '@1inch/fusion-sdk'
 import {LimitOrder, ProxyFactory} from '@1inch/limit-order-sdk'
 import {EscrowExtension} from './escrow-extension.js'
 import {EvmExtra, OrderInfoData} from './types.js'
@@ -25,7 +25,8 @@ export class InnerOrder extends FusionOrder {
                 receiver: orderInfo.receiver?.inner
             },
             extension.auctionDetails,
-            extension.postInteractionData,
+            extension.whitelist,
+            SurplusParams.NO_FEE,
             extra,
             extension
         )

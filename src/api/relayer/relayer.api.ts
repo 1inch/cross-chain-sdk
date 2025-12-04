@@ -3,7 +3,7 @@ import {RelayerRequestEvm, RelayerRequestSvm} from './relayer.request.js'
 import {RelayerApiConfig} from './types.js'
 
 export class RelayerApi {
-    private static Version = 'v1.1'
+    private static readonly Version = 'v1.2'
 
     constructor(
         private readonly config: RelayerApiConfig,
