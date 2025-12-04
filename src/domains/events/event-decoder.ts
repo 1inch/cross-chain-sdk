@@ -75,7 +75,9 @@ export class EventDecoder {
                 taker: EvmAddress.ZERO,
                 safetyDeposit: BigInt(dstComplementRaw.safetyDeposit),
                 chainId: BigInt(dstComplementRaw.chainId),
-                feeParameters: FeeParameters.fromHex(dstComplementRaw.parameters) ?? undefined
+                feeParameters:
+                    FeeParameters.fromHex(dstComplementRaw.parameters) ??
+                    undefined
             }
         )
 
