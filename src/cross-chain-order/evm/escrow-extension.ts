@@ -7,6 +7,7 @@ import {
     ZX
 } from '@1inch/fusion-sdk'
 import assert from 'assert'
+import {EscrowExtensionExtra} from './types.js'
 import {AddressComplement} from '../../domains/addresses/address-complement.js'
 import {AuctionDetails} from '../../domains/auction-details/index.js'
 import {HashLock} from '../../domains/hash-lock/index.js'
@@ -18,7 +19,6 @@ import {
     createAddress
 } from '../../domains/addresses/index.js'
 import {coder} from '../../utils/coder.js'
-import {EscrowExtensionExtra} from './types.js'
 
 /**
  * Extension for cross-chain escrow orders.
@@ -38,6 +38,7 @@ export class EscrowExtension extends FusionExtension {
 
     private static readonly CROSS_CHAIN_DATA_LENGTH = 320
 
+    // eslint-disable-next-line max-params
     constructor(
         address: EvmAddress,
         auctionDetails: AuctionDetails,
@@ -128,6 +129,31 @@ export class EscrowExtension extends FusionExtension {
         )
     }
 
+    private static decodeCrossChainData(bytes: string): {
+        hashLock: HashLock
+        dstChainId: number
+        dstToken: AddressLike
+        srcSafetyDeposit: bigint
+        dstSafetyDeposit: bigint
+        timeLocks: TimeLocks
+    } {
+        const [hashLock, dstChainId, dstToken, safetyDeposit, timeLocks] =
+            coder.decode(EscrowExtension.CROSS_CHAIN_DATA_TYPES, bytes)
+
+        const safetyDepositBN = new BN(safetyDeposit)
+
+        return {
+            hashLock: HashLock.fromString(hashLock),
+            dstChainId: Number(dstChainId),
+            dstToken: createAddress(dstToken.toString(), Number(dstChainId)),
+            dstSafetyDeposit: safetyDepositBN.getMask(new BitMask(0n, 128n))
+                .value,
+            srcSafetyDeposit: safetyDepositBN.getMask(new BitMask(128n, 256n))
+                .value,
+            timeLocks: TimeLocks.fromBigInt(timeLocks)
+        }
+    }
+
     /**
      * Build extension in cross-chain format (strips flags and surplus from Fusion output)
      */
@@ -163,29 +189,6 @@ export class EscrowExtension extends FusionExtension {
             postInteraction,
             customData: this.encodeCustomData()
         })
-    }
-
-    private static decodeCrossChainData(bytes: string): {
-        hashLock: HashLock
-        dstChainId: number
-        dstToken: AddressLike
-        srcSafetyDeposit: bigint
-        dstSafetyDeposit: bigint
-        timeLocks: TimeLocks
-    } {
-        const [hashLock, dstChainId, dstToken, safetyDeposit, timeLocks] =
-            coder.decode(EscrowExtension.CROSS_CHAIN_DATA_TYPES, bytes)
-
-        const safetyDepositBN = new BN(safetyDeposit)
-
-        return {
-            hashLock: HashLock.fromString(hashLock),
-            dstChainId: Number(dstChainId),
-            dstToken: createAddress(dstToken.toString(), Number(dstChainId)),
-            dstSafetyDeposit: safetyDepositBN.getMask(new BitMask(0n, 128n)).value,
-            srcSafetyDeposit: safetyDepositBN.getMask(new BitMask(128n, 256n)).value,
-            timeLocks: TimeLocks.fromBigInt(timeLocks)
-        }
     }
 
     private encodeCrossChainData(): string {

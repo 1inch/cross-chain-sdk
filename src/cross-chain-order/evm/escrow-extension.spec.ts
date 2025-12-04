@@ -14,7 +14,10 @@ describe('EscrowExtension', () => {
     )
 
     const whitelist = Whitelist.new(1717155959n, [
-        {address: new Address('0xdb05a6a504f04d92e79d0000000000000000dead'), allowFrom: 0n}
+        {
+            address: new Address('0xdb05a6a504f04d92e79d0000000000000000dead'),
+            allowFrom: 0n
+        }
     ])
 
     const auctionDetails = new AuctionDetails({
