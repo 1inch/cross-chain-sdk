@@ -13,9 +13,6 @@ import {FeeParameters} from '../fee-parameters/index.js'
 import {EvmAddress} from '../addresses/index.js'
 import {CROSS_CHAIN_ABI} from '../../abi/cross-chain-abi.js'
 
-/**
- * Decoder for cross-chain escrow events
- */
 export class EventDecoder {
     private readonly crossChainInterface: Interface
 
@@ -23,9 +20,6 @@ export class EventDecoder {
         this.crossChainInterface = new Interface(CROSS_CHAIN_ABI)
     }
 
-    /**
-     * Decode a log into a typed event
-     */
     decode(log: Log): DecodedEscrowEvent | null {
         const factoryEvent = this.tryDecodeFactoryEvent(log)
 

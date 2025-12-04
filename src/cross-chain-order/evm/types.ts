@@ -1,4 +1,4 @@
-import {Fees} from '@1inch/fusion-sdk'
+import {Fees, Interaction, Address} from '@1inch/fusion-sdk'
 import {AuctionDetails} from '../../domains/auction-details/index.js'
 import {AddressLike, EvmAddress} from '../../domains/addresses/index.js'
 import {HashLock} from '../../domains/hash-lock/index.js'
@@ -85,4 +85,10 @@ export type OrderInfoData = {
     maker: EvmAddress
     salt?: bigint
     receiver?: EvmAddress
+}
+
+export type EscrowExtensionExtra = {
+    makerPermit?: Interaction
+    customReceiver?: Address
+    fees?: Fees
 }
