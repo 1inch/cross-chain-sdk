@@ -27,6 +27,10 @@ export class DstImmutablesComplement<A extends AddressLike> {
         public readonly parameters: string
     ) {}
 
+    get feeParameters(): FeeParameters | null {
+        return FeeParameters.fromHex(this.parameters)
+    }
+
     static new<A extends AddressLike>(params: {
         maker: A
         amount: bigint
@@ -45,10 +49,6 @@ export class DstImmutablesComplement<A extends AddressLike> {
             params.chainId,
             params.feeParameters?.toString() ?? ZX
         )
-    }
-
-    get feeParameters(): FeeParameters | null {
-        return FeeParameters.fromHex(this.parameters)
     }
 
     toJSON(): DstImmutablesComplementData {

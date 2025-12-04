@@ -1,2 +1,2 @@
-export {FeeParameters, type FeeParametersJSON} from './fee-parameters.js'
+export {FeeParameters} from './fee-parameters.js'
 
