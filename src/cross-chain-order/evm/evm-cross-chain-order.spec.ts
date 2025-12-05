@@ -22,56 +22,125 @@ import {NetworkEnum, EvmChain, SupportedChain} from '../../chains.js'
 
 describe('EvmCrossChainOrder', () => {
     it('Should encode/decode raw order', () => {
-        const rawOrder = {
-            maker: '0x63dc317f3208b10c46f4ff97faa04dd632487408',
-            makerAsset: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-            takerAsset: '0x00000000000000000000000000000000000001f4',
-            makerTraits:
-                '62419173104490761595518734106350460423635492700242201632361211614299783430144',
-            salt: '1410071294180528718533536018330595554196821979936720230760247937083',
-            makingAmount: '41420000000000000',
-            takingAmount: '261067595245294398218',
-            receiver: '0x0000000000000000000000000000000000000000'
+        const factoryAddress = Address.fromBigInt(1n)
+        const orderData: EvmCrossChainOrderInfo = {
+            maker: Address.fromBigInt(2n),
+            makerAsset: EvmAddress.fromString(
+                '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
+            ),
+            takerAsset: EvmAddress.fromString(
+                '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
+            ),
+            makingAmount: 41420000000000000n,
+            takingAmount: 261067595245294398218n
         }
-        const extension =
-            '0x000001230000005e0000005e0000005e0000005e0000002f000000000000000000000000000000000000000000000000000000000000000000000066bba8f70000b4030d520237b400780186da003c00000000000000000000000000000000000000000000000000000066bba8f70000b4030d520237b400780186da003c000000000000000000000000000000000000000066bba8ded1a23c3abeed63c51b860000081b4b4e1773c2ae1d1651115a2d6d443d8c55256808395a8a83e986a917f73f720000000000000000000000000000000000000000000000000000000000000089000000000000000000000000eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee0000000000000000000090e4a41235800000000000000000004547258d4c86c000000000000001a40000012c000000b400000264000001ec0000015000000024'
 
-        const o = EvmCrossChainOrder.fromDataAndExtension(
+        const escrowParams: EvmEscrowParams = {
+            hashLock: HashLock.forSingleFill(getRandomBytes32()),
+            srcChainId: NetworkEnum.ETHEREUM,
+            dstChainId: NetworkEnum.ARBITRUM,
+            srcSafetyDeposit: 1000n,
+            dstSafetyDeposit: 1000n,
+            timeLocks: TimeLocks.new({
+                srcWithdrawal: 100n,
+                srcPublicWithdrawal: 200n,
+                srcCancellation: 300n,
+                srcPublicCancellation: 400n,
+                dstWithdrawal: 100n,
+                dstPublicWithdrawal: 200n,
+                dstCancellation: 300n
+            })
+        }
+
+        const order = EvmCrossChainOrder.new(
+            factoryAddress,
+            orderData,
+            escrowParams,
+            {
+                auction: new AuctionDetails({
+                    startTime: 1717155959n,
+                    duration: 180n,
+                    points: [],
+                    initialRateBump: 50000
+                }),
+                whitelist: [{address: Address.fromBigInt(100n), allowFrom: 0n}]
+            }
+        )
+
+        const rawOrder = order.build()
+        const extension = order.extension.encode()
+
+        const decoded = EvmCrossChainOrder.fromDataAndExtension(
             rawOrder,
             Extension.decode(extension)
         )
 
-        expect(o.build()).toStrictEqual(rawOrder)
+        expect(decoded.build()).toStrictEqual(rawOrder)
     })
 
     it('Should getMultipleFillIdx', () => {
-        const rawOrder = {
-            salt: '102412815605163333306499942368781310361338818117812724107394620400737590471129',
-            maker: '0x6edc317f3208b10c46f4ff97faa04dd632487408',
-            receiver: '0x0000000000000000000000000000000000000000',
-            makerAsset: '0xaf88d065e77c8cc2239327c5edb3a432268e5831',
-            takerAsset: '0xda0000d4000015a526378bb6fafc650cea5966f8',
-            makerTraits:
-                '33471150795161712739625987854073848363835857029316554794001693971572152336384',
-            makingAmount: '80000000',
-            takingAmount: '79314404'
+        const factoryAddress = Address.fromBigInt(1n)
+        const orderData: EvmCrossChainOrderInfo = {
+            maker: Address.fromBigInt(2n),
+            makerAsset: EvmAddress.fromString(
+                '0xaf88d065e77c8cc2239327c5edb3a432268e5831'
+            ),
+            takerAsset: EvmAddress.fromString(
+                '0xddafbb505ad214d7b80b1f830fccc89b60fb7a83'
+            ),
+            makingAmount: 80000000n,
+            takingAmount: 79314404n
         }
-        const extension =
-            '0x000001230000005e0000005e0000005e0000005e0000002f0000000000000000a7bcb4eac8964306f9e3764f67db6a7af6ddf99a000d3d0000000a66e4706f0000b400d19a00b1f30078000d3d003ca7bcb4eac8964306f9e3764f67db6a7af6ddf99a000d3d0000000a66e4706f0000b400d19a00b1f30078000d3d003ca7bcb4eac8964306f9e3764f67db6a7af6ddf99a66e4705e555d67e125f8769284ba00000800516df7f436cd4aa9c714cf8dafd978cba12632f5c696ca464804b2d7ea6ae00000000000000000000000000000000000000000000000000000000000000064000000000000000000000000ddafbb505ad214d7b80b1f830fccc89b60fb7a8300000000000000000000046398184200000000000000000000017f9c78c235900000000000000150000000d80000002400000228000001b0000001140000003c'
 
-        const o = EvmCrossChainOrder.fromDataAndExtension(
-            rawOrder,
-            Extension.decode(extension)
+        const secrets = Array.from({length: 82}, () => getRandomBytes32())
+        const leaves = HashLock.getMerkleLeaves(secrets)
+
+        const escrowParams: EvmEscrowParams = {
+            hashLock: HashLock.forMultipleFills(leaves),
+            srcChainId: NetworkEnum.ARBITRUM,
+            dstChainId: NetworkEnum.POLYGON,
+            srcSafetyDeposit: 1000n,
+            dstSafetyDeposit: 1000n,
+            timeLocks: TimeLocks.new({
+                srcWithdrawal: 60n,
+                srcPublicWithdrawal: 120n,
+                srcCancellation: 180n,
+                srcPublicCancellation: 240n,
+                dstWithdrawal: 60n,
+                dstPublicWithdrawal: 120n,
+                dstCancellation: 180n
+            })
+        }
+
+        const order = EvmCrossChainOrder.new(
+            factoryAddress,
+            orderData,
+            escrowParams,
+            {
+                auction: new AuctionDetails({
+                    startTime: 1726611567n,
+                    duration: 180n,
+                    points: [{coefficient: 20000, delay: 12}],
+                    initialRateBump: 50000
+                }),
+                whitelist: [{address: Address.fromBigInt(100n), allowFrom: 0n}]
+            },
+            {allowMultipleFills: true}
         )
 
-        const idx = o.getMultipleFillIdx(20004415n)
-        expect(idx).toStrictEqual(20)
+        const fillAmount = order.makingAmount / BigInt(secrets.length)
 
-        const idx2 = o.getMultipleFillIdx(20004415n, o.makingAmount - 20004415n)
-        expect(idx2).toStrictEqual(40)
-
-        const idx3 = o.getMultipleFillIdx(o.makingAmount)
-        expect(idx3).toStrictEqual(81)
+        expect(order.getMultipleFillIdx(fillAmount)).toStrictEqual(0)
+        expect(
+            order.getMultipleFillIdx(
+                fillAmount,
+                order.makingAmount - fillAmount
+            )
+        ).toStrictEqual(1)
+        expect(order.getMultipleFillIdx(fillAmount, fillAmount)).toStrictEqual(
+            81
+        )
+        expect(order.getMultipleFillIdx(order.makingAmount)).toStrictEqual(81)
     })
 
     it('Should encode/decode order', () => {

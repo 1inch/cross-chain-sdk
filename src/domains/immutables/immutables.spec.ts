@@ -35,7 +35,7 @@ describe('Immutables', function () {
     })
     it('Should calc correct hash of immutables', function () {
         expect(immutables.hash()).toEqual(
-            '0x447dfe500c4f14a12f9f7d7029c2f0db155248ea905cfea12296ea6f05e6fe58'
+            '0x473f1e999165c5ee826a6394e478324a9516196c7d7277b8a28fe39b2094aad8'
         )
     })
 

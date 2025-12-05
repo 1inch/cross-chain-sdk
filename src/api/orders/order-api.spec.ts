@@ -139,7 +139,7 @@ describe(__filename, () => {
 
             expect(response).toEqual(expected)
             expect(httpProvider.get).toHaveBeenLastCalledWith(
-                `${url}/v1.1/order/active/?page=1&limit=2`
+                `${url}/v1.2/order/active/?page=1&limit=2`
             )
         })
 
@@ -226,7 +226,7 @@ describe(__filename, () => {
 
             expect(response).toEqual(expected)
             expect(httpProvider.get).toHaveBeenLastCalledWith(
-                `${url}/v1.1/order/active/?`
+                `${url}/v1.2/order/active/?`
             )
         })
 
@@ -352,7 +352,7 @@ describe(__filename, () => {
 
             expect(response).toEqual(expected)
             expect(httpProvider.get).toHaveBeenLastCalledWith(
-                `${url}/v1.1/order/active/?page=1&limit=2`
+                `${url}/v1.2/order/active/?page=1&limit=2`
             )
         })
     })
@@ -447,7 +447,7 @@ describe(__filename, () => {
 
             expect(response).toEqual(expected)
             expect(httpProvider.get).toHaveBeenLastCalledWith(
-                `${url}/v1.1/order/status/${orderHash}`
+                `${url}/v1.2/order/status/${orderHash}`
             )
         })
         it('solana', async () => {
@@ -565,7 +565,7 @@ describe(__filename, () => {
 
             expect(response).toEqual(expected)
             expect(httpProvider.get).toHaveBeenLastCalledWith(
-                `${url}/v1.1/order/status/${orderHash}`
+                `${url}/v1.2/order/status/${orderHash}`
             )
         })
     })
@@ -693,7 +693,7 @@ describe(__filename, () => {
 
             expect(response).toEqual(expected)
             expect(httpProvider.get).toHaveBeenLastCalledWith(
-                `${url}/v1.1/order/maker/${address}/?limit=1&page=1`
+                `${url}/v1.2/order/maker/${address}/?limit=1&page=1`
             )
         })
 
@@ -818,7 +818,7 @@ describe(__filename, () => {
 
             expect(response).toEqual(expected)
             expect(httpProvider.get).toHaveBeenLastCalledWith(
-                `${url}/v1.1/order/maker/${address}/?`
+                `${url}/v1.2/order/maker/${address}/?`
             )
         })
     })
@@ -850,7 +850,7 @@ describe(__filename, () => {
 
             expect(response).toEqual(expected)
             expect(httpProvider.get).toHaveBeenLastCalledWith(
-                `${url}/v1.1/order/ready-to-accept-secret-fills/${orderHash}`
+                `${url}/v1.2/order/ready-to-accept-secret-fills/${orderHash}`
             )
         })
     })
@@ -877,7 +877,7 @@ describe(__filename, () => {
 
             expect(response).toEqual(expected)
             expect(httpProvider.get).toHaveBeenLastCalledWith(
-                `${url}/v1.1/order/secrets/${orderHash}`
+                `${url}/v1.2/order/secrets/${orderHash}`
             )
         })
     })
@@ -925,7 +925,7 @@ describe(__filename, () => {
 
             expect(response).toEqual(expected)
             expect(httpProvider.get).toHaveBeenLastCalledWith(
-                `${url}/v1.1/order/cancelable-by-resolvers?page=1&limit=10&chainType=Solana`
+                `${url}/v1.2/order/cancelable-by-resolvers?page=1&limit=10&chainType=Solana`
             )
         })
 
@@ -973,7 +973,7 @@ describe(__filename, () => {
 
             expect(response).toEqual(expected)
             expect(httpProvider.get).toHaveBeenLastCalledWith(
-                `${url}/v1.1/order/cancelable-by-resolvers?page=1&limit=10&chainType=EVM`
+                `${url}/v1.2/order/cancelable-by-resolvers?page=1&limit=10&chainType=EVM`
             )
         })
     })

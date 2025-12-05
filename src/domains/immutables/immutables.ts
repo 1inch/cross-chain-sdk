@@ -46,6 +46,10 @@ export class Immutables<A extends AddressLike = AddressLike> {
         this.token = this.token.zeroAsNative() as A
     }
 
+    get feeParameters(): FeeParameters | null {
+        return FeeParameters.fromHex(this.parameters)
+    }
+
     static new<A extends AddressLike>(params: {
         orderHash: Buffer
         hashLock: HashLock
@@ -117,10 +121,6 @@ export class Immutables<A extends AddressLike = AddressLike> {
             TimeLocks.fromBigInt(BigInt(data.timelocks)),
             data.parameters ?? EMPTY_PARAMETERS
         ) as unknown as Immutables<T>
-    }
-
-    get feeParameters(): FeeParameters | null {
-        return FeeParameters.fromHex(this.parameters)
     }
 
     toJSON(): ImmutablesData {

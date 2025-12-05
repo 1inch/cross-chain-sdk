@@ -27,6 +27,18 @@ export type QuoterApiConfig = {
     authKey?: string
 }
 
+export type ProtocolFeeParams = {
+    receiver: string
+    bps: number
+    whitelistDiscountPercent: number
+}
+
+export type IntegratorFeeParams = {
+    receiver: string
+    bps: number
+    sharePercent: number
+}
+
 export type QuoterResponse = {
     quoteId: string | null
     srcTokenAmount: string
@@ -44,6 +56,8 @@ export type QuoterResponse = {
     autoK: number
     nativeOrderFactoryAddress?: string
     nativeOrderImplAddress?: string
+    protocolFee?: ProtocolFeeParams
+    integratorFee?: IntegratorFeeParams
 }
 
 export type TimeLocksRaw = {

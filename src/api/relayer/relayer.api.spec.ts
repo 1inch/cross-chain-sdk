@@ -44,7 +44,7 @@ describe('Relayer API', () => {
         await relayer.submit(params)
 
         expect(httpProvider.post).toHaveBeenCalledWith(
-            'https://test.com/relayer/v1.1/submit',
+            'https://test.com/relayer/v1.2/submit',
             orderData
         )
     })
@@ -107,7 +107,7 @@ describe('Relayer API', () => {
         await relayer.submit(params)
 
         expect(httpProvider.post).toHaveBeenCalledWith(
-            'https://test.com/relayer/v1.1/submit',
+            'https://test.com/relayer/v1.2/submit',
             params.build()
         )
     })
@@ -179,7 +179,7 @@ describe('Relayer API', () => {
         await relayer.submitBatch(batch)
 
         expect(httpProvider.post).toHaveBeenCalledWith(
-            'https://test.com/relayer/v1.1/submit/many',
+            'https://test.com/relayer/v1.2/submit/many',
             batch.map((b) => b.build())
         )
     })
@@ -240,7 +240,7 @@ describe('Relayer API', () => {
         await relayer.submitBatch(params)
 
         expect(httpProvider.post).toHaveBeenCalledWith(
-            'https://test.com/relayer/v1.1/submit/many',
+            'https://test.com/relayer/v1.2/submit/many',
             params
         )
     })
@@ -259,7 +259,7 @@ describe('Relayer API', () => {
         await relayer.submitSecret(orderHash, secret)
 
         expect(httpProvider.post).toHaveBeenCalledWith(
-            'https://test.com/relayer/v1.1/submit/secret',
+            'https://test.com/relayer/v1.2/submit/secret',
             {
                 orderHash,
                 secret

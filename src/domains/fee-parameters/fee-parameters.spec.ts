@@ -35,4 +35,3 @@ describe('FeeParameters', () => {
         expect(FeeParameters.EMPTY.toString()).toBe('0x')
     })
 })
-

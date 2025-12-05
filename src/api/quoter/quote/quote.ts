@@ -1,6 +1,6 @@
 import {UINT_40_MAX} from '@1inch/byte-utils'
-import {randBigInt} from '@1inch/fusion-sdk'
-import {ProxyFactory, Address} from '@1inch/limit-order-sdk'
+import {randBigInt, Fees, ResolverFee, IntegratorFee} from '@1inch/fusion-sdk'
+import {ProxyFactory, Address, Bps} from '@1inch/limit-order-sdk'
 import assert from 'assert'
 import {
     EvmCrossChainOrderParamsData,
@@ -16,7 +16,14 @@ import {
 } from '../../../cross-chain-order/index.js'
 import {EvmAddress, SolanaAddress} from '../../../domains/addresses/index.js'
 import {TimeLocks} from '../../../domains/time-locks/index.js'
-import {Cost, PresetEnum, QuoterResponse, TimeLocksRaw} from '../types.js'
+import {
+    Cost,
+    PresetEnum,
+    QuoterResponse,
+    TimeLocksRaw,
+    ProtocolFeeParams,
+    IntegratorFeeParams
+} from '../types.js'
 import {Preset} from '../preset.js'
 import {QuoterRequest} from '../quoter.request.js'
 import {EvmCrossChainOrder} from '../../../cross-chain-order/evm/index.js'
@@ -55,7 +62,9 @@ export class Quote<
         public readonly prices: Cost,
         public readonly volume: Cost,
         public readonly slippage: number,
-        public readonly nativeOrderFactory?: ProxyFactory
+        public readonly nativeOrderFactory?: ProxyFactory,
+        public readonly protocolFee?: ProtocolFeeParams,
+        public readonly integratorFee?: IntegratorFeeParams
     ) {}
 
     get srcChainId(): SrcChain {
@@ -105,7 +114,9 @@ export class Quote<
                       new Address(response.nativeOrderFactoryAddress),
                       new Address(response.nativeOrderImplAddress)
                   )
-                : undefined
+                : undefined,
+            response.protocolFee,
+            response.integratorFee
         )
     }
 
@@ -141,7 +152,10 @@ export class Quote<
             response.recommendedPreset,
             response.prices,
             response.volume,
-            response.autoK
+            response.autoK,
+            undefined, // nativeOrderFactory
+            response.protocolFee,
+            response.integratorFee
         )
     }
 
@@ -194,12 +208,13 @@ export class Quote<
             })
         }
 
-        const details = {
+        const details: EvmDetails = {
             auction: auctionDetails,
             whitelist: this.getWhitelist(
                 auctionDetails.startTime,
                 preset.exclusiveResolver
-            )
+            ),
+            fees: this.buildFees()
         }
 
         const extra = {
@@ -346,5 +361,38 @@ export class Quote<
             address: resolver,
             allowFrom: 0n
         }))
+    }
+
+    private buildFees(): Fees | undefined {
+        if (!this.protocolFee && !this.integratorFee) {
+            return undefined
+        }
+
+        const protocolReceiver = this.protocolFee
+            ? new Address(this.protocolFee.receiver)
+            : Address.ZERO_ADDRESS
+
+        const resolverFee = this.protocolFee
+            ? new ResolverFee(
+                  protocolReceiver,
+                  new Bps(BigInt(this.protocolFee.bps)),
+                  Bps.fromPercent(this.protocolFee.whitelistDiscountPercent)
+              )
+            : ResolverFee.ZERO
+
+        const integratorFee = this.integratorFee
+            ? new IntegratorFee(
+                  new Address(this.integratorFee.receiver),
+                  protocolReceiver,
+                  new Bps(BigInt(this.integratorFee.bps)),
+                  Bps.fromPercent(this.integratorFee.sharePercent)
+              )
+            : IntegratorFee.ZERO
+
+        if (resolverFee.fee.isZero() && integratorFee.fee.isZero()) {
+            return undefined
+        }
+
+        return new Fees(resolverFee, integratorFee)
     }
 }
