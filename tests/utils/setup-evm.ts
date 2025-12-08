@@ -43,7 +43,7 @@ export type ReadyEvmFork = {
 // taker have USDC on resolver contract
 export async function setupEvm(config: EvmNodeConfig): Promise<ReadyEvmFork> {
     const forkUrl =
-        config.forkUrl ?? (process.env.FORK_URL || 'https://eth.llamarpc.com')
+        config.forkUrl ?? (process.env.FORK_URL || 'https://web3.1inch.io/1')
 
     const {localNode, provider} = await startNode(config.chainId, forkUrl)
 

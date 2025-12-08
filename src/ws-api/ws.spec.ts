@@ -1116,7 +1116,8 @@ describe(__filename, () => {
                         token: '0x6b175474e89094c44da98b954eedeac495271d0f',
                         amount: '30000000000000000000',
                         safetyDeposit: '20000000000000000000',
-                        timelocks: '0x11111111'
+                        timelocks: '0x11111111',
+                        parameters: '0x'
                     },
                     dstImmutables: {
                         orderHash:
@@ -1128,7 +1129,8 @@ describe(__filename, () => {
                         token: '0x6b175474e89094c44da98b954eedeac495271d0e',
                         amount: '30000000000000000001',
                         safetyDeposit: '20000000000000000001',
-                        timelocks: '0x111111112'
+                        timelocks: '0x111111112',
+                        parameters: '0x'
                     }
                 }
             }
