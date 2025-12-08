@@ -107,8 +107,8 @@ describe('EVM to EVM', () => {
             {
                 whitelist: [{address: resolver, allowFrom: 0n}],
                 auction: AuctionDetails.noAuction(),
-                resolvingStartTime: 0n,
-                fees
+                resolvingStartTime: 0n
+                // fees
             },
             {
                 allowMultipleFills: false,
@@ -126,17 +126,21 @@ describe('EVM to EVM', () => {
             order.makingAmount
         )
 
-        const srcEscrow = await srcChain.taker.send({
-            to: resolver.toString(),
-            data: getEvmFillData(
-                resolverContract,
-                order,
-                signature,
-                srcImmutables,
-                srcChain
-            ),
-            value: order.srcSafetyDeposit
-        })
+        const srcEscrow = await srcChain.taker.send(
+            {
+                to: resolver.toString(),
+                data: getEvmFillData(
+                    resolverContract,
+                    order,
+                    signature,
+                    srcImmutables,
+                    srcChain
+                ),
+                value: order.srcSafetyDeposit
+            },
+            'srcEscrow',
+            srcChain.localNode
+        )
 
         srcImmutables = srcImmutables.withDeployedAt(srcEscrow.blockTimestamp)
 
@@ -169,15 +173,19 @@ describe('EVM to EVM', () => {
             })
         )
 
-        const dstEscrow = await dstChain.taker.send({
-            to: resolver.toString(),
-            data: resolverContract.encodeFunctionData('deployDst', [
-                dstImmutables.build(),
-                order.timeLocks.toSrcTimeLocks(srcEscrow.blockTimestamp)
-                    .privateCancellation
-            ]),
-            value: order.dstSafetyDeposit
-        })
+        const dstEscrow = await dstChain.taker.send(
+            {
+                to: resolver.toString(),
+                data: resolverContract.encodeFunctionData('deployDst', [
+                    dstImmutables.build(),
+                    order.timeLocks.toSrcTimeLocks(srcEscrow.blockTimestamp)
+                        .privateCancellation
+                ]),
+                value: order.dstSafetyDeposit
+            },
+            'dstEscrow',
+            dstChain.localNode
+        )
 
         dstImmutables = dstImmutables.withDeployedAt(dstEscrow.blockTimestamp)
 
@@ -198,23 +206,31 @@ describe('EVM to EVM', () => {
 
         // user makes validation and shares secret
 
-        const srcWithdraw = await srcChain.taker.send({
-            to: resolver.toString(),
-            data: resolverContract.encodeFunctionData('withdraw', [
-                srcEscrowAddress.toString(),
-                secret,
-                srcImmutables.build()
-            ])
-        })
+        const srcWithdraw = await srcChain.taker.send(
+            {
+                to: resolver.toString(),
+                data: resolverContract.encodeFunctionData('withdraw', [
+                    srcEscrowAddress.toString(),
+                    secret,
+                    srcImmutables.build()
+                ])
+            },
+            'srcWithdraw',
+            srcChain.localNode
+        )
 
-        const dstWithdraw = await dstChain.taker.send({
-            to: resolver.toString(),
-            data: resolverContract.encodeFunctionData('withdraw', [
-                dstEscrowAddress.toString(),
-                secret,
-                dstImmutables.build()
-            ])
-        })
+        const dstWithdraw = await dstChain.taker.send(
+            {
+                to: resolver.toString(),
+                data: resolverContract.encodeFunctionData('withdraw', [
+                    dstEscrowAddress.toString(),
+                    secret,
+                    dstImmutables.build()
+                ])
+            },
+            'dstWithdraw',
+            dstChain.localNode
+        )
 
         // eslint-disable-next-line no-console
         console.log({srcWithdraw, dstWithdraw})

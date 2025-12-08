@@ -12,6 +12,7 @@ import {
 import {randBigInt} from '@1inch/fusion-sdk'
 import EscrowFactory from '../../dist/contracts/EscrowFactory.sol/EscrowFactory.json'
 import Resolver from '../../dist/contracts/Resolver.sol/Resolver.json'
+import ImmutablesLib from '../../dist/contracts/ImmutablesLib.sol/ImmutablesLib.json'
 import {EvmChain} from '../../src/chains.js'
 
 import {EvmTestWallet} from '../utils/evm-wallet.js'
@@ -136,6 +137,11 @@ async function deployContracts(
         provider
     )
 
+    await provider.send('anvil_setCode', [
+        '0xffee087852cb4898e6c3532e776e68bc68b1143b',
+        ImmutablesLib.deployedBytecode.object
+    ])
+
     const escrowFactory = await deploy(
         EscrowFactory,
         [
@@ -158,6 +164,36 @@ async function deployContracts(
         escrowFactory,
         resolver
     }
+}
+
+async function trace(
+    localNode: StartedTestContainer,
+    txHash: string
+): Promise<string> {
+    const {output} = await localNode.exec(`cast run ${txHash}`)
+
+    const mappings = [
+        [USDC_EVM, 'USDC'],
+        [WETH_EVM, 'WETH']
+    ]
+
+    const formatted = mappings.reduce(
+        (acc, [address, label]) =>
+            acc.replaceAll(new RegExp(address, 'gi'), label),
+        output
+    )
+
+    return formatted
+}
+
+export async function printTrace(
+    localNode: StartedTestContainer,
+    txHash: string
+): Promise<void> {
+    const traceText = await trace(localNode, txHash)
+
+    // eslint-disable-next-line no-console
+    console.log(traceText)
 }
 
 async function setupBalances(

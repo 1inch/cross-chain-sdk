@@ -1,0 +1,11 @@
+{
+  "contracts/lib/cross-chain-swap": {
+    "tag": {
+      "name": "1.0.0",
+      "rev": "ac885535b572e85526bae10485ca64b449005ee2"
+    }
+  },
+  "contracts/lib/solana-crosschain-protocol": {
+    "rev": "b2124f6df8a0694dd85d904a02db3d8880de173f"
+  }
+}

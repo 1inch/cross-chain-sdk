@@ -7,6 +7,8 @@ import {
     Wallet as PKWallet
 } from 'ethers'
 import {Address, EIP712TypedData} from '@1inch/limit-order-sdk'
+import {StartedTestContainer} from 'testcontainers'
+import {printTrace} from './setup-evm.js'
 import ERC20 from '../../dist/contracts/IERC20.sol/IERC20.json'
 
 const coder = AbiCoder.defaultAbiCoder()
@@ -153,7 +155,9 @@ export class EvmTestWallet {
     }
 
     async send(
-        param: TransactionRequest
+        param: TransactionRequest,
+        name?: string,
+        localNode?: StartedTestContainer
     ): Promise<{txHash: string; blockTimestamp: bigint; blockHash: string}> {
         const from = await this.signer.getAddress()
         const tx: TransactionRequest = {
@@ -165,7 +169,10 @@ export class EvmTestWallet {
         }
 
         const res = await this.signer.sendTransaction(tx)
-        const receipt = await res.wait(1)
+
+        const receipt = await res
+            .wait(1)
+            .catch((_) => this.provider.getTransactionReceipt(res.hash))
 
         if (receipt && receipt.status) {
             return {
@@ -175,6 +182,13 @@ export class EvmTestWallet {
             }
         }
 
-        throw new Error((await receipt?.getResult()) || 'unknown error')
+
+        if (localNode && receipt) {
+            await printTrace(localNode, receipt.hash)
+        }
+
+        throw new Error(
+            `tx ${name} failed: ` + (JSON.stringify(receipt) || 'unknown error')
+        )
     }
 }
