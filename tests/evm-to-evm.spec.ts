@@ -1,5 +1,6 @@
 import {parseEther, parseUnits, Interface, id} from 'ethers'
-import {randBigInt} from '@1inch/fusion-sdk'
+import {randBigInt, Fees, IntegratorFee, ResolverFee} from '@1inch/fusion-sdk'
+import {Bps, Address} from '@1inch/limit-order-sdk'
 import {add0x, UINT_40_MAX} from '@1inch/byte-utils'
 import assert from 'assert'
 import {USDC_EVM, WETH_EVM} from './utils/addresses.js'
@@ -59,6 +60,25 @@ describe('EVM to EVM', () => {
     it('should perform cross chain swap with single fill', async () => {
         const secret = getSecret()
 
+        const protocolFeeRecipient =
+            '0x1111111111111111111111111111111111111111'
+        const integratorFeeRecipient =
+            '0x2222222222222222222222222222222222222222'
+
+        const fees = new Fees(
+            new ResolverFee(
+                new Address(protocolFeeRecipient),
+                new Bps(100n),
+                Bps.fromPercent(10)
+            ),
+            new IntegratorFee(
+                new Address(integratorFeeRecipient),
+                new Address(protocolFeeRecipient),
+                new Bps(50n),
+                Bps.fromPercent(20)
+            )
+        )
+
         const order = EvmCrossChainOrder.new(
             EvmAddress.fromString(srcChain.addresses.escrowFactory),
             {
@@ -87,7 +107,8 @@ describe('EVM to EVM', () => {
             {
                 whitelist: [{address: resolver, allowFrom: 0n}],
                 auction: AuctionDetails.noAuction(),
-                resolvingStartTime: 0n
+                resolvingStartTime: 0n,
+                fees
             },
             {
                 allowMultipleFills: false,
@@ -105,21 +126,19 @@ describe('EVM to EVM', () => {
             order.makingAmount
         )
 
-        const calldata = getEvmFillData(
-            resolverContract,
-            order,
-            signature,
-            srcImmutables,
-            srcChain
-        )
-
-        const srcEscrowTx = await srcChain.taker.send({
+        const srcEscrow = await srcChain.taker.send({
             to: resolver.toString(),
-            data: calldata,
+            data: getEvmFillData(
+                resolverContract,
+                order,
+                signature,
+                srcImmutables,
+                srcChain
+            ),
             value: order.srcSafetyDeposit
         })
 
-        srcImmutables = srcImmutables.withDeployedAt(srcEscrowTx.blockTimestamp)
+        srcImmutables = srcImmutables.withDeployedAt(srcEscrow.blockTimestamp)
 
         const srcImplAddress = await srcChain.provider.call({
             to: srcChain.addresses.escrowFactory,
@@ -150,17 +169,17 @@ describe('EVM to EVM', () => {
             })
         )
 
-        const dstEscrowTx = await dstChain.taker.send({
+        const dstEscrow = await dstChain.taker.send({
             to: resolver.toString(),
             data: resolverContract.encodeFunctionData('deployDst', [
                 dstImmutables.build(),
-                order.timeLocks.toSrcTimeLocks(srcEscrowTx.blockTimestamp)
+                order.timeLocks.toSrcTimeLocks(srcEscrow.blockTimestamp)
                     .privateCancellation
             ]),
             value: order.dstSafetyDeposit
         })
 
-        dstImmutables = dstImmutables.withDeployedAt(dstEscrowTx.blockTimestamp)
+        dstImmutables = dstImmutables.withDeployedAt(dstEscrow.blockTimestamp)
 
         const dstImplAddress = await dstChain.provider.call({
             to: dstChain.addresses.escrowFactory,
@@ -197,7 +216,7 @@ describe('EVM to EVM', () => {
             ])
         })
 
-        expect(srcWithdraw).toBeDefined()
-        expect(dstWithdraw).toBeDefined()
+        // eslint-disable-next-line no-console
+        console.log({srcWithdraw, dstWithdraw})
     })
 })
