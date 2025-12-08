@@ -4,23 +4,23 @@ import {id, Interface, parseUnits} from 'ethers'
 import {Clock} from 'litesvm'
 import {add0x} from '@1inch/byte-utils'
 import assert from 'assert'
-import {ReadyEvmFork, setupEvm} from './utils/setup-evm'
-import {getSecret} from './utils/secret'
-import {ReadySolanaNode, setupSolana} from './utils/setup-solana'
-import {USDC_EVM} from './utils/addresses'
-import {newSolanaTx} from './utils/tx'
+import {ReadyEvmFork, setupEvm} from './utils/setup-evm.js'
+import {getSecret} from './utils/secret.js'
+import {ReadySolanaNode, setupSolana} from './utils/setup-solana.js'
+import {USDC_EVM} from './utils/addresses.js'
+import {newSolanaTx} from './utils/tx.js'
 import Resolver from '../dist/contracts/Resolver.sol/Resolver.json'
-import {NetworkEnum} from '../src/chains'
+import {NetworkEnum} from '../src/chains.js'
 
-import {SvmCrossChainOrder} from '../src/cross-chain-order/svm/svm-cross-chain-order'
-import {AuctionDetails} from '../src/domains/auction-details'
-import {HashLock} from '../src/domains/hash-lock'
-import {TimeLocks} from '../src/domains/time-locks'
-import {EvmAddress, SolanaAddress} from '../src/domains/addresses'
-import {SvmSrcEscrowFactory} from '../src/contracts/svm/svm-src-escrow-factory'
-import {DstImmutablesComplement} from '../src/domains/immutables'
-import {EscrowFactoryFacade} from '../src/contracts/evm/escrow-factory-facade'
-import {now} from '../src/utils'
+import {SvmCrossChainOrder} from '../src/cross-chain-order/svm/svm-cross-chain-order.js'
+import {AuctionDetails} from '../src/domains/auction-details/index.js'
+import {HashLock} from '../src/domains/hash-lock/index.js'
+import {TimeLocks} from '../src/domains/time-locks/index.js'
+import {EvmAddress, SolanaAddress} from '../src/domains/addresses/index.js'
+import {SvmSrcEscrowFactory} from '../src/contracts/svm/svm-src-escrow-factory.js'
+import {DstImmutablesComplement} from '../src/domains/immutables/index.js'
+import {EscrowFactory} from '../src/contracts/evm/escrow-factory.js'
+import {now} from '../src/utils/index.js'
 
 jest.setTimeout(1000 * 10 * 60)
 jest.useFakeTimers({
@@ -171,7 +171,8 @@ describe('Solana to EVM', () => {
                 safetyDeposit: order.dstSafetyDeposit,
                 maker: order.receiver,
                 token: order.takerAsset,
-                taker: resolverEvm
+                taker: resolverEvm,
+                chainId: BigInt(dstChain.chainId)
             })
         )
 
@@ -194,8 +195,7 @@ describe('Solana to EVM', () => {
             data: id('ESCROW_DST_IMPLEMENTATION()').slice(0, 10)
         })
 
-        const dstEscrowAddress = EscrowFactoryFacade.getFactory(
-            dstChain.chainId,
+        const dstEscrowAddress = new EscrowFactory(
             EvmAddress.fromString(dstChain.addresses.escrowFactory)
         ).getSrcEscrowAddress(
             dstImmutables,
@@ -332,7 +332,8 @@ describe('Solana to EVM', () => {
                 safetyDeposit: order.dstSafetyDeposit,
                 maker: order.receiver,
                 token: order.takerAsset,
-                taker: resolverEvm
+                taker: resolverEvm,
+                chainId: BigInt(dstChain.chainId)
             })
         )
 
@@ -355,8 +356,7 @@ describe('Solana to EVM', () => {
             data: id('ESCROW_DST_IMPLEMENTATION()').slice(0, 10)
         })
 
-        const dstEscrowAddress = EscrowFactoryFacade.getFactory(
-            dstChain.chainId,
+        const dstEscrowAddress = new EscrowFactory(
             EvmAddress.fromString(dstChain.addresses.escrowFactory)
         ).getSrcEscrowAddress(
             dstImmutables,
@@ -763,8 +763,7 @@ describe('Solana to EVM', () => {
                 data: id('ESCROW_DST_IMPLEMENTATION()').slice(0, 10)
             })
 
-            const dstEscrowAddress = EscrowFactoryFacade.getFactory(
-                dstChain.chainId,
+            const dstEscrowAddress = new EscrowFactory(
                 EvmAddress.fromString(dstChain.addresses.escrowFactory)
             ).getSrcEscrowAddress(
                 dstImmutables,

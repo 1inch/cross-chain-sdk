@@ -155,11 +155,16 @@ export class EvmTestWallet {
     async send(
         param: TransactionRequest
     ): Promise<{txHash: string; blockTimestamp: bigint; blockHash: string}> {
-        const res = await this.signer.sendTransaction({
-            ...param,
-            gasLimit: 10_000_000,
-            from: this.getAddress()
-        })
+        const from = await this.signer.getAddress()
+        const tx: TransactionRequest = {
+            from,
+            to: param.to,
+            value: param.value,
+            data: param.data,
+            gasLimit: 10_000_000
+        }
+
+        const res = await this.signer.sendTransaction(tx)
         const receipt = await res.wait(1)
 
         if (receipt && receipt.status) {

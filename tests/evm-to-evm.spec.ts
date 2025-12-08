@@ -2,19 +2,19 @@ import {parseEther, parseUnits, Interface, id} from 'ethers'
 import {randBigInt} from '@1inch/fusion-sdk'
 import {add0x, UINT_40_MAX} from '@1inch/byte-utils'
 import assert from 'assert'
-import {USDC_EVM, WETH_EVM} from './utils/addresses'
-import {ReadyEvmFork, setupEvm} from './utils/setup-evm'
-import {getSecret} from './utils/secret'
-import {getEvmFillData} from './utils/tx'
+import {USDC_EVM, WETH_EVM} from './utils/addresses.js'
+import {ReadyEvmFork, setupEvm} from './utils/setup-evm.js'
+import {getSecret} from './utils/secret.js'
+import {getEvmFillData} from './utils/tx.js'
 import Resolver from '../dist/contracts/Resolver.sol/Resolver.json'
-import {NetworkEnum} from '../src/chains'
-import {EvmCrossChainOrder} from '../src/cross-chain-order/evm'
-import {EvmAddress} from '../src/domains/addresses'
-import {TimeLocks} from '../src/domains/time-locks'
-import {AuctionDetails} from '../src/domains/auction-details'
-import {HashLock} from '../src/domains/hash-lock'
-import {EscrowFactoryFacade} from '../src/contracts/evm/escrow-factory-facade'
-import {DstImmutablesComplement} from '../src/domains/immutables'
+import {NetworkEnum} from '../src/chains.js'
+import {EvmCrossChainOrder} from '../src/cross-chain-order/evm/index.js'
+import {EvmAddress} from '../src/domains/addresses/index.js'
+import {TimeLocks} from '../src/domains/time-locks/index.js'
+import {AuctionDetails} from '../src/domains/auction-details/index.js'
+import {HashLock} from '../src/domains/hash-lock/index.js'
+import {EscrowFactory} from '../src/contracts/evm/escrow-factory.js'
+import {DstImmutablesComplement} from '../src/domains/immutables/index.js'
 
 jest.setTimeout(1000 * 10 * 60)
 
@@ -48,6 +48,7 @@ describe('EVM to EVM', () => {
         maker = EvmAddress.fromString(await srcChain.maker.getAddress())
         resolver = EvmAddress.fromString(srcChain.addresses.resolver)
     })
+
     afterAll(async () => {
         srcChain.provider.destroy()
         dstChain.provider.destroy()
@@ -60,11 +61,10 @@ describe('EVM to EVM', () => {
 
         const order = EvmCrossChainOrder.new(
             EvmAddress.fromString(srcChain.addresses.escrowFactory),
-            // 1 WETH -> 1000 USDC
             {
                 maker,
                 makerAsset: EvmAddress.fromString(WETH_EVM),
-                takerAsset: EvmAddress.fromString(USDC_EVM), // address on dst chain
+                takerAsset: EvmAddress.fromString(USDC_EVM),
                 makingAmount: parseEther('1'),
                 takingAmount: parseUnits('1000', 6)
             },
@@ -85,12 +85,7 @@ describe('EVM to EVM', () => {
                 hashLock: HashLock.forSingleFill(secret)
             },
             {
-                whitelist: [
-                    {
-                        address: resolver,
-                        allowFrom: 0n
-                    }
-                ],
+                whitelist: [{address: resolver, allowFrom: 0n}],
                 auction: AuctionDetails.noAuction(),
                 resolvingStartTime: 0n
             },
@@ -109,31 +104,33 @@ describe('EVM to EVM', () => {
             resolver,
             order.makingAmount
         )
-        const srcEscrow = await srcChain.taker.send({
+
+        const calldata = getEvmFillData(
+            resolverContract,
+            order,
+            signature,
+            srcImmutables,
+            srcChain
+        )
+
+        const srcEscrowTx = await srcChain.taker.send({
             to: resolver.toString(),
-            data: getEvmFillData(
-                resolverContract,
-                order,
-                signature,
-                srcImmutables,
-                srcChain
-            ),
+            data: calldata,
             value: order.srcSafetyDeposit
         })
 
-        srcImmutables = srcImmutables.withDeployedAt(srcEscrow.blockTimestamp)
+        srcImmutables = srcImmutables.withDeployedAt(srcEscrowTx.blockTimestamp)
 
         const srcImplAddress = await srcChain.provider.call({
             to: srcChain.addresses.escrowFactory,
             data: id('ESCROW_SRC_IMPLEMENTATION()').slice(0, 10)
         })
 
-        const srcEscrowAddress = EscrowFactoryFacade.getFactory(
-            srcChain.chainId,
+        const srcEscrowAddress = new EscrowFactory(
             EvmAddress.fromString(srcChain.addresses.escrowFactory)
         ).getSrcEscrowAddress(
             srcImmutables,
-            EvmAddress.fromString(add0x(srcImplAddress.slice(-40))) // decode from bytes32
+            EvmAddress.fromString(add0x(srcImplAddress.slice(-40)))
         )
 
         // wait for src finalization
@@ -143,38 +140,38 @@ describe('EVM to EVM', () => {
         assert(takerAsset instanceof EvmAddress)
 
         let dstImmutables = srcImmutables.withComplement(
-            // actually should be parsed from event in src escrow tx
             DstImmutablesComplement.new({
                 amount: order.takingAmount,
                 safetyDeposit: order.dstSafetyDeposit,
                 maker: resolver,
                 taker: srcImmutables.taker,
-                token: takerAsset
+                token: takerAsset,
+                chainId: BigInt(dstChain.chainId)
             })
         )
-        const dstEscrow = await dstChain.taker.send({
+
+        const dstEscrowTx = await dstChain.taker.send({
             to: resolver.toString(),
             data: resolverContract.encodeFunctionData('deployDst', [
                 dstImmutables.build(),
-                order.timeLocks.toSrcTimeLocks(srcEscrow.blockTimestamp)
+                order.timeLocks.toSrcTimeLocks(srcEscrowTx.blockTimestamp)
                     .privateCancellation
             ]),
             value: order.dstSafetyDeposit
         })
 
-        dstImmutables = dstImmutables.withDeployedAt(dstEscrow.blockTimestamp)
+        dstImmutables = dstImmutables.withDeployedAt(dstEscrowTx.blockTimestamp)
 
         const dstImplAddress = await dstChain.provider.call({
             to: dstChain.addresses.escrowFactory,
             data: id('ESCROW_DST_IMPLEMENTATION()').slice(0, 10)
         })
 
-        const dstEscrowAddress = EscrowFactoryFacade.getFactory(
-            dstChain.chainId,
+        const dstEscrowAddress = new EscrowFactory(
             EvmAddress.fromString(dstChain.addresses.escrowFactory)
         ).getSrcEscrowAddress(
             dstImmutables,
-            EvmAddress.fromString(add0x(dstImplAddress.slice(-40))) // decode from bytes32
+            EvmAddress.fromString(add0x(dstImplAddress.slice(-40)))
         )
 
         // wait for dst finalization
@@ -186,7 +183,7 @@ describe('EVM to EVM', () => {
             to: resolver.toString(),
             data: resolverContract.encodeFunctionData('withdraw', [
                 srcEscrowAddress.toString(),
-                secret, // user shared secret at this point
+                secret,
                 srcImmutables.build()
             ])
         })
@@ -195,12 +192,12 @@ describe('EVM to EVM', () => {
             to: resolver.toString(),
             data: resolverContract.encodeFunctionData('withdraw', [
                 dstEscrowAddress.toString(),
-                secret, // user shared secret at this point
+                secret,
                 dstImmutables.build()
             ])
         })
 
-        // eslint-disable-next-line no-console
-        console.log({srcWithdraw, dstWithdraw})
+        expect(srcWithdraw).toBeDefined()
+        expect(dstWithdraw).toBeDefined()
     })
 })

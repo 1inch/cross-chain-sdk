@@ -1,7 +1,5 @@
 import {ZX} from '@1inch/fusion-sdk'
-import {Jsonify} from 'type-fest'
 import {coder} from '../../utils/coder.js'
-import {DataFor} from '../../type-utils.js'
 
 /**
  * Fee parameters stored in Immutables.parameters and DstImmutablesComplement.parameters.
@@ -33,7 +31,12 @@ export class FeeParameters {
         return this.protocolFeeAmount === 0n && this.integratorFeeAmount === 0n
     }
 
-    static fromJSON(data: Jsonify<DataFor<FeeParameters>>): FeeParameters {
+    static fromJSON(data: {
+        protocolFeeAmount: string
+        integratorFeeAmount: string
+        protocolFeeRecipient: string
+        integratorFeeRecipient: string
+    }): FeeParameters {
         return new FeeParameters(
             BigInt(data.protocolFeeAmount),
             BigInt(data.integratorFeeAmount),
@@ -79,7 +82,12 @@ export class FeeParameters {
         ])
     }
 
-    toJSON(): Jsonify<DataFor<FeeParameters>> {
+    toJSON(): {
+        protocolFeeAmount: string
+        integratorFeeAmount: string
+        protocolFeeRecipient: string
+        integratorFeeRecipient: string
+    } {
         return {
             protocolFeeAmount: this.protocolFeeAmount.toString(),
             integratorFeeAmount: this.integratorFeeAmount.toString(),

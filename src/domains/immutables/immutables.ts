@@ -166,8 +166,40 @@ export class Immutables<A extends AddressLike = AddressLike> {
         return this.withParameters(fees.toString())
     }
 
+    /**
+     * Compute hash matching the contract's ImmutablesLib.hash().
+     * Uses a 288-byte fixed layout with parameters hash in last 32 bytes.
+     */
     hash(): string {
-        return keccak256(this.toABIEncoded())
+        const coder = AbiCoder.defaultAbiCoder()
+        const parametersHash = keccak256(this.parameters || '0x')
+
+        const encoded = coder.encode(
+            [
+                'bytes32',
+                'bytes32',
+                'address',
+                'address',
+                'address',
+                'uint256',
+                'uint256',
+                'uint256',
+                'bytes32'
+            ],
+            [
+                add0x(this.orderHash.toString('hex')),
+                this.hashLock.toString(),
+                this.maker.toHex(),
+                this.taker.toHex(),
+                this.token.nativeAsZero().toHex(),
+                this.amount,
+                this.safetyDeposit,
+                this.timeLocks.build(),
+                parametersHash
+            ]
+        )
+
+        return keccak256(encoded)
     }
 
     build(): ImmutablesData {
