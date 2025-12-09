@@ -11,4 +11,4 @@ eth-rpc-url = 'http://localhost:8545'
 fs_permissions = [{ access = "read", path = "dist/contracts" }, { access = "read-write", path = ".forge-snapshots/" }]
 
 # Link ImmutablesLib library
-libraries = ["contracts/lib/cross-chain-swap/contracts/libraries/ImmutablesLib.sol:ImmutablesLib:0xffee087852cb4898e6c3532e776e68bc68b1143b"]
+libraries = ["contracts/lib/cross-chain-swap/contracts/libraries/ImmutablesLib.sol:ImmutablesLib:0x5FbDB2315678afecb367f032d93F642f64180aa3"]

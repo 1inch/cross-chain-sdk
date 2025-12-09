@@ -16,6 +16,7 @@ import {AuctionDetails} from '../src/domains/auction-details/index.js'
 import {HashLock} from '../src/domains/hash-lock/index.js'
 import {EscrowFactory} from '../src/contracts/evm/escrow-factory.js'
 import {DstImmutablesComplement} from '../src/domains/immutables/index.js'
+import {FeeParameters} from '../src/domains/fee-parameters/index.js'
 
 jest.setTimeout(1000 * 10 * 60)
 
@@ -40,44 +41,18 @@ describe('EVM to EVM', () => {
                 dstBlock!.timestamp + duration
             ])
         ])
+
+        await Promise.all([
+            srcChain.provider.send('evm_mine', []),
+            dstChain.provider.send('evm_mine', [])
+        ])
     }
 
-    beforeAll(async () => {
-        srcChain = await setupEvm({chainId: NetworkEnum.ETHEREUM})
-        dstChain = await setupEvm({chainId: NetworkEnum.BINANCE})
-
-        maker = EvmAddress.fromString(await srcChain.maker.getAddress())
-        resolver = EvmAddress.fromString(srcChain.addresses.resolver)
-    })
-
-    afterAll(async () => {
-        srcChain.provider.destroy()
-        dstChain.provider.destroy()
-        await srcChain.localNode.stop()
-        await dstChain.localNode.stop()
-    })
-
-    it('should perform cross chain swap with single fill', async () => {
+    async function performSwap(params: {
+        feeParameters: FeeParameters
+        fees?: Fees
+    }): Promise<{srcWithdraw: unknown; dstWithdraw: unknown}> {
         const secret = getSecret()
-
-        const protocolFeeRecipient =
-            '0x1111111111111111111111111111111111111111'
-        const integratorFeeRecipient =
-            '0x2222222222222222222222222222222222222222'
-
-        const fees = new Fees(
-            new ResolverFee(
-                new Address(protocolFeeRecipient),
-                new Bps(100n),
-                Bps.fromPercent(10)
-            ),
-            new IntegratorFee(
-                new Address(integratorFeeRecipient),
-                new Address(protocolFeeRecipient),
-                new Bps(50n),
-                Bps.fromPercent(20)
-            )
-        )
 
         const order = EvmCrossChainOrder.new(
             EvmAddress.fromString(srcChain.addresses.escrowFactory),
@@ -107,8 +82,8 @@ describe('EVM to EVM', () => {
             {
                 whitelist: [{address: resolver, allowFrom: 0n}],
                 auction: AuctionDetails.noAuction(),
-                resolvingStartTime: 0n
-                // fees
+                resolvingStartTime: 0n,
+                fees: params.fees
             },
             {
                 allowMultipleFills: false,
@@ -156,7 +131,6 @@ describe('EVM to EVM', () => {
             EvmAddress.fromString(add0x(srcImplAddress.slice(-40)))
         )
 
-        // wait for src finalization
         await advanceNodeTime(20)
 
         const takerAsset = order.takerAsset
@@ -169,7 +143,8 @@ describe('EVM to EVM', () => {
                 maker: resolver,
                 taker: srcImmutables.taker,
                 token: takerAsset,
-                chainId: BigInt(dstChain.chainId)
+                chainId: BigInt(dstChain.chainId),
+                feeParameters: params.feeParameters
             })
         )
 
@@ -201,10 +176,7 @@ describe('EVM to EVM', () => {
             EvmAddress.fromString(add0x(dstImplAddress.slice(-40)))
         )
 
-        // wait for dst finalization
         await advanceNodeTime(20)
-
-        // user makes validation and shares secret
 
         const srcWithdraw = await srcChain.taker.send(
             {
@@ -232,7 +204,86 @@ describe('EVM to EVM', () => {
             dstChain.localNode
         )
 
-        // eslint-disable-next-line no-console
-        console.log({srcWithdraw, dstWithdraw})
+        return {srcWithdraw, dstWithdraw}
+    }
+
+    beforeAll(async () => {
+        srcChain = await setupEvm({chainId: NetworkEnum.ETHEREUM})
+        dstChain = await setupEvm({chainId: NetworkEnum.BINANCE})
+
+        maker = EvmAddress.fromString(await srcChain.maker.getAddress())
+        resolver = EvmAddress.fromString(srcChain.addresses.resolver)
+    })
+
+    afterAll(async () => {
+        srcChain.provider.destroy()
+        dstChain.provider.destroy()
+        await srcChain.localNode.stop()
+        await dstChain.localNode.stop()
+    })
+
+    it('should swap without fees', async () => {
+        const result = await performSwap({
+            feeParameters: FeeParameters.EMPTY
+        })
+
+        expect(result.srcWithdraw).toBeDefined()
+        expect(result.dstWithdraw).toBeDefined()
+    })
+
+    it('should swap with zero fees', async () => {
+        const zeroFees = new FeeParameters(
+            0n,
+            0n,
+            '0x0000000000000000000000000000000000000000',
+            '0x0000000000000000000000000000000000000000'
+        )
+
+        const result = await performSwap({
+            feeParameters: zeroFees
+        })
+
+        expect(result.srcWithdraw).toBeDefined()
+        expect(result.dstWithdraw).toBeDefined()
+    })
+
+    it('should swap with fees', async () => {
+        const protocolFeeRecipient =
+            '0x1111111111111111111111111111111111111111'
+        const integratorFeeRecipient =
+            '0x2222222222222222222222222222222222222222'
+
+        const fees = new Fees(
+            new ResolverFee(
+                new Address(protocolFeeRecipient),
+                new Bps(100n),
+                Bps.fromPercent(10)
+            ),
+            new IntegratorFee(
+                new Address(integratorFeeRecipient),
+                new Address(protocolFeeRecipient),
+                new Bps(50n),
+                Bps.fromPercent(20)
+            )
+        )
+
+        const takingAmount = parseUnits('1000', 6)
+        const protocolFeeAmount = (takingAmount * 100n) / 10000n
+        const integratorFeeAmount = (takingAmount * 50n) / 10000n
+
+        const feeParameters = new FeeParameters(
+            protocolFeeAmount,
+            integratorFeeAmount,
+            protocolFeeRecipient,
+            integratorFeeRecipient
+        )
+
+        const result = await performSwap({
+            feeParameters,
+            fees
+        })
+
+        expect(result.srcWithdraw).toBeDefined()
+        expect(result.dstWithdraw).toBeDefined()
     })
 })

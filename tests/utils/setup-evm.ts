@@ -137,8 +137,9 @@ async function deployContracts(
         provider
     )
 
+    // Deploy ImmutablesLib at the placeholder address used in compiled bytecode
     await provider.send('anvil_setCode', [
-        '0xffee087852cb4898e6c3532e776e68bc68b1143b',
+        '0x5FbDB2315678afecb367f032d93F642f64180aa3',
         ImmutablesLib.deployedBytecode.object
     ])
 

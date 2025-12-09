@@ -1,6 +1,8 @@
 import {ZX} from '@1inch/fusion-sdk'
 import {coder} from '../../utils/coder.js'
 
+const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
+
 /**
  * Fee parameters stored in Immutables.parameters and DstImmutablesComplement.parameters.
  *
@@ -11,7 +13,12 @@ import {coder} from '../../utils/coder.js'
  * - integratorFeeRecipient: Address to receive integrator fees
  */
 export class FeeParameters {
-    static readonly EMPTY = new FeeParameters(0n, 0n, ZX, ZX)
+    static readonly EMPTY = new FeeParameters(
+        0n,
+        0n,
+        ZERO_ADDRESS,
+        ZERO_ADDRESS
+    )
 
     private static readonly ABI_TYPES = [
         'uint256',
@@ -45,9 +52,9 @@ export class FeeParameters {
         )
     }
 
-    static fromHex(bytes: string): FeeParameters {
-        if (!bytes || bytes === ZX) {
-            return FeeParameters.EMPTY
+    static fromHex(bytes: string): FeeParameters | null {
+        if (!bytes || bytes === ZX || bytes.length < 130) {
+            return null
         }
 
         try {
@@ -65,15 +72,15 @@ export class FeeParameters {
                 integratorFeeRecipient
             )
         } catch {
-            return FeeParameters.EMPTY
+            return null
         }
     }
 
+    /**
+     * Encode fee parameters to bytes.
+     * Always encodes all 4 fields (128 bytes) because the contract reads them in withdraw().
+     */
     toString(): string {
-        if (this.isEmpty) {
-            return ZX
-        }
-
         return coder.encode(FeeParameters.ABI_TYPES, [
             this.protocolFeeAmount,
             this.integratorFeeAmount,
