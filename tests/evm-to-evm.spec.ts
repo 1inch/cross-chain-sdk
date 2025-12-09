@@ -48,8 +48,8 @@ describe('EVM to EVM', () => {
         ])
     }
 
-    async function performSwap(params: {
-        feeParameters: FeeParameters
+    async function performSwap(params?: {
+        feeParameters?: FeeParameters
         fees?: Fees
     }): Promise<{srcWithdraw: unknown; dstWithdraw: unknown}> {
         const secret = getSecret()
@@ -83,7 +83,7 @@ describe('EVM to EVM', () => {
                 whitelist: [{address: resolver, allowFrom: 0n}],
                 auction: AuctionDetails.noAuction(),
                 resolvingStartTime: 0n,
-                fees: params.fees
+                fees: params?.fees
             },
             {
                 allowMultipleFills: false,
@@ -144,7 +144,7 @@ describe('EVM to EVM', () => {
                 taker: srcImmutables.taker,
                 token: takerAsset,
                 chainId: BigInt(dstChain.chainId),
-                feeParameters: params.feeParameters
+                feeParameters: params?.feeParameters
             })
         )
 
@@ -223,9 +223,7 @@ describe('EVM to EVM', () => {
     })
 
     it('should swap without fees', async () => {
-        const result = await performSwap({
-            feeParameters: FeeParameters.EMPTY
-        })
+        const result = await performSwap()
 
         expect(result.srcWithdraw).toBeDefined()
         expect(result.dstWithdraw).toBeDefined()

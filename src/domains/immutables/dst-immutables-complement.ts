@@ -1,4 +1,3 @@
-import {ZX} from '@1inch/fusion-sdk'
 import {DstImmutablesComplementData} from './types.js'
 import {AddressLike} from '../addresses/index.js'
 import {FeeParameters} from '../fee-parameters/index.js'
@@ -40,6 +39,8 @@ export class DstImmutablesComplement<A extends AddressLike> {
         chainId: bigint
         feeParameters?: FeeParameters
     }): DstImmutablesComplement<A> {
+        const feeParams = params.feeParameters ?? FeeParameters.EMPTY
+
         return new DstImmutablesComplement(
             params.maker,
             params.amount,
@@ -47,7 +48,7 @@ export class DstImmutablesComplement<A extends AddressLike> {
             params.taker,
             params.safetyDeposit,
             params.chainId,
-            params.feeParameters?.toString() ?? ZX
+            feeParams.toString()
         )
     }
 
