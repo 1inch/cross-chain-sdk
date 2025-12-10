@@ -22,5 +22,5 @@ export type DstImmutablesComplementData = {
     token: string
     safetyDeposit: string
     chainId: string
-    parameters: string
+    fees: string
 }

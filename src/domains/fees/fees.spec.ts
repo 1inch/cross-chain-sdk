@@ -15,10 +15,10 @@ describe('FeeParameters', () => {
         expect(fees).not.toBeNull()
         expect(fees!.protocolFeeAmount).toBe(5556n)
         expect(fees!.integratorFeeAmount).toBe(231n)
-        expect(fees!.protocolFeeRecipient.toLowerCase()).toBe(
+        expect(fees!.protocolFeeRecipient.toString().toLowerCase()).toBe(
             '0x5375ea61702dc3f421dd3c0c63c6b32101102e22'
         )
-        expect(fees!.integratorFeeRecipient.toLowerCase()).toBe(
+        expect(fees!.integratorFeeRecipient.toString().toLowerCase()).toBe(
             '0x834704408a83c220ac4a85bf5c7c42307c4be4a5'
         )
     })
@@ -32,8 +32,8 @@ describe('FeeParameters', () => {
         )
     })
 
-    it('should return null for empty parameters', () => {
-        expect(Fees.decode('0x')).toBeNull()
+    it('should return ZERO for empty parameters', () => {
+        expect(Fees.decode('0x')).toBe(Fees.ZERO)
     })
 
     it('should encode EMPTY as 128 bytes', () => {

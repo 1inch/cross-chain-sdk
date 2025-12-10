@@ -17,7 +17,10 @@ export class FundsRescuedEvent {
     /**
      * @throws Error if the log data is invalid
      */
-    static fromData(data: string, escrowAddress: EvmAddress): FundsRescuedEvent {
+    static fromData(
+        data: string,
+        escrowAddress: EvmAddress
+    ): FundsRescuedEvent {
         const decoded = iface.decodeEventLog('FundsRescued', data, [
             FundsRescuedEvent.TOPIC
         ])

@@ -3,6 +3,7 @@ import {EscrowFactory} from './escrow-factory.js'
 import {EvmAddress as Address} from '../../domains/addresses/index.js'
 import {HashLock} from '../../domains/hash-lock/index.js'
 import {TimeLocks} from '../../domains/time-locks/index.js'
+import {Fees} from '../../domains/fees/index.js'
 import {
     DstImmutablesComplement,
     Immutables
@@ -58,7 +59,8 @@ describe('EscrowFactory', () => {
                 TimeLocks.fromBigInt(
                     46545443980783778519496226194286874737220106048808714334632784681655911579684n
                 ),
-            safetyDeposit: 2474844692460000n
+            safetyDeposit: 2474844692460000n,
+            fees: Fees.ZERO
         })
         const srcImplAddress = Address.fromBigInt(1n)
         const dstImplAddress = Address.fromBigInt(2n)
@@ -83,7 +85,7 @@ describe('EscrowFactory', () => {
         )
 
         expect(srcAddress).toEqual(
-            Address.fromString('0x2c08f4925fc18cea70135ea585f09b9f9f3dfce4')
+            Address.fromString('0xb2d83f71914537c3844f25054a96e570be72310b')
         )
 
         expect(dstAddress).toEqual(

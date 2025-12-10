@@ -2,6 +2,7 @@ import {Immutables} from './immutables.js'
 import {HashLock} from '../../domains/hash-lock/index.js'
 import {EvmAddress} from '../../domains/addresses/index.js'
 import {TimeLocks} from '../../domains/time-locks/index.js'
+import {Fees} from '../../domains/fees/index.js'
 
 describe('Immutables', function () {
     const immutables = Immutables.new({
@@ -31,11 +32,12 @@ describe('Immutables', function () {
             dstWithdrawal: 300n,
             dstPublicWithdrawal: 540n,
             dstCancellation: 900n
-        }).setDeployedAt(1n)
+        }).setDeployedAt(1n),
+        fees: Fees.ZERO
     })
     it('Should calc correct hash of immutables', function () {
         expect(immutables.hash()).toEqual(
-            '0xdf2cac5c3ea9c66f21c770cc5c09f54a730af62f763da6ce50705f335807057c'
+            '0xd1b0f495bb2ced2f5da0869ea4b36248a647d259ca7504b30c60354331ad8bc0'
         )
     })
 

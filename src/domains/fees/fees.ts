@@ -71,6 +71,10 @@ export class Fees {
         ])
     }
 
+    toString(): string {
+        return this.encode()
+    }
+
     toJSON(): FeeParametersData {
         return {
             protocolFeeAmount: this.protocolFeeAmount.toString(),

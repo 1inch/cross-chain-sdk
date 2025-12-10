@@ -149,7 +149,7 @@ describe('EVM to EVM', () => {
                 taker: srcImmutables.taker,
                 token: takerAsset,
                 chainId: BigInt(dstChain.chainId),
-                feeParameters: params?.feeParameters
+                fees: params?.feeParameters
             })
         )
 
