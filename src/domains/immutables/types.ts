@@ -1,5 +1,5 @@
 /**
- * Contract representation of Immutables
+ * JSON representation of Immutables
  */
 export type ImmutablesData = {
     orderHash: string
@@ -14,7 +14,7 @@ export type ImmutablesData = {
 }
 
 /**
- * Contract representation of DstImmutablesComplement
+ * JSON representation of DstImmutablesComplement
  */
 export type DstImmutablesComplementData = {
     maker: string

@@ -5,7 +5,6 @@ export {
     MakerTraits,
     Extension,
     Whitelist,
-    SurplusParams,
     Fees,
     IntegratorFee,
     ResolverFee,

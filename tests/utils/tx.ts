@@ -5,7 +5,7 @@ import assert from 'assert'
 import {ReadyEvmFork} from './setup-evm.js'
 import {Instruction} from '../../src/contracts/svm/instruction.js'
 import {EvmCrossChainOrder} from '../../src/cross-chain-order/index.js'
-import {EscrowFactory} from '../../src/contracts/evm/escrow-factory.js'
+import {EscrowFactoryFacade} from '../../src/contracts/evm/escrow-factory-facade.js'
 import {Immutables, EvmAddress, HashLock} from '../../src/domains/index.js'
 
 export function newSolanaTx(ix: Instruction): web3.Transaction {
@@ -42,7 +42,8 @@ export function getEvmFillData(
         const idx = order.getMultipleFillIdx(fillAmount, remainingAmount)
 
         takerTraits.setInteraction(
-            new EscrowFactory(
+            EscrowFactoryFacade.getFactory(
+                chainConfig.chainId,
                 EvmAddress.fromString(chainConfig.addresses.escrowFactory)
             ).getMultipleFillInteraction(
                 HashLock.getProof(leaves!, idx),

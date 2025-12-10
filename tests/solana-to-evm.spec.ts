@@ -19,7 +19,7 @@ import {TimeLocks} from '../src/domains/time-locks/index.js'
 import {EvmAddress, SolanaAddress} from '../src/domains/addresses/index.js'
 import {SvmSrcEscrowFactory} from '../src/contracts/svm/svm-src-escrow-factory.js'
 import {DstImmutablesComplement} from '../src/domains/immutables/index.js'
-import {EscrowFactory} from '../src/contracts/evm/escrow-factory.js'
+import {EscrowFactoryFacade} from '../src/contracts/evm/escrow-factory-facade.js'
 import {now} from '../src/utils/index.js'
 
 jest.setTimeout(1000 * 10 * 60)
@@ -195,7 +195,8 @@ describe('Solana to EVM', () => {
             data: id('ESCROW_DST_IMPLEMENTATION()').slice(0, 10)
         })
 
-        const dstEscrowAddress = new EscrowFactory(
+        const dstEscrowAddress = EscrowFactoryFacade.getFactory(
+            dstChain.chainId,
             EvmAddress.fromString(dstChain.addresses.escrowFactory)
         ).getSrcEscrowAddress(
             dstImmutables,
@@ -356,7 +357,8 @@ describe('Solana to EVM', () => {
             data: id('ESCROW_DST_IMPLEMENTATION()').slice(0, 10)
         })
 
-        const dstEscrowAddress = new EscrowFactory(
+        const dstEscrowAddress = EscrowFactoryFacade.getFactory(
+            dstChain.chainId,
             EvmAddress.fromString(dstChain.addresses.escrowFactory)
         ).getSrcEscrowAddress(
             dstImmutables,
@@ -763,7 +765,8 @@ describe('Solana to EVM', () => {
                 data: id('ESCROW_DST_IMPLEMENTATION()').slice(0, 10)
             })
 
-            const dstEscrowAddress = new EscrowFactory(
+            const dstEscrowAddress = EscrowFactoryFacade.getFactory(
+                dstChain.chainId,
                 EvmAddress.fromString(dstChain.addresses.escrowFactory)
             ).getSrcEscrowAddress(
                 dstImmutables,

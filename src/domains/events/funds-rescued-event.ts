@@ -1,8 +1,8 @@
 import {Interface} from 'ethers'
 import {EvmAddress} from '../addresses/index.js'
-import {CROSS_CHAIN_ABI} from '../../abi/cross-chain-abi.js'
+import {ESCROW_FACTORY_ABI} from '../../abi/escrow-factory-abi.js'
 
-const iface = new Interface(CROSS_CHAIN_ABI)
+const iface = new Interface(ESCROW_FACTORY_ABI)
 
 export class FundsRescuedEvent {
     static readonly TOPIC =

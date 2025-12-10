@@ -5,6 +5,7 @@ import {add0x, UINT_40_MAX} from '@1inch/byte-utils'
 import assert from 'assert'
 import {USDC_EVM, WETH_EVM} from './utils/addresses.js'
 import {ReadyEvmFork, setupEvm} from './utils/setup-evm.js'
+import {EvmTestWallet} from './utils/evm-wallet.js'
 import {getSecret} from './utils/secret.js'
 import {getEvmFillData} from './utils/tx.js'
 import Resolver from '../dist/contracts/Resolver.sol/Resolver.json'
@@ -14,7 +15,7 @@ import {EvmAddress} from '../src/domains/addresses/index.js'
 import {TimeLocks} from '../src/domains/time-locks/index.js'
 import {AuctionDetails} from '../src/domains/auction-details/index.js'
 import {HashLock} from '../src/domains/hash-lock/index.js'
-import {EscrowFactory} from '../src/contracts/evm/escrow-factory.js'
+import {EscrowFactoryFacade} from '../src/contracts/evm/escrow-factory-facade.js'
 import {DstImmutablesComplement} from '../src/domains/immutables/index.js'
 import {FeeParameters} from '../src/domains/fee-parameters/index.js'
 
@@ -49,9 +50,9 @@ describe('EVM to EVM', () => {
     }
 
     async function performSwap(params?: {
-        feeParameters?: FeeParameters
         fees?: Fees
-    }): Promise<{srcWithdraw: unknown; dstWithdraw: unknown}> {
+        feeParameters?: FeeParameters
+    }): Promise<{order: EvmCrossChainOrder}> {
         const secret = getSecret()
 
         const order = EvmCrossChainOrder.new(
@@ -124,7 +125,8 @@ describe('EVM to EVM', () => {
             data: id('ESCROW_SRC_IMPLEMENTATION()').slice(0, 10)
         })
 
-        const srcEscrowAddress = new EscrowFactory(
+        const srcEscrowAddress = EscrowFactoryFacade.getFactory(
+            srcChain.chainId,
             EvmAddress.fromString(srcChain.addresses.escrowFactory)
         ).getSrcEscrowAddress(
             srcImmutables,
@@ -169,7 +171,8 @@ describe('EVM to EVM', () => {
             data: id('ESCROW_DST_IMPLEMENTATION()').slice(0, 10)
         })
 
-        const dstEscrowAddress = new EscrowFactory(
+        const dstEscrowAddress = EscrowFactoryFacade.getFactory(
+            dstChain.chainId,
             EvmAddress.fromString(dstChain.addresses.escrowFactory)
         ).getSrcEscrowAddress(
             dstImmutables,
@@ -204,7 +207,7 @@ describe('EVM to EVM', () => {
             dstChain.localNode
         )
 
-        return {srcWithdraw, dstWithdraw}
+        return {order}
     }
 
     beforeAll(async () => {
@@ -223,10 +226,8 @@ describe('EVM to EVM', () => {
     })
 
     it('should swap without fees', async () => {
-        const result = await performSwap()
-
-        expect(result.srcWithdraw).toBeDefined()
-        expect(result.dstWithdraw).toBeDefined()
+        const {order} = await performSwap()
+        expect(order).toBeDefined()
     })
 
     it('should swap with zero fees', async () => {
@@ -237,51 +238,94 @@ describe('EVM to EVM', () => {
             '0x0000000000000000000000000000000000000000'
         )
 
-        const result = await performSwap({
-            feeParameters: zeroFees
-        })
-
-        expect(result.srcWithdraw).toBeDefined()
-        expect(result.dstWithdraw).toBeDefined()
+        const {order} = await performSwap({feeParameters: zeroFees})
+        expect(order).toBeDefined()
     })
 
     it('should swap with fees', async () => {
-        const protocolFeeRecipient =
-            '0x1111111111111111111111111111111111111111'
-        const integratorFeeRecipient =
-            '0x2222222222222222222222222222222222222222'
+        const protocolAddress = '0x1111111111111111111111111111111111111111'
+        const integratorAddress = '0x2222222222222222222222222222222222222222'
+
+        const srcResolver = await EvmTestWallet.fromAddress(
+            resolver.toString(),
+            srcChain.provider
+        )
+        const dstResolver = await EvmTestWallet.fromAddress(
+            resolver.toString(),
+            dstChain.provider
+        )
+        const protocol = await EvmTestWallet.fromAddress(
+            protocolAddress,
+            dstChain.provider
+        )
+        const integrator = await EvmTestWallet.fromAddress(
+            integratorAddress,
+            dstChain.provider
+        )
+
+        const resolverFeeBps = 100n // 1%
+        const integratorFeeBps = 50n // 0.5%
 
         const fees = new Fees(
             new ResolverFee(
-                new Address(protocolFeeRecipient),
-                new Bps(100n),
+                new Address(protocolAddress),
+                new Bps(resolverFeeBps),
                 Bps.fromPercent(10)
             ),
             new IntegratorFee(
-                new Address(integratorFeeRecipient),
-                new Address(protocolFeeRecipient),
-                new Bps(50n),
+                new Address(integratorAddress),
+                new Address(protocolAddress),
+                new Bps(integratorFeeBps),
                 Bps.fromPercent(20)
             )
         )
 
         const takingAmount = parseUnits('1000', 6)
-        const protocolFeeAmount = (takingAmount * 100n) / 10000n
-        const integratorFeeAmount = (takingAmount * 50n) / 10000n
+        const resolverFeeAmount = (takingAmount * resolverFeeBps) / 10000n
+        const integratorFeeAmount = (takingAmount * integratorFeeBps) / 10000n
 
         const feeParameters = new FeeParameters(
-            protocolFeeAmount,
+            resolverFeeAmount,
             integratorFeeAmount,
-            protocolFeeRecipient,
-            integratorFeeRecipient
+            protocolAddress,
+            integratorAddress
         )
 
-        const result = await performSwap({
-            feeParameters,
-            fees
-        })
+        const initBalances = {
+            srcWeth: {
+                maker: await srcChain.maker.tokenBalance(WETH_EVM),
+                resolver: await srcResolver.tokenBalance(WETH_EVM)
+            },
+            dstUsdc: {
+                maker: await dstChain.maker.tokenBalance(USDC_EVM),
+                resolver: await dstResolver.tokenBalance(USDC_EVM),
+                protocol: await protocol.tokenBalance(USDC_EVM),
+                integrator: await integrator.tokenBalance(USDC_EVM)
+            }
+        }
 
-        expect(result.srcWithdraw).toBeDefined()
-        expect(result.dstWithdraw).toBeDefined()
+        const {order} = await performSwap({fees, feeParameters})
+
+        const finalBalances = {
+            srcWeth: {
+                maker: await srcChain.maker.tokenBalance(WETH_EVM),
+                resolver: await srcResolver.tokenBalance(WETH_EVM)
+            },
+            dstUsdc: {
+                maker: await dstChain.maker.tokenBalance(USDC_EVM),
+                resolver: await dstResolver.tokenBalance(USDC_EVM),
+                protocol: await protocol.tokenBalance(USDC_EVM),
+                integrator: await integrator.tokenBalance(USDC_EVM)
+            }
+        }
+
+        expect(initBalances.srcWeth.maker - finalBalances.srcWeth.maker).toBe(
+            order.makingAmount
+        )
+        expect(
+            finalBalances.srcWeth.resolver - initBalances.srcWeth.resolver
+        ).toBe(order.makingAmount)
+
+        // todo: fix remaining
     })
 })

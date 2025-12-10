@@ -20,7 +20,7 @@ import {TimeLocks} from '../src/domains/time-locks/index.js'
 import {EvmAddress, SolanaAddress} from '../src/domains/addresses/index.js'
 import {SvmDstEscrowFactory} from '../src/contracts/index.js'
 import {DstImmutablesComplement} from '../src/domains/index.js'
-import {EscrowFactory} from '../src/contracts/evm/escrow-factory.js'
+import {EscrowFactoryFacade} from '../src/contracts/evm/escrow-factory-facade.js'
 import {bufferFromHex} from '../src/utils/bytes.js'
 import {now} from '../src/utils/index.js'
 
@@ -196,7 +196,8 @@ describe('EVM to Solana', () => {
             data: id('ESCROW_SRC_IMPLEMENTATION()').slice(0, 10)
         })
 
-        const srcEscrowAddress = new EscrowFactory(
+        const srcEscrowAddress = EscrowFactoryFacade.getFactory(
+            srcChain.chainId,
             EvmAddress.fromString(srcChain.addresses.escrowFactory)
         ).getSrcEscrowAddress(
             srcImmutables,
@@ -376,7 +377,8 @@ describe('EVM to Solana', () => {
             data: id('ESCROW_SRC_IMPLEMENTATION()').slice(0, 10)
         })
 
-        const srcEscrowAddress = new EscrowFactory(
+        const srcEscrowAddress = EscrowFactoryFacade.getFactory(
+            srcChain.chainId,
             EvmAddress.fromString(srcChain.addresses.escrowFactory)
         ).getSrcEscrowAddress(
             srcImmutables,

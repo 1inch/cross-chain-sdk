@@ -87,7 +87,7 @@ describe('EscrowFactory', () => {
         )
 
         expect(dstAddress).toEqual(
-            Address.fromString('0x049f4e316cdddcb03c6884d4fbaea3c04c9459a9')
+            Address.fromString('0x6f8d14ee0f4a84e4ecc49ef688cd0d7a76ca170c')
         )
     })
 })

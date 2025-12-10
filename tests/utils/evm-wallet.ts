@@ -29,6 +29,16 @@ export class EvmTestWallet {
                 : privateKeyOrSigner
     }
 
+    static async getTokenBalance(
+        token: string,
+        address: string,
+        provider: JsonRpcProvider
+    ): Promise<bigint> {
+        const tokenContract = new Contract(token, ERC20.abi, provider)
+
+        return tokenContract.balanceOf(address)
+    }
+
     static async signTypedData(
         signer: Signer,
         typedData: EIP712TypedData
@@ -52,13 +62,11 @@ export class EvmTestWallet {
     }
 
     async tokenBalance(token: string): Promise<bigint> {
-        const tokenContract = new Contract(
-            token.toString(),
-            ERC20.abi,
+        return EvmTestWallet.getTokenBalance(
+            token,
+            await this.getAddress(),
             this.provider
         )
-
-        return tokenContract.balanceOf(await this.getAddress())
     }
 
     public async nativeBalance(): Promise<bigint> {
@@ -181,7 +189,6 @@ export class EvmTestWallet {
                 blockHash: res.blockHash as string
             }
         }
-
 
         if (localNode && receipt) {
             await printTrace(localNode, receipt.hash)

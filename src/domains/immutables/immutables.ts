@@ -46,10 +46,6 @@ export class Immutables<A extends AddressLike = AddressLike> {
         this.token = this.token.zeroAsNative() as A
     }
 
-    get feeParameters(): FeeParameters | null {
-        return FeeParameters.fromHex(this.parameters)
-    }
-
     static new<A extends AddressLike>(params: {
         orderHash: Buffer
         hashLock: HashLock
@@ -90,7 +86,7 @@ export class Immutables<A extends AddressLike = AddressLike> {
     ): Immutables<T> {
         const isSolanaAddress = data.maker.length === 66
         const isEvmAddress = data.maker.length === 42
-        assert(isSolanaAddress || isEvmAddress, 'Invalid address length')
+        assert(isSolanaAddress || isEvmAddress, 'invalid address length')
 
         if (isSolanaAddress) {
             assert(
@@ -137,7 +133,7 @@ export class Immutables<A extends AddressLike = AddressLike> {
         })
     }
 
-    withDeployedAt(time: bigint): Immutables<A> {
+    public withDeployedAt(time: bigint): Immutables<A> {
         return Immutables.new({
             ...this,
             timeLocks: TimeLocks.fromBigInt(
@@ -168,7 +164,6 @@ export class Immutables<A extends AddressLike = AddressLike> {
 
     /**
      * Compute hash matching the contract's ImmutablesLib.hash().
-     * Uses a 288-byte fixed layout with parameters hash in last 32 bytes.
      */
     hash(): string {
         const coder = AbiCoder.defaultAbiCoder()

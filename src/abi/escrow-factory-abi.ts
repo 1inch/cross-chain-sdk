@@ -1,4 +1,4 @@
-export const CROSS_CHAIN_ABI = [
+export const ESCROW_FACTORY_ABI = [
     {
         anonymous: false,
         inputs: [],
