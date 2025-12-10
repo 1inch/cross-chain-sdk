@@ -17,7 +17,7 @@ export class DstEscrowCreatedEvent {
     /**
      * @throws Error if the log data is invalid
      */
-    static fromLog(data: string): DstEscrowCreatedEvent {
+    static fromData(data: string): DstEscrowCreatedEvent {
         const decoded = iface.decodeEventLog('DstEscrowCreated', data, [
             DstEscrowCreatedEvent.TOPIC
         ])

@@ -12,7 +12,7 @@ export class EscrowWithdrawalEvent {
     /**
      * @throws Error if the log data is invalid
      */
-    static fromLog(data: string): EscrowWithdrawalEvent {
+    static fromData(data: string): EscrowWithdrawalEvent {
         const decoded = iface.decodeEventLog('EscrowWithdrawal', data, [
             EscrowWithdrawalEvent.TOPIC
         ])

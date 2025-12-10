@@ -1,7 +1,6 @@
 import {ZX} from '@1inch/fusion-sdk'
 import {coder} from '../../utils/coder.js'
-
-const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
+import {EvmAddress} from '../addresses/index.js'
 
 /**
  * Fee parameters stored in Immutables.parameters and DstImmutablesComplement.parameters.
@@ -16,8 +15,8 @@ export class FeeParameters {
     static readonly EMPTY = new FeeParameters(
         0n,
         0n,
-        ZERO_ADDRESS,
-        ZERO_ADDRESS
+        EvmAddress.ZERO,
+        EvmAddress.ZERO
     )
 
     private static readonly ABI_TYPES = [
@@ -30,13 +29,9 @@ export class FeeParameters {
     constructor(
         public readonly protocolFeeAmount: bigint,
         public readonly integratorFeeAmount: bigint,
-        public readonly protocolFeeRecipient: string,
-        public readonly integratorFeeRecipient: string
+        public readonly protocolFeeRecipient: EvmAddress,
+        public readonly integratorFeeRecipient: EvmAddress
     ) {}
-
-    get isEmpty(): boolean {
-        return this.protocolFeeAmount === 0n && this.integratorFeeAmount === 0n
-    }
 
     static fromJSON(data: {
         protocolFeeAmount: string
@@ -47,33 +42,29 @@ export class FeeParameters {
         return new FeeParameters(
             BigInt(data.protocolFeeAmount),
             BigInt(data.integratorFeeAmount),
-            data.protocolFeeRecipient,
-            data.integratorFeeRecipient
+            EvmAddress.fromString(data.protocolFeeRecipient),
+            EvmAddress.fromString(data.integratorFeeRecipient)
         )
     }
 
     static fromHex(bytes: string): FeeParameters | null {
-        if (!bytes || bytes === ZX || bytes.length < 130) {
+        if (bytes === ZX) {
             return null
         }
 
-        try {
-            const [
-                protocolFeeAmount,
-                integratorFeeAmount,
-                protocolFeeRecipient,
-                integratorFeeRecipient
-            ] = coder.decode(FeeParameters.ABI_TYPES, bytes)
+        const [
+            protocolFeeAmount,
+            integratorFeeAmount,
+            protocolFeeRecipient,
+            integratorFeeRecipient
+        ] = coder.decode(FeeParameters.ABI_TYPES, bytes)
 
-            return new FeeParameters(
-                BigInt(protocolFeeAmount),
-                BigInt(integratorFeeAmount),
-                protocolFeeRecipient,
-                integratorFeeRecipient
-            )
-        } catch {
-            return null
-        }
+        return new FeeParameters(
+            BigInt(protocolFeeAmount),
+            BigInt(integratorFeeAmount),
+            EvmAddress.fromString(protocolFeeRecipient),
+            EvmAddress.fromString(integratorFeeRecipient)
+        )
     }
 
     /**
@@ -84,8 +75,8 @@ export class FeeParameters {
         return coder.encode(FeeParameters.ABI_TYPES, [
             this.protocolFeeAmount,
             this.integratorFeeAmount,
-            this.protocolFeeRecipient,
-            this.integratorFeeRecipient
+            this.protocolFeeRecipient.toString(),
+            this.integratorFeeRecipient.toString()
         ])
     }
 
@@ -98,8 +89,8 @@ export class FeeParameters {
         return {
             protocolFeeAmount: this.protocolFeeAmount.toString(),
             integratorFeeAmount: this.integratorFeeAmount.toString(),
-            protocolFeeRecipient: this.protocolFeeRecipient,
-            integratorFeeRecipient: this.integratorFeeRecipient
+            protocolFeeRecipient: this.protocolFeeRecipient.toString(),
+            integratorFeeRecipient: this.integratorFeeRecipient.toString()
         }
     }
 }

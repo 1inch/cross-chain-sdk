@@ -28,10 +28,6 @@ import {coder} from '../../utils/coder.js'
 
 /**
  * Extension for cross-chain escrow orders.
- * Adapts between Fusion and cross-chain postInteraction formats.
- *
- * Fusion format: [callback][flags][integrator][protocol][receiver?][fees+whitelist][surplus]
- * Cross-chain format: [callback][integrator][protocol][fees+whitelist][cross-chain-data]
  */
 export class EscrowExtension extends FusionExtension {
     private static readonly CROSS_CHAIN_DATA_TYPES = [

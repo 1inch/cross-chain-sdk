@@ -10,20 +10,22 @@ export class FundsRescuedEvent {
 
     constructor(
         public readonly token: EvmAddress,
-        public readonly amount: bigint
+        public readonly amount: bigint,
+        public readonly escrowAddress: EvmAddress
     ) {}
 
     /**
      * @throws Error if the log data is invalid
      */
-    static fromLog(data: string): FundsRescuedEvent {
+    static fromData(data: string, escrowAddress: EvmAddress): FundsRescuedEvent {
         const decoded = iface.decodeEventLog('FundsRescued', data, [
             FundsRescuedEvent.TOPIC
         ])
 
         return new FundsRescuedEvent(
             EvmAddress.fromString(decoded.token),
-            BigInt(decoded.amount)
+            BigInt(decoded.amount),
+            escrowAddress
         )
     }
 }
