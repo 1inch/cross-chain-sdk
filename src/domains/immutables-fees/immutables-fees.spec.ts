@@ -1,4 +1,4 @@
-import {Fees} from './fees.js'
+import {ImmutablesFees} from './immutables-fees.js'
 
 describe('FeeParameters', () => {
     // From smart contract test: DstImmutablesComplement.parameters
@@ -10,7 +10,7 @@ describe('FeeParameters', () => {
         '000000000000000000000000834704408a83c220ac4a85bf5c7c42307c4be4a5'
 
     it('should decode from smart contract', () => {
-        const fees = Fees.decode(CONTRACT_FEE_PARAMETERS)
+        const fees = ImmutablesFees.decode(CONTRACT_FEE_PARAMETERS)
 
         expect(fees).not.toBeNull()
         expect(fees!.protocolFeeAmount).toBe(5556n)
@@ -24,7 +24,7 @@ describe('FeeParameters', () => {
     })
 
     it('should encode exactly matching smart contract', () => {
-        const fees = Fees.decode(CONTRACT_FEE_PARAMETERS)
+        const fees = ImmutablesFees.decode(CONTRACT_FEE_PARAMETERS)
 
         expect(fees).not.toBeNull()
         expect(fees!.toString().toLowerCase()).toBe(
@@ -33,11 +33,11 @@ describe('FeeParameters', () => {
     })
 
     it('should return ZERO for empty parameters', () => {
-        expect(Fees.decode('0x')).toBe(Fees.ZERO)
+        expect(ImmutablesFees.decode('0x')).toBe(ImmutablesFees.ZERO)
     })
 
     it('should encode EMPTY as 128 bytes', () => {
-        const encoded = Fees.ZERO.toString()
+        const encoded = ImmutablesFees.ZERO.toString()
         // 0x + 128 bytes (256 hex chars)
         expect(encoded.length).toBe(2 + 256)
     })

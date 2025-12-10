@@ -12,8 +12,13 @@ import {EvmAddress} from '../addresses/index.js'
  * - protocolFeeRecipient: Address to receive protocol fees
  * - integratorFeeRecipient: Address to receive integrator fees
  */
-export class Fees {
-    static readonly ZERO = new Fees(0n, 0n, EvmAddress.ZERO, EvmAddress.ZERO)
+export class ImmutablesFees {
+    static readonly ZERO = new ImmutablesFees(
+        0n,
+        0n,
+        EvmAddress.ZERO,
+        EvmAddress.ZERO
+    )
 
     private static readonly ABI_TYPES = [
         'uint256',
@@ -29,8 +34,8 @@ export class Fees {
         public readonly integratorFeeRecipient: EvmAddress
     ) {}
 
-    static fromJSON(data: FeeParametersData): Fees {
-        return new Fees(
+    static fromJSON(data: FeeParametersData): ImmutablesFees {
+        return new ImmutablesFees(
             BigInt(data.protocolFeeAmount),
             BigInt(data.integratorFeeAmount),
             EvmAddress.fromString(data.protocolFeeRecipient),
@@ -38,9 +43,9 @@ export class Fees {
         )
     }
 
-    static decode(bytes: string): Fees {
+    static decode(bytes: string): ImmutablesFees {
         if (bytes === ZX) {
-            return Fees.ZERO
+            return ImmutablesFees.ZERO
         }
 
         const [
@@ -48,9 +53,9 @@ export class Fees {
             integratorFeeAmount,
             protocolFeeRecipient,
             integratorFeeRecipient
-        ] = coder.decode(Fees.ABI_TYPES, bytes)
+        ] = coder.decode(ImmutablesFees.ABI_TYPES, bytes)
 
-        return new Fees(
+        return new ImmutablesFees(
             BigInt(protocolFeeAmount),
             BigInt(integratorFeeAmount),
             EvmAddress.fromString(protocolFeeRecipient),
@@ -63,7 +68,7 @@ export class Fees {
      * Always encodes all 4 fields (128 bytes) because the contract reads them in withdraw().
      */
     encode(): string {
-        return coder.encode(Fees.ABI_TYPES, [
+        return coder.encode(ImmutablesFees.ABI_TYPES, [
             this.protocolFeeAmount,
             this.integratorFeeAmount,
             this.protocolFeeRecipient.toString(),

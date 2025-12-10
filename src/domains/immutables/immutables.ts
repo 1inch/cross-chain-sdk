@@ -5,7 +5,7 @@ import {DstImmutablesComplement} from './dst-immutables-complement.js'
 import {ImmutablesData} from './types.js'
 import {HashLock} from '../hash-lock/index.js'
 import {TimeLocks} from '../time-locks/index.js'
-import {Fees} from '../fees/index.js'
+import {ImmutablesFees} from '../immutables-fees/index.js'
 import {
     AddressLike,
     EvmAddress,
@@ -39,7 +39,7 @@ export class Immutables<A extends AddressLike = AddressLike> {
         public readonly amount: bigint,
         public readonly safetyDeposit: bigint,
         public readonly timeLocks: TimeLocks,
-        public readonly fees: Fees
+        public readonly fees: ImmutablesFees
     ) {
         this.token = this.token.zeroAsNative() as A
     }
@@ -53,7 +53,7 @@ export class Immutables<A extends AddressLike = AddressLike> {
         amount,
         safetyDeposit,
         timeLocks,
-        fees = Fees.ZERO
+        fees = ImmutablesFees.ZERO
     }: {
         orderHash: Buffer
         hashLock: HashLock
@@ -63,7 +63,7 @@ export class Immutables<A extends AddressLike = AddressLike> {
         amount: bigint
         safetyDeposit: bigint
         timeLocks: TimeLocks
-        fees?: Fees
+        fees?: ImmutablesFees
     }): Immutables<A> {
         return new Immutables(
             orderHash,
@@ -123,7 +123,7 @@ export class Immutables<A extends AddressLike = AddressLike> {
             BigInt(data.amount),
             BigInt(data.safetyDeposit),
             TimeLocks.fromBigInt(BigInt(data.timelocks)),
-            Fees.decode(data?.parameters)
+            ImmutablesFees.decode(data?.parameters)
         ) as unknown as Immutables<T>
     }
 
@@ -166,8 +166,8 @@ export class Immutables<A extends AddressLike = AddressLike> {
         return Immutables.new({...this, fees: parameters})
     }
 
-    withFeeParameters(fees: Fees): Immutables<A> {
-        return this.withParameters(fees.toString())
+    withFees(fees: ImmutablesFees): Immutables<A> {
+        return Immutables.new({...this, fees})
     }
 
     /**

@@ -17,7 +17,7 @@ import {AuctionDetails} from '../src/domains/auction-details/index.js'
 import {HashLock} from '../src/domains/hash-lock/index.js'
 import {EscrowFactoryFacade} from '../src/contracts/evm/escrow-factory-facade.js'
 import {DstImmutablesComplement} from '../src/domains/immutables/index.js'
-import {Fees} from '../src/domains/fee-parameters/index.js'
+import {ImmutablesFees} from '../src/domains/immutables-fees/index.js'
 
 jest.setTimeout(1000 * 10 * 60)
 
@@ -51,7 +51,7 @@ describe('EVM to EVM', () => {
 
     async function performSwap(params?: {
         fees?: Fees
-        feeParameters?: Fees
+        feeParameters?: ImmutablesFees
     }): Promise<{order: EvmCrossChainOrder}> {
         const secret = getSecret()
 
@@ -236,20 +236,19 @@ describe('EVM to EVM', () => {
     })
 
     it('should swap with zero fees', async () => {
-        const zeroFees = new Fees(
-            0n,
-            0n,
-            '0x0000000000000000000000000000000000000000',
-            '0x0000000000000000000000000000000000000000'
-        )
+        const zeroFees = ImmutablesFees.ZERO
 
         const {order} = await performSwap({feeParameters: zeroFees})
         expect(order).toBeDefined()
     })
 
     it('should swap with fees', async () => {
-        const protocolAddress = '0x1111111111111111111111111111111111111111'
-        const integratorAddress = '0x2222222222222222222222222222222222222222'
+        const protocolAddress = EvmAddress.fromString(
+            '0x1111111111111111111111111111111111111111'
+        )
+        const integratorAddress = EvmAddress.fromString(
+            '0x2222222222222222222222222222222222222222'
+        )
 
         const srcResolver = await EvmTestWallet.fromAddress(
             resolver.toString(),
@@ -260,11 +259,11 @@ describe('EVM to EVM', () => {
             dstChain.provider
         )
         const protocol = await EvmTestWallet.fromAddress(
-            protocolAddress,
+            protocolAddress.toString(),
             dstChain.provider
         )
         const integrator = await EvmTestWallet.fromAddress(
-            integratorAddress,
+            integratorAddress.toString(),
             dstChain.provider
         )
 
@@ -273,13 +272,13 @@ describe('EVM to EVM', () => {
 
         const fees = new Fees(
             new ResolverFee(
-                new Address(protocolAddress),
+                new Address(protocolAddress.toString()),
                 new Bps(resolverFeeBps),
                 Bps.fromPercent(10)
             ),
             new IntegratorFee(
-                new Address(integratorAddress),
-                new Address(protocolAddress),
+                new Address(integratorAddress.toString()),
+                new Address(protocolAddress.toString()),
                 new Bps(integratorFeeBps),
                 Bps.fromPercent(20)
             )
@@ -289,7 +288,7 @@ describe('EVM to EVM', () => {
         const resolverFeeAmount = (takingAmount * resolverFeeBps) / 10000n
         const integratorFeeAmount = (takingAmount * integratorFeeBps) / 10000n
 
-        const feeParameters = new Fees(
+        const feeParameters = new ImmutablesFees(
             resolverFeeAmount,
             integratorFeeAmount,
             protocolAddress,
