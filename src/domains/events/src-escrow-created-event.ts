@@ -46,7 +46,7 @@ export class SrcEscrowCreatedEvent {
                 safetyDeposit: BigInt(dst.safetyDeposit),
                 chainId: BigInt(dst.chainId),
                 feeParameters:
-                    FeeParameters.fromHex(dst.parameters) ?? undefined
+                    FeeParameters.decode(dst.parameters) ?? undefined
             })
         )
     }

@@ -13,8 +13,6 @@ import {
 } from '../../domains/addresses/index.js'
 import {bufferFromHex} from '../../utils/bytes.js'
 
-const EMPTY_PARAMETERS = '0x'
-
 /**
  * Contains escrow params for both source and destination chains.
  * Determines addresses of escrow contracts.
@@ -41,7 +39,7 @@ export class Immutables<A extends AddressLike = AddressLike> {
         public readonly amount: bigint,
         public readonly safetyDeposit: bigint,
         public readonly timeLocks: TimeLocks,
-        public readonly parameters: string
+        public readonly parameters?: FeeParameters
     ) {
         this.token = this.token.zeroAsNative() as A
     }
@@ -55,7 +53,7 @@ export class Immutables<A extends AddressLike = AddressLike> {
         amount: bigint
         safetyDeposit: bigint
         timeLocks: TimeLocks
-        parameters?: string
+        parameters?: FeeParameters
     }): Immutables<A> {
         return new Immutables(
             params.orderHash,
@@ -66,7 +64,7 @@ export class Immutables<A extends AddressLike = AddressLike> {
             params.amount,
             params.safetyDeposit,
             params.timeLocks,
-            params.parameters ?? EMPTY_PARAMETERS
+            params.parameters
         )
     }
 
@@ -115,7 +113,7 @@ export class Immutables<A extends AddressLike = AddressLike> {
             BigInt(data.amount),
             BigInt(data.safetyDeposit),
             TimeLocks.fromBigInt(BigInt(data.timelocks)),
-            data.parameters ?? EMPTY_PARAMETERS
+            data.parameters ? FeeParameters.decode(data?.parameters) : undefined
         ) as unknown as Immutables<T>
     }
 
@@ -167,6 +165,7 @@ export class Immutables<A extends AddressLike = AddressLike> {
      */
     hash(): string {
         const coder = AbiCoder.defaultAbiCoder()
+        // todo: fix this as paramenters is optional
         const parametersHash = keccak256(this.parameters || '0x')
 
         const encoded = coder.encode(
@@ -207,7 +206,7 @@ export class Immutables<A extends AddressLike = AddressLike> {
             amount: this.amount.toString(),
             safetyDeposit: this.safetyDeposit.toString(),
             timelocks: this.timeLocks.build().toString(),
-            parameters: this.parameters
+            parameters: this.parameters?.encode()
         }
     }
 

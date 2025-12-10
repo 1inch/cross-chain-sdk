@@ -1,6 +1,7 @@
 import {ZX} from '@1inch/fusion-sdk'
 import {coder} from '../../utils/coder.js'
 import {EvmAddress} from '../addresses/index.js'
+import {FeeParametersData} from './types'
 
 /**
  * Fee parameters stored in Immutables.parameters and DstImmutablesComplement.parameters.
@@ -33,12 +34,7 @@ export class FeeParameters {
         public readonly integratorFeeRecipient: EvmAddress
     ) {}
 
-    static fromJSON(data: {
-        protocolFeeAmount: string
-        integratorFeeAmount: string
-        protocolFeeRecipient: string
-        integratorFeeRecipient: string
-    }): FeeParameters {
+    static fromJSON(data: FeeParametersData): FeeParameters {
         return new FeeParameters(
             BigInt(data.protocolFeeAmount),
             BigInt(data.integratorFeeAmount),
@@ -47,9 +43,9 @@ export class FeeParameters {
         )
     }
 
-    static fromHex(bytes: string): FeeParameters | null {
+    static decode(bytes: string): FeeParameters {
         if (bytes === ZX) {
-            return null
+            return FeeParameters.EMPTY
         }
 
         const [
@@ -71,7 +67,7 @@ export class FeeParameters {
      * Encode fee parameters to bytes.
      * Always encodes all 4 fields (128 bytes) because the contract reads them in withdraw().
      */
-    toString(): string {
+    encode(): string {
         return coder.encode(FeeParameters.ABI_TYPES, [
             this.protocolFeeAmount,
             this.integratorFeeAmount,
@@ -80,12 +76,7 @@ export class FeeParameters {
         ])
     }
 
-    toJSON(): {
-        protocolFeeAmount: string
-        integratorFeeAmount: string
-        protocolFeeRecipient: string
-        integratorFeeRecipient: string
-    } {
+    toJSON(): FeeParametersData {
         return {
             protocolFeeAmount: this.protocolFeeAmount.toString(),
             integratorFeeAmount: this.integratorFeeAmount.toString(),

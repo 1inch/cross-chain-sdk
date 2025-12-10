@@ -10,7 +10,7 @@ describe('FeeParameters', () => {
         '000000000000000000000000834704408a83c220ac4a85bf5c7c42307c4be4a5'
 
     it('should decode from smart contract', () => {
-        const fees = FeeParameters.fromHex(CONTRACT_FEE_PARAMETERS)
+        const fees = FeeParameters.decode(CONTRACT_FEE_PARAMETERS)
 
         expect(fees).not.toBeNull()
         expect(fees!.protocolFeeAmount).toBe(5556n)
@@ -24,7 +24,7 @@ describe('FeeParameters', () => {
     })
 
     it('should encode exactly matching smart contract', () => {
-        const fees = FeeParameters.fromHex(CONTRACT_FEE_PARAMETERS)
+        const fees = FeeParameters.decode(CONTRACT_FEE_PARAMETERS)
 
         expect(fees).not.toBeNull()
         expect(fees!.toString().toLowerCase()).toBe(
@@ -33,7 +33,7 @@ describe('FeeParameters', () => {
     })
 
     it('should return null for empty parameters', () => {
-        expect(FeeParameters.fromHex('0x')).toBeNull()
+        expect(FeeParameters.decode('0x')).toBeNull()
     })
 
     it('should encode EMPTY as 128 bytes', () => {
