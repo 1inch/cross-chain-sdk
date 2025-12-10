@@ -39,7 +39,7 @@ export class Immutables<A extends AddressLike = AddressLike> {
         public readonly amount: bigint,
         public readonly safetyDeposit: bigint,
         public readonly timeLocks: TimeLocks,
-        public readonly parameters?: Fees
+        public readonly parameters: Fees
     ) {
         this.token = this.token.zeroAsNative() as A
     }
@@ -53,7 +53,7 @@ export class Immutables<A extends AddressLike = AddressLike> {
         amount: bigint
         safetyDeposit: bigint
         timeLocks: TimeLocks
-        parameters?: Fees
+        parameters: Fees
     }): Immutables<A> {
         return new Immutables(
             params.orderHash,
@@ -113,7 +113,7 @@ export class Immutables<A extends AddressLike = AddressLike> {
             BigInt(data.amount),
             BigInt(data.safetyDeposit),
             TimeLocks.fromBigInt(BigInt(data.timelocks)),
-            data.parameters ? Fees.decode(data?.parameters) : undefined
+            Fees.decode(data?.parameters)
         ) as unknown as Immutables<T>
     }
 
@@ -165,10 +165,7 @@ export class Immutables<A extends AddressLike = AddressLike> {
      */
     hash(): string {
         const coder = AbiCoder.defaultAbiCoder()
-        // todo: fix this as paramenters is optional
-        const parametersHash = this.parameters
-            ? keccak256(this.parameters.encode())
-            : undefined
+        const parametersHash = keccak256(this.parameters.encode())
 
         const encoded = coder.encode(
             [

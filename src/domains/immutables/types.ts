@@ -10,7 +10,7 @@ export type ImmutablesData = {
     amount: string
     safetyDeposit: string
     timelocks: string
-    parameters?: string
+    parameters: string
 }
 
 /**
