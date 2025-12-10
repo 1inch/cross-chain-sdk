@@ -1,4 +1,10 @@
-import {BitMask, BN, trim0x, UINT_128_MAX} from '@1inch/byte-utils'
+import {
+    BitMask,
+    BN,
+    UINT_128_MAX,
+    BytesIter,
+    BytesBuilder
+} from '@1inch/byte-utils'
 import {
     FusionExtension,
     Extension,
@@ -30,13 +36,14 @@ import {coder} from '../../utils/coder.js'
 export class EscrowExtension extends FusionExtension {
     private static readonly CROSS_CHAIN_DATA_TYPES = [
         HashLock.Web3Type,
-        'uint256',
-        'uint256',
-        'uint256',
+        'uint256', // dst chain id
+        'uint256', // dst token
+        'uint256', // src/dst safety deposit
         TimeLocks.Web3Type
     ] as const
 
-    private static readonly CROSS_CHAIN_DATA_LENGTH = 320
+    /** Cross-chain data is 160 bytes */
+    private static readonly CROSS_CHAIN_DATA_BYTES = 160
 
     // eslint-disable-next-line max-params
     constructor(
@@ -74,33 +81,36 @@ export class EscrowExtension extends FusionExtension {
     }
 
     /**
-     * Create EscrowExtension from Extension (cross-chain format)
+     * Create EscrowExtension from Extension
      */
     static fromExtension(extension: Extension): EscrowExtension {
         const pi = extension.postInteraction
 
         const crossChainData = EscrowExtension.decodeCrossChainData(
-            '0x' + pi.slice(-EscrowExtension.CROSS_CHAIN_DATA_LENGTH)
+            BytesIter.HexString(pi).nextBytes(
+                EscrowExtension.CROSS_CHAIN_DATA_BYTES,
+                BytesIter.SIDE.Back
+            )
         )
 
-        const callbackEnd = 42
-        const integratorEnd = 82
-        const protocolEnd = 122
-        const feeDataEnd = pi.length - EscrowExtension.CROSS_CHAIN_DATA_LENGTH
+        const iter = BytesIter.HexString(pi)
+        const callback = iter.nextAddress()
+        const integrator = iter.nextAddress()
+        const protocol = iter.nextAddress()
 
-        const callback = pi.slice(0, callbackEnd)
-        const integrator = pi.slice(callbackEnd, integratorEnd)
-        const protocol = pi.slice(integratorEnd, protocolEnd)
-        const feeAndWhitelist = pi.slice(protocolEnd, feeDataEnd)
+        const restBytes = (iter.rest().length - 2) / 2
+        const feeAndWhitelistLength =
+            restBytes - EscrowExtension.CROSS_CHAIN_DATA_BYTES
+        const feeAndWhitelist = iter.nextBytes(feeAndWhitelistLength)
 
-        // Insert flags and surplus for Fusion decoder compatibility
-        const postInteractionForFusion =
-            callback +
-            '00' +
-            integrator +
-            protocol +
-            feeAndWhitelist +
-            '0'.repeat(66)
+        const postInteractionForFusion = new BytesBuilder()
+            .addAddress(callback)
+            .addUint8(0n) // flags
+            .addAddress(integrator)
+            .addAddress(protocol)
+            .addBytes(feeAndWhitelist)
+            .addBytes('0x' + '0'.repeat(66)) // surplus
+            .asHex()
 
         const fusionExt = FusionExtension.fromExtension(
             new Extension({
@@ -155,34 +165,33 @@ export class EscrowExtension extends FusionExtension {
     }
 
     /**
-     * Build extension in cross-chain format (strips flags and surplus from Fusion output)
+     * Build extension
      */
     override build(): Extension {
         const baseExt = super.build()
-        const pi = baseExt.postInteraction
 
-        const callbackEnd = 42
-        const flagsEnd = 44
-        const integratorEnd = 84
-        const protocolEnd = 124
+        const iter = BytesIter.HexString(baseExt.postInteraction)
+        const callback = iter.nextAddress()
+        const flags = new BN(BigInt(iter.nextUint8()))
+        const integrator = iter.nextAddress()
+        const protocol = iter.nextAddress()
 
-        const callback = pi.slice(0, callbackEnd)
-        const integrator = pi.slice(flagsEnd, integratorEnd)
-        const protocol = pi.slice(integratorEnd, protocolEnd)
+        // Skip custom receiver if present
+        if (flags.getBit(0n)) {
+            iter.nextAddress()
+        }
 
-        const flags = parseInt(pi.slice(callbackEnd, flagsEnd), 16)
-        const hasCustomReceiver = (flags & 1) !== 0
+        const restBytes = (iter.rest().length - 2) / 2
+        const feeAndWhitelistLength = restBytes - 33 // surplus bytes
+        const feeAndWhitelist = iter.nextBytes(feeAndWhitelistLength)
 
-        const feeDataStart = hasCustomReceiver ? protocolEnd + 40 : protocolEnd
-        const feeDataEnd = pi.length - 66
-        const feeAndWhitelist = pi.slice(feeDataStart, feeDataEnd)
-
-        const postInteraction =
-            callback +
-            integrator +
-            protocol +
-            feeAndWhitelist +
-            trim0x(this.encodeCrossChainData())
+        const postInteraction = new BytesBuilder()
+            .addAddress(callback)
+            .addAddress(integrator)
+            .addAddress(protocol)
+            .addBytes(feeAndWhitelist)
+            .addBytes(this.encodeCrossChainData())
+            .asHex()
 
         return new Extension({
             ...baseExt,

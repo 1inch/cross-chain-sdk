@@ -57,6 +57,7 @@ describe('EVM to EVM', () => {
 
         const order = EvmCrossChainOrder.new(
             EvmAddress.fromString(srcChain.addresses.escrowFactory),
+            // 1 WETH -> 1000 USDC
             {
                 maker,
                 makerAsset: EvmAddress.fromString(WETH_EVM),
@@ -130,15 +131,17 @@ describe('EVM to EVM', () => {
             EvmAddress.fromString(srcChain.addresses.escrowFactory)
         ).getSrcEscrowAddress(
             srcImmutables,
-            EvmAddress.fromString(add0x(srcImplAddress.slice(-40)))
+            EvmAddress.fromString(add0x(srcImplAddress.slice(-40))) // decode from bytes32
         )
 
+        // wait for src finalization
         await advanceNodeTime(20)
 
         const takerAsset = order.takerAsset
         assert(takerAsset instanceof EvmAddress)
 
         let dstImmutables = srcImmutables.withComplement(
+            // actually should be parsed from event in src escrow tx
             DstImmutablesComplement.new({
                 amount: order.takingAmount,
                 safetyDeposit: order.dstSafetyDeposit,
@@ -176,11 +179,13 @@ describe('EVM to EVM', () => {
             EvmAddress.fromString(dstChain.addresses.escrowFactory)
         ).getSrcEscrowAddress(
             dstImmutables,
-            EvmAddress.fromString(add0x(dstImplAddress.slice(-40)))
+            EvmAddress.fromString(add0x(dstImplAddress.slice(-40))) // decode from bytes32
         )
 
+        // wait for dst finalization
         await advanceNodeTime(20)
 
+        // user makes validation and shares secret
         const srcWithdraw = await srcChain.taker.send(
             {
                 to: resolver.toString(),
@@ -199,7 +204,7 @@ describe('EVM to EVM', () => {
                 to: resolver.toString(),
                 data: resolverContract.encodeFunctionData('withdraw', [
                     dstEscrowAddress.toString(),
-                    secret,
+                    secret, // user shared secret at this point
                     dstImmutables.build()
                 ])
             },
