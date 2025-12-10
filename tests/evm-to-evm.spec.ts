@@ -17,7 +17,7 @@ import {AuctionDetails} from '../src/domains/auction-details/index.js'
 import {HashLock} from '../src/domains/hash-lock/index.js'
 import {EscrowFactoryFacade} from '../src/contracts/evm/escrow-factory-facade.js'
 import {DstImmutablesComplement} from '../src/domains/immutables/index.js'
-import {FeeParameters} from '../src/domains/fee-parameters/index.js'
+import {Fees} from '../src/domains/fee-parameters/index.js'
 
 jest.setTimeout(1000 * 10 * 60)
 
@@ -51,7 +51,7 @@ describe('EVM to EVM', () => {
 
     async function performSwap(params?: {
         fees?: Fees
-        feeParameters?: FeeParameters
+        feeParameters?: Fees
     }): Promise<{order: EvmCrossChainOrder}> {
         const secret = getSecret()
 
@@ -236,7 +236,7 @@ describe('EVM to EVM', () => {
     })
 
     it('should swap with zero fees', async () => {
-        const zeroFees = new FeeParameters(
+        const zeroFees = new Fees(
             0n,
             0n,
             '0x0000000000000000000000000000000000000000',
@@ -289,7 +289,7 @@ describe('EVM to EVM', () => {
         const resolverFeeAmount = (takingAmount * resolverFeeBps) / 10000n
         const integratorFeeAmount = (takingAmount * integratorFeeBps) / 10000n
 
-        const feeParameters = new FeeParameters(
+        const feeParameters = new Fees(
             resolverFeeAmount,
             integratorFeeAmount,
             protocolAddress,

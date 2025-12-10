@@ -1,6 +1,6 @@
 import {DstImmutablesComplementData} from './types.js'
 import {AddressLike} from '../addresses/index.js'
-import {FeeParameters} from '../fee-parameters/index.js'
+import {Fees} from '../fee-parameters/index.js'
 
 /**
  * Complement data for destination chain immutables.
@@ -33,9 +33,9 @@ export class DstImmutablesComplement<A extends AddressLike> {
         taker: A
         safetyDeposit: bigint
         chainId: bigint
-        feeParameters?: FeeParameters
+        feeParameters?: Fees
     }): DstImmutablesComplement<A> {
-        const feeParams = params.feeParameters ?? FeeParameters.EMPTY
+        const feeParams = params.feeParameters ?? Fees.ZERO
 
         return new DstImmutablesComplement(
             params.maker,

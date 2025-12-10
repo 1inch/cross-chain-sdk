@@ -1,1 +1,1 @@
-export {FeeParameters} from './fee-parameters.js'
+export {Fees} from './fees.js'

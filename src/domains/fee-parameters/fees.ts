@@ -1,7 +1,7 @@
 import {ZX} from '@1inch/fusion-sdk'
+import {FeeParametersData} from './types.js'
 import {coder} from '../../utils/coder.js'
 import {EvmAddress} from '../addresses/index.js'
-import {FeeParametersData} from './types'
 
 /**
  * Fee parameters stored in Immutables.parameters and DstImmutablesComplement.parameters.
@@ -12,13 +12,8 @@ import {FeeParametersData} from './types'
  * - protocolFeeRecipient: Address to receive protocol fees
  * - integratorFeeRecipient: Address to receive integrator fees
  */
-export class FeeParameters {
-    static readonly EMPTY = new FeeParameters(
-        0n,
-        0n,
-        EvmAddress.ZERO,
-        EvmAddress.ZERO
-    )
+export class Fees {
+    static readonly ZERO = new Fees(0n, 0n, EvmAddress.ZERO, EvmAddress.ZERO)
 
     private static readonly ABI_TYPES = [
         'uint256',
@@ -34,8 +29,8 @@ export class FeeParameters {
         public readonly integratorFeeRecipient: EvmAddress
     ) {}
 
-    static fromJSON(data: FeeParametersData): FeeParameters {
-        return new FeeParameters(
+    static fromJSON(data: FeeParametersData): Fees {
+        return new Fees(
             BigInt(data.protocolFeeAmount),
             BigInt(data.integratorFeeAmount),
             EvmAddress.fromString(data.protocolFeeRecipient),
@@ -43,9 +38,9 @@ export class FeeParameters {
         )
     }
 
-    static decode(bytes: string): FeeParameters {
+    static decode(bytes: string): Fees {
         if (bytes === ZX) {
-            return FeeParameters.EMPTY
+            return Fees.ZERO
         }
 
         const [
@@ -53,9 +48,9 @@ export class FeeParameters {
             integratorFeeAmount,
             protocolFeeRecipient,
             integratorFeeRecipient
-        ] = coder.decode(FeeParameters.ABI_TYPES, bytes)
+        ] = coder.decode(Fees.ABI_TYPES, bytes)
 
-        return new FeeParameters(
+        return new Fees(
             BigInt(protocolFeeAmount),
             BigInt(integratorFeeAmount),
             EvmAddress.fromString(protocolFeeRecipient),
@@ -68,7 +63,7 @@ export class FeeParameters {
      * Always encodes all 4 fields (128 bytes) because the contract reads them in withdraw().
      */
     encode(): string {
-        return coder.encode(FeeParameters.ABI_TYPES, [
+        return coder.encode(Fees.ABI_TYPES, [
             this.protocolFeeAmount,
             this.integratorFeeAmount,
             this.protocolFeeRecipient.toString(),

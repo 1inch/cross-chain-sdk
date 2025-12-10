@@ -5,7 +5,7 @@ import {DstImmutablesComplement} from './dst-immutables-complement.js'
 import {ImmutablesData} from './types.js'
 import {HashLock} from '../hash-lock/index.js'
 import {TimeLocks} from '../time-locks/index.js'
-import {FeeParameters} from '../fee-parameters/index.js'
+import {Fees} from '../fee-parameters/index.js'
 import {
     AddressLike,
     EvmAddress,
@@ -39,7 +39,7 @@ export class Immutables<A extends AddressLike = AddressLike> {
         public readonly amount: bigint,
         public readonly safetyDeposit: bigint,
         public readonly timeLocks: TimeLocks,
-        public readonly parameters?: FeeParameters
+        public readonly parameters?: Fees
     ) {
         this.token = this.token.zeroAsNative() as A
     }
@@ -53,7 +53,7 @@ export class Immutables<A extends AddressLike = AddressLike> {
         amount: bigint
         safetyDeposit: bigint
         timeLocks: TimeLocks
-        parameters?: FeeParameters
+        parameters?: Fees
     }): Immutables<A> {
         return new Immutables(
             params.orderHash,
@@ -113,7 +113,7 @@ export class Immutables<A extends AddressLike = AddressLike> {
             BigInt(data.amount),
             BigInt(data.safetyDeposit),
             TimeLocks.fromBigInt(BigInt(data.timelocks)),
-            data.parameters ? FeeParameters.decode(data?.parameters) : undefined
+            data.parameters ? Fees.decode(data?.parameters) : undefined
         ) as unknown as Immutables<T>
     }
 
@@ -156,7 +156,7 @@ export class Immutables<A extends AddressLike = AddressLike> {
         return Immutables.new({...this, parameters})
     }
 
-    withFeeParameters(fees: FeeParameters): Immutables<A> {
+    withFeeParameters(fees: Fees): Immutables<A> {
         return this.withParameters(fees.toString())
     }
 
@@ -166,7 +166,9 @@ export class Immutables<A extends AddressLike = AddressLike> {
     hash(): string {
         const coder = AbiCoder.defaultAbiCoder()
         // todo: fix this as paramenters is optional
-        const parametersHash = keccak256(this.parameters || '0x')
+        const parametersHash = this.parameters
+            ? keccak256(this.parameters.encode())
+            : undefined
 
         const encoded = coder.encode(
             [
