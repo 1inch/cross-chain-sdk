@@ -155,13 +155,19 @@ describe('EVM to EVM', () => {
             DstImmutablesComplement.new({
                 amount: order.takingAmount,
                 safetyDeposit: order.dstSafetyDeposit,
-                maker: resolver,
+                maker: maker,
                 taker: srcImmutables.taker,
                 token: takerAsset,
                 chainId: BigInt(dstChain.chainId),
                 fees: immutablesFees
             })
         )
+
+        expect(srcImmutables.maker.toString()).toBe(maker.toString())
+        expect(srcImmutables.taker.toString()).toBe(resolver.toString())
+
+        expect(dstImmutables.maker.toString()).toBe(maker.toString())
+        expect(dstImmutables.taker.toString()).toBe(resolver.toString())
 
         const dstEscrow = await dstChain.taker.send(
             {
@@ -192,7 +198,7 @@ describe('EVM to EVM', () => {
             DstImmutablesComplement.new({
                 amount: order.takingAmount,
                 safetyDeposit: order.dstSafetyDeposit,
-                maker: resolver,
+                maker,
                 taker: srcImmutables.taker,
                 token: takerAsset,
                 chainId: BigInt(dstChain.chainId),
@@ -345,10 +351,10 @@ describe('EVM to EVM', () => {
 
         expect(
             initBalances.dstUsdc.resolver - finalBalances.dstUsdc.resolver
-        ).toBe(expectedProtocolFee + expectedIntegratorFee)
+        ).toBe(order.takingAmount)
 
         expect(finalBalances.dstUsdc.maker - initBalances.dstUsdc.maker).toBe(
-            0n
+            order.takingAmount - expectedProtocolFee - expectedIntegratorFee
         )
 
         expect(
@@ -358,5 +364,13 @@ describe('EVM to EVM', () => {
         expect(
             finalBalances.dstUsdc.integrator - initBalances.dstUsdc.integrator
         ).toBe(expectedIntegratorFee)
+
+        expect(order.maker.toString()).toBe(maker.toString())
+        expect(fees.protocol.toString().toLowerCase()).toBe(
+            protocolAddress.toLowerCase()
+        )
+        expect(fees.integrator.integrator.toString().toLowerCase()).toBe(
+            integratorAddress.toLowerCase()
+        )
     })
 })

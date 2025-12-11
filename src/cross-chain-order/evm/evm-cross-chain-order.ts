@@ -408,7 +408,12 @@ export class EvmCrossChainOrder extends BaseOrder<
         blockBaseFee = 0n,
         makingAmount = this.makingAmount
     ): bigint {
-        return this.inner.getProtocolFee(taker.inner, time, blockBaseFee, makingAmount)
+        return this.inner.getProtocolFee(
+            taker.inner,
+            time,
+            blockBaseFee,
+            makingAmount
+        )
     }
 
     /**
@@ -425,6 +430,11 @@ export class EvmCrossChainOrder extends BaseOrder<
         blockBaseFee = 0n,
         makingAmount = this.makingAmount
     ): bigint {
-        return this.inner.getIntegratorFee(taker.inner, time, blockBaseFee, makingAmount)
+        return this.inner.getIntegratorFee(
+            taker.inner,
+            time,
+            blockBaseFee,
+            makingAmount
+        )
     }
 }
