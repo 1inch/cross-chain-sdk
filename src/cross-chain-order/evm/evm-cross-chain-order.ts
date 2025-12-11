@@ -393,4 +393,38 @@ export class EvmCrossChainOrder extends BaseOrder<
     public canExecuteAt(executor: EvmAddress, executionTime: bigint): boolean {
         return this.inner.canExecuteAt(executor.inner, executionTime)
     }
+
+    /**
+     * Calculate protocol fee for the given parameters
+     *
+     * @param taker address of taker (resolver)
+     * @param time execution timestamp in sec
+     * @param blockBaseFee block base fee in wei (optional)
+     * @param makingAmount amount to fill (defaults to full order)
+     */
+    public getProtocolFee(
+        taker: EvmAddress,
+        time: bigint,
+        blockBaseFee = 0n,
+        makingAmount = this.makingAmount
+    ): bigint {
+        return this.inner.getProtocolFee(taker.inner, time, blockBaseFee, makingAmount)
+    }
+
+    /**
+     * Calculate integrator fee for the given parameters
+     *
+     * @param taker address of taker (resolver)
+     * @param time execution timestamp in sec
+     * @param blockBaseFee block base fee in wei (optional)
+     * @param makingAmount amount to fill (defaults to full order)
+     */
+    public getIntegratorFee(
+        taker: EvmAddress,
+        time: bigint,
+        blockBaseFee = 0n,
+        makingAmount = this.makingAmount
+    ): bigint {
+        return this.inner.getIntegratorFee(taker.inner, time, blockBaseFee, makingAmount)
+    }
 }

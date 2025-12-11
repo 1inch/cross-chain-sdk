@@ -50,8 +50,7 @@ describe('EVM to EVM', () => {
 
     async function performSwap(params?: {
         fees?: Fees
-        immutablesFees?: ImmutablesFees
-    }): Promise<{order: EvmCrossChainOrder}> {
+    }): Promise<{order: EvmCrossChainOrder; blockTimestamp: bigint}> {
         const secret = getSecret()
 
         const order = EvmCrossChainOrder.new(
@@ -91,6 +90,18 @@ describe('EVM to EVM', () => {
                 nonce: randBigInt(UINT_40_MAX)
             }
         )
+
+        const currentTime = BigInt(Math.floor(Date.now() / 1000))
+        const immutablesFees = params?.fees
+            ? new ImmutablesFees(
+                  order.getProtocolFee(resolver, currentTime),
+                  order.getIntegratorFee(resolver, currentTime),
+                  EvmAddress.fromString(params.fees.protocol.toString()),
+                  EvmAddress.fromString(
+                      params.fees.integrator.integrator.toString()
+                  )
+              )
+            : undefined
 
         const signature = await srcChain.maker.signTypedData(
             order.getTypedData(srcChain.chainId)
@@ -148,7 +159,7 @@ describe('EVM to EVM', () => {
                 taker: srcImmutables.taker,
                 token: takerAsset,
                 chainId: BigInt(dstChain.chainId),
-                fees: params?.immutablesFees
+                fees: immutablesFees
             })
         )
 
@@ -185,7 +196,7 @@ describe('EVM to EVM', () => {
                 taker: srcImmutables.taker,
                 token: takerAsset,
                 chainId: BigInt(dstChain.chainId),
-                fees: params?.immutablesFees
+                fees: immutablesFees
             }),
             dstEscrow.blockTimestamp,
             srcImmutables.taker,
@@ -222,7 +233,7 @@ describe('EVM to EVM', () => {
             dstChain.localNode
         )
 
-        return {order}
+        return {order, blockTimestamp: dstWithdraw.blockTimestamp}
     }
 
     beforeAll(async () => {
@@ -246,9 +257,7 @@ describe('EVM to EVM', () => {
     })
 
     it('should swap with zero fees', async () => {
-        const zeroFees = ImmutablesFees.ZERO
-
-        const {order} = await performSwap({immutablesFees: zeroFees})
+        const {order} = await performSwap()
         expect(order).toBeDefined()
     })
 
@@ -290,17 +299,6 @@ describe('EVM to EVM', () => {
             )
         )
 
-        const takingAmount = parseUnits('1000', 6)
-        const resolverFeeAmount = (takingAmount * resolverFeeBps) / 10000n
-        const integratorFeeAmount = (takingAmount * integratorFeeBps) / 10000n
-
-        const immutablesFees = new ImmutablesFees(
-            resolverFeeAmount,
-            integratorFeeAmount,
-            EvmAddress.fromString(protocolAddress),
-            EvmAddress.fromString(integratorAddress)
-        )
-
         const initBalances = {
             srcWeth: {
                 maker: await srcChain.maker.tokenBalance(WETH_EVM),
@@ -314,7 +312,16 @@ describe('EVM to EVM', () => {
             }
         }
 
-        const {order} = await performSwap({fees, immutablesFees})
+        const {order, blockTimestamp} = await performSwap({fees})
+
+        const expectedProtocolFee = order.getProtocolFee(
+            resolver,
+            blockTimestamp
+        )
+        const expectedIntegratorFee = order.getIntegratorFee(
+            resolver,
+            blockTimestamp
+        )
 
         const finalBalances = {
             srcWeth: {
@@ -338,7 +345,7 @@ describe('EVM to EVM', () => {
 
         expect(
             initBalances.dstUsdc.resolver - finalBalances.dstUsdc.resolver
-        ).toBe(resolverFeeAmount + integratorFeeAmount)
+        ).toBe(expectedProtocolFee + expectedIntegratorFee)
 
         expect(finalBalances.dstUsdc.maker - initBalances.dstUsdc.maker).toBe(
             0n
@@ -346,10 +353,10 @@ describe('EVM to EVM', () => {
 
         expect(
             finalBalances.dstUsdc.protocol - initBalances.dstUsdc.protocol
-        ).toBe(resolverFeeAmount)
+        ).toBe(expectedProtocolFee)
 
         expect(
             finalBalances.dstUsdc.integrator - initBalances.dstUsdc.integrator
-        ).toBe(integratorFeeAmount)
+        ).toBe(expectedIntegratorFee)
     })
 })
