@@ -80,6 +80,18 @@ export class ImmutablesFees {
         return this.encode()
     }
 
+    /**
+     * Check if all fee values are zero.
+     */
+    isZero(): boolean {
+        return (
+            this.protocolFeeAmount === 0n &&
+            this.integratorFeeAmount === 0n &&
+            this.protocolFeeRecipient.equal(EvmAddress.ZERO) &&
+            this.integratorFeeRecipient.equal(EvmAddress.ZERO)
+        )
+    }
+
     toJSON(): FeeParametersData {
         return {
             protocolFeeAmount: this.protocolFeeAmount.toString(),

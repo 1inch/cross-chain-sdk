@@ -6,18 +6,17 @@ import {
     mintTo
 } from '@solana/spl-token'
 import path from 'path'
-import {TestConnection} from './solana-test-connection'
+import {TestConnection} from './solana-test-connection.js'
 
-import {NetworkEnum} from '../../src/chains'
-import {WhitelistContract} from '../../src/contracts/svm/whitelist'
-import {SvmSrcEscrowFactory} from '../../src/contracts/svm/svm-src-escrow-factory'
-import {SvmDstEscrowFactory} from '../../src/contracts/svm/svm-dst-escrow-factory'
+import {NetworkEnum} from '../../src/chains.js'
 
-import {IDL as WhitelistIDL} from '../../src/idl/whitelist'
+import {IDL as WhitelistIDL} from '../../src/idl/whitelist.js'
+import {IDL as SrcEscrowIDL} from '../../src/idl/cross-chain-escrow-src.js'
+import {IDL as DstEscrowIDL} from '../../src/idl/cross-chain-escrow-dst.js'
 
-import {sol, SYSTEM_PROGRAM_ID} from '../utils/solana'
-import {getPda, now} from '../../src/utils'
-import {SolanaAddress} from '../../src/domains/addresses'
+import {sol, SYSTEM_PROGRAM_ID} from '../utils/solana.js'
+import {getPda, now} from '../../src/utils/index.js'
+import {SolanaAddress} from '../../src/domains/addresses/index.js'
 
 export type SolanaNodeConfig = {
     //
@@ -56,12 +55,10 @@ export async function setupSolana(
         owner.publicKey,
         fallbackResolver.publicKey
     ])
-    await initWhitelist(
-        svm,
-        new web3.PublicKey(WhitelistContract.DEFAULT.programId.toBuffer()),
-        owner,
-        [resolver.publicKey, fallbackResolver.publicKey]
-    )
+    await initWhitelist(svm, new web3.PublicKey(WhitelistIDL.address), owner, [
+        resolver.publicKey,
+        fallbackResolver.publicKey
+    ])
 
     await initTokens(svm, owner, [
         {
@@ -108,16 +105,9 @@ export async function setupSolana(
 }
 
 async function startNode(fundAccounts: web3.PublicKey[]): Promise<LiteSVM> {
-    const whitelistProgramId = new web3.PublicKey(
-        WhitelistContract.DEFAULT.programId.toBuffer()
-    )
-    const srcFactoryProgramId = new web3.PublicKey(
-        SvmSrcEscrowFactory.DEFAULT.programId.toBuffer()
-    )
-
-    const dstFactoryProgramId = new web3.PublicKey(
-        SvmDstEscrowFactory.DEFAULT.programId.toBuffer()
-    )
+    const whitelistProgramId = new web3.PublicKey(WhitelistIDL.address)
+    const srcFactoryProgramId = new web3.PublicKey(SrcEscrowIDL.address)
+    const dstFactoryProgramId = new web3.PublicKey(DstEscrowIDL.address)
 
     const svm = new LiteSVM()
 

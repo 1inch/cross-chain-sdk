@@ -1,5 +1,6 @@
 import {AbiCoder, keccak256} from 'ethers'
 import {add0x, isHexBytes} from '@1inch/byte-utils'
+import {ZX} from '@1inch/fusion-sdk'
 import assert from 'assert'
 import {DstImmutablesComplement} from './dst-immutables-complement.js'
 import {ImmutablesData} from './types.js'
@@ -39,7 +40,7 @@ export class Immutables<A extends AddressLike = AddressLike> {
         public readonly amount: bigint,
         public readonly safetyDeposit: bigint,
         public readonly timeLocks: TimeLocks,
-        public readonly fees: ImmutablesFees
+        public readonly fees?: ImmutablesFees
     ) {
         this.token = this.token.zeroAsNative() as A
     }
@@ -53,7 +54,7 @@ export class Immutables<A extends AddressLike = AddressLike> {
         amount,
         safetyDeposit,
         timeLocks,
-        fees = ImmutablesFees.ZERO
+        fees
     }: {
         orderHash: Buffer
         hashLock: HashLock
@@ -114,6 +115,12 @@ export class Immutables<A extends AddressLike = AddressLike> {
 
         const TypedAddress = isSolanaAddress ? SolanaAddress : EvmAddress
 
+        // Decode fees only if parameters is not empty
+        const fees =
+            data.parameters && data.parameters !== ZX
+                ? ImmutablesFees.decode(data.parameters)
+                : undefined
+
         return new Immutables(
             bufferFromHex(data.orderHash),
             HashLock.fromString(data.hashlock),
@@ -123,7 +130,7 @@ export class Immutables<A extends AddressLike = AddressLike> {
             BigInt(data.amount),
             BigInt(data.safetyDeposit),
             TimeLocks.fromBigInt(BigInt(data.timelocks)),
-            ImmutablesFees.decode(data?.parameters)
+            fees
         ) as unknown as Immutables<T>
     }
 
@@ -131,12 +138,21 @@ export class Immutables<A extends AddressLike = AddressLike> {
         return this.build()
     }
 
+    /**
+     * Create DST immutables from SRC immutables with complement data.
+     */
     withComplement<D extends AddressLike>(
         dstComplement: DstImmutablesComplement<D>
     ): Immutables<D> {
         return Immutables.new({
-            ...this,
-            ...dstComplement,
+            orderHash: this.orderHash,
+            hashLock: this.hashLock,
+            maker: dstComplement.maker,
+            taker: dstComplement.taker,
+            token: dstComplement.token,
+            amount: dstComplement.amount,
+            safetyDeposit: dstComplement.safetyDeposit,
+            timeLocks: this.timeLocks,
             fees: dstComplement.fees
         })
     }
@@ -162,10 +178,6 @@ export class Immutables<A extends AddressLike = AddressLike> {
         return Immutables.new({...this, amount})
     }
 
-    withParameters(parameters: string): Immutables<A> {
-        return Immutables.new({...this, fees: parameters})
-    }
-
     withFees(fees: ImmutablesFees): Immutables<A> {
         return Immutables.new({...this, fees})
     }
@@ -175,7 +187,7 @@ export class Immutables<A extends AddressLike = AddressLike> {
      */
     hash(): string {
         const coder = AbiCoder.defaultAbiCoder()
-        const parametersHash = keccak256(this.fees.encode())
+        const parametersHash = keccak256(this.encodeParameters())
 
         const encoded = coder.encode(
             [
@@ -205,6 +217,9 @@ export class Immutables<A extends AddressLike = AddressLike> {
         return keccak256(encoded)
     }
 
+    /**
+     * Build immutables data for contract calls.
+     */
     build(): ImmutablesData {
         return {
             orderHash: add0x(this.orderHash.toString('hex')),
@@ -215,7 +230,7 @@ export class Immutables<A extends AddressLike = AddressLike> {
             amount: this.amount.toString(),
             safetyDeposit: this.safetyDeposit.toString(),
             timelocks: this.timeLocks.build().toString(),
-            parameters: this.fees?.encode()
+            parameters: this.encodeParameters()
         }
     }
 
@@ -224,5 +239,13 @@ export class Immutables<A extends AddressLike = AddressLike> {
             [Immutables.Web3Type],
             [this.build()]
         )
+    }
+
+    /**
+     * Encode fees for contract calls.
+     * Returns '0x' if fees not set, otherwise encoded fees.
+     */
+    private encodeParameters(): string {
+        return this.fees ? this.fees.encode() : ZX
     }
 }

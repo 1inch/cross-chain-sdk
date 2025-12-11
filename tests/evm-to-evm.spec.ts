@@ -16,8 +16,7 @@ import {TimeLocks} from '../src/domains/time-locks/index.js'
 import {AuctionDetails} from '../src/domains/auction-details/index.js'
 import {HashLock} from '../src/domains/hash-lock/index.js'
 import {EscrowFactoryFacade} from '../src/contracts/evm/escrow-factory-facade.js'
-import {DstImmutablesComplement} from '../src/domains/immutables/index.js'
-import {ImmutablesFees} from '../src/domains/immutables-fees/index.js'
+import {DstImmutablesComplement, ImmutablesFees} from '../src/domains/index.js'
 
 jest.setTimeout(1000 * 10 * 60)
 
@@ -51,7 +50,7 @@ describe('EVM to EVM', () => {
 
     async function performSwap(params?: {
         fees?: Fees
-        feeParameters?: ImmutablesFees
+        immutablesFees?: ImmutablesFees
     }): Promise<{order: EvmCrossChainOrder}> {
         const secret = getSecret()
 
@@ -149,7 +148,7 @@ describe('EVM to EVM', () => {
                 taker: srcImmutables.taker,
                 token: takerAsset,
                 chainId: BigInt(dstChain.chainId),
-                fees: params?.feeParameters
+                fees: params?.immutablesFees
             })
         )
 
@@ -177,9 +176,20 @@ describe('EVM to EVM', () => {
         const dstEscrowAddress = EscrowFactoryFacade.getFactory(
             dstChain.chainId,
             EvmAddress.fromString(dstChain.addresses.escrowFactory)
-        ).getSrcEscrowAddress(
-            dstImmutables,
-            EvmAddress.fromString(add0x(dstImplAddress.slice(-40))) // decode from bytes32
+        ).getDstEscrowAddress(
+            srcImmutables,
+            DstImmutablesComplement.new({
+                amount: order.takingAmount,
+                safetyDeposit: order.dstSafetyDeposit,
+                maker: resolver,
+                taker: srcImmutables.taker,
+                token: takerAsset,
+                chainId: BigInt(dstChain.chainId),
+                fees: params?.immutablesFees
+            }),
+            dstEscrow.blockTimestamp,
+            srcImmutables.taker,
+            EvmAddress.fromString(add0x(dstImplAddress.slice(-40)))
         )
 
         // wait for dst finalization
@@ -238,17 +248,13 @@ describe('EVM to EVM', () => {
     it('should swap with zero fees', async () => {
         const zeroFees = ImmutablesFees.ZERO
 
-        const {order} = await performSwap({feeParameters: zeroFees})
+        const {order} = await performSwap({immutablesFees: zeroFees})
         expect(order).toBeDefined()
     })
 
     it('should swap with fees', async () => {
-        const protocolAddress = EvmAddress.fromString(
-            '0x1111111111111111111111111111111111111111'
-        )
-        const integratorAddress = EvmAddress.fromString(
-            '0x2222222222222222222222222222222222222222'
-        )
+        const protocolAddress = '0x1111111111111111111111111111111111111111'
+        const integratorAddress = '0x2222222222222222222222222222222222222222'
 
         const srcResolver = await EvmTestWallet.fromAddress(
             resolver.toString(),
@@ -259,11 +265,11 @@ describe('EVM to EVM', () => {
             dstChain.provider
         )
         const protocol = await EvmTestWallet.fromAddress(
-            protocolAddress.toString(),
+            protocolAddress,
             dstChain.provider
         )
         const integrator = await EvmTestWallet.fromAddress(
-            integratorAddress.toString(),
+            integratorAddress,
             dstChain.provider
         )
 
@@ -272,13 +278,13 @@ describe('EVM to EVM', () => {
 
         const fees = new Fees(
             new ResolverFee(
-                new Address(protocolAddress.toString()),
+                new Address(protocolAddress),
                 new Bps(resolverFeeBps),
                 Bps.fromPercent(10)
             ),
             new IntegratorFee(
-                new Address(integratorAddress.toString()),
-                new Address(protocolAddress.toString()),
+                new Address(integratorAddress),
+                new Address(protocolAddress),
                 new Bps(integratorFeeBps),
                 Bps.fromPercent(20)
             )
@@ -288,11 +294,11 @@ describe('EVM to EVM', () => {
         const resolverFeeAmount = (takingAmount * resolverFeeBps) / 10000n
         const integratorFeeAmount = (takingAmount * integratorFeeBps) / 10000n
 
-        const feeParameters = new ImmutablesFees(
+        const immutablesFees = new ImmutablesFees(
             resolverFeeAmount,
             integratorFeeAmount,
-            protocolAddress,
-            integratorAddress
+            EvmAddress.fromString(protocolAddress),
+            EvmAddress.fromString(integratorAddress)
         )
 
         const initBalances = {
@@ -308,7 +314,7 @@ describe('EVM to EVM', () => {
             }
         }
 
-        const {order} = await performSwap({fees, feeParameters})
+        const {order} = await performSwap({fees, immutablesFees})
 
         const finalBalances = {
             srcWeth: {
@@ -330,6 +336,20 @@ describe('EVM to EVM', () => {
             finalBalances.srcWeth.resolver - initBalances.srcWeth.resolver
         ).toBe(order.makingAmount)
 
-        // todo: fix remaining
+        expect(
+            initBalances.dstUsdc.resolver - finalBalances.dstUsdc.resolver
+        ).toBe(resolverFeeAmount + integratorFeeAmount)
+
+        expect(finalBalances.dstUsdc.maker - initBalances.dstUsdc.maker).toBe(
+            0n
+        )
+
+        expect(
+            finalBalances.dstUsdc.protocol - initBalances.dstUsdc.protocol
+        ).toBe(resolverFeeAmount)
+
+        expect(
+            finalBalances.dstUsdc.integrator - initBalances.dstUsdc.integrator
+        ).toBe(integratorFeeAmount)
     })
 })
