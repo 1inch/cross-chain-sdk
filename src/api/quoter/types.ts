@@ -1,4 +1,5 @@
-import {AuctionPoint} from '../../domains/index.js'
+import {Bps} from '@1inch/limit-order-sdk'
+import {AuctionPoint, EvmAddress} from '../../domains/index.js'
 import {SupportedChain} from '../../chains.js'
 
 export type QuoterRequestParams<
@@ -28,12 +29,24 @@ export type QuoterApiConfig = {
 }
 
 export type ProtocolFeeParams = {
+    receiver: EvmAddress
+    bps: Bps
+    whitelistDiscountPercent: Bps
+}
+
+export type ProtocolFeeParamsRaw = {
     receiver: string
     bps: number
     whitelistDiscountPercent: number
 }
 
 export type IntegratorFeeParams = {
+    receiver: EvmAddress
+    bps: Bps
+    sharePercent: Bps
+}
+
+export type IntegratorFeeParamsRaw = {
     receiver: string
     bps: number
     sharePercent: number
@@ -56,8 +69,8 @@ export type QuoterResponse = {
     autoK: number
     nativeOrderFactoryAddress?: string
     nativeOrderImplAddress?: string
-    protocolFee?: ProtocolFeeParams
-    integratorFee?: IntegratorFeeParams
+    protocolFee?: ProtocolFeeParamsRaw
+    integratorFee?: IntegratorFeeParamsRaw
 }
 
 export type TimeLocksRaw = {

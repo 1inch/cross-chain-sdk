@@ -115,8 +115,28 @@ export class Quote<
                       new Address(response.nativeOrderImplAddress)
                   )
                 : undefined,
-            response.protocolFee,
-            response.integratorFee
+            response?.protocolFee
+                ? {
+                      receiver: EvmAddress.fromString(
+                          response.protocolFee.receiver
+                      ),
+                      bps: new Bps(BigInt(response.protocolFee.bps)),
+                      whitelistDiscountPercent: Bps.fromPercent(
+                          response.protocolFee.whitelistDiscountPercent
+                      )
+                  }
+                : undefined,
+            response?.integratorFee
+                ? {
+                      receiver: EvmAddress.fromString(
+                          response.integratorFee.receiver
+                      ),
+                      bps: new Bps(BigInt(response.integratorFee.bps)),
+                      sharePercent: Bps.fromPercent(
+                          response.integratorFee.sharePercent
+                      )
+                  }
+                : undefined
         )
     }
 
@@ -153,9 +173,7 @@ export class Quote<
             response.prices,
             response.volume,
             response.autoK,
-            undefined, // nativeOrderFactory
-            response.protocolFee,
-            response.integratorFee
+            undefined // nativeOrderFactory
         )
     }
 
@@ -369,23 +387,23 @@ export class Quote<
         }
 
         const protocolReceiver = this.protocolFee
-            ? new Address(this.protocolFee.receiver)
+            ? new Address(this.protocolFee.receiver.toString())
             : Address.ZERO_ADDRESS
 
         const resolverFee = this.protocolFee
             ? new ResolverFee(
                   protocolReceiver,
-                  new Bps(BigInt(this.protocolFee.bps)),
-                  Bps.fromPercent(this.protocolFee.whitelistDiscountPercent)
+                  this.protocolFee.bps,
+                  this.protocolFee.whitelistDiscountPercent
               )
             : ResolverFee.ZERO
 
         const integratorFee = this.integratorFee
             ? new IntegratorFee(
-                  new Address(this.integratorFee.receiver),
+                  new Address(this.integratorFee.receiver.toString()),
                   protocolReceiver,
-                  new Bps(BigInt(this.integratorFee.bps)),
-                  Bps.fromPercent(this.integratorFee.sharePercent)
+                  this.integratorFee.bps,
+                  this.integratorFee.sharePercent
               )
             : IntegratorFee.ZERO
 
