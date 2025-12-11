@@ -100,17 +100,17 @@ export class Immutables<A extends AddressLike = AddressLike> {
         if (isSolanaAddress) {
             assert(
                 data.taker.length === 66,
-                'Invalid Solana taker address length'
+                'invalid Solana taker address length'
             )
             assert(
                 data.token.length === 66,
-                'Invalid Solana token address length'
+                'invalid Solana token address length'
             )
         }
 
         if (isEvmAddress) {
-            assert(data.taker.length === 42, 'Invalid EVM taker address length')
-            assert(data.token.length === 42, 'Invalid EVM token address length')
+            assert(data.taker.length === 42, 'invalid EVM taker address length')
+            assert(data.token.length === 42, 'invalid EVM token address length')
         }
 
         const TypedAddress = isSolanaAddress ? SolanaAddress : EvmAddress
@@ -186,7 +186,7 @@ export class Immutables<A extends AddressLike = AddressLike> {
      */
     hash(): string {
         const coder = AbiCoder.defaultAbiCoder()
-        const parametersHash = keccak256(this.encodeParameters())
+        const parametersHash = keccak256(this.encodeFees())
 
         const encoded = coder.encode(
             [
@@ -229,7 +229,7 @@ export class Immutables<A extends AddressLike = AddressLike> {
             amount: this.amount.toString(),
             safetyDeposit: this.safetyDeposit.toString(),
             timelocks: this.timeLocks.build().toString(),
-            parameters: this.encodeParameters()
+            parameters: this.encodeFees()
         }
     }
 
@@ -244,7 +244,7 @@ export class Immutables<A extends AddressLike = AddressLike> {
      * Encode fees for contract calls.
      * Returns '0x' if fees not set, otherwise encoded fees.
      */
-    private encodeParameters(): string {
+    private encodeFees(): string {
         return this.fees ? this.fees.encode() : ZX
     }
 }
