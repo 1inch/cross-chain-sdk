@@ -115,7 +115,6 @@ export class Immutables<A extends AddressLike = AddressLike> {
 
         const TypedAddress = isSolanaAddress ? SolanaAddress : EvmAddress
 
-        // Decode fees only if parameters is not empty
         const fees =
             data.parameters && data.parameters !== ZX
                 ? ImmutablesFees.decode(data.parameters)
