@@ -29,6 +29,9 @@ export type QuoterApiConfig = {
 }
 
 export type ProtocolFeeParams = {
+    /**
+     * protocol address
+     */
     receiver: EvmAddress
     bps: Bps
     whitelistDiscountPercent: Bps
@@ -41,8 +44,17 @@ export type ProtocolFeeParamsRaw = {
 }
 
 export type IntegratorFeeParams = {
+    /**
+     * Address which will receive `share` of `value` fee, other part will be sent to protocol
+     */
     receiver: EvmAddress
+    /**
+     * How much to charge
+     */
     bps: Bps
+    /**
+     * Integrator will receive only `share` part from charged fee
+     */
     sharePercent: Bps
 }
 
