@@ -6,7 +6,7 @@ import {DstImmutablesComplement} from './dst-immutables-complement.js'
 import {ImmutablesData} from './types.js'
 import {HashLock} from '../hash-lock/index.js'
 import {TimeLocks} from '../time-locks/index.js'
-import {ImmutablesFees} from '../immutables-fees/index.js'
+import {ImmutableFees} from '../immutables-fees/index.js'
 import {
     AddressLike,
     EvmAddress,
@@ -35,27 +35,20 @@ export class Immutables<A extends AddressLike = AddressLike> {
         public readonly orderHash: Buffer,
         public readonly hashLock: HashLock,
         public readonly maker: A,
+        /**
+         * Address who can withdraw funds, also to this address funds will be transferred in case of public withdrawal
+         **/
         public readonly taker: A,
         public readonly token: A,
         public readonly amount: bigint,
         public readonly safetyDeposit: bigint,
         public readonly timeLocks: TimeLocks,
-        public readonly fees?: ImmutablesFees
+        public readonly fees?: ImmutableFees
     ) {
         this.token = this.token.zeroAsNative() as A
     }
 
-    static new<A extends AddressLike>({
-        orderHash,
-        hashLock,
-        maker,
-        taker,
-        token,
-        amount,
-        safetyDeposit,
-        timeLocks,
-        fees
-    }: {
+    static new<A extends AddressLike>(params: {
         orderHash: Buffer
         hashLock: HashLock
         maker: A
@@ -64,21 +57,25 @@ export class Immutables<A extends AddressLike = AddressLike> {
         amount: bigint
         safetyDeposit: bigint
         timeLocks: TimeLocks
-        fees?: ImmutablesFees
+        fees?: ImmutableFees
     }): Immutables<A> {
         return new Immutables(
-            orderHash,
-            hashLock,
-            maker,
-            taker,
-            token,
-            amount,
-            safetyDeposit,
-            timeLocks,
-            fees
+            params.orderHash,
+            params.hashLock,
+            params.maker,
+            params.taker,
+            params.token,
+            params.amount,
+            params.safetyDeposit,
+            params.timeLocks,
+            params?.fees
         )
     }
 
+    /**
+     * Create instance from encoded bytes
+     * @param bytes 0x prefixed hex string
+     */
     static fromABIEncoded(bytes: string): Immutables<EvmAddress> {
         assert(isHexBytes(bytes), 'Invalid hex bytes')
         const result = AbiCoder.defaultAbiCoder().decode(
@@ -117,7 +114,7 @@ export class Immutables<A extends AddressLike = AddressLike> {
 
         const fees =
             data.parameters && data.parameters !== ZX
-                ? ImmutablesFees.decode(data.parameters)
+                ? ImmutableFees.decode(data.parameters)
                 : undefined
 
         return new Immutables(
@@ -133,14 +130,14 @@ export class Immutables<A extends AddressLike = AddressLike> {
         ) as unknown as Immutables<T>
     }
 
-    toJSON(): ImmutablesData {
+    public toJSON(): ImmutablesData {
         return this.build()
     }
 
     /**
      * Create DST immutables from SRC immutables with complement data.
      */
-    withComplement<D extends AddressLike>(
+    public withComplement<D extends AddressLike>(
         dstComplement: DstImmutablesComplement<D>
     ): Immutables<D> {
         return Immutables.new({
@@ -165,19 +162,19 @@ export class Immutables<A extends AddressLike = AddressLike> {
         })
     }
 
-    withTaker(taker: A): Immutables<A> {
+    public withTaker(taker: A): Immutables<A> {
         return Immutables.new({...this, taker})
     }
 
-    withHashLock(hashLock: HashLock): Immutables<A> {
+    public withHashLock(hashLock: HashLock): Immutables<A> {
         return Immutables.new({...this, hashLock})
     }
 
-    withAmount(amount: bigint): Immutables<A> {
+    public withAmount(amount: bigint): Immutables<A> {
         return Immutables.new({...this, amount})
     }
 
-    withFees(fees: ImmutablesFees): Immutables<A> {
+    public withFees(fees: ImmutableFees): Immutables<A> {
         return Immutables.new({...this, fees})
     }
 
@@ -219,7 +216,7 @@ export class Immutables<A extends AddressLike = AddressLike> {
     /**
      * Build immutables data for contract calls.
      */
-    build(): ImmutablesData {
+    public build(): ImmutablesData {
         return {
             orderHash: add0x(this.orderHash.toString('hex')),
             hashlock: this.hashLock.toString(),
@@ -233,7 +230,10 @@ export class Immutables<A extends AddressLike = AddressLike> {
         }
     }
 
-    toABIEncoded(): string {
+    /**
+     * Encode instance as bytes
+     */
+    public toABIEncoded(): string {
         return AbiCoder.defaultAbiCoder().encode(
             [Immutables.Web3Type],
             [this.build()]

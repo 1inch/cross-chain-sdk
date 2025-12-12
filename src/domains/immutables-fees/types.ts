@@ -1,6 +1,6 @@
 export type FeeParametersData = {
-    protocolFeeAmount: string
+    resolverFeeAmount: string
     integratorFeeAmount: string
-    protocolFeeRecipient: string
+    resolverFeeRecipient: string
     integratorFeeRecipient: string
 }

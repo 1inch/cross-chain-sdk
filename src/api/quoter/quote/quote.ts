@@ -21,7 +21,7 @@ import {
     PresetEnum,
     QuoterResponse,
     TimeLocksRaw,
-    ProtocolFeeParams,
+    ResolverFeeParams,
     IntegratorFeeParams
 } from '../types.js'
 import {Preset} from '../preset.js'
@@ -63,7 +63,7 @@ export class Quote<
         public readonly volume: Cost,
         public readonly slippage: number,
         public readonly nativeOrderFactory?: ProxyFactory,
-        public readonly protocolFee?: ProtocolFeeParams,
+        public readonly resolverFee?: ResolverFeeParams,
         public readonly integratorFee?: IntegratorFeeParams
     ) {}
 
@@ -115,14 +115,14 @@ export class Quote<
                       new Address(response.nativeOrderImplAddress)
                   )
                 : undefined,
-            response?.protocolFee
+            response?.resolverFee
                 ? {
                       receiver: EvmAddress.fromString(
-                          response.protocolFee.receiver
+                          response.resolverFee.receiver
                       ),
-                      bps: new Bps(BigInt(response.protocolFee.bps)),
-                      whitelistDiscountPercent: Bps.fromPercent(
-                          response.protocolFee.whitelistDiscountPercent
+                      bps: new Bps(BigInt(response.resolverFee.bps)),
+                      whitelistDiscount: Bps.fromPercent(
+                          response.resolverFee.whitelistDiscountPercent
                       )
                   }
                 : undefined,
@@ -132,7 +132,7 @@ export class Quote<
                           response.integratorFee.receiver
                       ),
                       bps: new Bps(BigInt(response.integratorFee.bps)),
-                      sharePercent: Bps.fromPercent(
+                      share: Bps.fromPercent(
                           response.integratorFee.sharePercent
                       )
                   }
@@ -382,28 +382,28 @@ export class Quote<
     }
 
     private buildFees(): Fees | undefined {
-        if (!this.protocolFee && !this.integratorFee) {
+        if (!this.resolverFee && !this.integratorFee) {
             return undefined
         }
 
-        const protocolReceiver = this.protocolFee
-            ? new Address(this.protocolFee.receiver.toString())
+        const resolverReceiver = this.resolverFee
+            ? new Address(this.resolverFee.receiver.toString())
             : Address.ZERO_ADDRESS
 
-        const resolverFee = this.protocolFee
+        const resolverFee = this.resolverFee
             ? new ResolverFee(
-                  protocolReceiver,
-                  this.protocolFee.bps,
-                  this.protocolFee.whitelistDiscountPercent
+                  resolverReceiver,
+                  this.resolverFee.bps,
+                  this.resolverFee.whitelistDiscount
               )
             : ResolverFee.ZERO
 
         const integratorFee = this.integratorFee
             ? new IntegratorFee(
                   new Address(this.integratorFee.receiver.toString()),
-                  protocolReceiver,
+                  resolverReceiver,
                   this.integratorFee.bps,
-                  this.integratorFee.sharePercent
+                  this.integratorFee.share
               )
             : IntegratorFee.ZERO
 

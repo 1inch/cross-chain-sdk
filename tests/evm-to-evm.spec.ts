@@ -16,7 +16,7 @@ import {TimeLocks} from '../src/domains/time-locks/index.js'
 import {AuctionDetails} from '../src/domains/auction-details/index.js'
 import {HashLock} from '../src/domains/hash-lock/index.js'
 import {EscrowFactoryFacade} from '../src/contracts/evm/escrow-factory-facade.js'
-import {DstImmutablesComplement, ImmutablesFees} from '../src/domains/index.js'
+import {DstImmutablesComplement, ImmutableFees} from '../src/domains/index.js'
 
 jest.setTimeout(1000 * 10 * 60)
 
@@ -93,8 +93,8 @@ describe('EVM to EVM', () => {
 
         const currentTime = BigInt(Math.floor(Date.now() / 1000))
         const immutablesFees = params?.fees
-            ? new ImmutablesFees(
-                  order.getProtocolFee(resolver, currentTime),
+            ? new ImmutableFees(
+                  order.getResolverFee(resolver, currentTime),
                   order.getIntegratorFee(resolver, currentTime),
                   EvmAddress.fromString(params.fees.protocol.toString()),
                   EvmAddress.fromString(
@@ -320,7 +320,7 @@ describe('EVM to EVM', () => {
 
         const {order, blockTimestamp} = await performSwap({fees})
 
-        const expectedProtocolFee = order.getProtocolFee(
+        const expectedResolverFee = order.getResolverFee(
             resolver,
             blockTimestamp
         )
@@ -354,12 +354,12 @@ describe('EVM to EVM', () => {
         ).toBe(order.takingAmount)
 
         expect(finalBalances.dstUsdc.maker - initBalances.dstUsdc.maker).toBe(
-            order.takingAmount - expectedProtocolFee - expectedIntegratorFee
+            order.takingAmount - expectedResolverFee - expectedIntegratorFee
         )
 
         expect(
             finalBalances.dstUsdc.protocol - initBalances.dstUsdc.protocol
-        ).toBe(expectedProtocolFee)
+        ).toBe(expectedResolverFee)
 
         expect(
             finalBalances.dstUsdc.integrator - initBalances.dstUsdc.integrator

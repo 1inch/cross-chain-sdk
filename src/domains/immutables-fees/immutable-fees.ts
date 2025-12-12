@@ -1,4 +1,5 @@
 import {ZX} from '@1inch/fusion-sdk'
+import assert from 'assert'
 import {FeeParametersData} from './types.js'
 import {coder} from '../../utils/coder.js'
 import {EvmAddress} from '../addresses/index.js'
@@ -7,13 +8,13 @@ import {EvmAddress} from '../addresses/index.js'
  * Fee parameters stored in Immutables.parameters and DstImmutablesComplement.parameters.
  *
  * Contains:
- * - protocolFeeAmount: Fee amount for protocol
+ * - resolverFeeAmount: Fee amount for protocol
  * - integratorFeeAmount: Fee amount for integrator
- * - protocolFeeRecipient: Address to receive protocol fees
+ * - resolverFeeRecipient: Address to receive protocol fees
  * - integratorFeeRecipient: Address to receive integrator fees
  */
-export class ImmutablesFees {
-    static readonly ZERO = new ImmutablesFees(
+export class ImmutableFees {
+    static readonly ZERO = new ImmutableFees(
         0n,
         0n,
         EvmAddress.ZERO,
@@ -28,37 +29,46 @@ export class ImmutablesFees {
     ]
 
     constructor(
-        public readonly protocolFeeAmount: bigint,
+        public readonly resolverFeeAmount: bigint,
         public readonly integratorFeeAmount: bigint,
-        public readonly protocolFeeRecipient: EvmAddress,
+        public readonly resolverFeeRecipient: EvmAddress,
         public readonly integratorFeeRecipient: EvmAddress
-    ) {}
+    ) {
+        assert(
+            resolverFeeAmount === 0n || !resolverFeeRecipient.isZero(),
+            'resolverFeeRecipient must be non-zero when resolverFeeAmount is non-zero'
+        )
+        assert(
+            integratorFeeAmount === 0n || !integratorFeeRecipient.isZero(),
+            'integratorFeeRecipient must be non-zero when integratorFeeAmount is non-zero'
+        )
+    }
 
-    static fromJSON(data: FeeParametersData): ImmutablesFees {
-        return new ImmutablesFees(
-            BigInt(data.protocolFeeAmount),
+    static fromJSON(data: FeeParametersData): ImmutableFees {
+        return new ImmutableFees(
+            BigInt(data.resolverFeeAmount),
             BigInt(data.integratorFeeAmount),
-            EvmAddress.fromString(data.protocolFeeRecipient),
+            EvmAddress.fromString(data.resolverFeeRecipient),
             EvmAddress.fromString(data.integratorFeeRecipient)
         )
     }
 
-    static decode(bytes: string): ImmutablesFees {
+    static decode(bytes: string): ImmutableFees {
         if (bytes === ZX) {
-            return ImmutablesFees.ZERO
+            return ImmutableFees.ZERO
         }
 
         const [
-            protocolFeeAmount,
+            resolverFeeAmount,
             integratorFeeAmount,
-            protocolFeeRecipient,
+            resolverFeeRecipient,
             integratorFeeRecipient
-        ] = coder.decode(ImmutablesFees.ABI_TYPES, bytes)
+        ] = coder.decode(ImmutableFees.ABI_TYPES, bytes)
 
-        return new ImmutablesFees(
-            BigInt(protocolFeeAmount),
+        return new ImmutableFees(
+            BigInt(resolverFeeAmount),
             BigInt(integratorFeeAmount),
-            EvmAddress.fromString(protocolFeeRecipient),
+            EvmAddress.fromString(resolverFeeRecipient),
             EvmAddress.fromString(integratorFeeRecipient)
         )
     }
@@ -68,10 +78,10 @@ export class ImmutablesFees {
      * Always encodes all 4 fields (128 bytes) because the contract reads them in withdraw().
      */
     encode(): string {
-        return coder.encode(ImmutablesFees.ABI_TYPES, [
-            this.protocolFeeAmount,
+        return coder.encode(ImmutableFees.ABI_TYPES, [
+            this.resolverFeeAmount,
             this.integratorFeeAmount,
-            this.protocolFeeRecipient.toString(),
+            this.resolverFeeRecipient.toString(),
             this.integratorFeeRecipient.toString()
         ])
     }
@@ -85,18 +95,18 @@ export class ImmutablesFees {
      */
     isZero(): boolean {
         return (
-            this.protocolFeeAmount === 0n &&
+            this.resolverFeeAmount === 0n &&
             this.integratorFeeAmount === 0n &&
-            this.protocolFeeRecipient.equal(EvmAddress.ZERO) &&
+            this.resolverFeeRecipient.equal(EvmAddress.ZERO) &&
             this.integratorFeeRecipient.equal(EvmAddress.ZERO)
         )
     }
 
     toJSON(): FeeParametersData {
         return {
-            protocolFeeAmount: this.protocolFeeAmount.toString(),
+            resolverFeeAmount: this.resolverFeeAmount.toString(),
             integratorFeeAmount: this.integratorFeeAmount.toString(),
-            protocolFeeRecipient: this.protocolFeeRecipient.toString(),
+            resolverFeeRecipient: this.resolverFeeRecipient.toString(),
             integratorFeeRecipient: this.integratorFeeRecipient.toString()
         }
     }

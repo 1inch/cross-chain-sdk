@@ -1,1 +1,1 @@
-export {ImmutablesFees} from './immutables-fees.js'
+export {ImmutableFees} from './immutable-fees.js'

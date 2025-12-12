@@ -28,16 +28,16 @@ export type QuoterApiConfig = {
     authKey?: string
 }
 
-export type ProtocolFeeParams = {
+export type ResolverFeeParams = {
     /**
-     * protocol address
+     * resolver address
      */
     receiver: EvmAddress
     bps: Bps
-    whitelistDiscountPercent: Bps
+    whitelistDiscount: Bps
 }
 
-export type ProtocolFeeParamsRaw = {
+export type ResolverFeeParamsRaw = {
     receiver: string
     bps: number
     whitelistDiscountPercent: number
@@ -55,7 +55,7 @@ export type IntegratorFeeParams = {
     /**
      * Integrator will receive only `share` part from charged fee
      */
-    sharePercent: Bps
+    share: Bps
 }
 
 export type IntegratorFeeParamsRaw = {
@@ -81,7 +81,7 @@ export type QuoterResponse = {
     autoK: number
     nativeOrderFactoryAddress?: string
     nativeOrderImplAddress?: string
-    protocolFee?: ProtocolFeeParamsRaw
+    resolverFee?: ResolverFeeParamsRaw
     integratorFee?: IntegratorFeeParamsRaw
 }
 

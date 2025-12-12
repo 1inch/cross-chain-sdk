@@ -1,6 +1,6 @@
 import {Interface} from 'ethers'
 import {Immutables, DstImmutablesComplement} from '../immutables/index.js'
-import {ImmutablesFees} from '../immutables-fees/index.js'
+import {ImmutableFees} from '../immutables-fees/index.js'
 import {EvmAddress} from '../addresses/index.js'
 import {ESCROW_FACTORY_ABI} from '../../abi/escrow-factory-abi.js'
 
@@ -45,7 +45,7 @@ export class SrcEscrowCreatedEvent {
                 taker: EvmAddress.ZERO,
                 safetyDeposit: BigInt(dst.safetyDeposit),
                 chainId: BigInt(dst.chainId),
-                fees: ImmutablesFees.decode(dst.parameters) ?? undefined
+                fees: ImmutableFees.decode(dst.parameters) ?? undefined
             })
         )
     }

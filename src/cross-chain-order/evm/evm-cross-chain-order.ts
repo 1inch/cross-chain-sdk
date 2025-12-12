@@ -9,7 +9,8 @@ import {
     MakerTraits,
     Whitelist,
     ZX,
-    NetworkEnum
+    NetworkEnum,
+    AmountCalculator
 } from '@1inch/fusion-sdk'
 import {ProxyFactory} from '@1inch/limit-order-sdk'
 import assert from 'assert'
@@ -395,14 +396,14 @@ export class EvmCrossChainOrder extends BaseOrder<
     }
 
     /**
-     * Calculate protocol fee for the given parameters
+     * Calculate resolver fee for the given parameters
      *
      * @param taker address of taker (resolver)
      * @param time execution timestamp in sec
      * @param blockBaseFee block base fee in wei (optional)
      * @param makingAmount amount to fill (defaults to full order)
      */
-    public getProtocolFee(
+    public getResolverFee(
         taker: EvmAddress,
         time: bigint,
         blockBaseFee = 0n,
@@ -436,5 +437,12 @@ export class EvmCrossChainOrder extends BaseOrder<
             blockBaseFee,
             makingAmount
         )
+    }
+
+    /**
+     * Get amount calculator for this order
+     */
+    public getAmountCalculator(): AmountCalculator {
+        return AmountCalculator.fromExtension(this.inner.fusionExtension)
     }
 }
