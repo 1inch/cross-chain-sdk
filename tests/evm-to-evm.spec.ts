@@ -53,6 +53,47 @@ describe('EVM to EVM', () => {
     }): Promise<{order: EvmCrossChainOrder; blockTimestamp: bigint}> {
         const secret = getSecret()
 
+        const srcResolver = await EvmTestWallet.fromAddress(
+            resolver.toString(),
+            srcChain.provider
+        )
+        const dstResolver = await EvmTestWallet.fromAddress(
+            resolver.toString(),
+            dstChain.provider
+        )
+
+        const protocolAddress = params?.fees?.protocol.toString()
+        const integratorAddress = params?.fees?.integrator.integrator.toString()
+
+        const protocol = protocolAddress
+            ? await EvmTestWallet.fromAddress(
+                  protocolAddress,
+                  dstChain.provider
+              )
+            : null
+        const integrator = integratorAddress
+            ? await EvmTestWallet.fromAddress(
+                  integratorAddress,
+                  dstChain.provider
+              )
+            : null
+
+        // Capture initial balances
+        const initBalances = {
+            srcWeth: {
+                maker: await srcChain.maker.tokenBalance(WETH_EVM),
+                resolver: await srcResolver.tokenBalance(WETH_EVM)
+            },
+            dstUsdc: {
+                maker: await dstChain.maker.tokenBalance(USDC_EVM),
+                resolver: await dstResolver.tokenBalance(USDC_EVM),
+                protocol: protocol ? await protocol.tokenBalance(USDC_EVM) : 0n,
+                integrator: integrator
+                    ? await integrator.tokenBalance(USDC_EVM)
+                    : 0n
+            }
+        }
+
         const order = EvmCrossChainOrder.new(
             EvmAddress.fromString(srcChain.addresses.escrowFactory),
             // 1 WETH -> 1000 USDC
@@ -165,7 +206,6 @@ describe('EVM to EVM', () => {
 
         expect(srcImmutables.maker.toString()).toBe(maker.toString())
         expect(srcImmutables.taker.toString()).toBe(resolver.toString())
-
         expect(dstImmutables.maker.toString()).toBe(maker.toString())
         expect(dstImmutables.taker.toString()).toBe(resolver.toString())
 
@@ -239,7 +279,72 @@ describe('EVM to EVM', () => {
             dstChain.localNode
         )
 
-        return {order, blockTimestamp: dstWithdraw.blockTimestamp}
+        const blockTimestamp = dstWithdraw.blockTimestamp
+
+        const expectedResolverFee = order.getResolverFee(
+            resolver,
+            blockTimestamp
+        )
+        const expectedIntegratorFee = order.getIntegratorFee(
+            resolver,
+            blockTimestamp
+        )
+
+        const finalBalances = {
+            srcWeth: {
+                maker: await srcChain.maker.tokenBalance(WETH_EVM),
+                resolver: await srcResolver.tokenBalance(WETH_EVM)
+            },
+            dstUsdc: {
+                maker: await dstChain.maker.tokenBalance(USDC_EVM),
+                resolver: await dstResolver.tokenBalance(USDC_EVM),
+                protocol: protocol ? await protocol.tokenBalance(USDC_EVM) : 0n,
+                integrator: integrator
+                    ? await integrator.tokenBalance(USDC_EVM)
+                    : 0n
+            }
+        }
+
+        expect(initBalances.srcWeth.maker - finalBalances.srcWeth.maker).toBe(
+            order.makingAmount
+        )
+        expect(
+            finalBalances.srcWeth.resolver - initBalances.srcWeth.resolver
+        ).toBe(order.makingAmount)
+
+        expect(
+            initBalances.dstUsdc.resolver - finalBalances.dstUsdc.resolver
+        ).toBe(order.takingAmount)
+
+        expect(finalBalances.dstUsdc.maker - initBalances.dstUsdc.maker).toBe(
+            order.takingAmount - expectedResolverFee - expectedIntegratorFee
+        )
+
+        if (protocol) {
+            expect(
+                finalBalances.dstUsdc.protocol - initBalances.dstUsdc.protocol
+            ).toBe(expectedResolverFee)
+        }
+
+        if (integrator) {
+            expect(
+                finalBalances.dstUsdc.integrator -
+                    initBalances.dstUsdc.integrator
+            ).toBe(expectedIntegratorFee)
+        }
+
+        expect(order.maker.toString()).toBe(maker.toString())
+
+        if (params?.fees) {
+            expect(params.fees.protocol.toString().toLowerCase()).toBe(
+                protocolAddress?.toLowerCase()
+            )
+            expect(
+                params.fees.integrator.integrator.toString().toLowerCase()
+            ).toBe(integratorAddress?.toLowerCase())
+        }
+
+        return {order, blockTimestamp}
     }
 
     beforeAll(async () => {
@@ -271,106 +376,21 @@ describe('EVM to EVM', () => {
         const protocolAddress = '0x1111111111111111111111111111111111111111'
         const integratorAddress = '0x2222222222222222222222222222222222222222'
 
-        const srcResolver = await EvmTestWallet.fromAddress(
-            resolver.toString(),
-            srcChain.provider
-        )
-        const dstResolver = await EvmTestWallet.fromAddress(
-            resolver.toString(),
-            dstChain.provider
-        )
-        const protocol = await EvmTestWallet.fromAddress(
-            protocolAddress,
-            dstChain.provider
-        )
-        const integrator = await EvmTestWallet.fromAddress(
-            integratorAddress,
-            dstChain.provider
-        )
-
-        const resolverFeeBps = 100n // 1%
-        const integratorFeeBps = 50n // 0.5%
-
         const fees = new Fees(
             new ResolverFee(
                 new Address(protocolAddress),
-                new Bps(resolverFeeBps),
+                new Bps(100n), // 1%
                 Bps.fromPercent(10)
             ),
             new IntegratorFee(
                 new Address(integratorAddress),
                 new Address(protocolAddress),
-                new Bps(integratorFeeBps),
+                new Bps(50n), // 0.5%
                 Bps.fromPercent(20)
             )
         )
 
-        const initBalances = {
-            srcWeth: {
-                maker: await srcChain.maker.tokenBalance(WETH_EVM),
-                resolver: await srcResolver.tokenBalance(WETH_EVM)
-            },
-            dstUsdc: {
-                maker: await dstChain.maker.tokenBalance(USDC_EVM),
-                resolver: await dstResolver.tokenBalance(USDC_EVM),
-                protocol: await protocol.tokenBalance(USDC_EVM),
-                integrator: await integrator.tokenBalance(USDC_EVM)
-            }
-        }
-
-        const {order, blockTimestamp} = await performSwap({fees})
-
-        const expectedResolverFee = order.getResolverFee(
-            resolver,
-            blockTimestamp
-        )
-        const expectedIntegratorFee = order.getIntegratorFee(
-            resolver,
-            blockTimestamp
-        )
-
-        const finalBalances = {
-            srcWeth: {
-                maker: await srcChain.maker.tokenBalance(WETH_EVM),
-                resolver: await srcResolver.tokenBalance(WETH_EVM)
-            },
-            dstUsdc: {
-                maker: await dstChain.maker.tokenBalance(USDC_EVM),
-                resolver: await dstResolver.tokenBalance(USDC_EVM),
-                protocol: await protocol.tokenBalance(USDC_EVM),
-                integrator: await integrator.tokenBalance(USDC_EVM)
-            }
-        }
-
-        expect(initBalances.srcWeth.maker - finalBalances.srcWeth.maker).toBe(
-            order.makingAmount
-        )
-        expect(
-            finalBalances.srcWeth.resolver - initBalances.srcWeth.resolver
-        ).toBe(order.makingAmount)
-
-        expect(
-            initBalances.dstUsdc.resolver - finalBalances.dstUsdc.resolver
-        ).toBe(order.takingAmount)
-
-        expect(finalBalances.dstUsdc.maker - initBalances.dstUsdc.maker).toBe(
-            order.takingAmount - expectedResolverFee - expectedIntegratorFee
-        )
-
-        expect(
-            finalBalances.dstUsdc.protocol - initBalances.dstUsdc.protocol
-        ).toBe(expectedResolverFee)
-
-        expect(
-            finalBalances.dstUsdc.integrator - initBalances.dstUsdc.integrator
-        ).toBe(expectedIntegratorFee)
-
-        expect(order.maker.toString()).toBe(maker.toString())
-        expect(fees.protocol.toString().toLowerCase()).toBe(
-            protocolAddress.toLowerCase()
-        )
-        expect(fees.integrator.integrator.toString().toLowerCase()).toBe(
-            integratorAddress.toLowerCase()
-        )
+        const {order} = await performSwap({fees})
+        expect(order).toBeDefined()
     })
 })
