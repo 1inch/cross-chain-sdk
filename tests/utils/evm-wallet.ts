@@ -166,7 +166,12 @@ export class EvmTestWallet {
         param: TransactionRequest,
         name?: string,
         localNode?: StartedTestContainer
-    ): Promise<{txHash: string; blockTimestamp: bigint; blockHash: string}> {
+    ): Promise<{
+        txHash: string
+        blockTimestamp: bigint
+        blockHash: string
+        logs: {topics: string[]; data: string}[]
+    }> {
         const from = await this.signer.getAddress()
         const tx: TransactionRequest = {
             from,
@@ -186,7 +191,11 @@ export class EvmTestWallet {
             return {
                 txHash: receipt.hash,
                 blockTimestamp: BigInt((await res.getBlock())!.timestamp),
-                blockHash: res.blockHash as string
+                blockHash: res.blockHash as string,
+                logs: receipt.logs.map((log) => ({
+                    topics: [...log.topics],
+                    data: log.data
+                }))
             }
         }
 

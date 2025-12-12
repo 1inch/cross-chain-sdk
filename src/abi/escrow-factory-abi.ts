@@ -1,3 +1,5 @@
+// Note: Contract uses custom types (Address = uint256, Timelocks = uint256)
+// ABI uses uint256 for these to match contract event signatures for correct topic computation
 export const ESCROW_FACTORY_ABI = [
     {
         anonymous: false,
@@ -52,9 +54,9 @@ export const ESCROW_FACTORY_ABI = [
                         name: 'hashlock',
                         type: 'bytes32'
                     },
-                    {internalType: 'address', name: 'maker', type: 'address'},
-                    {internalType: 'address', name: 'taker', type: 'address'},
-                    {internalType: 'address', name: 'token', type: 'address'},
+                    {internalType: 'uint256', name: 'maker', type: 'uint256'},
+                    {internalType: 'uint256', name: 'taker', type: 'uint256'},
+                    {internalType: 'uint256', name: 'token', type: 'uint256'},
                     {internalType: 'uint256', name: 'amount', type: 'uint256'},
                     {
                         internalType: 'uint256',
@@ -75,9 +77,9 @@ export const ESCROW_FACTORY_ABI = [
             },
             {
                 components: [
-                    {internalType: 'address', name: 'maker', type: 'address'},
+                    {internalType: 'uint256', name: 'maker', type: 'uint256'},
                     {internalType: 'uint256', name: 'amount', type: 'uint256'},
-                    {internalType: 'address', name: 'token', type: 'address'},
+                    {internalType: 'uint256', name: 'token', type: 'uint256'},
                     {
                         internalType: 'uint256',
                         name: 'safetyDeposit',
@@ -112,9 +114,9 @@ export const ESCROW_FACTORY_ABI = [
             },
             {
                 indexed: false,
-                internalType: 'address',
+                internalType: 'uint256',
                 name: 'taker',
-                type: 'address'
+                type: 'uint256'
             }
         ],
         name: 'DstEscrowCreated',

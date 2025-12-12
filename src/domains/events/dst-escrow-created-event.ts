@@ -1,12 +1,9 @@
-import {Interface} from 'ethers'
+import {coder} from '../../utils/coder.js'
 import {EvmAddress} from '../addresses/index.js'
-import {ESCROW_FACTORY_ABI} from '../../abi/escrow-factory-abi.js'
-
-const iface = new Interface(ESCROW_FACTORY_ABI)
 
 export class DstEscrowCreatedEvent {
     static readonly TOPIC =
-        '0xbfd5e2039d3537cb8378a5ba1d9a6170f92307d49369f6fadd6b2ee64ca254a7'
+        '0xc30e111dcc74fddc2c3a4d98ffb97adec4485c0a687946bf5b22c2a99c7ff96d'
 
     constructor(
         public readonly escrow: EvmAddress,
@@ -18,14 +15,15 @@ export class DstEscrowCreatedEvent {
      * @throws Error if the log data is invalid
      */
     static fromData(data: string): DstEscrowCreatedEvent {
-        const decoded = iface.decodeEventLog('DstEscrowCreated', data, [
-            DstEscrowCreatedEvent.TOPIC
-        ])
+        const [escrow, hashlock, taker] = coder.decode(
+            ['address', 'bytes32', 'uint256'],
+            data
+        )
 
         return new DstEscrowCreatedEvent(
-            EvmAddress.fromString(decoded.escrow),
-            decoded.hashlock,
-            EvmAddress.fromString(decoded.taker)
+            EvmAddress.fromString(escrow as string),
+            hashlock as string,
+            EvmAddress.fromBigInt(taker as bigint)
         )
     }
 }
