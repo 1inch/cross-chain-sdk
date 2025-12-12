@@ -23,13 +23,6 @@ import {DstImmutablesComplement} from '../src/domains/index.js'
 import {EscrowFactoryFacade} from '../src/contracts/evm/escrow-factory-facade.js'
 import {bufferFromHex} from '../src/utils/bytes.js'
 import {now} from '../src/utils/index.js'
-import {IDL as DstEscrowIDL} from '../src/idl/cross-chain-escrow-dst.js'
-import {IDL as WhitelistIDL} from '../src/idl/whitelist.js'
-
-const dstEscrowFactory = new SvmDstEscrowFactory(
-    new SolanaAddress(DstEscrowIDL.address)
-)
-const whitelistProgramId = new SolanaAddress(WhitelistIDL.address)
 
 jest.setTimeout(1000 * 10 * 60)
 jest.useFakeTimers({
@@ -177,11 +170,14 @@ describe('EVM to Solana', () => {
             })
         )
 
-        const dstEscrowIx = dstEscrowFactory.createEscrow(dstImmutables, {
-            tokenProgramId: SolanaAddress.TOKEN_PROGRAM_ID,
-            srcCancellationTimestamp:
-                srcImmutables.timeLocks.toSrcTimeLocks().publicCancellation
-        })
+        const dstEscrowIx = SvmDstEscrowFactory.DEFAULT.createEscrow(
+            dstImmutables,
+            {
+                tokenProgramId: SolanaAddress.TOKEN_PROGRAM_ID,
+                srcCancellationTimestamp:
+                    srcImmutables.timeLocks.toSrcTimeLocks().publicCancellation
+            }
+        )
 
         dstChain.connection.sendTransaction(newSolanaTx(dstEscrowIx), [
             dstChain.accounts.resolver
@@ -220,7 +216,7 @@ describe('EVM to Solana', () => {
 
         await dstChain.connection.sendTransaction(
             newSolanaTx(
-                dstEscrowFactory.withdrawPrivate(
+                SvmDstEscrowFactory.DEFAULT.withdrawPrivate(
                     dstImmutables,
                     bufferFromHex(secret),
                     {
@@ -355,11 +351,14 @@ describe('EVM to Solana', () => {
             })
         )
 
-        const dstEscrowIx = dstEscrowFactory.createEscrow(dstImmutables, {
-            tokenProgramId: SolanaAddress.TOKEN_PROGRAM_ID,
-            srcCancellationTimestamp:
-                srcImmutables.timeLocks.toSrcTimeLocks().publicCancellation
-        })
+        const dstEscrowIx = SvmDstEscrowFactory.DEFAULT.createEscrow(
+            dstImmutables,
+            {
+                tokenProgramId: SolanaAddress.TOKEN_PROGRAM_ID,
+                srcCancellationTimestamp:
+                    srcImmutables.timeLocks.toSrcTimeLocks().publicCancellation
+            }
+        )
 
         dstChain.connection.sendTransaction(newSolanaTx(dstEscrowIx), [
             dstChain.accounts.resolver
@@ -399,15 +398,14 @@ describe('EVM to Solana', () => {
         await advanceNodeTime(100) // wait for public withdrawal
         await dstChain.connection.sendTransaction(
             newSolanaTx(
-                dstEscrowFactory.withdrawPublic(
+                SvmDstEscrowFactory.DEFAULT.withdrawPublic(
                     dstImmutables,
                     bufferFromHex(secret),
                     SolanaAddress.fromPublicKey(
                         dstChain.accounts.fallbackResolver.publicKey
                     ),
                     {
-                        tokenProgramId: SolanaAddress.TOKEN_PROGRAM_ID,
-                        whitelistProgramId
+                        tokenProgramId: SolanaAddress.TOKEN_PROGRAM_ID
                     }
                 )
             ),
@@ -528,11 +526,14 @@ describe('EVM to Solana', () => {
             })
         )
 
-        const dstEscrowIx = dstEscrowFactory.createEscrow(dstImmutables, {
-            tokenProgramId: SolanaAddress.TOKEN_PROGRAM_ID,
-            srcCancellationTimestamp:
-                srcImmutables.timeLocks.toSrcTimeLocks().publicCancellation
-        })
+        const dstEscrowIx = SvmDstEscrowFactory.DEFAULT.createEscrow(
+            dstImmutables,
+            {
+                tokenProgramId: SolanaAddress.TOKEN_PROGRAM_ID,
+                srcCancellationTimestamp:
+                    srcImmutables.timeLocks.toSrcTimeLocks().publicCancellation
+            }
+        )
 
         dstChain.connection.sendTransaction(newSolanaTx(dstEscrowIx), [
             dstChain.accounts.resolver
@@ -547,7 +548,7 @@ describe('EVM to Solana', () => {
         // Cancel the escrow privately on destination chain only
         await dstChain.connection.sendTransaction(
             newSolanaTx(
-                dstEscrowFactory.cancelPrivate(dstImmutables, {
+                SvmDstEscrowFactory.DEFAULT.cancelPrivate(dstImmutables, {
                     tokenProgramId: SolanaAddress.TOKEN_PROGRAM_ID
                 })
             ),

@@ -21,13 +21,6 @@ import {SvmSrcEscrowFactory} from '../src/contracts/svm/svm-src-escrow-factory.j
 import {DstImmutablesComplement} from '../src/domains/immutables/index.js'
 import {EscrowFactoryFacade} from '../src/contracts/evm/escrow-factory-facade.js'
 import {now} from '../src/utils/index.js'
-import {IDL as SrcEscrowIDL} from '../src/idl/cross-chain-escrow-src.js'
-import {IDL as WhitelistIDL} from '../src/idl/whitelist.js'
-
-const srcEscrowFactory = new SvmSrcEscrowFactory(
-    new SolanaAddress(SrcEscrowIDL.address)
-)
-const whitelistProgramId = new SolanaAddress(WhitelistIDL.address)
 
 jest.setTimeout(1000 * 10 * 60)
 jest.useFakeTimers({
@@ -126,7 +119,7 @@ describe('Solana to EVM', () => {
         )
 
         // user submits order creation onChain
-        const createSrcIx = srcEscrowFactory.createOrder(order, {
+        const createSrcIx = SvmSrcEscrowFactory.DEFAULT.createOrder(order, {
             srcTokenProgramId: SolanaAddress.TOKEN_PROGRAM_ID
         })
 
@@ -148,12 +141,11 @@ describe('Solana to EVM', () => {
             fillAmount
         )
 
-        const createSrcEscrowIx = srcEscrowFactory.createEscrow(
+        const createSrcEscrowIx = SvmSrcEscrowFactory.DEFAULT.createEscrow(
             srcImmutables,
             order.auction,
             {
-                tokenProgramId: SolanaAddress.TOKEN_PROGRAM_ID,
-                whitelistProgramId
+                tokenProgramId: SolanaAddress.TOKEN_PROGRAM_ID
             }
         )
 
@@ -220,7 +212,7 @@ describe('Solana to EVM', () => {
 
         console.log('dst escrow withdrawn', dstWithdraw.txHash)
 
-        const withdrawIx = srcEscrowFactory.withdrawPrivate(
+        const withdrawIx = SvmSrcEscrowFactory.DEFAULT.withdrawPrivate(
             srcImmutables,
             Buffer.from(secret.slice(2), 'hex'),
             {
@@ -287,7 +279,7 @@ describe('Solana to EVM', () => {
         )
 
         // user submits order creation onChain
-        const createSrcIx = srcEscrowFactory.createOrder(order, {
+        const createSrcIx = SvmSrcEscrowFactory.DEFAULT.createOrder(order, {
             srcTokenProgramId: SolanaAddress.TOKEN_PROGRAM_ID
         })
 
@@ -309,12 +301,11 @@ describe('Solana to EVM', () => {
             fillAmount
         )
 
-        const createSrcEscrowIx = srcEscrowFactory.createEscrow(
+        const createSrcEscrowIx = SvmSrcEscrowFactory.DEFAULT.createEscrow(
             srcImmutables,
             order.auction,
             {
-                tokenProgramId: SolanaAddress.TOKEN_PROGRAM_ID,
-                whitelistProgramId
+                tokenProgramId: SolanaAddress.TOKEN_PROGRAM_ID
             }
         )
 
@@ -384,15 +375,14 @@ describe('Solana to EVM', () => {
         // wait for public withdraw
         await advanceNodeTime(200)
 
-        const withdrawIx = srcEscrowFactory.withdrawPublic(
+        const withdrawIx = SvmSrcEscrowFactory.DEFAULT.withdrawPublic(
             srcImmutables,
             Buffer.from(secret.slice(2), 'hex'),
             SolanaAddress.fromPublicKey(
                 srcChain.accounts.fallbackResolver.publicKey
             ),
             {
-                tokenProgramId: SolanaAddress.TOKEN_PROGRAM_ID,
-                whitelistProgramId
+                tokenProgramId: SolanaAddress.TOKEN_PROGRAM_ID
             }
         )
 
@@ -455,7 +445,7 @@ describe('Solana to EVM', () => {
         )
 
         // user submits order creation onChain
-        const createSrcIx = srcEscrowFactory.createOrder(order, {
+        const createSrcIx = SvmSrcEscrowFactory.DEFAULT.createOrder(order, {
             srcTokenProgramId: SolanaAddress.TOKEN_PROGRAM_ID
         })
 
@@ -476,12 +466,11 @@ describe('Solana to EVM', () => {
             fillAmount
         )
 
-        const createSrcEscrowIx = srcEscrowFactory.createEscrow(
+        const createSrcEscrowIx = SvmSrcEscrowFactory.DEFAULT.createEscrow(
             srcImmutables,
             order.auction,
             {
-                tokenProgramId: SolanaAddress.TOKEN_PROGRAM_ID,
-                whitelistProgramId
+                tokenProgramId: SolanaAddress.TOKEN_PROGRAM_ID
             }
         )
 
@@ -495,10 +484,13 @@ describe('Solana to EVM', () => {
         // finality + private withdrawal + public withdrawal
         await advanceNodeTime(90)
 
-        const cancelIx = srcEscrowFactory.cancelPrivate(srcImmutables, {
-            tokenProgramId: SolanaAddress.TOKEN_PROGRAM_ID,
-            assetIsNative: false
-        })
+        const cancelIx = SvmSrcEscrowFactory.DEFAULT.cancelPrivate(
+            srcImmutables,
+            {
+                tokenProgramId: SolanaAddress.TOKEN_PROGRAM_ID,
+                assetIsNative: false
+            }
+        )
 
         await srcChain.connection.sendTransaction(newSolanaTx(cancelIx), [
             srcChain.accounts.resolver
@@ -559,7 +551,7 @@ describe('Solana to EVM', () => {
         )
 
         // user submits order creation onChain
-        const createSrcIx = srcEscrowFactory.createOrder(order, {
+        const createSrcIx = SvmSrcEscrowFactory.DEFAULT.createOrder(order, {
             srcTokenProgramId: SolanaAddress.TOKEN_PROGRAM_ID
         })
 
@@ -580,12 +572,11 @@ describe('Solana to EVM', () => {
             fillAmount
         )
 
-        const createSrcEscrowIx = srcEscrowFactory.createEscrow(
+        const createSrcEscrowIx = SvmSrcEscrowFactory.DEFAULT.createEscrow(
             srcImmutables,
             order.auction,
             {
-                tokenProgramId: SolanaAddress.TOKEN_PROGRAM_ID,
-                whitelistProgramId
+                tokenProgramId: SolanaAddress.TOKEN_PROGRAM_ID
             }
         )
 
@@ -601,15 +592,14 @@ describe('Solana to EVM', () => {
         // wait for public cancellation to become available
         await advanceNodeTime(105)
 
-        const cancelIx = srcEscrowFactory.cancelPublic(
+        const cancelIx = SvmSrcEscrowFactory.DEFAULT.cancelPublic(
             srcImmutables,
             SolanaAddress.fromPublicKey(
                 srcChain.accounts.fallbackResolver.publicKey
             ),
             {
                 tokenProgramId: SolanaAddress.TOKEN_PROGRAM_ID,
-                assetIsNative: false,
-                whitelistProgramId
+                assetIsNative: false
             }
         )
 
@@ -685,7 +675,7 @@ describe('Solana to EVM', () => {
             )
 
             // user submits order creation onChain
-            const createSrcIx = srcEscrowFactory.createOrder(order, {
+            const createSrcIx = SvmSrcEscrowFactory.DEFAULT.createOrder(order, {
                 srcTokenProgramId: SolanaAddress.TOKEN_PROGRAM_ID
             })
 
@@ -710,12 +700,11 @@ describe('Solana to EVM', () => {
                 partialFillHashLock
             )
 
-            const createSrcEscrowIx = srcEscrowFactory.createEscrow(
+            const createSrcEscrowIx = SvmSrcEscrowFactory.DEFAULT.createEscrow(
                 srcImmutables,
                 order.auction,
                 {
                     tokenProgramId: SolanaAddress.TOKEN_PROGRAM_ID,
-                    whitelistProgramId,
                     merkleProof: {
                         idx,
                         proof: HashLock.getProof(leaves, idx),
@@ -789,7 +778,7 @@ describe('Solana to EVM', () => {
 
             console.log('dst escrow withdrawn', dstWithdraw.txHash)
 
-            const withdrawIx = srcEscrowFactory.withdrawPrivate(
+            const withdrawIx = SvmSrcEscrowFactory.DEFAULT.withdrawPrivate(
                 srcImmutables,
                 Buffer.from(secret.slice(2), 'hex'),
                 {
