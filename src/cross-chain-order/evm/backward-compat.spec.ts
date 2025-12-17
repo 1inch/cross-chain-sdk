@@ -1,5 +1,6 @@
 import {Extension} from '@1inch/fusion-sdk'
 import {Address} from '@1inch/limit-order-sdk'
+import {add0x} from '@1inch/byte-utils'
 import {EvmCrossChainOrder} from './evm-cross-chain-order.js'
 import {EscrowExtension} from './escrow-extension.js'
 
@@ -39,7 +40,10 @@ describe('Backward Compatibility', () => {
         expect(
             Address.fromBigInt(
                 BigInt(
-                    decoded.escrowExtension.whitelist.whitelist[0].addressHalf
+                    add0x(
+                        decoded.escrowExtension.whitelist.whitelist[0]
+                            .addressHalf
+                    )
                 )
             ).toString()
         ).toBe('0x000000000000000000000000000000000000000a')
