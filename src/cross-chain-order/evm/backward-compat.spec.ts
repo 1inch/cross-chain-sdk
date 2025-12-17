@@ -1,4 +1,5 @@
-import {Extension} from '@1inch/fusion-sdk'
+import {Extension, Whitelist} from '@1inch/fusion-sdk'
+import {Address} from '@1inch/limit-order-sdk'
 import {EvmCrossChainOrder} from './evm-cross-chain-order.js'
 
 describe('Backward Compatibility', () => {
@@ -41,6 +42,20 @@ describe('Backward Compatibility', () => {
         expect(integratorFee).toBe(0n)
         expect(resolverFee).toBe(0n)
         expect(decoded.dstChainId).toBe(42161)
-        expect(decoded.dstChainId).toBe(42161)
+        expect(decoded.makerAsset.toString()).toBe(oldOrder.makerAsset)
+        expect(decoded.takerAsset.toString()).toBe(
+            '0xaf88d065e77c8cc2239327c5edb3a432268e5831'
+        ) // USDC on Arbitrum
+        expect(decoded.escrowExtension.whitelist.encode()).toBe(
+            Whitelist.new(1765968990n, [
+                {
+                    address: new Address(
+                        '0xa7bcb4eac8964306f9e3764f67db6a7af6ddf99a' // escrow factory address
+                    ),
+                    allowFrom: 1765968990n
+                }
+            ]).encode()
+        )
+        expect(decoded.escrowExtension.extra).toBe(undefined) // fees and extra are not present in v1 format
     })
 })

@@ -85,16 +85,13 @@ export class EscrowExtension extends FusionExtension {
      */
     static fromExtension(extension: Extension): EscrowExtension {
         try {
-            return EscrowExtension.fromExtensionNew(extension)
+            return EscrowExtension.fromExtensionV2(extension)
         } catch {
-            return EscrowExtension.fromExtensionOld(extension)
+            return EscrowExtension.fromExtensionV1(extension)
         }
     }
 
-    /**
-     * Decode new format extension (with callback/integrator/protocol)
-     */
-    private static fromExtensionNew(extension: Extension): EscrowExtension {
+    private static fromExtensionV2(extension: Extension): EscrowExtension {
         const pi = extension.postInteraction
 
         const crossChainData = EscrowExtension.decodeCrossChainData(
@@ -150,10 +147,7 @@ export class EscrowExtension extends FusionExtension {
         )
     }
 
-    /**
-     * Decode old format extension (without callback/integrator/protocol)
-     */
-    private static fromExtensionOld(extension: Extension): EscrowExtension {
+    private static fromExtensionV1(extension: Extension): EscrowExtension {
         const pi = extension.postInteraction
 
         const crossChainData = EscrowExtension.decodeCrossChainData(
@@ -170,8 +164,8 @@ export class EscrowExtension extends FusionExtension {
         const duration = BigInt(iter.nextUint24())
         const initialRateBump = iter.nextUint24()
 
-        const points = EscrowExtension.decodeAuctionPoints(iter)
-        const whitelist = EscrowExtension.decodeOldWhitelist(iter, factory)
+        const points = EscrowExtension.decodeAuctionPointsV1(iter)
+        const whitelist = EscrowExtension.decodeWhitelistV1(iter, factory)
 
         const complement =
             extension.customData === ZX
@@ -197,7 +191,7 @@ export class EscrowExtension extends FusionExtension {
         )
     }
 
-    private static decodeAuctionPoints(
+    private static decodeAuctionPointsV1(
         iter: BytesIter<string>
     ): AuctionPoint[] {
         const count = Number(iter.nextUint8())
@@ -208,7 +202,7 @@ export class EscrowExtension extends FusionExtension {
         }))
     }
 
-    private static decodeOldWhitelist(
+    private static decodeWhitelistV1(
         iter: BytesIter<string>,
         fallbackAddress: EvmAddress
     ): {
@@ -218,7 +212,6 @@ export class EscrowExtension extends FusionExtension {
         const count = Number(iter.nextUint8())
 
         if (count === 0) {
-            // Old format allows empty whitelist, fusion-sdk requires at least one
             return [
                 {
                     address: new Address(fallbackAddress.toString()),

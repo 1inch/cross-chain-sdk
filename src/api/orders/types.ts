@@ -19,6 +19,11 @@ export type FillInfo = {
     txHash: string
 }
 
+export enum ApiVersion {
+    V1_1 = 'v1.1',
+    V1_2 = 'v1.2'
+}
+
 export type ActiveOrder = {
     quoteId: string
     orderHash: string
@@ -29,6 +34,7 @@ export type ActiveOrder = {
     remainingMakerAmount: string
     secretHashes?: string[]
     fills: FillInfo[]
+    version: ApiVersion
 } & (
     | {
           srcChainId: EvmChain

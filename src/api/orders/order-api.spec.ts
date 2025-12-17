@@ -1,6 +1,7 @@
 import {HttpProviderConnector} from '@1inch/fusion-sdk'
 import {
     ActiveOrdersResponse,
+    ApiVersion,
     EscrowEventAction,
     EscrowEventSide,
     FillStatus,
@@ -76,7 +77,8 @@ describe(__filename, () => {
                             '0x2048b38093dc53876b2bbd230ee8999791153db01de425112f449d018094e116',
                             '0x7972c1498893bb9b88baddc9decb78d8defdcc7a182a72edd8724498c75f088d',
                             '0x6d5b8f0b1f8a28564ff65e5f9c4d8a8a6babfb318bca6ecc9d872a3abe8a4ea0'
-                        ]
+                        ],
+                        version: ApiVersion.V1_1
                     },
                     {
                         quoteId: '8343588a-da1e-407f-b41f-aa86f0ec4266',
@@ -114,7 +116,8 @@ describe(__filename, () => {
                             '0x2048b38093dc53876b2bbd230ee8999791153db01de425112f449d018094e116',
                             '0x7972c1498893bb9b88baddc9decb78d8defdcc7a182a72edd8724498c75f088d',
                             '0x6d5b8f0b1f8a28564ff65e5f9c4d8a8a6babfb318bca6ecc9d872a3abe8a4ea0'
-                        ]
+                        ],
+                        version: ApiVersion.V1_1
                     }
                 ],
                 meta: {
@@ -289,7 +292,8 @@ describe(__filename, () => {
                             '0x2048b38093dc53876b2bbd230ee8999791153db01de425112f449d018094e116',
                             '0x7972c1498893bb9b88baddc9decb78d8defdcc7a182a72edd8724498c75f088d',
                             '0x6d5b8f0b1f8a28564ff65e5f9c4d8a8a6babfb318bca6ecc9d872a3abe8a4ea0'
-                        ]
+                        ],
+                        version: ApiVersion.V1_1
                     },
                     {
                         quoteId: '8343588a-da1e-407f-b41f-aa86f0ec4266',
@@ -327,7 +331,8 @@ describe(__filename, () => {
                             '0x2048b38093dc53876b2bbd230ee8999791153db01de425112f449d018094e116',
                             '0x7972c1498893bb9b88baddc9decb78d8defdcc7a182a72edd8724498c75f088d',
                             '0x6d5b8f0b1f8a28564ff65e5f9c4d8a8a6babfb318bca6ecc9d872a3abe8a4ea0'
-                        ]
+                        ],
+                        version: ApiVersion.V1_1
                     }
                 ],
                 meta: {
