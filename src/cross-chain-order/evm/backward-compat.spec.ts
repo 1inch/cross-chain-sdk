@@ -62,7 +62,20 @@ describe('Backward Compatibility', () => {
         expect(escrowExt.whitelist.whitelist[1].addressHalf).toBe(
             'c0d6ca36e23f4fcab1f7'
         )
+        expect(escrowExt.auctionDetails.points[0].coefficient).toBe(21903)
+        expect(escrowExt.auctionDetails.points[0].delay).toBe(120)
+        expect(escrowExt.auctionDetails.duration).toBe(180n)
+        expect(escrowExt.auctionDetails.initialRateBump).toBe(50336n)
+        expect(escrowExt.auctionDetails.startTime).toBe(1765982894n)
         expect(escrowExt.whitelist.whitelist[0].delay).toBe(0n)
         expect(escrowExt.whitelist.whitelist[1].delay).toBe(0n)
+        expect(escrowExt.dstSafetyDeposit).toBe(12823517490000n)
+        expect(escrowExt.srcSafetyDeposit).toBe(11550000000000n)
+        expect(escrowExt.hashLockInfo.toString()).toBe(
+            '0x361cdb08001adb850ff992014900a80aae6f576b5fdbd737dc08a9190dafc091'
+        )
+        expect(escrowExt.timeLocks.build()).toBe(
+            2435515473721714575181135055134583136705295881724189837623300n
+        )
     })
 })
