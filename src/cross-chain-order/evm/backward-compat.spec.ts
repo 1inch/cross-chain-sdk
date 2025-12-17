@@ -5,7 +5,7 @@ import {EvmCrossChainOrder} from './evm-cross-chain-order.js'
 import {EscrowExtension} from './escrow-extension.js'
 
 describe('Backward Compatibility', () => {
-    it('should decode old format V1 (Format A - auction in postInteraction)', () => {
+    it('should decode old format V1', () => {
         const oldOrder = {
             maker: '0x74ba356625f4552eae1a7a6b5b8fb0f4880885ff',
             makerAsset: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
