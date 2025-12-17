@@ -10,12 +10,16 @@ import {
     Extension,
     Whitelist,
     SurplusParams,
-    ZX
+    ZX,
+    Address
 } from '@1inch/fusion-sdk'
 import assert from 'assert'
 import {EscrowExtensionExtra} from './types.js'
 import {AddressComplement} from '../../domains/addresses/address-complement.js'
-import {AuctionDetails} from '../../domains/auction-details/index.js'
+import {
+    AuctionDetails,
+    AuctionPoint
+} from '../../domains/auction-details/index.js'
 import {HashLock} from '../../domains/hash-lock/index.js'
 import {TimeLocks} from '../../domains/time-locks/index.js'
 import {SupportedChain} from '../../chains.js'
@@ -77,9 +81,20 @@ export class EscrowExtension extends FusionExtension {
     }
 
     /**
-     * Create EscrowExtension from Extension
+     * Create EscrowExtension from Extension (with fallback for old format)
      */
     static fromExtension(extension: Extension): EscrowExtension {
+        try {
+            return EscrowExtension.fromExtensionNew(extension)
+        } catch {
+            return EscrowExtension.fromExtensionOld(extension)
+        }
+    }
+
+    /**
+     * Decode new format extension (with callback/integrator/protocol)
+     */
+    private static fromExtensionNew(extension: Extension): EscrowExtension {
         const pi = extension.postInteraction
 
         const crossChainData = EscrowExtension.decodeCrossChainData(
@@ -133,6 +148,89 @@ export class EscrowExtension extends FusionExtension {
             complement,
             fusionExt.extra
         )
+    }
+
+    /**
+     * Decode old format extension (without callback/integrator/protocol)
+     */
+    private static fromExtensionOld(extension: Extension): EscrowExtension {
+        const pi = extension.postInteraction
+
+        const crossChainData = EscrowExtension.decodeCrossChainData(
+            BytesIter.HexString(pi).nextBytes(
+                EscrowExtension.CROSS_CHAIN_DATA_BYTES,
+                BytesIter.SIDE.Back
+            )
+        )
+
+        const iter = BytesIter.HexString(pi)
+        const factory = EvmAddress.fromString(iter.nextAddress())
+
+        const startTime = BigInt(iter.nextUint32())
+        const duration = BigInt(iter.nextUint24())
+        const initialRateBump = iter.nextUint24()
+
+        const points = EscrowExtension.decodeAuctionPoints(iter)
+        const whitelist = EscrowExtension.decodeOldWhitelist(iter, factory)
+
+        const complement =
+            extension.customData === ZX
+                ? AddressComplement.ZERO
+                : new AddressComplement(BigInt(extension.customData))
+
+        return new EscrowExtension(
+            factory,
+            new AuctionDetails({
+                startTime,
+                duration,
+                initialRateBump: Number(initialRateBump),
+                points
+            }),
+            Whitelist.new(startTime, whitelist),
+            crossChainData.hashLock,
+            crossChainData.dstChainId,
+            crossChainData.dstToken,
+            crossChainData.srcSafetyDeposit,
+            crossChainData.dstSafetyDeposit,
+            crossChainData.timeLocks,
+            complement
+        )
+    }
+
+    private static decodeAuctionPoints(
+        iter: BytesIter<string>
+    ): AuctionPoint[] {
+        const count = Number(iter.nextUint8())
+
+        return Array.from({length: count}, () => ({
+            coefficient: Number(iter.nextUint24()),
+            delay: Number(iter.nextUint16())
+        }))
+    }
+
+    private static decodeOldWhitelist(
+        iter: BytesIter<string>,
+        fallbackAddress: EvmAddress
+    ): {
+        address: Address
+        allowFrom: bigint
+    }[] {
+        const count = Number(iter.nextUint8())
+
+        if (count === 0) {
+            // Old format allows empty whitelist, fusion-sdk requires at least one
+            return [
+                {
+                    address: new Address(fallbackAddress.toString()),
+                    allowFrom: 0n
+                }
+            ]
+        }
+
+        return Array.from({length: count}, () => ({
+            address: Address.fromBigInt(BigInt(iter.nextBytes(10))),
+            allowFrom: BigInt(iter.nextUint16())
+        }))
     }
 
     private static decodeCrossChainData(bytes: string): {
