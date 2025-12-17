@@ -26,15 +26,11 @@ export class QuoterRequest<
         public readonly enableEstimate: boolean = false,
         public readonly permit: string | undefined,
         public readonly fee: number | undefined,
-        public readonly source: string = 'sdk',
+        public readonly source: string | undefined,
         public readonly isPermit2: boolean = false
     ) {
         if ((srcChain as SupportedChain) === (dstChain as SupportedChain)) {
             throw new Error('srcChain and dstChain should be different')
-        }
-
-        if (this.fee && this.source === 'sdk') {
-            throw new Error('cannot use fee without source')
         }
     }
 

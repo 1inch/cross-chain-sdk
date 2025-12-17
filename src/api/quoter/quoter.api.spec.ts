@@ -151,7 +151,7 @@ describe('Quoter API', () => {
 
         expect(res).toStrictEqual(QuoterResponseMock)
         expect(httpProvider.get).toHaveBeenCalledWith(
-            'https://test.com/quoter/v1.2/quote/receive/?srcChain=1&dstChain=137&srcTokenAddress=0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2&dstTokenAddress=0x2791bca1f2de4661ed88a30c99a7a9449aa84174&amount=100000000000000000&walletAddress=0x00000000219ab540356cbb839cbe05303d7705fa&source=sdk'
+            'https://test.com/quoter/v1.2/quote/receive/?srcChain=1&dstChain=137&srcTokenAddress=0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2&dstTokenAddress=0x2791bca1f2de4661ed88a30c99a7a9449aa84174&amount=100000000000000000&walletAddress=0x00000000219ab540356cbb839cbe05303d7705fa'
         )
     })
 

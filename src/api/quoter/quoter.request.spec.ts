@@ -44,7 +44,7 @@ describe('QuoterRequest', () => {
         ).toThrow(/is invalid amount/)
     })
 
-    it('returns error if fee is provided and source not', () => {
+    it('allows fee without source', () => {
         expect(() =>
             QuoterRequest.forEVM({
                 srcChain: NetworkEnum.ETHEREUM,
@@ -55,6 +55,6 @@ describe('QuoterRequest', () => {
                 walletAddress: '0x00000000219ab540356cbb839cbe05303d7705fa',
                 fee: 1
             })
-        ).toThrow(/cannot use fee without source/)
+        ).not.toThrow()
     })
 })
