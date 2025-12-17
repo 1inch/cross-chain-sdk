@@ -148,24 +148,24 @@ export class EscrowExtension extends FusionExtension {
     }
 
     private static fromExtensionV1(extension: Extension): EscrowExtension {
-        const pi = extension.postInteraction
+        const postIter = BytesIter.HexString(extension.postInteraction)
 
-        const crossChainData = EscrowExtension.decodeCrossChainData(
-            BytesIter.HexString(pi).nextBytes(
-                EscrowExtension.CROSS_CHAIN_DATA_BYTES,
-                BytesIter.SIDE.Back
-            )
+        const crossChainHex = postIter.nextBytes(
+            EscrowExtension.CROSS_CHAIN_DATA_BYTES,
+            BytesIter.SIDE.Back
         )
+        const crossChainData =
+            EscrowExtension.decodeCrossChainData(crossChainHex)
 
-        const iter = BytesIter.HexString(pi)
-        const factory = EvmAddress.fromString(iter.nextAddress())
+        const factory = EvmAddress.fromString(postIter.nextAddress())
+        const whitelist = EscrowExtension.decodeWhitelistV1(postIter.rest())
 
-        const startTime = BigInt(iter.nextUint32())
-        const duration = BigInt(iter.nextUint24())
-        const initialRateBump = iter.nextUint24()
+        const makingIter = BytesIter.HexString(extension.makingAmountData)
+        makingIter.nextAddress()
 
-        const points = EscrowExtension.decodeAuctionPointsV1(iter)
-        const whitelist = EscrowExtension.decodeWhitelistV1(iter, factory)
+        const auctionDetails = EscrowExtension.decodeAuctionDetailsV1(
+            makingIter.rest()
+        )
 
         const complement =
             extension.customData === ZX
@@ -174,13 +174,8 @@ export class EscrowExtension extends FusionExtension {
 
         return new EscrowExtension(
             factory,
-            new AuctionDetails({
-                startTime,
-                duration,
-                initialRateBump: Number(initialRateBump),
-                points
-            }),
-            Whitelist.new(startTime, whitelist),
+            auctionDetails,
+            whitelist,
             crossChainData.hashLock,
             crossChainData.dstChainId,
             crossChainData.dstToken,
@@ -191,39 +186,55 @@ export class EscrowExtension extends FusionExtension {
         )
     }
 
-    private static decodeAuctionPointsV1(
-        iter: BytesIter<string>
-    ): AuctionPoint[] {
-        const count = Number(iter.nextUint8())
+    private static decodeAuctionDetailsV1(data: string): AuctionDetails {
+        const iter = BytesIter.BigInt(data)
 
-        return Array.from({length: count}, () => ({
-            coefficient: Number(iter.nextUint24()),
-            delay: Number(iter.nextUint16())
-        }))
-    }
+        const gasBumpEstimate = iter.nextUint24()
+        const gasPriceEstimate = iter.nextUint32()
+        const startTime = iter.nextUint32()
+        const duration = iter.nextUint24()
+        const initialRateBump = Number(iter.nextUint24())
 
-    private static decodeWhitelistV1(
-        iter: BytesIter<string>,
-        fallbackAddress: EvmAddress
-    ): {
-        address: Address
-        allowFrom: bigint
-    }[] {
-        const count = Number(iter.nextUint8())
+        const points: AuctionPoint[] = []
 
-        if (count === 0) {
-            return [
-                {
-                    address: new Address(fallbackAddress.toString()),
-                    allowFrom: 0n
-                }
-            ]
+        while (!iter.isEmpty()) {
+            points.push({
+                coefficient: Number(iter.nextUint24()),
+                delay: Number(iter.nextUint16())
+            })
         }
 
-        return Array.from({length: count}, () => ({
-            address: Address.fromBigInt(BigInt(iter.nextBytes(10))),
-            allowFrom: BigInt(iter.nextUint16())
-        }))
+        return new AuctionDetails({
+            startTime,
+            duration,
+            initialRateBump,
+            points,
+            gasCost: {gasBumpEstimate, gasPriceEstimate}
+        })
+    }
+
+    private static decodeWhitelistV1(data: string): Whitelist {
+        const iter = BytesIter.BigInt(data)
+
+        iter.nextUint8(BytesIter.SIDE.Back)
+
+        const resolvingStartTime = iter.nextUint32()
+
+        const whitelist: {address: Address; allowFrom: bigint}[] = []
+        let allowFrom = resolvingStartTime
+
+        while (!iter.isEmpty()) {
+            const addressHalf = iter.nextBytes(10)
+            const delay = iter.nextUint16()
+
+            allowFrom += delay
+            whitelist.push({
+                address: Address.fromBigInt(addressHalf),
+                allowFrom
+            })
+        }
+
+        return Whitelist.new(resolvingStartTime, whitelist)
     }
 
     private static decodeCrossChainData(bytes: string): {

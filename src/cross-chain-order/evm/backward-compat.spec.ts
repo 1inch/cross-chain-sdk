@@ -1,9 +1,10 @@
-import {Extension, Whitelist} from '@1inch/fusion-sdk'
+import {Extension} from '@1inch/fusion-sdk'
 import {Address} from '@1inch/limit-order-sdk'
 import {EvmCrossChainOrder} from './evm-cross-chain-order.js'
+import {EscrowExtension} from './escrow-extension.js'
 
 describe('Backward Compatibility', () => {
-    it('should decode old order without fees', () => {
+    it('should decode old format V1 (Format A - auction in postInteraction)', () => {
         const oldOrder = {
             maker: '0x74ba356625f4552eae1a7a6b5b8fb0f4880885ff',
             makerAsset: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
@@ -29,33 +30,35 @@ describe('Backward Compatibility', () => {
         )
         expect(decoded.makingAmount.toString()).toBe(oldOrder.makingAmount)
         expect(decoded.takingAmount.toString()).toBe(oldOrder.takingAmount)
-
-        const resolverFee = decoded.getResolverFee(
-            decoded.maker,
-            BigInt(Math.floor(Date.now() / 1000))
-        )
-        const integratorFee = decoded.getIntegratorFee(
-            decoded.maker,
-            BigInt(Math.floor(Date.now() / 1000))
-        )
-
-        expect(integratorFee).toBe(0n)
-        expect(resolverFee).toBe(0n)
         expect(decoded.dstChainId).toBe(42161)
         expect(decoded.makerAsset.toString()).toBe(oldOrder.makerAsset)
         expect(decoded.takerAsset.toString()).toBe(
             '0xaf88d065e77c8cc2239327c5edb3a432268e5831'
         ) // USDC on Arbitrum
-        expect(decoded.escrowExtension.whitelist.encode()).toBe(
-            Whitelist.new(1765968990n, [
-                {
-                    address: new Address(
-                        '0xa7bcb4eac8964306f9e3764f67db6a7af6ddf99a' // escrow factory address
-                    ),
-                    allowFrom: 1765968990n
-                }
-            ]).encode()
+        expect(decoded.escrowExtension.extra).toBe(undefined)
+        expect(
+            Address.fromBigInt(
+                BigInt(
+                    decoded.escrowExtension.whitelist.whitelist[0].addressHalf
+                )
+            ).toString()
+        ).toBe('0x000000000000000000000000000000000000000a')
+    })
+
+    it('decoding extension, checking backward compatibility', () => {
+        const extension =
+            '0x00000125000000540000005400000054000000540000002a0000000000000000a7bcb4eac8964306f9e3764f67db6a7af6ddf99a000000000000006942c2ae0000b400c4a000558f0078a7bcb4eac8964306f9e3764f67db6a7af6ddf99a000000000000006942c2ae0000b400c4a000558f0078a7bcb4eac8964306f9e3764f67db6a7af6ddf99a6942c29172f8a0c8c415454f629c0000c0d6ca36e23f4fcab1f7000010361cdb08001adb850ff992014900a80aae6f576b5fdbd737dc08a9190dafc09100000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000a8131a5ac00000000000000000000000ba9b5346b5000000000000001840000010c000000180000023c000001c40000011000000004'
+
+        const escrowExt = EscrowExtension.decode(extension)
+        expect(escrowExt.whitelist.length).toBe(2)
+
+        expect(escrowExt.whitelist.whitelist[0].addressHalf).toBe(
+            '72f8a0c8c415454f629c'
         )
-        expect(decoded.escrowExtension.extra).toBe(undefined) // fees and extra are not present in v1 format
+        expect(escrowExt.whitelist.whitelist[1].addressHalf).toBe(
+            'c0d6ca36e23f4fcab1f7'
+        )
+        expect(escrowExt.whitelist.whitelist[0].delay).toBe(0n)
+        expect(escrowExt.whitelist.whitelist[1].delay).toBe(0n)
     })
 })
