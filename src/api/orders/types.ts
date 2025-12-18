@@ -217,6 +217,7 @@ export type ChainImmutables = {
     amount: string
     safetyDeposit: string
     timelocks: string
+    parameters?: string
 }
 
 export type PublicSecret = {
