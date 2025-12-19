@@ -43,6 +43,10 @@ export class Immutables<A extends AddressLike = AddressLike> {
         public readonly amount: bigint,
         public readonly safetyDeposit: bigint,
         public readonly timeLocks: TimeLocks,
+        /**
+         * For Src Immutables its undefined as in contracts we pass empty string
+         * https://github.com/1inch/cross-chain-swap/blob/master/contracts/BaseEscrowFactory.sol#L136
+         **/
         public readonly fees?: ImmutableFees
     ) {
         this.token = this.token.zeroAsNative() as A
