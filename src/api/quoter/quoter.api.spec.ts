@@ -1,9 +1,11 @@
 import {HttpProviderConnector, NetworkEnum} from '@1inch/fusion-sdk'
+import {Bps} from '@1inch/limit-order-sdk'
 import {QuoterApi} from './quoter.api.js'
 import {QuoterRequest} from './quoter.request.js'
 import {Quote} from './quote/index.js'
 import {PresetEnum, QuoterResponse} from './types.js'
 import {QuoterCustomPresetRequest} from './quoter-custom-preset.request.js'
+import {EvmAddress} from '../../domains/index.js'
 
 describe('Quoter API', () => {
     let httpProvider: HttpProviderConnector
@@ -163,6 +165,9 @@ describe('Quoter API', () => {
             httpProvider
         )
 
+        const integratorReceiver = EvmAddress.fromString(
+            '0x1234567890123456789012345678901234567890'
+        )
         const params = QuoterRequest.forEVM({
             srcChain: NetworkEnum.ETHEREUM,
             dstChain: NetworkEnum.POLYGON,
@@ -170,9 +175,12 @@ describe('Quoter API', () => {
             dstTokenAddress: '0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
             amount: '100000000000000000',
             walletAddress: '0x00000000219ab540356cbb839cbe05303d7705fa',
-            fee: 1,
+            integratorFee: {receiver: integratorReceiver, value: new Bps(1n)},
             source: '0x6b175474e89094c44da98b954eedeac495271d0f'
         })
+
+        expect(params.integratorFee?.receiver).toEqual(integratorReceiver)
+        expect(params.integratorFee?.value.value).toBe(1n)
 
         const QuoterResponseMock = Quote.fromEVMQuote(params, ResponseMock)
         const res = await quoter.getQuote(params)
@@ -197,7 +205,12 @@ describe('Quoter API', () => {
             dstTokenAddress: '0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
             amount: '100000000000000000',
             walletAddress: '0x00000000219ab540356cbb839cbe05303d7705fa',
-            fee: 1,
+            integratorFee: {
+                receiver: EvmAddress.fromString(
+                    '0x1234567890123456789012345678901234567890'
+                ),
+                value: new Bps(1n)
+            },
             source: '0x6b175474e89094c44da98b954eedeac495271d0f'
         })
 

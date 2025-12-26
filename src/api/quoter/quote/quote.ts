@@ -22,7 +22,7 @@ import {
     QuoterResponse,
     TimeLocksRaw,
     ResolverFeeParams,
-    IntegratorFeeParams
+    IntegratorFeeResponse
 } from '../types.js'
 import {Preset} from '../preset.js'
 import {QuoterRequest} from '../quoter.request.js'
@@ -64,7 +64,7 @@ export class Quote<
         public readonly slippage: number,
         public readonly nativeOrderFactory?: ProxyFactory,
         public readonly resolverFee?: ResolverFeeParams,
-        public readonly integratorFee?: IntegratorFeeParams
+        public readonly integratorFee?: IntegratorFeeResponse
     ) {}
 
     get srcChainId(): SrcChain {
@@ -131,7 +131,7 @@ export class Quote<
                       receiver: EvmAddress.fromString(
                           response.integratorFee.receiver
                       ),
-                      bps: new Bps(BigInt(response.integratorFee.bps)),
+                      value: new Bps(BigInt(response.integratorFee.bps)),
                       share: Bps.fromPercent(
                           response.integratorFee.sharePercent
                       )
@@ -402,7 +402,7 @@ export class Quote<
             ? new IntegratorFee(
                   new Address(this.integratorFee.receiver.toString()),
                   resolverReceiver,
-                  this.integratorFee.bps,
+                  this.integratorFee.value,
                   this.integratorFee.share
               )
             : IntegratorFee.ZERO

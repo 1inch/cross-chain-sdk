@@ -14,9 +14,19 @@ export type QuoterRequestParams<
     walletAddress: string
     enableEstimate?: boolean
     permit?: string
-    fee?: number
+    integratorFee?: IntegratorFeeRequest
+    /**
+     * @deprecated Omit unless you have a specific use case.
+     */
     source?: string
     isPermit2?: boolean
+}
+
+export type QuoterRequestParamsRaw<
+    SrcChain extends SupportedChain = SupportedChain,
+    DstChain extends SupportedChain = SupportedChain
+> = Omit<QuoterRequestParams<SrcChain, DstChain>, 'integratorFee'> & {
+    fee?: number
 }
 
 export type QuoterCustomPresetRequestParams = {
@@ -43,20 +53,44 @@ export type ResolverFeeParamsRaw = {
     whitelistDiscountPercent: number
 }
 
-export type IntegratorFeeParams = {
+/**
+ * Integrator fee parameters for SDK requests.
+ * Used when calling getQuote() or createOrder().
+ */
+export type IntegratorFeeRequest = {
+    /**
+     * Address which will receive integrator's portion of the fee.
+     */
+    receiver: EvmAddress
+    /**
+     * How much to charge in basis points (1% = 100 bps)
+     */
+    value: Bps
+}
+
+/**
+ * Integrator fee parameters from API response.
+ * Contains authoritative values calculated by backend.
+ */
+export type IntegratorFeeResponse = {
     /**
      * Address which will receive `share` of `value` fee, other part will be sent to protocol
      */
     receiver: EvmAddress
     /**
-     * How much to charge
+     * How much to charge in basis points
      */
-    bps: Bps
+    value: Bps
     /**
-     * Integrator will receive only `share` part from charged fee
+     * Integrator will receive only `share` part from charged fee (rest goes to protocol)
      */
     share: Bps
 }
+
+/**
+ * @deprecated Use IntegratorFeeRequest for requests or IntegratorFeeResponse for responses
+ */
+export type IntegratorFeeParams = IntegratorFeeResponse
 
 export type IntegratorFeeParamsRaw = {
     receiver: string

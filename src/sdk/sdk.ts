@@ -108,7 +108,7 @@ export class SDK {
             walletAddress: params.walletAddress || EvmAddress.ZERO.toString(),
             permit: params.permit,
             enableEstimate: !!params.enableEstimate,
-            fee: params?.takingFeeBps,
+            integratorFee: params.integratorFee,
             source: params.source,
             isPermit2: params.isPermit2
         }
@@ -141,7 +141,7 @@ export class SDK {
             walletAddress: params.walletAddress,
             permit: params.permit,
             enableEstimate: !!params.enableEstimate,
-            fee: params?.takingFeeBps,
+            integratorFee: params.integratorFee,
             source: params.source,
             isPermit2: params.isPermit2
         }
