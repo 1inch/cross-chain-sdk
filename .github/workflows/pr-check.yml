@@ -58,7 +58,33 @@ jobs:
 
       - name: Install Solana
         run: |
-          sh -c "$(curl -sSfL https://release.solana.com/v1.18.18/install)"
+          if [ ! -f "$HOME/.local/share/solana/install/active_release/bin/solana" ]; then
+            echo "Solana not found in cache, installing..."
+            MAX_RETRIES=3
+            RETRY_COUNT=0
+            INSTALL_SUCCESS=false
+
+            while [ $RETRY_COUNT -lt $MAX_RETRIES ] && [ "$INSTALL_SUCCESS" = false ]; do
+              RETRY_COUNT=$((RETRY_COUNT + 1))
+              echo "Installation attempt $RETRY_COUNT of $MAX_RETRIES..."
+
+              if sh -c "$(curl -sSfL https://release.solana.com/v1.18.18/install)"; then
+                INSTALL_SUCCESS=true
+                echo "Solana installation successful!"
+              else
+                if [ $RETRY_COUNT -lt $MAX_RETRIES ]; then
+                  echo "Installation failed, retrying in 10 seconds..."
+                  sleep 10
+                else
+                  echo "Installation failed after $MAX_RETRIES attempts"
+                  exit 1
+                fi
+              fi
+            done
+          else
+            echo "Solana found in cache, skipping installation"
+          fi
+
           echo "$HOME/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
           export PATH="$HOME/.local/share/solana/install/active_release/bin:$PATH"
           solana --version
@@ -73,8 +99,33 @@ jobs:
 
       - name: Install Anchor CLI
         run: |
-          cargo install --git https://github.com/coral-xyz/anchor avm --locked --force
-          avm install 0.31.1
+          if [ ! -f "$HOME/.cargo/bin/anchor" ]; then
+            echo "Anchor not found in cache, installing avm..."
+            MAX_RETRIES=3
+            RETRY_COUNT=0
+
+            while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+              RETRY_COUNT=$((RETRY_COUNT + 1))
+              echo "avm installation attempt $RETRY_COUNT of $MAX_RETRIES..."
+
+              if cargo install --git https://github.com/coral-xyz/anchor avm --locked --force; then
+                break
+              else
+                if [ $RETRY_COUNT -lt $MAX_RETRIES ]; then
+                  echo "avm installation failed, retrying in 10 seconds..."
+                  sleep 10
+                else
+                  echo "avm installation failed after $MAX_RETRIES attempts"
+                  exit 1
+                fi
+              fi
+            done
+
+            avm install 0.31.1
+          else
+            echo "Anchor found in cache, skipping avm installation"
+          fi
+
           avm use 0.31.1
           anchor --version
 
