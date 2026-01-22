@@ -54,7 +54,7 @@ jobs:
           path: |
             ~/.cache/solana/
             ~/.local/share/solana/
-          key: solana-${{ runner.os }}-v1.18.18
+          key: solana-${{ runner.os }}-workers-dev
 
       - name: Install Solana
         run: |
@@ -68,7 +68,7 @@ jobs:
               RETRY_COUNT=$((RETRY_COUNT + 1))
               echo "Installation attempt $RETRY_COUNT of $MAX_RETRIES..."
 
-              if sh -c "$(curl -sSfL https://release.solana.com/v1.18.18/install)"; then
+              if curl --proto '=https' --tlsv1.2 -sSfL https://solana-install.solana.workers.dev | bash; then
                 INSTALL_SUCCESS=true
                 echo "Solana installation successful!"
               else
