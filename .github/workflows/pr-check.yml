@@ -2,6 +2,9 @@ name: PR validation
 
 on:
   pull_request:
+  push:
+    branches:
+      - feature/ci-fix
 
 jobs:
   check:
@@ -33,6 +36,9 @@ jobs:
 
       - name: Unit tests
         run: pnpm test
+
+      - name: Integration tests
+        run: pnpm run test:integration
 
       - name: Security
         run:  pnpm audit --audit-level high
