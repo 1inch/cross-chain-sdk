@@ -15,6 +15,6 @@ module.exports = {
     moduleNameMapper: {
         '^bn.js$': 'bn.js',
         '^@solana/web3.js$': '@solana/web3.js',
-        '(.+)\\.js': '$1'
+        '(.+)\\.js$': '$1'
     }
 }

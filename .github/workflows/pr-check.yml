@@ -37,6 +37,12 @@ jobs:
       - name: Unit tests
         run: pnpm test
 
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+
+      - name: Build contracts
+        run: pnpm build:contracts
+
       - name: Integration tests
         run: pnpm run test:integration
 
