@@ -89,6 +89,7 @@
     "prettier": "^3.6.2",
     "testcontainers": "11.2.1",
     "ts-mockito": "2.6.1",
+    "tsx": "^4.19.2",
     "type-fest": "4.41.0",
     "typescript": "^5.9.2"
   },
