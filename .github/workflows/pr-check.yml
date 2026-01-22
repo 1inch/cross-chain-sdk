@@ -88,45 +88,6 @@ jobs:
           echo "$HOME/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
           export PATH="$HOME/.local/share/solana/install/active_release/bin:$PATH"
           solana --version
-
-      - name: Cache Anchor
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cargo/bin/anchor
-            ~/.avm/
-          key: anchor-${{ runner.os }}-0.31.1
-
-      - name: Install Anchor CLI
-        run: |
-          if [ ! -f "$HOME/.cargo/bin/anchor" ]; then
-            echo "Anchor not found in cache, installing avm..."
-            MAX_RETRIES=3
-            RETRY_COUNT=0
-
-            while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
-              RETRY_COUNT=$((RETRY_COUNT + 1))
-              echo "avm installation attempt $RETRY_COUNT of $MAX_RETRIES..."
-
-              if cargo install --git https://github.com/coral-xyz/anchor avm --locked --force; then
-                break
-              else
-                if [ $RETRY_COUNT -lt $MAX_RETRIES ]; then
-                  echo "avm installation failed, retrying in 10 seconds..."
-                  sleep 10
-                else
-                  echo "avm installation failed after $MAX_RETRIES attempts"
-                  exit 1
-                fi
-              fi
-            done
-
-            avm install 0.31.1
-          else
-            echo "Anchor found in cache, skipping avm installation"
-          fi
-
-          avm use 0.31.1
           anchor --version
 
       - name: Build contracts
