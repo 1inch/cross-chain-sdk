@@ -27,6 +27,7 @@ export type QuoterRequestParamsRaw<
     DstChain extends SupportedChain = SupportedChain
 > = Omit<QuoterRequestParams<SrcChain, DstChain>, 'integratorFee'> & {
     fee?: number
+    feeReceiver?: string
 }
 
 export type QuoterCustomPresetRequestParams = {

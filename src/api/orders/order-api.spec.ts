@@ -233,6 +233,21 @@ describe(__filename, () => {
             )
         })
 
+        it('passes orderVersion filter to URL', async () => {
+            const httpProvider = createHttpProviderFake({items: [], meta: {}})
+            const api = new OrdersApi({url}, httpProvider)
+            await api.getActiveOrders(
+                new ActiveOrdersRequest({
+                    page: 1,
+                    limit: 10,
+                    orderVersion: [ApiVersion.V1_2]
+                })
+            )
+            expect(httpProvider.get).toHaveBeenLastCalledWith(
+                `${url}/v1.2/order/active/?page=1&limit=10&orderVersion=1.2`
+            )
+        })
+
         it('solana orders', async () => {
             const expected: ActiveOrdersResponse = {
                 items: [
@@ -817,13 +832,27 @@ describe(__filename, () => {
             const address = '0xfa80cd9b3becc0b4403b0f421384724f2810775f'
             const response = await api.getOrdersByMaker(
                 new OrdersByMakerRequest({
-                    address
+                    address,
+                    orderVersion: [ApiVersion.V1_2]
                 })
             )
 
             expect(response).toEqual(expected)
             expect(httpProvider.get).toHaveBeenLastCalledWith(
-                `${url}/v1.2/order/maker/${address}/?`
+                `${url}/v1.2/order/maker/${address}/?orderVersion=1.2`
+            )
+        })
+    })
+
+    describe('getReadyToExecutePublicActions', () => {
+        it('passes orderVersion filter to URL', async () => {
+            const httpProvider = createHttpProviderFake({actions: []})
+            const api = new OrdersApi({url}, httpProvider)
+            await api.getReadyToExecutePublicActions({
+                orderVersion: [ApiVersion.V1_1]
+            })
+            expect(httpProvider.get).toHaveBeenLastCalledWith(
+                `${url}/v1.2/order/ready-to-execute-public-actions?orderVersion=1.1`
             )
         })
     })
@@ -979,6 +1008,19 @@ describe(__filename, () => {
             expect(response).toEqual(expected)
             expect(httpProvider.get).toHaveBeenLastCalledWith(
                 `${url}/v1.2/order/cancelable-by-resolvers?page=1&limit=10&chainType=EVM`
+            )
+        })
+
+        it('should pass orderVersion filter to URL', async () => {
+            const httpProvider = createHttpProviderFake({items: [], meta: {}})
+            const api = new OrdersApi({url}, httpProvider)
+            await api.getCancellableOrders(
+                ChainType.EVM,
+                new PaginationRequest(1, 10),
+                [ApiVersion.V1_2]
+            )
+            expect(httpProvider.get).toHaveBeenLastCalledWith(
+                `${url}/v1.2/order/cancelable-by-resolvers?page=1&limit=10&chainType=EVM&orderVersion=1.2`
             )
         })
     })

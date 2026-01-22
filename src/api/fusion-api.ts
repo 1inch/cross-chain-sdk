@@ -14,11 +14,13 @@ import {
 import {
     ActiveOrdersRequest,
     ActiveOrdersResponse,
+    ApiVersion,
     OrdersApi,
     OrdersByMakerRequest,
     OrderStatusRequest,
     OrderStatusResponse,
     OrdersByMakerResponse,
+    OrderVersionFilter,
     ReadyToAcceptSecretFills,
     PublishedSecretsResponse,
     ReadyToExecutePublicActions,
@@ -95,8 +97,10 @@ export class FusionApi {
         return this.ordersApi.getReadyToAcceptSecretFills(orderHash)
     }
 
-    getReadyToExecutePublicActions(): Promise<ReadyToExecutePublicActions> {
-        return this.ordersApi.getReadyToExecutePublicActions()
+    getReadyToExecutePublicActions(
+        filter?: OrderVersionFilter
+    ): Promise<ReadyToExecutePublicActions> {
+        return this.ordersApi.getReadyToExecutePublicActions(filter)
     }
 
     getPublishedSecrets(orderHash: string): Promise<PublishedSecretsResponse> {
@@ -105,9 +109,14 @@ export class FusionApi {
 
     public async getCancellableOrders(
         chainType: ChainType,
-        pagination?: PaginationRequest
+        pagination?: PaginationRequest,
+        orderVersion?: ApiVersion[]
     ): Promise<CancellableOrdersResponse> {
-        return this.ordersApi.getCancellableOrders(chainType, pagination)
+        return this.ordersApi.getCancellableOrders(
+            chainType,
+            pagination,
+            orderVersion
+        )
     }
 
     submitOrder(params: RelayerRequestEvm | RelayerRequestSvm): Promise<void> {

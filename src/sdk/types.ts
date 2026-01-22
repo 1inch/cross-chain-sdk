@@ -9,6 +9,7 @@ import {
     EvmCrossChainOrder
 } from '../cross-chain-order/index.js'
 import {
+    ApiVersion,
     CustomPreset,
     IntegratorFeeRequest,
     PaginationOutput,
@@ -106,4 +107,5 @@ export type EvmOrderCancellationData<
     order: LimitOrderV4Struct
     extension: string
     remainingMakerAmount: bigint
+    version: ApiVersion
 }

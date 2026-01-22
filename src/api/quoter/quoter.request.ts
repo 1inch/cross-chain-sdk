@@ -138,6 +138,7 @@ export class QuoterRequest<
             enableEstimate: this.enableEstimate,
             permit: this.permit,
             fee: Number(this.integratorFee?.value.value || 0),
+            feeReceiver: this.integratorFee?.receiver.toString(),
             source: this.source,
             isPermit2: this.isPermit2
         }
