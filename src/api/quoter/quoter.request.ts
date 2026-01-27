@@ -1,6 +1,10 @@
 import {isValidAmount} from '@1inch/fusion-sdk'
 import assert from 'assert'
-import {QuoterRequestParams} from './types.js'
+import {
+    IntegratorFeeRequest,
+    QuoterRequestParams,
+    QuoterRequestParamsRaw
+} from './types.js'
 import {
     EvmChain,
     isEvm,
@@ -25,7 +29,7 @@ export class QuoterRequest<
         public readonly walletAddress: AddressForChain<SrcChain>,
         public readonly enableEstimate: boolean = false,
         public readonly permit: string | undefined,
-        public readonly fee: number | undefined,
+        public readonly integratorFee: IntegratorFeeRequest | undefined,
         public readonly source: string | undefined,
         public readonly isPermit2: boolean = false
     ) {
@@ -78,7 +82,7 @@ export class QuoterRequest<
             EvmAddress.fromString(params.walletAddress),
             params.enableEstimate,
             params.permit,
-            params.fee,
+            params.integratorFee,
             params.source,
             params.isPermit2
         )
@@ -109,7 +113,7 @@ export class QuoterRequest<
             SolanaAddress.fromString(params.walletAddress),
             params.enableEstimate,
             params.permit,
-            params.fee,
+            params.integratorFee,
             params.source,
             params.isPermit2
         )
@@ -123,7 +127,7 @@ export class QuoterRequest<
         return isSolana(this.srcChain)
     }
 
-    build(): QuoterRequestParams {
+    build(): QuoterRequestParamsRaw {
         return {
             srcChain: this.srcChain,
             dstChain: this.dstChain,
@@ -133,7 +137,8 @@ export class QuoterRequest<
             walletAddress: this.walletAddress.toString(),
             enableEstimate: this.enableEstimate,
             permit: this.permit,
-            fee: this.fee,
+            fee: Number(this.integratorFee?.value.value || 0),
+            feeReceiver: this.integratorFee?.receiver.toString(),
             source: this.source,
             isPermit2: this.isPermit2
         }

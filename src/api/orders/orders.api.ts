@@ -6,10 +6,12 @@ import {
 } from './orders.request.js'
 import {
     ActiveOrdersResponse,
+    ApiVersion,
     CancellableOrdersResponse,
     OrdersApiConfig,
     OrdersByMakerResponse,
     OrderStatusResponse,
+    OrderVersionFilter,
     PublishedSecretsResponse,
     ReadyToAcceptSecretFills,
     ReadyToExecutePublicActions
@@ -60,8 +62,13 @@ export class OrdersApi {
         return this.httpClient.get(url)
     }
 
-    async getReadyToExecutePublicActions(): Promise<ReadyToExecutePublicActions> {
-        const url = `${this.config.url}/${OrdersApi.Version}/order/ready-to-execute-public-actions`
+    async getReadyToExecutePublicActions(
+        filter?: OrderVersionFilter
+    ): Promise<ReadyToExecutePublicActions> {
+        const qp = filter?.orderVersion
+            ? concatQueryParams({orderVersion: filter.orderVersion})
+            : ''
+        const url = `${this.config.url}/${OrdersApi.Version}/order/ready-to-execute-public-actions${qp}`
 
         return this.httpClient.get(url)
     }
@@ -76,9 +83,10 @@ export class OrdersApi {
 
     public async getCancellableOrders(
         chainType: ChainType,
-        pagination?: PaginationRequest
+        pagination?: PaginationRequest,
+        orderVersion?: ApiVersion[]
     ): Promise<CancellableOrdersResponse> {
-        const qp: Record<string, number | string> = {}
+        const qp: Record<string, number | string | ApiVersion[]> = {}
 
         if (pagination?.page !== undefined) {
             qp.page = pagination.page
@@ -89,6 +97,10 @@ export class OrdersApi {
         }
 
         qp.chainType = chainType
+
+        if (orderVersion?.length) {
+            qp.orderVersion = orderVersion
+        }
 
         const url = `${this.config.url}/${OrdersApi.Version}/order/cancelable-by-resolvers${concatQueryParams(qp)}`
 

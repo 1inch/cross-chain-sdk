@@ -13,6 +13,7 @@ export type OrdersApiConfig = {
 export type ActiveOrdersRequestParams = PaginationParams & {
     srcChainId?: SupportedChain
     dstChainId?: SupportedChain
+    orderVersion?: ApiVersion[]
 }
 
 export type FillInfo = {
@@ -167,6 +168,7 @@ export type OrdersByMakerParams = {
     withToken?: string
     timestampFrom?: number
     timestampTo?: number
+    orderVersion?: ApiVersion[]
 } & PaginationParams
 
 export type OrderFillsByMakerOutput = {
@@ -266,6 +268,7 @@ export type EvmCancellableOrderData = {
     order: LimitOrderV4Struct
     extension: string
     remainingMakerAmount: string
+    version: ApiVersion
 }
 
 export type CancellableOrdersResponse =
@@ -292,4 +295,8 @@ export type ReadyToExecutePublicAction = {
 
 export type ReadyToExecutePublicActions = {
     actions: ReadyToExecutePublicAction[]
+}
+
+export type OrderVersionFilter = {
+    orderVersion?: ApiVersion[]
 }

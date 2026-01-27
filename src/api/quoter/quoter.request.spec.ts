@@ -1,5 +1,11 @@
 import {Address, NetworkEnum} from '@1inch/fusion-sdk'
+import {Bps} from '@1inch/limit-order-sdk'
 import {QuoterRequest} from './quoter.request.js'
+import {EvmAddress} from '../../domains/index.js'
+
+const testReceiver = EvmAddress.fromString(
+    '0x1234567890123456789012345678901234567890'
+)
 
 describe('QuoterRequest', () => {
     it('returns error dstTokenAddress equals ZERO_ADDRESS', () => {
@@ -11,7 +17,7 @@ describe('QuoterRequest', () => {
                 dstTokenAddress: Address.ZERO_ADDRESS.toString(),
                 amount: '1000000000000000000000',
                 walletAddress: '0x00000000219ab540356cbb839cbe05303d7705fa',
-                fee: 1
+                integratorFee: {receiver: testReceiver, value: new Bps(1n)}
             })
         ).toThrow(/replace/)
     })
@@ -25,7 +31,7 @@ describe('QuoterRequest', () => {
                 dstTokenAddress: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
                 amount: '1000000000000000000000',
                 walletAddress: '0x0000000019ab540356cbb839be05303d7705fa1',
-                fee: 1
+                integratorFee: {receiver: testReceiver, value: new Bps(1n)}
             })
         ).toThrow(/Invalid address/)
     })
@@ -39,12 +45,12 @@ describe('QuoterRequest', () => {
                 dstTokenAddress: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
                 amount: 'dasdad',
                 walletAddress: '0x00000000219ab540356cbb839cbe05303d7705fa',
-                fee: 1
+                integratorFee: {receiver: testReceiver, value: new Bps(1n)}
             })
         ).toThrow(/is invalid amount/)
     })
 
-    it('allows fee without source', () => {
+    it('allows integratorFee without source', () => {
         expect(() =>
             QuoterRequest.forEVM({
                 srcChain: NetworkEnum.ETHEREUM,
@@ -53,7 +59,7 @@ describe('QuoterRequest', () => {
                 dstTokenAddress: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
                 amount: '1000000',
                 walletAddress: '0x00000000219ab540356cbb839cbe05303d7705fa',
-                fee: 1
+                integratorFee: {receiver: testReceiver, value: new Bps(1n)}
             })
         ).not.toThrow()
     })

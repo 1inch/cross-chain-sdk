@@ -1,5 +1,6 @@
 import {
     ActiveOrdersRequestParams,
+    ApiVersion,
     OrdersByMakerParams,
     OrderStatusParams
 } from './types.js'
@@ -9,14 +10,18 @@ import {SupportedChain} from '../../chains.js'
 export class ActiveOrdersRequest {
     public readonly pagination: PaginationRequest
 
+    public readonly orderVersion?: ApiVersion[]
+
     constructor(params: ActiveOrdersRequestParams = {}) {
         this.pagination = new PaginationRequest(params.page, params.limit)
+        this.orderVersion = params.orderVersion
     }
 
     build(): ActiveOrdersRequestParams {
         return {
             page: this.pagination.page,
-            limit: this.pagination.limit
+            limit: this.pagination.limit,
+            orderVersion: this.orderVersion
         }
     }
 }
@@ -54,6 +59,8 @@ export class OrdersByMakerRequest {
 
     public readonly timestampTo?: number
 
+    public readonly orderVersion?: ApiVersion[]
+
     constructor(params: OrdersByMakerParams) {
         this.address = params.address
         this.pagination = new PaginationRequest(params.page, params.limit)
@@ -64,6 +71,7 @@ export class OrdersByMakerRequest {
         this.withToken = params.withToken
         this.timestampFrom = params.timestampFrom
         this.timestampTo = params.timestampTo
+        this.orderVersion = params.orderVersion
     }
 
     buildQueryParams(): Omit<OrdersByMakerParams, 'address'> {
@@ -76,7 +84,8 @@ export class OrdersByMakerRequest {
             dstToken: this.dstToken,
             withToken: this.withToken,
             timestampFrom: this.timestampFrom,
-            timestampTo: this.timestampTo
+            timestampTo: this.timestampTo,
+            orderVersion: this.orderVersion
         }
     }
 }

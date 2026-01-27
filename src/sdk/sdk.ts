@@ -21,6 +21,7 @@ import {
     ActiveOrdersRequest,
     ActiveOrdersRequestParams,
     ActiveOrdersResponse,
+    ApiVersion,
     EvmCancellableOrderData,
     FusionApi,
     OrdersByMakerParams,
@@ -28,6 +29,7 @@ import {
     OrdersByMakerResponse,
     OrderStatusRequest,
     OrderStatusResponse,
+    OrderVersionFilter,
     PaginationOutput,
     PaginationRequest,
     PublishedSecretsResponse,
@@ -84,8 +86,10 @@ export class SDK {
         return this.api.getReadyToAcceptSecretFills(orderHash)
     }
 
-    async getReadyToExecutePublicActions(): Promise<ReadyToExecutePublicActions> {
-        return this.api.getReadyToExecutePublicActions()
+    async getReadyToExecutePublicActions(
+        filter?: OrderVersionFilter
+    ): Promise<ReadyToExecutePublicActions> {
+        return this.api.getReadyToExecutePublicActions(filter)
     }
 
     async getPublishedSecrets(
@@ -108,7 +112,7 @@ export class SDK {
             walletAddress: params.walletAddress || EvmAddress.ZERO.toString(),
             permit: params.permit,
             enableEstimate: !!params.enableEstimate,
-            fee: params?.takingFeeBps,
+            integratorFee: params.integratorFee,
             source: params.source,
             isPermit2: params.isPermit2
         }
@@ -141,7 +145,7 @@ export class SDK {
             walletAddress: params.walletAddress,
             permit: params.permit,
             enableEstimate: !!params.enableEstimate,
-            fee: params?.takingFeeBps,
+            integratorFee: params.integratorFee,
             source: params.source,
             isPermit2: params.isPermit2
         }
@@ -344,14 +348,16 @@ export class SDK {
     public async getCancellableOrders(
         chainType: ChainType = ChainType.SVM,
         page = 1,
-        limit = 100
+        limit = 100,
+        orderVersion?: ApiVersion[]
     ): Promise<
         | PaginationOutput<EvmOrderCancellationData>
         | PaginationOutput<SvmOrderCancellationData>
     > {
         const orders = await this.api.getCancellableOrders(
             chainType,
-            new PaginationRequest(page, limit)
+            new PaginationRequest(page, limit),
+            orderVersion
         )
 
         if (chainType === ChainType.EVM) {
@@ -422,7 +428,8 @@ export class SDK {
                     dstChainId: o.dstChainId,
                     order: o.order,
                     extension: o.extension,
-                    remainingMakerAmount: BigInt(o.remainingMakerAmount)
+                    remainingMakerAmount: BigInt(o.remainingMakerAmount),
+                    version: o.version
                 }
             })
         }
