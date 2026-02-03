@@ -1,7 +1,8 @@
+import {SupportedChain} from 'chains.js'
 import {coder} from '../../utils/coder.js'
 import {Immutables, DstImmutablesComplement} from '../immutables/index.js'
 import {ImmutableFees} from '../immutables-fees/index.js'
-import {EvmAddress} from '../addresses/index.js'
+import {AddressLike, createAddress, EvmAddress} from '../addresses/index.js'
 
 export class SrcEscrowCreatedEvent {
     static readonly TOPIC =
@@ -9,7 +10,7 @@ export class SrcEscrowCreatedEvent {
 
     constructor(
         public readonly srcImmutables: Immutables<EvmAddress>,
-        public readonly dstImmutablesComplement: DstImmutablesComplement<EvmAddress>
+        public readonly dstImmutablesComplement: DstImmutablesComplement<AddressLike>
     ) {}
 
     /**
@@ -33,7 +34,7 @@ export class SrcEscrowCreatedEvent {
                 dstAmount,
                 dstToken,
                 dstSafetyDeposit,
-                dstChainId,
+                _dstChainId,
                 dstParameters
             ]
         ] = coder.decode(
@@ -43,6 +44,8 @@ export class SrcEscrowCreatedEvent {
             ],
             data
         )
+
+        const dstChainId: SupportedChain = Number(_dstChainId)
 
         return new SrcEscrowCreatedEvent(
             Immutables.fromJSON<EvmAddress>({
@@ -56,13 +59,13 @@ export class SrcEscrowCreatedEvent {
                 timelocks: (timelocks as bigint).toString(),
                 parameters: srcParameters as string
             }),
-            DstImmutablesComplement.new<EvmAddress>({
-                maker: EvmAddress.fromBigInt(dstMaker as bigint),
+            DstImmutablesComplement.new({
+                maker: createAddress(dstMaker as bigint, dstChainId),
                 amount: dstAmount as bigint,
-                token: EvmAddress.fromBigInt(dstToken as bigint),
-                taker: EvmAddress.ZERO,
+                token: createAddress(dstToken as bigint, dstChainId),
+                taker: createAddress(0n, dstChainId),
                 safetyDeposit: dstSafetyDeposit as bigint,
-                chainId: dstChainId as bigint,
+                chainId: BigInt(dstChainId),
                 fees: ImmutableFees.decode(dstParameters as string) ?? undefined
             })
         )

@@ -69,7 +69,7 @@ export class SolanaAddress implements AddressLike {
     }
 
     static fromUnknown(val: unknown): SolanaAddress {
-        if (!val) {
+        if (val == undefined) {
             throw new Error('invalid address')
         }
 
