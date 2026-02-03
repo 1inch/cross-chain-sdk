@@ -46,8 +46,8 @@ importers:
         specifier: 1.3.1
         version: 1.3.1
       ethers:
-        specifier: 6.13.1
-        version: 6.13.1(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+        specifier: 6.16.0
+        version: 6.16.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
       tslib:
         specifier: 2.6.3
         version: 2.6.3
@@ -56,11 +56,11 @@ importers:
         version: 8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10)
     devDependencies:
       '@1inch/eslint-config':
-        specifier: 3.0.7
-        version: 3.0.7(6b50871ba63ae7a5ac9ac80d78b688a9)
+        specifier: 3.0.8
+        version: 3.0.8(6b50871ba63ae7a5ac9ac80d78b688a9)
       '@1inch/tsconfig':
-        specifier: 1.0.9
-        version: 1.0.9
+        specifier: 1.0.12
+        version: 1.0.12
       '@eslint/compat':
         specifier: 1.3.1
         version: 1.3.1(eslint@9.31.0)
@@ -172,8 +172,8 @@ packages:
       assert:
         optional: true
 
-  '@1inch/eslint-config@3.0.7':
-    resolution: {integrity: sha512-2qsAgDb+fRpSbuHhKz9rChWQx70Xp59K7by72nCbuK6y8/fx7YDokas9ujOZ0nfj0dGUM5xWGB4EXvdWpqcvfA==}
+  '@1inch/eslint-config@3.0.8':
+    resolution: {integrity: sha512-QJFaI2caKUjdeHMVhWyqWYhjNRZkkqkZcMHMmJHqfOnkICrqMRWvTZgy+VIVRBf0epoNu1LXcMdUVwWjtDrfVA==, tarball: https://npm.pkg.github.com/download/@1inch/eslint-config/3.0.8/9257c78ce276a32ba5a5d486afe2efde0f20094b}
     peerDependencies:
       '@eslint/compat': ^1.1.0
       '@eslint/eslintrc': ^3.1.0
@@ -217,8 +217,8 @@ packages:
       axios:
         optional: true
 
-  '@1inch/tsconfig@1.0.9':
-    resolution: {integrity: sha512-TpQKhkwksMaiz26Uh1uWeVs8us6kodwt1i8KEVqqF9/fLL/JEc5Ql3UblqYrL69HJndxHyJRBZ7ziVHdTwCWOw==}
+  '@1inch/tsconfig@1.0.12':
+    resolution: {integrity: sha512-ljVPgRT9ju5kj4kdckCNjW1dZpaT2/4UhBkFf7Ah3yDGU5VNuFiq4MExpLm/2T+g46iSEvZSdqzDC3oLrIkafA==, tarball: https://npm.pkg.github.com/download/@1inch/tsconfig/1.0.12/dc493fb46277dc52a454fcecee73db6384bd92b8}
 
   '@adraffy/ens-normalize@1.10.1':
     resolution: {integrity: sha512-96Z2IP3mYmF1Xg2cDm8f1gWGf/HUVedQ3FMifV4kG/PQ4yEP51xDtRAEfhVNt5f/uzpNkZHwWQuUcu6D6K+Ekw==}
@@ -1027,9 +1027,6 @@ packages:
 
   '@types/node@12.20.55':
     resolution: {integrity: sha512-J8xLz7q2OFulZ2cyGTLE1TbbZcjpno7FaN6zdJNrgAdrJ+DZzh/uFR6YrTb4C+nXakvud8Q4+rbhoIWlYQbUFQ==}
-
-  '@types/node@18.15.13':
-    resolution: {integrity: sha512-N+0kuo9KgrUQ1Sn/ifDXsvg0TTleP7rIy4zOBGECxAljqvqfqpTfzx0Q1NUedOixRMBfe2Whhb056a42cWs26Q==}
 
   '@types/node@18.19.127':
     resolution: {integrity: sha512-gSjxjrnKXML/yo0BO099uPixMqfpJU0TKYjpfLU7TrtA2WWDki412Np/RSTPRil1saKBhvVVKzVx/p/6p94nVA==}
@@ -1998,12 +1995,12 @@ packages:
     resolution: {integrity: sha512-kVscqXk4OCp68SZ0dkgEKVi6/8ij300KBWTJq32P/dYeWTSwK41WyTxalN1eRmA5Z9UU/LX9D7FWSmV9SAYx6g==}
     engines: {node: '>=0.10.0'}
 
-  ethers@6.13.1:
-    resolution: {integrity: sha512-hdJ2HOxg/xx97Lm9HdCWk949BfYqYWpyw4//78SiwOLgASyfrNszfMUNB2joKjvGUdwhHfaiMMFFwacVVoLR9A==}
-    engines: {node: '>=14.0.0'}
-
   ethers@6.13.5:
     resolution: {integrity: sha512-+knKNieu5EKRThQJWwqaJ10a6HE9sSehGeqWN65//wE7j47ZpFhKAnHB/JJFibwwg61I/koxaPsXbXpD/skNOQ==}
+    engines: {node: '>=14.0.0'}
+
+  ethers@6.16.0:
+    resolution: {integrity: sha512-U1wulmetNymijEhpSEQ7Ct/P/Jw9/e7R1j5XIbPRydgV2DjLVMsULDlNksq3RQnFgKoLlZf88ijYtWEXcPa07A==}
     engines: {node: '>=14.0.0'}
 
   event-target-shim@5.0.1:
@@ -3373,9 +3370,6 @@ packages:
   tsconfig-paths@3.15.0:
     resolution: {integrity: sha512-2Ac2RgzDe/cn48GvOe3M+o82pEFewD3UPbyoUHHdKasHwJKjds4fLXWf/Ux5kATBKN20oaFGu+jbElp1pos0mg==}
 
-  tslib@2.4.0:
-    resolution: {integrity: sha512-d6xOpEDfsi2CZVlPQzGeux8XMwLT9hssAsaPYExaQMuYskwb+x1x7J371tWlbBdWHroy99KnVB6qIkUbs5X3UQ==}
-
   tslib@2.6.3:
     resolution: {integrity: sha512-xNvxJEOUiWPGhUuUdQgAJPKOOJfGnIyKySOc09XkKsgdUV/3E2zvwZYdejjmRgPCgcym1juLH3226yA7sEFJKQ==}
 
@@ -3599,7 +3593,7 @@ snapshots:
     optionalDependencies:
       assert: 2.1.0
 
-  '@1inch/eslint-config@3.0.7(6b50871ba63ae7a5ac9ac80d78b688a9)':
+  '@1inch/eslint-config@3.0.8(6b50871ba63ae7a5ac9ac80d78b688a9)':
     dependencies:
       '@eslint/compat': 1.3.1(eslint@9.31.0)
       '@eslint/eslintrc': 3.3.1
@@ -3625,7 +3619,7 @@ snapshots:
     dependencies:
       '@1inch/byte-utils': 3.1.0(assert@2.1.0)
       '@1inch/limit-order-sdk': 5.2.2(assert@2.1.0)(axios@1.12.2)(bufferutil@4.0.9)(utf-8-validate@5.0.10)
-      ethers: 6.13.1(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+      ethers: 6.16.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
       tslib: 2.6.3
       ws: 8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10)
     optionalDependencies:
@@ -3646,7 +3640,7 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@1inch/tsconfig@1.0.9':
+  '@1inch/tsconfig@1.0.12':
     dependencies:
       semver: 7.7.2
 
@@ -4739,8 +4733,6 @@ snapshots:
   '@types/json5@0.0.29': {}
 
   '@types/node@12.20.55': {}
-
-  '@types/node@18.15.13': {}
 
   '@types/node@18.19.127':
     dependencies:
@@ -5856,20 +5848,20 @@ snapshots:
 
   esutils@2.0.3: {}
 
-  ethers@6.13.1(bufferutil@4.0.9)(utf-8-validate@5.0.10):
+  ethers@6.13.5(bufferutil@4.0.9)(utf-8-validate@5.0.10):
     dependencies:
       '@adraffy/ens-normalize': 1.10.1
       '@noble/curves': 1.2.0
       '@noble/hashes': 1.3.2
-      '@types/node': 18.15.13
+      '@types/node': 22.7.5
       aes-js: 4.0.0-beta.5
-      tslib: 2.4.0
+      tslib: 2.7.0
       ws: 8.17.1(bufferutil@4.0.9)(utf-8-validate@5.0.10)
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
 
-  ethers@6.13.5(bufferutil@4.0.9)(utf-8-validate@5.0.10):
+  ethers@6.16.0(bufferutil@4.0.9)(utf-8-validate@5.0.10):
     dependencies:
       '@adraffy/ens-normalize': 1.10.1
       '@noble/curves': 1.2.0
@@ -7531,8 +7523,6 @@ snapshots:
       json5: 1.0.2
       minimist: 1.2.8
       strip-bom: 3.0.0
-
-  tslib@2.4.0: {}
 
   tslib@2.6.3: {}
 

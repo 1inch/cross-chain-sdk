@@ -54,13 +54,13 @@
     "bn.js": "5.2.2",
     "bs58": "6.0.0",
     "ecies-25519": "1.3.1",
-    "ethers": "6.13.1",
+    "ethers": "6.16.0",
     "tslib": "2.6.3",
     "ws": "^8.18.3"
   },
   "devDependencies": {
-    "@1inch/eslint-config": "3.0.7",
-    "@1inch/tsconfig": "1.0.9",
+    "@1inch/eslint-config": "3.0.8",
+    "@1inch/tsconfig": "1.0.12",
     "@eslint/compat": "1.3.1",
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.32.0",
