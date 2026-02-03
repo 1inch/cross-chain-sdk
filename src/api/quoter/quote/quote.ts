@@ -109,31 +109,33 @@ export class Quote<
             response.volume,
             response.autoK,
             response.nativeOrderFactoryAddress &&
-            response.nativeOrderImplAddress
+                response.nativeOrderImplAddress
                 ? new ProxyFactory(
                       new Address(response.nativeOrderFactoryAddress),
                       new Address(response.nativeOrderImplAddress)
                   )
                 : undefined,
-            response?.resolverFee
+            response?.feeInfo?.resolverFee
                 ? {
                       receiver: EvmAddress.fromString(
-                          response.resolverFee.receiver
+                          response.feeInfo?.resolverFee.receiver
                       ),
-                      bps: new Bps(BigInt(response.resolverFee.bps)),
+                      bps: new Bps(BigInt(response.feeInfo?.resolverFee.bps)),
                       whitelistDiscount: Bps.fromPercent(
-                          response.resolverFee.whitelistDiscountPercent
+                          response.feeInfo?.resolverFee.whitelistDiscountPercent
                       )
                   }
                 : undefined,
-            response?.integratorFee
+            response?.feeInfo?.integratorFee
                 ? {
                       receiver: EvmAddress.fromString(
-                          response.integratorFee.receiver
+                          response.feeInfo?.integratorFee.receiver
                       ),
-                      value: new Bps(BigInt(response.integratorFee.bps)),
+                      value: new Bps(
+                          BigInt(response.feeInfo?.integratorFee.bps)
+                      ),
                       share: Bps.fromPercent(
-                          response.integratorFee.sharePercent
+                          response.feeInfo?.integratorFee.share
                       )
                   }
                 : undefined

@@ -96,7 +96,10 @@ export type IntegratorFeeParams = IntegratorFeeResponse
 export type IntegratorFeeParamsRaw = {
     receiver: string
     bps: number
-    sharePercent: number
+    /**
+     * In percent
+     */
+    share: number
 }
 
 export type QuoterResponse = {
@@ -116,8 +119,10 @@ export type QuoterResponse = {
     autoK: number
     nativeOrderFactoryAddress?: string
     nativeOrderImplAddress?: string
-    resolverFee?: ResolverFeeParamsRaw
-    integratorFee?: IntegratorFeeParamsRaw
+    feeInfo?: {
+        resolverFee?: ResolverFeeParamsRaw
+        integratorFee?: IntegratorFeeParamsRaw
+    }
 }
 
 export type TimeLocksRaw = {
