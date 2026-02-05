@@ -167,7 +167,7 @@ export class EscrowExtension extends FusionExtension {
         const baseExt = super.build()
 
         const iter = BytesIter.HexString(baseExt.postInteraction)
-        const callback = iter.nextAddress()
+        const extensionAddr = iter.nextAddress()
         const flags = new BN(BigInt(iter.nextUint8()))
         const integrator = iter.nextAddress()
         const protocol = iter.nextAddress()
@@ -182,7 +182,7 @@ export class EscrowExtension extends FusionExtension {
         const feeAndWhitelist = iter.nextBytes(feeAndWhitelistLength)
 
         const postInteraction = new BytesBuilder()
-            .addAddress(callback)
+            .addAddress(extensionAddr)
             .addAddress(integrator)
             .addAddress(protocol)
             .addBytes(feeAndWhitelist)

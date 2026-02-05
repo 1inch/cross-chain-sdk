@@ -59,7 +59,6 @@ export type OrderParams = {
      * @see randBigInt
      */
     nonce?: bigint
-    fee?: TakingFeeInfo
     source?: string
     isPermit2?: boolean
     customPreset?: CustomPreset
