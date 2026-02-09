@@ -1,13 +1,19 @@
-import {AbiCoder} from 'ethers'
-import {BitMask, BN, trim0x, UINT_128_MAX} from '@1inch/byte-utils'
+import {
+    BitMask,
+    BN,
+    UINT_128_MAX,
+    BytesIter,
+    BytesBuilder
+} from '@1inch/byte-utils'
 import {
     FusionExtension,
     Extension,
-    Interaction,
-    SettlementPostInteractionData,
+    Whitelist,
+    SurplusParams,
     ZX
 } from '@1inch/fusion-sdk'
 import assert from 'assert'
+import {EscrowExtensionExtra} from './types.js'
 import {AddressComplement} from '../../domains/addresses/address-complement.js'
 import {AuctionDetails} from '../../domains/auction-details/index.js'
 import {HashLock} from '../../domains/hash-lock/index.js'
@@ -15,23 +21,16 @@ import {TimeLocks} from '../../domains/time-locks/index.js'
 import {SupportedChain} from '../../chains.js'
 import {
     AddressLike,
-    EvmAddress as Address,
     EvmAddress,
     createAddress
 } from '../../domains/addresses/index.js'
+import {coder} from '../../utils/coder.js'
 
 /**
- * Same as FusionExtension, but with extra data at the end
- * Extra data contains next fields:
- * - hashLock
- * - dstChainId
- * - dstToken
- * - srcSafetyDeposit
- * - dstSafetyDeposit
- * - timeLocks
+ * Extension for cross-chain escrow orders.
  */
 export class EscrowExtension extends FusionExtension {
-    private static EXTRA_DATA_TYPES = [
+    private static readonly CROSS_CHAIN_DATA_TYPES = [
         HashLock.Web3Type,
         'uint256', // dst chain id
         'uint256', // dst token
@@ -39,56 +38,81 @@ export class EscrowExtension extends FusionExtension {
         TimeLocks.Web3Type
     ] as const
 
-    private static EXTRA_DATA_LENGTH = 160 * 2 // 160 bytes, so 320 hex chars
+    /** Cross-chain data is 160 bytes */
+    private static readonly CROSS_CHAIN_DATA_BYTES = 160
 
     // eslint-disable-next-line max-params
     constructor(
-        address: Address,
+        address: EvmAddress,
         auctionDetails: AuctionDetails,
-        postInteractionData: SettlementPostInteractionData,
-        makerPermit: Interaction | undefined,
+        whitelist: Whitelist,
         public readonly hashLockInfo: HashLock,
         public readonly dstChainId: SupportedChain,
         public readonly dstToken: AddressLike,
         public readonly srcSafetyDeposit: bigint,
         public readonly dstSafetyDeposit: bigint,
         public readonly timeLocks: TimeLocks,
-        public readonly dstAddressFirstPart = AddressComplement.ZERO
+        public readonly dstAddressFirstPart: AddressComplement = AddressComplement.ZERO,
+        extra?: EscrowExtensionExtra
     ) {
-        assert(srcSafetyDeposit <= UINT_128_MAX)
-        assert(srcSafetyDeposit <= UINT_128_MAX)
+        assert(srcSafetyDeposit <= UINT_128_MAX, 'srcSafetyDeposit exceeds max')
+        assert(dstSafetyDeposit <= UINT_128_MAX, 'dstSafetyDeposit exceeds max')
 
-        super(address.inner, auctionDetails, postInteractionData, makerPermit)
+        super(
+            address.inner,
+            auctionDetails,
+            whitelist,
+            SurplusParams.NO_FEE,
+            extra
+        )
 
         this.dstToken = dstToken.zeroAsNative()
     }
 
     /**
-     * Create EscrowExtension from bytes
-     * @param bytes 0x prefixed bytes
+     * Decode extension from encoded bytes
      */
-    public static decode(bytes: string): EscrowExtension {
-        const extension = Extension.decode(bytes)
-
-        return EscrowExtension.fromExtension(extension)
+    static decode(bytes: string): EscrowExtension {
+        return EscrowExtension.fromExtension(Extension.decode(bytes))
     }
 
-    public static fromExtension(extension: Extension): EscrowExtension {
+    /**
+     * Create EscrowExtension from Extension
+     */
+    static fromExtension(extension: Extension): EscrowExtension {
+        const pi = extension.postInteraction
+
+        const crossChainData = EscrowExtension.decodeCrossChainData(
+            BytesIter.HexString(pi).nextBytes(
+                EscrowExtension.CROSS_CHAIN_DATA_BYTES,
+                BytesIter.SIDE.Back
+            )
+        )
+
+        const iter = BytesIter.HexString(pi)
+        const callback = iter.nextAddress()
+        const integrator = iter.nextAddress()
+        const protocol = iter.nextAddress()
+
+        const restBytes = (iter.rest().length - 2) / 2
+        const feeAndWhitelistLength =
+            restBytes - EscrowExtension.CROSS_CHAIN_DATA_BYTES
+        const feeAndWhitelist = iter.nextBytes(feeAndWhitelistLength)
+
+        const postInteractionForFusion = new BytesBuilder()
+            .addAddress(callback)
+            .addUint8(0n) // flags
+            .addAddress(integrator)
+            .addAddress(protocol)
+            .addBytes(feeAndWhitelist)
+            .addBytes('0x' + '0'.repeat(66)) // surplus
+            .asHex()
+
         const fusionExt = FusionExtension.fromExtension(
             new Extension({
                 ...extension,
-                postInteraction: extension.postInteraction.slice(
-                    0,
-                    -EscrowExtension.EXTRA_DATA_LENGTH
-                )
+                postInteraction: postInteractionForFusion
             })
-        )
-
-        const extra = EscrowExtension.decodeExtraData(
-            '0x' +
-                extension.postInteraction.slice(
-                    -EscrowExtension.EXTRA_DATA_LENGTH
-                )
         )
 
         const complement =
@@ -99,24 +123,19 @@ export class EscrowExtension extends FusionExtension {
         return new EscrowExtension(
             EvmAddress.fromString(fusionExt.address.toString()),
             AuctionDetails.fromBase(fusionExt.auctionDetails),
-            fusionExt.postInteractionData,
-            fusionExt.makerPermit,
-            extra.hashLock,
-            extra.dstChainId,
-            extra.dstToken,
-            extra.srcSafetyDeposit,
-            extra.dstSafetyDeposit,
-            extra.timeLocks,
-            complement
+            fusionExt.whitelist,
+            crossChainData.hashLock,
+            crossChainData.dstChainId,
+            crossChainData.dstToken,
+            crossChainData.srcSafetyDeposit,
+            crossChainData.dstSafetyDeposit,
+            crossChainData.timeLocks,
+            complement,
+            fusionExt.extra
         )
     }
 
-    /**
-     * Decode escrow data not related to fusion
-     *
-     * @param bytes 0x prefixed bytes
-     */
-    private static decodeExtraData(bytes: string): {
+    private static decodeCrossChainData(bytes: string): {
         hashLock: HashLock
         dstChainId: number
         dstToken: AddressLike
@@ -125,10 +144,7 @@ export class EscrowExtension extends FusionExtension {
         timeLocks: TimeLocks
     } {
         const [hashLock, dstChainId, dstToken, safetyDeposit, timeLocks] =
-            AbiCoder.defaultAbiCoder().decode(
-                EscrowExtension.EXTRA_DATA_TYPES,
-                bytes
-            )
+            coder.decode(EscrowExtension.CROSS_CHAIN_DATA_TYPES, bytes)
 
         const safetyDepositBN = new BN(safetyDeposit)
 
@@ -144,35 +160,60 @@ export class EscrowExtension extends FusionExtension {
         }
     }
 
-    public build(): Extension {
+    /**
+     * Build extension
+     */
+    override build(): Extension {
         const baseExt = super.build()
+
+        const iter = BytesIter.HexString(baseExt.postInteraction)
+        const extensionAddr = iter.nextAddress()
+        const flags = new BN(BigInt(iter.nextUint8()))
+        const integrator = iter.nextAddress()
+        const protocol = iter.nextAddress()
+
+        // Skip custom receiver if present
+        if (flags.getBit(0n)) {
+            iter.nextAddress()
+        }
+
+        const restBytes = (iter.rest().length - 2) / 2
+        const feeAndWhitelistLength = restBytes - 33 // surplus bytes
+        const feeAndWhitelist = iter.nextBytes(feeAndWhitelistLength)
+
+        const postInteraction = new BytesBuilder()
+            .addAddress(extensionAddr)
+            .addAddress(integrator)
+            .addAddress(protocol)
+            .addBytes(feeAndWhitelist)
+            .addBytes(this.encodeCrossChainData())
+            .asHex()
 
         return new Extension({
             ...baseExt,
-            postInteraction:
-                baseExt.postInteraction + trim0x(this.encodeExtraData()),
-            customData: this.buildCustomData()
+            postInteraction,
+            customData: this.encodeCustomData()
         })
     }
 
-    private buildCustomData(): string {
+    private encodeCrossChainData(): string {
+        const packedSafetyDeposit =
+            (this.srcSafetyDeposit << 128n) | this.dstSafetyDeposit
+
+        return coder.encode(EscrowExtension.CROSS_CHAIN_DATA_TYPES, [
+            this.hashLockInfo.toString(),
+            this.dstChainId,
+            this.dstToken.nativeAsZero().toHex(),
+            packedSafetyDeposit,
+            this.timeLocks.build()
+        ])
+    }
+
+    private encodeCustomData(): string {
         if (!this.dstAddressFirstPart || this.dstAddressFirstPart.isZero()) {
             return ZX
         }
 
         return this.dstAddressFirstPart.asHex()
-    }
-
-    private encodeExtraData(): string {
-        return AbiCoder.defaultAbiCoder().encode(
-            EscrowExtension.EXTRA_DATA_TYPES,
-            [
-                this.hashLockInfo.toString(),
-                this.dstChainId,
-                this.dstToken.nativeAsZero().toHex(),
-                (this.srcSafetyDeposit << 128n) | this.dstSafetyDeposit,
-                this.timeLocks.build()
-            ]
-        )
     }
 }

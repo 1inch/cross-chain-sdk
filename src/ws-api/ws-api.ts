@@ -13,7 +13,7 @@ import {WebSocketEvent} from './types.js'
 import {castUrl} from './url.js'
 
 export class WebSocketApi {
-    private static Version = 'v1.0'
+    private static readonly Version = 'v1.2'
 
     public readonly rpc: RpcWebsocketApi
 

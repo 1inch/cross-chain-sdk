@@ -25,22 +25,22 @@ export const TRUE_ERC20 = {
 }
 
 const ESCROW_FACTORY_ADDRESS = EvmAddress.fromString(
-    '0xa7bcb4eac8964306f9e3764f67db6a7af6ddf99a'
+    '0x5bdae636007cb1630f7d9957a6f5033c2016a16f'
 )
 const ESCROW_ZK_FACTORY_ADDRESS = EvmAddress.fromString(
-    '0x584aeab186d81dbb52a8a14820c573480c3d4773'
+    '0xd9085ac07da21bd6eb003a530a524ab054ca8652'
 )
 const ESCROW_SRC_IMPLEMENTATION_ADDRESS = EvmAddress.fromString(
-    '0xcd70bf33cfe59759851db21c83ea47b6b83bef6a'
+    '0x6422319d430ad10cf7e15b432a8123de21496ad3'
 )
 const ESCROW_ZK_SRC_IMPLEMENTATION_ADDRESS = EvmAddress.fromString(
-    '0xddc60c7babfc55d8030f51910b157e179f7a41fc'
+    '0x198cc9a03192d767a29886b6ef626fee38e36959'
 )
 const ESCROW_DST_IMPLEMENTATION_ADDRESS = EvmAddress.fromString(
-    '0x9c3e06659f1c34f930ce97fcbce6e04ae88e535b'
+    '0xc2c7dc177af36c1e4ec06f8a723116d15562a5e7'
 )
 const ESCROW_ZK_DST_IMPLEMENTATION_ADDRESS = EvmAddress.fromString(
-    '0xdc4ccc2fc2475d0ed3fddd563c44f2bf6a3900c9'
+    '0x07d3d5e598cc23bfee9884b1e342ddaecd88dead'
 )
 
 export const ESCROW_SRC_IMPLEMENTATION = {

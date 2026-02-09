@@ -1,6 +1,7 @@
 import {HttpProviderConnector} from '@1inch/fusion-sdk'
 import {
     ActiveOrdersResponse,
+    ApiVersion,
     EscrowEventAction,
     EscrowEventSide,
     FillStatus,
@@ -76,7 +77,8 @@ describe(__filename, () => {
                             '0x2048b38093dc53876b2bbd230ee8999791153db01de425112f449d018094e116',
                             '0x7972c1498893bb9b88baddc9decb78d8defdcc7a182a72edd8724498c75f088d',
                             '0x6d5b8f0b1f8a28564ff65e5f9c4d8a8a6babfb318bca6ecc9d872a3abe8a4ea0'
-                        ]
+                        ],
+                        version: ApiVersion.V1_1
                     },
                     {
                         quoteId: '8343588a-da1e-407f-b41f-aa86f0ec4266',
@@ -114,7 +116,8 @@ describe(__filename, () => {
                             '0x2048b38093dc53876b2bbd230ee8999791153db01de425112f449d018094e116',
                             '0x7972c1498893bb9b88baddc9decb78d8defdcc7a182a72edd8724498c75f088d',
                             '0x6d5b8f0b1f8a28564ff65e5f9c4d8a8a6babfb318bca6ecc9d872a3abe8a4ea0'
-                        ]
+                        ],
+                        version: ApiVersion.V1_1
                     }
                 ],
                 meta: {
@@ -139,7 +142,7 @@ describe(__filename, () => {
 
             expect(response).toEqual(expected)
             expect(httpProvider.get).toHaveBeenLastCalledWith(
-                `${url}/v1.1/order/active/?page=1&limit=2`
+                `${url}/v1.2/order/active/?page=1&limit=2`
             )
         })
 
@@ -226,7 +229,22 @@ describe(__filename, () => {
 
             expect(response).toEqual(expected)
             expect(httpProvider.get).toHaveBeenLastCalledWith(
-                `${url}/v1.1/order/active/?`
+                `${url}/v1.2/order/active/?`
+            )
+        })
+
+        it('passes orderVersion filter to URL', async () => {
+            const httpProvider = createHttpProviderFake({items: [], meta: {}})
+            const api = new OrdersApi({url}, httpProvider)
+            await api.getActiveOrders(
+                new ActiveOrdersRequest({
+                    page: 1,
+                    limit: 10,
+                    orderVersion: [ApiVersion.V1_2]
+                })
+            )
+            expect(httpProvider.get).toHaveBeenLastCalledWith(
+                `${url}/v1.2/order/active/?page=1&limit=10&orderVersion=1.2`
             )
         })
 
@@ -289,7 +307,8 @@ describe(__filename, () => {
                             '0x2048b38093dc53876b2bbd230ee8999791153db01de425112f449d018094e116',
                             '0x7972c1498893bb9b88baddc9decb78d8defdcc7a182a72edd8724498c75f088d',
                             '0x6d5b8f0b1f8a28564ff65e5f9c4d8a8a6babfb318bca6ecc9d872a3abe8a4ea0'
-                        ]
+                        ],
+                        version: ApiVersion.V1_1
                     },
                     {
                         quoteId: '8343588a-da1e-407f-b41f-aa86f0ec4266',
@@ -327,7 +346,8 @@ describe(__filename, () => {
                             '0x2048b38093dc53876b2bbd230ee8999791153db01de425112f449d018094e116',
                             '0x7972c1498893bb9b88baddc9decb78d8defdcc7a182a72edd8724498c75f088d',
                             '0x6d5b8f0b1f8a28564ff65e5f9c4d8a8a6babfb318bca6ecc9d872a3abe8a4ea0'
-                        ]
+                        ],
+                        version: ApiVersion.V1_1
                     }
                 ],
                 meta: {
@@ -352,7 +372,7 @@ describe(__filename, () => {
 
             expect(response).toEqual(expected)
             expect(httpProvider.get).toHaveBeenLastCalledWith(
-                `${url}/v1.1/order/active/?page=1&limit=2`
+                `${url}/v1.2/order/active/?page=1&limit=2`
             )
         })
     })
@@ -447,7 +467,7 @@ describe(__filename, () => {
 
             expect(response).toEqual(expected)
             expect(httpProvider.get).toHaveBeenLastCalledWith(
-                `${url}/v1.1/order/status/${orderHash}`
+                `${url}/v1.2/order/status/${orderHash}`
             )
         })
         it('solana', async () => {
@@ -565,7 +585,7 @@ describe(__filename, () => {
 
             expect(response).toEqual(expected)
             expect(httpProvider.get).toHaveBeenLastCalledWith(
-                `${url}/v1.1/order/status/${orderHash}`
+                `${url}/v1.2/order/status/${orderHash}`
             )
         })
     })
@@ -693,7 +713,7 @@ describe(__filename, () => {
 
             expect(response).toEqual(expected)
             expect(httpProvider.get).toHaveBeenLastCalledWith(
-                `${url}/v1.1/order/maker/${address}/?limit=1&page=1`
+                `${url}/v1.2/order/maker/${address}/?limit=1&page=1`
             )
         })
 
@@ -812,13 +832,27 @@ describe(__filename, () => {
             const address = '0xfa80cd9b3becc0b4403b0f421384724f2810775f'
             const response = await api.getOrdersByMaker(
                 new OrdersByMakerRequest({
-                    address
+                    address,
+                    orderVersion: [ApiVersion.V1_2]
                 })
             )
 
             expect(response).toEqual(expected)
             expect(httpProvider.get).toHaveBeenLastCalledWith(
-                `${url}/v1.1/order/maker/${address}/?`
+                `${url}/v1.2/order/maker/${address}/?orderVersion=1.2`
+            )
+        })
+    })
+
+    describe('getReadyToExecutePublicActions', () => {
+        it('passes orderVersion filter to URL', async () => {
+            const httpProvider = createHttpProviderFake({actions: []})
+            const api = new OrdersApi({url}, httpProvider)
+            await api.getReadyToExecutePublicActions({
+                orderVersion: [ApiVersion.V1_1]
+            })
+            expect(httpProvider.get).toHaveBeenLastCalledWith(
+                `${url}/v1.2/order/ready-to-execute-public-actions?orderVersion=1.1`
             )
         })
     })
@@ -850,7 +884,7 @@ describe(__filename, () => {
 
             expect(response).toEqual(expected)
             expect(httpProvider.get).toHaveBeenLastCalledWith(
-                `${url}/v1.1/order/ready-to-accept-secret-fills/${orderHash}`
+                `${url}/v1.2/order/ready-to-accept-secret-fills/${orderHash}`
             )
         })
     })
@@ -877,7 +911,7 @@ describe(__filename, () => {
 
             expect(response).toEqual(expected)
             expect(httpProvider.get).toHaveBeenLastCalledWith(
-                `${url}/v1.1/order/secrets/${orderHash}`
+                `${url}/v1.2/order/secrets/${orderHash}`
             )
         })
     })
@@ -925,7 +959,7 @@ describe(__filename, () => {
 
             expect(response).toEqual(expected)
             expect(httpProvider.get).toHaveBeenLastCalledWith(
-                `${url}/v1.1/order/cancelable-by-resolvers?page=1&limit=10&chainType=Solana`
+                `${url}/v1.2/order/cancelable-by-resolvers?page=1&limit=10&chainType=Solana`
             )
         })
 
@@ -973,7 +1007,20 @@ describe(__filename, () => {
 
             expect(response).toEqual(expected)
             expect(httpProvider.get).toHaveBeenLastCalledWith(
-                `${url}/v1.1/order/cancelable-by-resolvers?page=1&limit=10&chainType=EVM`
+                `${url}/v1.2/order/cancelable-by-resolvers?page=1&limit=10&chainType=EVM`
+            )
+        })
+
+        it('should pass orderVersion filter to URL', async () => {
+            const httpProvider = createHttpProviderFake({items: [], meta: {}})
+            const api = new OrdersApi({url}, httpProvider)
+            await api.getCancellableOrders(
+                ChainType.EVM,
+                new PaginationRequest(1, 10),
+                [ApiVersion.V1_2]
+            )
+            expect(httpProvider.get).toHaveBeenLastCalledWith(
+                `${url}/v1.2/order/cancelable-by-resolvers?page=1&limit=10&chainType=EVM&orderVersion=1.2`
             )
         })
     })

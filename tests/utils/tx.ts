@@ -2,11 +2,11 @@ import {web3} from '@coral-xyz/anchor'
 import {TakerTraits, AmountMode} from '@1inch/fusion-sdk'
 import {Signature, Interface} from 'ethers'
 import assert from 'assert'
-import {ReadyEvmFork} from './setup-evm'
-import {Instruction} from '../../src/contracts/svm/instruction'
-import {EvmCrossChainOrder} from '../../src/cross-chain-order'
-import {EscrowFactoryFacade} from '../../src/contracts/evm/escrow-factory-facade'
-import {Immutables, EvmAddress, HashLock} from '../../src/domains'
+import {ReadyEvmFork} from './setup-evm.js'
+import {Instruction} from '../../src/contracts/svm/instruction.js'
+import {EvmCrossChainOrder} from '../../src/cross-chain-order/index.js'
+import {EscrowFactoryFacade} from '../../src/contracts/evm/escrow-factory-facade.js'
+import {Immutables, EvmAddress, HashLock} from '../../src/domains/index.js'
 
 export function newSolanaTx(ix: Instruction): web3.Transaction {
     return new web3.Transaction().add({
@@ -42,7 +42,7 @@ export function getEvmFillData(
         const idx = order.getMultipleFillIdx(fillAmount, remainingAmount)
 
         takerTraits.setInteraction(
-            new EscrowFactoryFacade(
+            EscrowFactoryFacade.getFactory(
                 chainConfig.chainId,
                 EvmAddress.fromString(chainConfig.addresses.escrowFactory)
             ).getMultipleFillInteraction(

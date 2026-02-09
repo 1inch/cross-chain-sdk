@@ -7,9 +7,10 @@ import {
     Interaction,
     LimitOrderV4Struct,
     MakerTraits,
-    SettlementPostInteractionData,
+    Whitelist,
     ZX,
-    NetworkEnum
+    NetworkEnum,
+    AmountCalculator
 } from '@1inch/fusion-sdk'
 import {ProxyFactory} from '@1inch/limit-order-sdk'
 import assert from 'assert'
@@ -177,13 +178,13 @@ export class EvmCrossChainOrder extends BaseOrder<
             'Chains must be different'
         )
 
-        const postInteractionData = SettlementPostInteractionData.new({
-            whitelist: details.whitelist.map((i) => ({
+        const whitelist = Whitelist.new(
+            details.resolvingStartTime ?? BigInt(now()),
+            details.whitelist.map((i) => ({
                 address: i.address.inner,
                 allowFrom: i.allowFrom
-            })),
-            resolvingStartTime: details.resolvingStartTime ?? BigInt(now())
-        })
+            }))
+        )
 
         if (!isEvm(escrowParams.dstChainId) && !orderInfo.receiver) {
             throw new Error('Receiver is required for non EVM chain')
@@ -194,20 +195,22 @@ export class EvmCrossChainOrder extends BaseOrder<
             EvmAddress.ZERO
         ]
 
+        const makerPermit = extra?.permit
+            ? new Interaction(orderInfo.makerAsset.inner, extra.permit)
+            : undefined
+
         const ext = new EscrowExtension(
             escrowFactory,
             details.auction,
-            postInteractionData,
-            extra?.permit
-                ? new Interaction(orderInfo.makerAsset.inner, extra.permit)
-                : undefined,
+            whitelist,
             escrowParams.hashLock,
             escrowParams.dstChainId,
             orderInfo.takerAsset,
             escrowParams.srcSafetyDeposit,
             escrowParams.dstSafetyDeposit,
             escrowParams.timeLocks,
-            complement
+            complement,
+            {makerPermit, fees: details.fees}
         )
 
         return new EvmCrossChainOrder(
@@ -390,5 +393,56 @@ export class EvmCrossChainOrder extends BaseOrder<
      */
     public canExecuteAt(executor: EvmAddress, executionTime: bigint): boolean {
         return this.inner.canExecuteAt(executor.inner, executionTime)
+    }
+
+    /**
+     * Calculate resolver fee for the given parameters
+     *
+     * @param taker address of taker (resolver)
+     * @param time execution timestamp in sec
+     * @param blockBaseFee block base fee in wei (optional)
+     * @param makingAmount amount to fill (defaults to full order)
+     */
+    public getResolverFee(
+        taker: EvmAddress,
+        time: bigint,
+        blockBaseFee = 0n,
+        makingAmount = this.makingAmount
+    ): bigint {
+        return this.inner.getProtocolFee(
+            taker.inner,
+            time,
+            blockBaseFee,
+            makingAmount
+        )
+    }
+
+    /**
+     * Calculate integrator fee for the given parameters
+     *
+     * @param taker address of taker (resolver)
+     * @param time execution timestamp in sec
+     * @param blockBaseFee block base fee in wei (optional)
+     * @param makingAmount amount to fill (defaults to full order)
+     */
+    public getIntegratorFee(
+        taker: EvmAddress,
+        time: bigint,
+        blockBaseFee = 0n,
+        makingAmount = this.makingAmount
+    ): bigint {
+        return this.inner.getIntegratorFee(
+            taker.inner,
+            time,
+            blockBaseFee,
+            makingAmount
+        )
+    }
+
+    /**
+     * Get amount calculator for this order
+     */
+    public getAmountCalculator(): AmountCalculator {
+        return AmountCalculator.fromExtension(this.inner.fusionExtension)
     }
 }

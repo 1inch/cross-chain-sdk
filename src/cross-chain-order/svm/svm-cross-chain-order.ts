@@ -355,7 +355,8 @@ export class SvmCrossChainOrder extends BaseOrder<
                         data.extra.resolverCancellationConfig
                             .maxCancellationPremium
                     ),
-                    data.extra.resolverCancellationConfig.cancellationAuctionDuration
+                    data.extra.resolverCancellationConfig
+                        .cancellationAuctionDuration
                 ),
                 source: data.extra.source,
                 srcAssetIsNative: data.extra.srcAssetIsNative
@@ -539,8 +540,7 @@ export class SvmCrossChainOrder extends BaseOrder<
             details.startTime,
             details.duration,
             details.initialRateBump,
-            details.points,
-            0n // no taker fee
+            details.points
         )
     }
 }

@@ -1,4 +1,5 @@
-import {AuctionPoint} from '../../domains/index.js'
+import {Bps} from '@1inch/limit-order-sdk'
+import {AuctionPoint, EvmAddress} from '../../domains/index.js'
 import {SupportedChain} from '../../chains.js'
 
 export type QuoterRequestParams<
@@ -13,9 +14,20 @@ export type QuoterRequestParams<
     walletAddress: string
     enableEstimate?: boolean
     permit?: string
-    fee?: number
+    integratorFee?: IntegratorFeeRequest
+    /**
+     * @deprecated Omit unless you have a specific use case.
+     */
     source?: string
     isPermit2?: boolean
+}
+
+export type QuoterRequestParamsRaw<
+    SrcChain extends SupportedChain = SupportedChain,
+    DstChain extends SupportedChain = SupportedChain
+> = Omit<QuoterRequestParams<SrcChain, DstChain>, 'integratorFee'> & {
+    fee?: number
+    feeReceiver?: string
 }
 
 export type QuoterCustomPresetRequestParams = {
@@ -25,6 +37,69 @@ export type QuoterCustomPresetRequestParams = {
 export type QuoterApiConfig = {
     url: string
     authKey?: string
+}
+
+export type ResolverFeeParams = {
+    /**
+     * resolver address
+     */
+    receiver: EvmAddress
+    bps: Bps
+    whitelistDiscount: Bps
+}
+
+export type ResolverFeeParamsRaw = {
+    receiver: string
+    bps: number
+    whitelistDiscountPercent: number
+}
+
+/**
+ * Integrator fee parameters for SDK requests.
+ * Used when calling getQuote() or createOrder().
+ */
+export type IntegratorFeeRequest = {
+    /**
+     * Address which will receive integrator's portion of the fee.
+     */
+    receiver: EvmAddress
+    /**
+     * How much to charge in basis points (1% = 100 bps)
+     */
+    value: Bps
+}
+
+/**
+ * Integrator fee parameters from API response.
+ * Contains authoritative values calculated by backend.
+ */
+export type IntegratorFeeResponse = {
+    /**
+     * Address which will receive `share` of `value` fee, other part will be sent to protocol
+     */
+    receiver: EvmAddress
+    /**
+     * How much to charge in basis points
+     */
+    value: Bps
+    /**
+     * Integrator will receive only `share` part from charged fee (rest goes to protocol)
+     */
+    share: Bps
+}
+
+/**
+ * @deprecated Use IntegratorFeeRequest for requests or IntegratorFeeResponse for responses
+ */
+export type IntegratorFeeParams = IntegratorFeeResponse
+
+export type IntegratorFeeParamsRaw = {
+    receiver: string
+    bps: number
+    /**
+     * In percent
+     */
+    share: number
 }
 
 export type QuoterResponse = {
@@ -44,6 +119,10 @@ export type QuoterResponse = {
     autoK: number
     nativeOrderFactoryAddress?: string
     nativeOrderImplAddress?: string
+    feeInfo?: {
+        resolverFee?: ResolverFeeParamsRaw
+        integratorFee?: IntegratorFeeParamsRaw
+    }
 }
 
 export type TimeLocksRaw = {

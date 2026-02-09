@@ -354,7 +354,8 @@ describe('SVM Escrow src factory', () => {
             amount: '500000000000000000',
             safetyDeposit: '1000',
             timelocks:
-                '4519513249946090673914462965909562690094454064409420748554250'
+                '4519513249946090673914462965909562690094454064409420748554250',
+            parameters: '0x'
         })
 
         const secret = randomBytes(32)
@@ -383,7 +384,8 @@ describe('SVM Escrow src factory', () => {
             amount: '500000000000000000',
             safetyDeposit: '1000',
             timelocks:
-                '4519513249946090673914462965909562690094454064409420748554250'
+                '4519513249946090673914462965909562690094454064409420748554250',
+            parameters: '0x'
         })
 
         const secret = randomBytes(32)

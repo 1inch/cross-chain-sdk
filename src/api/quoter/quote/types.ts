@@ -13,7 +13,6 @@ export type EvmCrossChainOrderParamsData = {
     nonce?: bigint
     permit?: string
     isPermit2?: boolean
-    takingFeeReceiver?: string
     delayAuctionStartTimeBy?: bigint
     /**
      * Order will expire in `orderExpirationDelay` after auction ends
@@ -28,7 +27,6 @@ export type SvmCrossChainOrderParamsData = {
     receiver: EvmAddress
     resolverCancellationConfig?: ResolverCancellationConfig
     salt?: bigint
-    takingFeeReceiver?: string
     delayAuctionStartTimeBy?: bigint
     /**
      * Order will expire in `orderExpirationDelay` after auction ends

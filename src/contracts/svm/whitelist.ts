@@ -4,7 +4,7 @@ import {getPda} from '../../utils/index.js'
 
 export class WhitelistContract extends BaseProgram {
     static DEFAULT = new WhitelistContract(
-        new SolanaAddress('5XYZ3LMWECpC6u7BWLskMMNx4xWbXF44dpDxvkVqkHtA')
+        new SolanaAddress('CShaLBTQn6xbwq9behWTZuDuYY7APeWvXchsHkTw3DcZ')
     )
 
     constructor(programId: SolanaAddress) {

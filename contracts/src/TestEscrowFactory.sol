@@ -6,7 +6,6 @@ contract TestSettlement is EscrowFactory {
     // solhint-disable-next-line no-empty-blocks
     constructor(
         address limitOrderProtocol,
-        IERC20 feeToken,
         IERC20 accessToken,
         address owner,
         uint32 rescueDelaySrc,
@@ -14,7 +13,6 @@ contract TestSettlement is EscrowFactory {
     )
         EscrowFactory(
             limitOrderProtocol,
-            feeToken,
             accessToken,
             owner,
             rescueDelaySrc,

@@ -8,7 +8,13 @@ import {
     SvmCrossChainOrder,
     EvmCrossChainOrder
 } from '../cross-chain-order/index.js'
-import {CustomPreset, PaginationOutput, PresetEnum} from '../api/index.js'
+import {
+    ApiVersion,
+    CustomPreset,
+    IntegratorFeeRequest,
+    PaginationOutput,
+    PresetEnum
+} from '../api/index.js'
 import {EvmChain, SupportedChain} from '../chains.js'
 import {EvmAddress, HashLock, SolanaAddress} from '../domains/index.js'
 
@@ -31,7 +37,7 @@ export type QuoteParams<
     walletAddress: string
     enableEstimate?: boolean
     permit?: string
-    takingFeeBps?: number // 100 == 1%
+    integratorFee?: IntegratorFeeRequest
     source?: string
     isPermit2?: boolean
 }
@@ -53,7 +59,6 @@ export type OrderParams = {
      * @see randBigInt
      */
     nonce?: bigint
-    fee?: TakingFeeInfo
     source?: string
     isPermit2?: boolean
     customPreset?: CustomPreset
@@ -101,4 +106,5 @@ export type EvmOrderCancellationData<
     order: LimitOrderV4Struct
     extension: string
     remainingMakerAmount: bigint
+    version: ApiVersion
 }

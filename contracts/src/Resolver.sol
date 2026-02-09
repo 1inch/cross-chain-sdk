@@ -7,7 +7,6 @@ import {Ownable} from 'openzeppelin-contracts/contracts/access/Ownable.sol';
 import {IOrderMixin} from 'limit-order-protocol/contracts/interfaces/IOrderMixin.sol';
 import {TakerTraits} from 'limit-order-protocol/contracts/libraries/TakerTraitsLib.sol';
 
-import {IResolverExample} from '../lib/cross-chain-swap/contracts/interfaces/IResolverExample.sol';
 import {RevertReasonForwarder} from '../lib/cross-chain-swap/lib/solidity-utils/contracts/libraries/RevertReasonForwarder.sol';
 import {IEscrowFactory} from '../lib/cross-chain-swap/contracts/interfaces/IEscrowFactory.sol';
 import {IBaseEscrow} from '../lib/cross-chain-swap/contracts/interfaces/IBaseEscrow.sol';

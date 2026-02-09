@@ -14,6 +14,7 @@ module.exports = {
     testEnvironment: 'node',
     moduleNameMapper: {
         '^bn.js$': 'bn.js',
+        '^bignumber.js$': 'bignumber.js',
         '^@solana/web3.js$': '@solana/web3.js',
         '(.+)\\.js': '$1'
     }

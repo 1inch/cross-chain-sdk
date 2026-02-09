@@ -13,10 +13,16 @@ export type OrdersApiConfig = {
 export type ActiveOrdersRequestParams = PaginationParams & {
     srcChainId?: SupportedChain
     dstChainId?: SupportedChain
+    orderVersion?: ApiVersion[]
 }
 
 export type FillInfo = {
     txHash: string
+}
+
+export enum ApiVersion {
+    V1_1 = '1.1',
+    V1_2 = '1.2'
 }
 
 export type ActiveOrder = {
@@ -29,6 +35,7 @@ export type ActiveOrder = {
     remainingMakerAmount: string
     secretHashes?: string[]
     fills: FillInfo[]
+    version: ApiVersion
 } & (
     | {
           srcChainId: EvmChain
@@ -161,6 +168,7 @@ export type OrdersByMakerParams = {
     withToken?: string
     timestampFrom?: number
     timestampTo?: number
+    orderVersion?: ApiVersion[]
 } & PaginationParams
 
 export type OrderFillsByMakerOutput = {
@@ -211,6 +219,7 @@ export type ChainImmutables = {
     amount: string
     safetyDeposit: string
     timelocks: string
+    parameters?: string
 }
 
 export type PublicSecret = {
@@ -259,6 +268,7 @@ export type EvmCancellableOrderData = {
     order: LimitOrderV4Struct
     extension: string
     remainingMakerAmount: string
+    version: ApiVersion
 }
 
 export type CancellableOrdersResponse =
@@ -285,4 +295,8 @@ export type ReadyToExecutePublicAction = {
 
 export type ReadyToExecutePublicActions = {
     actions: ReadyToExecutePublicAction[]
+}
+
+export type OrderVersionFilter = {
+    orderVersion?: ApiVersion[]
 }

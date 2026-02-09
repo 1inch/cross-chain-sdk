@@ -26,7 +26,7 @@ import {BN} from '../../utils/numbers/bn.js'
 
 export class SvmDstEscrowFactory extends BaseProgram {
     static DEFAULT = new SvmDstEscrowFactory(
-        new SolanaAddress('AMEAktCrii7mVFQKCM9i5hKES4YrV3zFagrawr8BY8pb')
+        new SolanaAddress('GveV3ToLhvRmeq1Fyg3BMkNetZuG9pZEp4uBGWLrTjve')
     )
 
     private static readonly coder = new BorshCoder(IDL)

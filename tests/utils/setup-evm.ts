@@ -12,9 +12,15 @@ import {
 import {randBigInt} from '@1inch/fusion-sdk'
 import EscrowFactory from '../../dist/contracts/EscrowFactory.sol/EscrowFactory.json'
 import Resolver from '../../dist/contracts/Resolver.sol/Resolver.json'
-import {EvmChain} from '../../src/chains'
-import {EvmTestWallet} from '../utils/evm-wallet'
-import {ONE_INCH_LIMIT_ORDER_V4, USDC_EVM, WETH_EVM} from '../utils/addresses'
+import ImmutablesLib from '../../dist/contracts/ImmutablesLib.sol/ImmutablesLib.json'
+import {EvmChain} from '../../src/chains.js'
+
+import {EvmTestWallet} from '../utils/evm-wallet.js'
+import {
+    ONE_INCH_LIMIT_ORDER_V4,
+    USDC_EVM,
+    WETH_EVM
+} from '../utils/addresses.js'
 
 export type EvmNodeConfig = {
     chainId: EvmChain
@@ -47,8 +53,8 @@ export async function setupEvm(config: EvmNodeConfig): Promise<ReadyEvmFork> {
         provider
     )
 
-    const taker = await EvmTestWallet.fromAddress(
-        '0x1d83cc9b3Fe9Ee21c45282Bef1BEd27Dfa689EA2',
+    const taker = new EvmTestWallet(
+        '0xebaffe18fd4f341e6ae52d86b6c6d8fc68d8af0fecc8e43add42e1f6d6aa9808',
         provider
     )
     const addresses = await deployContracts(provider, taker)
@@ -104,7 +110,6 @@ async function startNode(
         .withCommand([
             `anvil -f ${forkUrl} --chain-id ${chainId} --mnemonic 'hat hat horse border print cancel subway heavy copy alert eternal mask' --host 0.0.0.0`
         ])
-        // .withLogConsumer((s) => s.pipe(process.stdout))
         .withWaitStrategy(new LogWaitStrategy('Listening on 0.0.0.0:8545', 1))
         .withName(`anvil_cross_chain_tests_${chainId}_${randBigInt(100n)}`)
         .start()
@@ -132,12 +137,17 @@ async function deployContracts(
         provider
     )
 
+    // Deploy ImmutablesLib at the placeholder address used in compiled bytecode
+    await provider.send('anvil_setCode', [
+        '0x5FbDB2315678afecb367f032d93F642f64180aa3',
+        ImmutablesLib.deployedBytecode.object
+    ])
+
     const escrowFactory = await deploy(
         EscrowFactory,
         [
             ONE_INCH_LIMIT_ORDER_V4,
             '0xacce550000159e70908c0499a1119d04e7039c28', // access token
-            WETH_EVM, // fee token
             deployer.address, // owner
             100000n, // src rescue delay
             100000n // dst rescue delay
@@ -147,11 +157,7 @@ async function deployContracts(
 
     const resolver = await deploy(
         Resolver,
-        [
-            escrowFactory,
-            ONE_INCH_LIMIT_ORDER_V4,
-            await taker.getAddress() // owner
-        ],
+        [escrowFactory, ONE_INCH_LIMIT_ORDER_V4, await taker.getAddress()],
         deployer
     )
 
@@ -161,6 +167,36 @@ async function deployContracts(
     }
 }
 
+async function trace(
+    localNode: StartedTestContainer,
+    txHash: string
+): Promise<string> {
+    const {output} = await localNode.exec(`cast run ${txHash}`)
+
+    const mappings = [
+        [USDC_EVM, 'USDC'],
+        [WETH_EVM, 'WETH']
+    ]
+
+    const formatted = mappings.reduce(
+        (acc, [address, label]) =>
+            acc.replaceAll(new RegExp(address, 'gi'), label),
+        output
+    )
+
+    return formatted
+}
+
+export async function printTrace(
+    localNode: StartedTestContainer,
+    txHash: string
+): Promise<void> {
+    const traceText = await trace(localNode, txHash)
+
+    // eslint-disable-next-line no-console
+    console.log(traceText)
+}
+
 async function setupBalances(
     maker: EvmTestWallet,
     taker: EvmTestWallet,
@@ -168,7 +204,7 @@ async function setupBalances(
     provider: JsonRpcProvider
 ): Promise<void> {
     const USDC_DONOR = await EvmTestWallet.fromAddress(
-        '0x22af984f13dfb5c80145e3f9ee1050ae5a5fb651',
+        '0xEe7aE85f2Fe2239E27D9c1E23fFFe168D63b4055',
         provider
     )
 
@@ -178,22 +214,20 @@ async function setupBalances(
 
     // Taker have USDC on resolver
     await USDC_DONOR.transferToken(USDC_EVM, resolver, parseUnits('100000', 6))
-    // await taker.unlimitedApprove(USDC, ONE_INCH_LIMIT_ORDER_V4)
 }
 
-/**
- * Deploy contract and return its address
- */
 async function deploy(
     json: {abi: InterfaceAbi; bytecode: {object: string}},
     params: unknown[],
     deployer: Wallet
 ): Promise<string> {
-    const deployed = await new ContractFactory(
+    const factory = new ContractFactory(
         json.abi,
-        json.bytecode,
+        json.bytecode.object,
         deployer
-    ).deploy(...params)
+    )
+
+    const deployed = await factory.deploy(...params, {gasLimit: 10_000_000n})
     await deployed.waitForDeployment()
 
     return deployed.getAddress()

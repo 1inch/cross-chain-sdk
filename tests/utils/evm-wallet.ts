@@ -7,6 +7,8 @@ import {
     Wallet as PKWallet
 } from 'ethers'
 import {Address, EIP712TypedData} from '@1inch/limit-order-sdk'
+import {StartedTestContainer} from 'testcontainers'
+import {printTrace} from './setup-evm.js'
 import ERC20 from '../../dist/contracts/IERC20.sol/IERC20.json'
 
 const coder = AbiCoder.defaultAbiCoder()
@@ -25,6 +27,16 @@ export class EvmTestWallet {
             typeof privateKeyOrSigner === 'string'
                 ? new PKWallet(privateKeyOrSigner, this.provider)
                 : privateKeyOrSigner
+    }
+
+    static async getTokenBalance(
+        token: string,
+        address: string,
+        provider: JsonRpcProvider
+    ): Promise<bigint> {
+        const tokenContract = new Contract(token, ERC20.abi, provider)
+
+        return tokenContract.balanceOf(address)
     }
 
     static async signTypedData(
@@ -50,13 +62,11 @@ export class EvmTestWallet {
     }
 
     async tokenBalance(token: string): Promise<bigint> {
-        const tokenContract = new Contract(
-            token.toString(),
-            ERC20.abi,
+        return EvmTestWallet.getTokenBalance(
+            token,
+            await this.getAddress(),
             this.provider
         )
-
-        return tokenContract.balanceOf(await this.getAddress())
     }
 
     public async nativeBalance(): Promise<bigint> {
@@ -153,23 +163,48 @@ export class EvmTestWallet {
     }
 
     async send(
-        param: TransactionRequest
-    ): Promise<{txHash: string; blockTimestamp: bigint; blockHash: string}> {
-        const res = await this.signer.sendTransaction({
-            ...param,
-            gasLimit: 10_000_000,
-            from: this.getAddress()
-        })
-        const receipt = await res.wait(1)
+        param: TransactionRequest,
+        name?: string,
+        localNode?: StartedTestContainer
+    ): Promise<{
+        txHash: string
+        blockTimestamp: bigint
+        blockHash: string
+        logs: {topics: string[]; data: string}[]
+    }> {
+        const from = await this.signer.getAddress()
+        const tx: TransactionRequest = {
+            from,
+            to: param.to,
+            value: param.value,
+            data: param.data,
+            gasLimit: 10_000_000
+        }
+
+        const res = await this.signer.sendTransaction(tx)
+
+        const receipt = await res
+            .wait(1)
+            .catch((_) => this.provider.getTransactionReceipt(res.hash))
 
         if (receipt && receipt.status) {
             return {
                 txHash: receipt.hash,
                 blockTimestamp: BigInt((await res.getBlock())!.timestamp),
-                blockHash: res.blockHash as string
+                blockHash: res.blockHash as string,
+                logs: receipt.logs.map((log) => ({
+                    topics: [...log.topics],
+                    data: log.data
+                }))
             }
         }
 
-        throw new Error((await receipt?.getResult()) || 'unknown error')
+        if (localNode && receipt) {
+            await printTrace(localNode, receipt.hash)
+        }
+
+        throw new Error(
+            `tx ${name} failed: ` + (JSON.stringify(receipt) || 'unknown error')
+        )
     }
 }

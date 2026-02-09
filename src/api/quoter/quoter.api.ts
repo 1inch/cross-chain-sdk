@@ -6,7 +6,7 @@ import {QuoterCustomPresetRequest} from './quoter-custom-preset.request.js'
 import {concatQueryParams} from '../params.js'
 
 export class QuoterApi {
-    private static Version = 'v1.1'
+    private static readonly Version = 'v1.2'
 
     constructor(
         private readonly config: QuoterApiConfig,

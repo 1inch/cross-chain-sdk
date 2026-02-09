@@ -18,6 +18,7 @@ import {
     QuoterResponse,
     QuoterRequest
 } from '../api/quoter/index.js'
+import {ApiVersion} from '../api/orders/index.js'
 import {ResolverCancellationConfig} from '../cross-chain-order/index.js'
 import {EvmCrossChainOrder} from '../cross-chain-order/evm/index.js'
 import {AuctionDetails} from '../domains/auction-details/index.js'
@@ -319,7 +320,8 @@ describe(__filename, () => {
                 expect.objectContaining({
                     page: 1,
                     limit: 100
-                })
+                }),
+                undefined
             )
         })
 
@@ -346,7 +348,8 @@ describe(__filename, () => {
                             makerTraits: '0'
                         },
                         extension: 'ExtensionEncodedData',
-                        remainingMakerAmount: '5'
+                        remainingMakerAmount: '5',
+                        version: ApiVersion.V1_2
                     }
                 ],
                 meta: {
@@ -387,7 +390,8 @@ describe(__filename, () => {
                 expect.objectContaining({
                     page: 1,
                     limit: 10
-                })
+                }),
+                undefined
             )
         })
 
@@ -413,14 +417,18 @@ describe(__filename, () => {
                 mockResponse
             )
 
-            await sdk.getCancellableOrders(ChainType.SVM, 2, 50)
+            await sdk.getCancellableOrders(ChainType.SVM, 2, 50, [
+                ApiVersion.V1_1,
+                ApiVersion.V1_2
+            ])
 
             expect(sdk.api.getCancellableOrders).toHaveBeenCalledWith(
                 ChainType.SVM,
                 expect.objectContaining({
                     page: 2,
                     limit: 50
-                })
+                }),
+                [ApiVersion.V1_1, ApiVersion.V1_2]
             )
         })
     })

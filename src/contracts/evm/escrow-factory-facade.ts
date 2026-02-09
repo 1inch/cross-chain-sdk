@@ -1,6 +1,5 @@
 import {Interaction} from '@1inch/fusion-sdk'
 import {EscrowFactory} from './escrow-factory.js'
-import {EscrowFactoryZksync} from './escrow-factory-zksync.js'
 import {EvmAddress as Address} from '../../domains/addresses/index.js'
 import {
     DstImmutablesComplement,
@@ -21,15 +20,10 @@ export class EscrowFactoryFacade implements EscrowFactory {
     }
 
     public static getFactory(
-        chainId: NetworkEnum,
+        _chainId: NetworkEnum, // just keeping backward compatibility
         factoryAddress: Address
     ): EscrowFactory {
-        switch (chainId) {
-            case NetworkEnum.ZKSYNC:
-                return new EscrowFactoryZksync(factoryAddress)
-            default:
-                return new EscrowFactory(factoryAddress)
-        }
+        return new EscrowFactory(factoryAddress)
     }
 
     public getEscrowAddress(
