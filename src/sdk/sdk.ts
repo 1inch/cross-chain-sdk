@@ -454,7 +454,8 @@ export class SDK {
                             o.order.extra.resolverCancellationConfig
                                 .maxCancellationPremium
                         ),
-                        o.order.extra.resolverCancellationConfig.cancellationAuctionDuration
+                        o.order.extra.resolverCancellationConfig
+                            .cancellationAuctionDuration
                     ),
                     isAssetNative: o.order.extra.srcAssetIsNative
                 }
@@ -486,7 +487,6 @@ export class SDK {
                     : undefined,
                 preset: params.preset,
                 nonce: params.nonce,
-                takingFeeReceiver: params.fee?.takingFeeReceiver,
                 permit: params.permit,
                 isPermit2: params.isPermit2
             })
@@ -497,8 +497,7 @@ export class SDK {
         return quote.createSolanaOrder({
             hashLock: params.hashLock,
             receiver: EvmAddress.fromString(params.receiver),
-            preset: params.preset,
-            takingFeeReceiver: params.fee?.takingFeeReceiver
+            preset: params.preset
         })
     }
 }
