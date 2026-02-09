@@ -25,7 +25,7 @@ export const TRUE_ERC20 = {
 }
 
 const ESCROW_FACTORY_ADDRESS = EvmAddress.fromString(
-    '0x5bdae636007cb1630f7d9957a6f5033c2016a16f'
+    '0x03a25b3215a0e5c15cf23ac4d2e5cf86c0ff7efa'
 )
 const ESCROW_ZK_FACTORY_ADDRESS = EvmAddress.fromString(
     '0xd9085ac07da21bd6eb003a530a524ab054ca8652'
