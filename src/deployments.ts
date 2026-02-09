@@ -28,19 +28,19 @@ const ESCROW_FACTORY_ADDRESS = EvmAddress.fromString(
     '0x5bdae636007cb1630f7d9957a6f5033c2016a16f'
 )
 const ESCROW_ZK_FACTORY_ADDRESS = EvmAddress.fromString(
-    '0xad9393d581f1f4f91eed5b1c165eac8740a41f6e'
+    '0xd9085ac07da21bd6eb003a530a524ab054ca8652'
 )
 const ESCROW_SRC_IMPLEMENTATION_ADDRESS = EvmAddress.fromString(
     '0x6422319d430ad10cf7e15b432a8123de21496ad3'
 )
 const ESCROW_ZK_SRC_IMPLEMENTATION_ADDRESS = EvmAddress.fromString(
-    '0x4b11fd5998565bfc6409e187ba377ae579ff2346'
+    '0x198cc9a03192d767a29886b6ef626fee38e36959'
 )
 const ESCROW_DST_IMPLEMENTATION_ADDRESS = EvmAddress.fromString(
     '0xc2c7dc177af36c1e4ec06f8a723116d15562a5e7'
 )
 const ESCROW_ZK_DST_IMPLEMENTATION_ADDRESS = EvmAddress.fromString(
-    '0x684d6998e142cc821fa3382d39c5d0b40a2bce1a'
+    '0x07d3d5e598cc23bfee9884b1e342ddaecd88dead'
 )
 
 export const ESCROW_SRC_IMPLEMENTATION = {
