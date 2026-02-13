@@ -42,7 +42,7 @@ jobs:
         run: |
           VERSION=$(node -p "require('../package.json').version")
           if [[ "$VERSION" == *"-rc"* ]]; then
-            pnpm publish --no-git-checks --access=public --tag next
+            pnpm publish --no-git-checks --access=public --tag v1
           else
             pnpm publish --no-git-checks --access=public --tag v1
           fi        
