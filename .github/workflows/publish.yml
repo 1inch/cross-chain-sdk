@@ -44,7 +44,7 @@ jobs:
           if [[ "$VERSION" == *"-rc"* ]]; then
             pnpm publish --no-git-checks --access=public --tag next
           else
-            pnpm publish --no-git-checks --access=public
+            pnpm publish --no-git-checks --access=public --tag v1
           fi        
         working-directory: dist
 
