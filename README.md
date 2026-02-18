@@ -6,6 +6,7 @@ Sdk for creating atomic swaps through 1inch
 
 ## Docs
 - [WebSocket](https://github.com/1inch/cross-chain-sdk/tree/master/src/ws-api)
+- [v2.0 Migration Guide](./docs/v2-migration-guide.md)
 
 # Installation
 
