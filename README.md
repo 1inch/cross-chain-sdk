@@ -23,7 +23,7 @@ const web3 = new Web3(rpc)
 const walletAddress = web3.eth.accounts.privateKeyToAccount(privateKey).address
 
 const sdk = new SDK({
-    url: 'https://api.1inch.dev/fusion-plus',
+    url: 'https://api.1inch.com/fusion-plus',
     authKey,
     blockchainProvider: new PrivateKeyProviderConnector(privateKey, web3) // only required for order creation
 })
@@ -139,7 +139,7 @@ const web3 = new Web3(rpc)
 const walletAddress = web3.eth.accounts.privateKeyToAccount(privateKey).address
 
 const sdk = new SDK({
-    url: 'https://api.1inch.dev/fusion-plus',
+    url: 'https://api.1inch.com/fusion-plus',
     authKey,
     blockchainProvider: new PrivateKeyProviderConnector(privateKey, web3) // only required for order creation
 })
@@ -231,6 +231,25 @@ async function main(): Promise<void> {
 main()
 ```
 
+## Charge integrator fee
+To charge fees as an integrator, pass the `integratorFee` field to `sdk.getQuote`. The fee is specified in basis points (1% = 100 bps) and requires a receiver address that will collect the fee.
+
+```diff
+const quote = await sdk.getQuote({
+    amount: '10000000',
+    srcChainId: NetworkEnum.POLYGON,
+    dstChainId: NetworkEnum.BINANCE,
+    enableEstimate: true,
+    srcTokenAddress: '0xc2132d05d31c914a87c6611c10748aeb04b58e8f', // USDT
+    dstTokenAddress: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee', // BNB
+    walletAddress,
++    integratorFee: {
++        receiver: integratorFeeReceiver, // address to receive the fee
++        value: new Bps(100n) // 1% fee (100 basis points)
++    }
+})
+```
+
 ## Full example Native Asset CrossChain Swap
 ```typescript
 import {
@@ -271,7 +290,7 @@ const connector = new PrivateKeyProviderConnector(
 const wallet = new Wallet(PRIVATE_KEY, ethersRpcProvider)
 
 const sdk = new SDK({
-    url: 'https://api.1inch.dev/fusion-plus',
+    url: 'https://api.1inch.com/fusion-plus',
     authKey: AUTH_KEY,
     blockchainProvider: connector,
 })
@@ -420,7 +439,7 @@ const makerSigner = web3.Keypair.fromSecretKey(utils.bytes.bs58.decode(signerPri
 
 const SOLANA_RPC = 'https://api.mainnet-beta.solana.com'
 const sdk = new SDK({
-  url: 'https://api.1inch.dev/fusion-plus',
+  url: 'https://api.1inch.com/fusion-plus',
   authKey
 })
 
@@ -582,7 +601,7 @@ const ethersProviderConnector = {
 const connector = new PrivateKeyProviderConnector(signerPrivateKey, ethersProviderConnector)
 
 const sdk = new SDK({
-  url: 'https://api.1inch.dev/fusion-plus',
+  url: 'https://api.1inch.com/fusion-plus',
   authKey: process.env.DEV_PORTAL_API_TOKEN,
   blockchainProvider: connector
 })

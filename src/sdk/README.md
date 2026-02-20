@@ -9,7 +9,7 @@ import {SDK, NetworkEnum} from '@1inch/cross-chain-sdk'
 
 async function main() {
     const sdk = new SDK({
-        url: 'https://api.1inch.dev/fusion-plus',
+        url: 'https://api.1inch.com/fusion-plus',
         authKey: 'your-auth-key'
     })
 
@@ -76,7 +76,7 @@ class CustomHttpProvider implements HttpProviderConnector {
 ```typescript
 import {SDK, NetworkEnum} from '@1inch/cross-chain-sdk'
 const sdk = new SDK({
-    url: 'https://api.1inch.dev/fusion-plus',
+    url: 'https://api.1inch.com/fusion-plus',
     authKey: 'your-auth-key'
 })
 const orders = await sdk.getActiveOrders({page: 1, limit: 2})
@@ -95,7 +95,7 @@ const orders = await sdk.getActiveOrders({page: 1, limit: 2})
 ```typescript
 import {SDK, NetworkEnum} from '@1inch/cross-chain-sdk'
 const sdk = new FusionSDK({
-    url: 'https://api.1inch.dev/fusion-plus',
+    url: 'https://api.1inch.com/fusion-plus',
     authKey: 'your-auth-key'
 })
 
@@ -119,7 +119,7 @@ const orders = await sdk.getOrdersByMaker({
 ```typescript
 import {SDK, NetworkEnum, QuoteParams} from '@1inch/cross-chain-sdk'
 const sdk = new FusionSDK({
-    url: 'https://api.1inch.dev/fusion-plus',
+    url: 'https://api.1inch.com/fusion-plus',
     authKey: 'your-auth-key'
 })
 
@@ -159,7 +159,7 @@ const blockchainProvider = new PrivateKeyProviderConnector(
 )
 
 const sdk = new SDK({
-  url: 'https://api.1inch.dev/fusion',
+  url: 'https://api.1inch.com/fusion',
   authKey: 'your-auth-key',
   blockchainProvider
 })
