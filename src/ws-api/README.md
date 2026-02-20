@@ -8,7 +8,7 @@
 import {WebSocketApi, NetworkEnum} from '@1inch/cross-chain-sdk'
 
 const wsSdk = new WebSocketApi({
-    url: 'wss://api.1inch.dev/fusion-plus/ws',
+    url: 'wss://api.1inch.com/fusion-plus/ws',
     authKey: 'your-auth-key'
 })
 
@@ -25,7 +25,7 @@ wsSdk.order.onOrder((data) => {
 import {WebSocketApi, NetworkEnum} from '@1inch/cross-chain-sdk'
 
 const ws = new WebSocketApi({
-    url: 'wss://api.1inch.dev/fusion/ws',
+    url: 'wss://api.1inch.com/fusion/ws',
     authKey: 'your-auth-key'
 })
 ```
@@ -41,7 +41,7 @@ class MyFancyProvider implements WsProviderConnector {
     // ... user implementation
 }
 
-const url = 'wss://api.1inch.dev/fusion-plus/ws/v1.2'
+const url = 'wss://api.1inch.com/fusion-plus/ws/v1.2'
 const provider = new MyFancyProvider({url})
 
 const wsSdk = new WebSocketApi(provider)
@@ -53,7 +53,7 @@ const wsSdk = new WebSocketApi(provider)
 import {WebSocketApi, NetworkEnum} from '@1inch/cross-chain-sdk'
 
 const ws = WebSocketApi.new({
-    url: 'wss://api.1inch.dev/fusion-plus/ws',
+    url: 'wss://api.1inch.com/fusion-plus/ws',
 })
 ```
 
@@ -65,7 +65,7 @@ By default, when user creates an instance of WebSocketApi, it automatically open
 import {WebSocketApi, NetworkEnum} from '@1inch/cross-chain-sdk'
 
 const ws = new WebSocketApi({
-    url: 'wss://api.1inch.dev/fusion-plus/ws',
+    url: 'wss://api.1inch.com/fusion-plus/ws',
     network: NetworkEnum.ETHEREUM,
     lazyInit: true
 })
@@ -92,7 +92,7 @@ ws.init()
 import {WebSocketApi, NetworkEnum} from '@1inch/cross-chain-sdk'
 
 const ws = new WebSocketApi({
-    url: 'wss://api.1inch.dev/fusion-plus/ws',
+    url: 'wss://api.1inch.com/fusion-plus/ws',
 })
 
 ws.on(WebSocketEvent.Error, console.error)
@@ -121,7 +121,7 @@ ws.on(WebSocketEvent.Message, function message(data) {
 import {WebSocketApi, NetworkEnum} from '@1inch/cross-chain-sdk'
 
 const ws = new WebSocketApi({
-    url: 'wss://api.1inch.dev/fusion-plus/ws',
+    url: 'wss://api.1inch.com/fusion-plus/ws',
 })
 
 ws.on(WebSocketEvent.Error, console.error)
@@ -153,7 +153,7 @@ ws.off(WebSocketEvent.Message, message)
 import {WebSocketApi, NetworkEnum} from '@1inch/cross-chain-sdk'
 
 const ws = new WebSocketApi({
-    url: 'wss://api.1inch.dev/fusion-plus/ws',
+    url: 'wss://api.1inch.com/fusion-plus/ws',
 })
 
 ws.onOpen(() => {
@@ -175,7 +175,7 @@ ws.onOpen(() => {
 import {WebSocketApi, NetworkEnum} from '@1inch/cross-chain-sdk'
 
 const ws = new WebSocketApi({
-    url: 'wss://api.1inch.dev/fusion-plus/ws',
+    url: 'wss://api.1inch.com/fusion-plus/ws',
 })
 
 ws.send('my message')
@@ -191,7 +191,7 @@ ws.send('my message')
 import {WebSocketApi, NetworkEnum} from '@1inch/cross-chain-sdk'
 
 const ws = new WebSocketApi({
-    url: 'wss://api.1inch.dev/fusion-plus/ws',
+    url: 'wss://api.1inch.com/fusion-plus/ws',
 })
 
 ws.close()
@@ -211,7 +211,7 @@ ws.close()
 import {WebSocketApi, NetworkEnum} from '@1inch/cross-chain-sdk'
 
 const ws = new WebSocketApi({
-    url: 'wss://api.1inch.dev/fusion-plus/ws',
+    url: 'wss://api.1inch.com/fusion-plus/ws',
 })
 
 ws.onMessage((data) => {
@@ -229,7 +229,7 @@ ws.onMessage((data) => {
 import {WebSocketApi, NetworkEnum} from '@1inch/cross-chain-sdk'
 
 const ws = new WebSocketApi({
-    url: 'wss://api.1inch.dev/fusion-plus/ws',
+    url: 'wss://api.1inch.com/fusion-plus/ws',
 })
 
 ws.onClose(() => {
@@ -251,7 +251,7 @@ ws.onClose(() => {
 import {WebSocketApi, NetworkEnum} from '@1inch/cross-chain-sdk'
 
 const ws = new WebSocketApi({
-    url: 'wss://api.1inch.dev/fusion-plus/ws',
+    url: 'wss://api.1inch.com/fusion-plus/ws',
 })
 
 ws.onError((error) => {
@@ -275,7 +275,7 @@ ws.onError((error) => {
 import {WebSocketApi, NetworkEnum} from '@1inch/cross-chain-sdk'
 
 const ws = new WebSocketApi({
-    url: 'wss://api.1inch.dev/fusion-plus/ws',
+    url: 'wss://api.1inch.com/fusion-plus/ws',
 })
 
 ws.order.onOrder((data) => {
@@ -302,7 +302,7 @@ ws.order.onOrder((data) => {
 import {WebSocketApi, NetworkEnum} from '@1inch/cross-chain-sdk'
 
 const ws = new WebSocketApi({
-    url: 'wss://api.1inch.dev/fusion-plus/ws',
+    url: 'wss://api.1inch.com/fusion-plus/ws',
 })
 
 ws.order.onOrderCreated((data) => {
@@ -324,7 +324,7 @@ ws.order.onOrderCreated((data) => {
 import {WebSocketApi, NetworkEnum} from '@1inch/cross-chain-sdk'
 
 const ws = new WebSocketApi({
-    url: 'wss://api.1inch.dev/fusion-plus/ws',
+    url: 'wss://api.1inch.com/fusion-plus/ws',
 })
 
 ws.order.onOrderInvalid((data) => {
@@ -346,7 +346,7 @@ ws.order.onOrderInvalid((data) => {
 import {WebSocketApi, NetworkEnum} from '@1inch/cross-chain-sdk'
 
 const ws = new WebSocketApi({
-    url: 'wss://api.1inch.dev/fusion-plus/ws',
+    url: 'wss://api.1inch.com/fusion-plus/ws',
 })
 
 ws.order.onOrderBalanceChange((data) => {
@@ -368,7 +368,7 @@ ws.order.onOrderBalanceChange((data) => {
 import {WebSocketApi, NetworkEnum} from '@1inch/cross-chain-sdk'
 
 const ws = new WebSocketApi({
-    url: 'wss://api.1inch.dev/fusion-plus/ws',
+    url: 'wss://api.1inch.com/fusion-plus/ws',
 })
 
 ws.order.onOrderAllowanceChange((data) => {
@@ -390,7 +390,7 @@ ws.order.onOrderAllowanceChange((data) => {
 import {WebSocketApi, NetworkEnum} from '@1inch/cross-chain-sdk'
 
 const ws = new WebSocketApi({
-    url: 'wss://api.1inch.dev/fusion-plus/ws',
+    url: 'wss://api.1inch.com/fusion-plus/ws',
 })
 
 ws.order.onOrderFilled((data) => {
@@ -412,7 +412,7 @@ ws.order.onOrderFilled((data) => {
 import {WebSocketApi, NetworkEnum} from '@1inch/cross-chain-sdk'
 
 const ws = new WebSocketApi({
-    url: 'wss://api.1inch.dev/fusion-plus/ws',
+    url: 'wss://api.1inch.com/fusion-plus/ws',
 })
 
 ws.order.onOrderFilledPartially((data) => {
@@ -434,7 +434,7 @@ ws.order.onOrderFilledPartially((data) => {
 import {WebSocketApi, NetworkEnum} from '@1inch/cross-chain-sdk'
 
 const ws = new WebSocketApi({
-    url: 'wss://api.1inch.dev/fusion-plus/ws',
+    url: 'wss://api.1inch.com/fusion-plus/ws',
 })
 
 ws.order.onOrderCancelled((data) => {
@@ -458,7 +458,7 @@ ws.order.onOrderCancelled((data) => {
 import {WebSocketApi, NetworkEnum} from '@1inch/cross-chain-sdk'
 
 const ws = new WebSocketApi({
-    url: 'wss://api.1inch.dev/fusion-plus/ws',
+    url: 'wss://api.1inch.com/fusion-plus/ws',
 })
 
 ws.rpc.onPong((data) => {
@@ -476,7 +476,7 @@ ws.rpc.onPong((data) => {
 import {WebSocketApi, NetworkEnum} from '@1inch/cross-chain-sdk'
 
 const ws = new WebSocketApi({
-    url: 'wss://api.1inch.dev/fusion-plus/ws',
+    url: 'wss://api.1inch.com/fusion-plus/ws',
 })
 
 ws.rpc.ping()
@@ -492,7 +492,7 @@ ws.rpc.ping()
 import {WebSocketApi, NetworkEnum} from '@1inch/cross-chain-sdk'
 
 const ws = new WebSocketApi({
-    url: 'wss://api.1inch.dev/fusion-plus/ws',
+    url: 'wss://api.1inch.com/fusion-plus/ws',
 })
 
 ws.rpc.getAllowedMethods()
@@ -512,7 +512,7 @@ ws.rpc.getAllowedMethods()
 import {WebSocketApi, NetworkEnum} from '@1inch/cross-chain-sdk'
 
 const ws = new WebSocketApi({
-    url: 'wss://api.1inch.dev/fusion-plus/ws',
+    url: 'wss://api.1inch.com/fusion-plus/ws',
 })
 
 ws.rpc.onGetAllowedMethods((data) => {
@@ -530,7 +530,7 @@ ws.rpc.onGetAllowedMethods((data) => {
 import {WebSocketApi, NetworkEnum} from '@1inch/cross-chain-sdk'
 
 const ws = new WebSocketApi({
-    url: 'wss://api.1inch.dev/fusion-plus/ws'
+    url: 'wss://api.1inch.com/fusion-plus/ws'
 })
 
 ws.rpc.getActiveOrders()
@@ -550,7 +550,7 @@ ws.rpc.getActiveOrders()
 import {WebSocketApi, NetworkEnum} from '@1inch/cross-chain-sdk'
 
 const ws = new WebSocketApi({
-    url: 'wss://api.1inch.dev/fusion-plus/ws'
+    url: 'wss://api.1inch.com/fusion-plus/ws'
 })
 
 ws.rpc.onGetActiveOrders((data) => {
