@@ -5,7 +5,6 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  cross-spawn@>=7.0.0 <7.0.5: '>=7.0.5'
   minimatch@<3.1.4: 3.1.5
 
 importers:
