@@ -366,7 +366,23 @@ async function initTokens(
                 amountBuffer.copy(mintToData, 1)
 
                 const mintToIx = new web3.TransactionInstruction({
-                    keys,
+                    keys: [
+                        {
+                            pubkey: token.mint.publicKey,
+                            isSigner: false,
+                            isWritable: true
+                        },
+                        {
+                            pubkey: ataPubkey,
+                            isSigner: false,
+                            isWritable: true
+                        },
+                        {
+                            pubkey: owner.publicKey,
+                            isSigner: true,
+                            isWritable: false
+                        }
+                    ],
                     programId: programId,
                     data: mintToData
                 })
