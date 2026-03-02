@@ -3,10 +3,9 @@ import {web3} from '@coral-xyz/anchor'
 
 import bs58 from 'bs58'
 
-import {ACCOUNT_SIZE, AccountLayout} from '@solana/spl-token'
 import {Buffer} from 'buffer'
-import {SolanaAddress} from '../../src/domains'
-import {getAta} from '../../src/utils'
+import {SolanaAddress} from '../../src/domains/index.js'
+import {getAta} from '../../src/utils/index.js'
 
 export class TestConnection {
     constructor(private readonly testCtx: LiteSVM) {}
@@ -87,8 +86,13 @@ export class TestConnection {
 
         const info = this.testCtx.getAccount(new web3.PublicKey(ata.toBuffer()))
 
-        return info
-            ? AccountLayout.decode(info.data.slice(0, ACCOUNT_SIZE)).amount
-            : 0n
+        if (!info || info.data.length < 72) {
+            return 0n
+        }
+
+        // SPL Token account layout: amount is at offset 64 (8 bytes, little-endian)
+        const amountBytes = info.data.slice(64, 72)
+
+        return Buffer.from(amountBytes).readBigUInt64LE(0)
     }
 }

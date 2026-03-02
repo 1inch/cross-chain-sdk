@@ -1,12 +1,8 @@
 import {BorshCoder, web3} from '@coral-xyz/anchor'
 import {Clock, LiteSVM} from 'litesvm'
-import {
-    createMint,
-    getOrCreateAssociatedTokenAccount,
-    mintTo
-} from '@solana/spl-token'
 import path from 'path'
 import {TestConnection} from './solana-test-connection.js'
+import {Buffer} from 'buffer'
 
 import {NetworkEnum} from '../../src/chains.js'
 
@@ -15,7 +11,7 @@ import {IDL as SrcEscrowIDL} from '../../src/idl/cross-chain-escrow-src.js'
 import {IDL as DstEscrowIDL} from '../../src/idl/cross-chain-escrow-dst.js'
 
 import {sol, SYSTEM_PROGRAM_ID} from '../utils/solana.js'
-import {getPda, now} from '../../src/utils/index.js'
+import {getPda, now, getAta} from '../../src/utils/index.js'
 import {SolanaAddress} from '../../src/domains/addresses/index.js'
 
 export type SolanaNodeConfig = {
@@ -235,42 +231,154 @@ async function initTokens(
     }[]
 ): Promise<void> {
     const connection = TestConnection.new(testCtx)
+    const defaultTokenProgramId = new web3.PublicKey(
+        SolanaAddress.TOKEN_PROGRAM_ID.toBuffer()
+    )
+    const associatedTokenProgramId = new web3.PublicKey(
+        SolanaAddress.ASSOCIATED_TOKE_PROGRAM_ID.toBuffer()
+    )
+    const rentSysvar = new web3.PublicKey(
+        SolanaAddress.SYSVAR_RENT_ID.toBuffer()
+    )
+
+    // SPL Token mint account size is 82 bytes
+    const MINT_SIZE = 82
+    const rent = await connection.getMinimumBalanceForRentExemption(MINT_SIZE)
 
     for (const token of tokens) {
-        await createMint(
-            connection,
-            owner,
-            owner.publicKey,
-            owner.publicKey,
-            9,
-            token.mint,
-            undefined,
-            token.tokenProgram
-        )
+        const programId = token.tokenProgram || defaultTokenProgramId
+
+        // Create mint account
+        const createMintAccountIx = web3.SystemProgram.createAccount({
+            fromPubkey: owner.publicKey,
+            newAccountPubkey: token.mint.publicKey,
+            space: MINT_SIZE,
+            lamports: rent,
+            programId: programId
+        })
+
+        // Initialize mint instruction
+        // SPL Token program uses bincode serialization for the enum variant:
+        // TokenInstruction::InitializeMint { decimals, mint_authority, freeze_authority }
+        // Format: [variant: u8, decimals: u8, mint_authority: [u8; 32], freeze_authority_option: u8, freeze_authority: [u8; 32] if Some]
+        const initMintData = Buffer.alloc(67)
+        let offset = 0
+        initMintData.writeUInt8(0, offset++) // InitializeMint variant (0)
+        initMintData.writeUInt8(9, offset++) // decimals
+        owner.publicKey.toBuffer().copy(initMintData, offset) // mint_authority (32 bytes)
+        offset += 32
+        initMintData.writeUInt8(1, offset++) // freeze_authority option flag (1 = Some)
+        owner.publicKey.toBuffer().copy(initMintData, offset) // freeze_authority pubkey (32 bytes)
+
+        const initMintIx = new web3.TransactionInstruction({
+            keys: [
+                {pubkey: token.mint.publicKey, isSigner: true, isWritable: true},
+                {pubkey: rentSysvar, isSigner: false, isWritable: false}
+            ],
+            programId: programId,
+            data: initMintData
+        })
+
+        const createMintTx = new web3.Transaction({
+            feePayer: owner.publicKey,
+            recentBlockhash: testCtx.latestBlockhash()
+        })
+            .add(createMintAccountIx)
+            .add(initMintIx)
+
+        createMintTx.sign(owner, token.mint)
+        await connection.sendTransaction(createMintTx, [owner, token.mint])
 
         for (const user of token.owners) {
-            const ata = await getOrCreateAssociatedTokenAccount(
-                connection,
-                owner,
-                token.mint.publicKey,
-                user.address,
-                false,
-                undefined,
-                undefined,
-                token.tokenProgram
+            // Get or create associated token account
+            const ataAddress = getAta(
+                SolanaAddress.fromPublicKey(user.address),
+                SolanaAddress.fromPublicKey(token.mint.publicKey),
+                SolanaAddress.fromPublicKey(programId)
             )
 
-            await mintTo(
-                connection,
-                owner,
-                token.mint.publicKey,
-                ata.address,
-                owner,
-                user.amount,
-                undefined,
-                undefined,
-                token.tokenProgram
-            )
+            const ataPubkey = new web3.PublicKey(ataAddress.toBuffer())
+            const keys = [
+                {
+                    pubkey: owner.publicKey,
+                    isSigner: true,
+                    isWritable: true
+                },
+                {
+                    pubkey: ataPubkey,
+                    isSigner: false,
+                    isWritable: true
+                },
+                {
+                    pubkey: user.address,
+                    isSigner: false,
+                    isWritable: false
+                },
+                {
+                    pubkey: token.mint.publicKey,
+                    isSigner: false,
+                    isWritable: true
+                },
+                {
+                    pubkey: SYSTEM_PROGRAM_ID,
+                    isSigner: false,
+                    isWritable: false
+                },
+                {
+                    pubkey: programId,
+                    isSigner: false,
+                    isWritable: false
+                }
+            ]
+
+            // Check if ATA exists
+            const ataInfo = await connection.getAccountInfo(ataPubkey)
+
+            if (!ataInfo) {
+                // Create associated token account instruction
+                // Instruction discriminator: 0 (Create)
+                const createAtaData = Buffer.alloc(0)
+
+                const createAtaIx = new web3.TransactionInstruction({
+                    keys,
+                    programId: associatedTokenProgramId,
+                    data: createAtaData
+                })
+
+                const createAtaTx = new web3.Transaction({
+                    feePayer: owner.publicKey,
+                    recentBlockhash: testCtx.latestBlockhash()
+                }).add(createAtaIx)
+
+                createAtaTx.sign(owner)
+                await connection.sendTransaction(createAtaTx, [owner])
+            }
+
+            // Mint tokens if amount > 0
+            if (user.amount > 0) {
+                // MintTo instruction
+                // Instruction discriminator: 7 (MintTo)
+                // Data: amount (8 bytes, little-endian)
+                const mintToData = Buffer.alloc(9)
+                mintToData.writeUInt8(7, 0) // MintTo instruction
+                const amountBuffer = Buffer.allocUnsafe(8)
+                amountBuffer.writeBigUInt64LE(BigInt(user.amount), 0)
+                amountBuffer.copy(mintToData, 1)
+
+                const mintToIx = new web3.TransactionInstruction({
+                    keys,
+                    programId: programId,
+                    data: mintToData
+                })
+
+                const mintToTx = new web3.Transaction({
+                    feePayer: owner.publicKey,
+                    recentBlockhash: testCtx.latestBlockhash()
+                }).add(mintToIx)
+
+                mintToTx.sign(owner)
+                await connection.sendTransaction(mintToTx, [owner])
+            }
         }
     }
 }
