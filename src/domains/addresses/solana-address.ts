@@ -9,9 +9,13 @@ import {EvmAddress} from './evm-address.js'
 import {isBigintString} from '../../utils/numbers/is-bigint-string.js'
 
 export class SolanaAddress implements AddressLike {
-    public static ASSOCIATED_TOKE_PROGRAM_ID = new SolanaAddress(
+    public static ASSOCIATED_TOKEN_PROGRAM_ID = new SolanaAddress(
         'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'
     )
+
+    /** @deprecated Use ASSOCIATED_TOKEN_PROGRAM_ID */
+    public static ASSOCIATED_TOKE_PROGRAM_ID =
+        SolanaAddress.ASSOCIATED_TOKEN_PROGRAM_ID
 
     public static TOKEN_PROGRAM_ID = new SolanaAddress(
         'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'

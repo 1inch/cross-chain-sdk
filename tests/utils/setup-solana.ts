@@ -1,8 +1,8 @@
 import {BorshCoder, web3} from '@coral-xyz/anchor'
 import {Clock, LiteSVM} from 'litesvm'
 import path from 'path'
-import {TestConnection} from './solana-test-connection.js'
 import {Buffer} from 'buffer'
+import {TestConnection} from './solana-test-connection.js'
 
 import {NetworkEnum} from '../../src/chains.js'
 
@@ -221,6 +221,121 @@ async function initWhitelist(
     // endregion register
 }
 
+async function initTokenOwner(
+    testCtx: LiteSVM,
+    connection: web3.Connection,
+    owner: web3.Keypair,
+    mintPublicKey: web3.PublicKey,
+    programId: web3.PublicKey,
+    associatedTokenProgramId: web3.PublicKey,
+    user: {address: web3.PublicKey; amount: number}
+): Promise<void> {
+    // Get or create associated token account
+    const ataAddress = getAta(
+        SolanaAddress.fromPublicKey(user.address),
+        SolanaAddress.fromPublicKey(mintPublicKey),
+        SolanaAddress.fromPublicKey(programId)
+    )
+
+    const ataPubkey = new web3.PublicKey(ataAddress.toBuffer())
+
+    // Check if ATA exists
+    const ataInfo = await connection.getAccountInfo(ataPubkey)
+
+    if (!ataInfo) {
+        // Create associated token account instruction
+        // Instruction discriminator: 0 (Create)
+        const createAtaData = Buffer.alloc(0)
+
+        const createAtaIx = new web3.TransactionInstruction({
+            keys: [
+                {
+                    pubkey: owner.publicKey,
+                    isSigner: true,
+                    isWritable: true
+                },
+                {
+                    pubkey: ataPubkey,
+                    isSigner: false,
+                    isWritable: true
+                },
+                {
+                    pubkey: user.address,
+                    isSigner: false,
+                    isWritable: false
+                },
+                {
+                    pubkey: mintPublicKey,
+                    isSigner: false,
+                    isWritable: true
+                },
+                {
+                    pubkey: SYSTEM_PROGRAM_ID,
+                    isSigner: false,
+                    isWritable: false
+                },
+                {
+                    pubkey: programId,
+                    isSigner: false,
+                    isWritable: false
+                }
+            ],
+            programId: associatedTokenProgramId,
+            data: createAtaData
+        })
+
+        const createAtaTx = new web3.Transaction({
+            feePayer: owner.publicKey,
+            recentBlockhash: testCtx.latestBlockhash()
+        }).add(createAtaIx)
+
+        createAtaTx.sign(owner)
+        await connection.sendTransaction(createAtaTx, [owner])
+    }
+
+    // Mint tokens if amount > 0
+    if (user.amount > 0) {
+        // MintTo instruction
+        // Instruction discriminator: 7 (MintTo)
+        // Data: amount (8 bytes, little-endian)
+        const mintToData = Buffer.alloc(9)
+        mintToData.writeUInt8(7, 0) // MintTo instruction
+        const amountBuffer = Buffer.allocUnsafe(8)
+        amountBuffer.writeBigUInt64LE(BigInt(user.amount), 0)
+        amountBuffer.copy(mintToData, 1)
+
+        const mintToIx = new web3.TransactionInstruction({
+            keys: [
+                {
+                    pubkey: mintPublicKey,
+                    isSigner: false,
+                    isWritable: true
+                },
+                {
+                    pubkey: ataPubkey,
+                    isSigner: false,
+                    isWritable: true
+                },
+                {
+                    pubkey: owner.publicKey,
+                    isSigner: true,
+                    isWritable: false
+                }
+            ],
+            programId: programId,
+            data: mintToData
+        })
+
+        const mintToTx = new web3.Transaction({
+            feePayer: owner.publicKey,
+            recentBlockhash: testCtx.latestBlockhash()
+        }).add(mintToIx)
+
+        mintToTx.sign(owner)
+        await connection.sendTransaction(mintToTx, [owner])
+    }
+}
+
 async function initTokens(
     testCtx: LiteSVM,
     owner: web3.Keypair,
@@ -235,7 +350,7 @@ async function initTokens(
         SolanaAddress.TOKEN_PROGRAM_ID.toBuffer()
     )
     const associatedTokenProgramId = new web3.PublicKey(
-        SolanaAddress.ASSOCIATED_TOKE_PROGRAM_ID.toBuffer()
+        SolanaAddress.ASSOCIATED_TOKEN_PROGRAM_ID.toBuffer()
     )
     const rentSysvar = new web3.PublicKey(
         SolanaAddress.SYSVAR_RENT_ID.toBuffer()
@@ -272,7 +387,11 @@ async function initTokens(
 
         const initMintIx = new web3.TransactionInstruction({
             keys: [
-                {pubkey: token.mint.publicKey, isSigner: true, isWritable: true},
+                {
+                    pubkey: token.mint.publicKey,
+                    isSigner: true,
+                    isWritable: true
+                },
                 {pubkey: rentSysvar, isSigner: false, isWritable: false}
             ],
             programId: programId,
@@ -290,111 +409,15 @@ async function initTokens(
         await connection.sendTransaction(createMintTx, [owner, token.mint])
 
         for (const user of token.owners) {
-            // Get or create associated token account
-            const ataAddress = getAta(
-                SolanaAddress.fromPublicKey(user.address),
-                SolanaAddress.fromPublicKey(token.mint.publicKey),
-                SolanaAddress.fromPublicKey(programId)
+            await initTokenOwner(
+                testCtx,
+                connection,
+                owner,
+                token.mint.publicKey,
+                programId,
+                associatedTokenProgramId,
+                user
             )
-
-            const ataPubkey = new web3.PublicKey(ataAddress.toBuffer())
-            const keys = [
-                {
-                    pubkey: owner.publicKey,
-                    isSigner: true,
-                    isWritable: true
-                },
-                {
-                    pubkey: ataPubkey,
-                    isSigner: false,
-                    isWritable: true
-                },
-                {
-                    pubkey: user.address,
-                    isSigner: false,
-                    isWritable: false
-                },
-                {
-                    pubkey: token.mint.publicKey,
-                    isSigner: false,
-                    isWritable: true
-                },
-                {
-                    pubkey: SYSTEM_PROGRAM_ID,
-                    isSigner: false,
-                    isWritable: false
-                },
-                {
-                    pubkey: programId,
-                    isSigner: false,
-                    isWritable: false
-                }
-            ]
-
-            // Check if ATA exists
-            const ataInfo = await connection.getAccountInfo(ataPubkey)
-
-            if (!ataInfo) {
-                // Create associated token account instruction
-                // Instruction discriminator: 0 (Create)
-                const createAtaData = Buffer.alloc(0)
-
-                const createAtaIx = new web3.TransactionInstruction({
-                    keys,
-                    programId: associatedTokenProgramId,
-                    data: createAtaData
-                })
-
-                const createAtaTx = new web3.Transaction({
-                    feePayer: owner.publicKey,
-                    recentBlockhash: testCtx.latestBlockhash()
-                }).add(createAtaIx)
-
-                createAtaTx.sign(owner)
-                await connection.sendTransaction(createAtaTx, [owner])
-            }
-
-            // Mint tokens if amount > 0
-            if (user.amount > 0) {
-                // MintTo instruction
-                // Instruction discriminator: 7 (MintTo)
-                // Data: amount (8 bytes, little-endian)
-                const mintToData = Buffer.alloc(9)
-                mintToData.writeUInt8(7, 0) // MintTo instruction
-                const amountBuffer = Buffer.allocUnsafe(8)
-                amountBuffer.writeBigUInt64LE(BigInt(user.amount), 0)
-                amountBuffer.copy(mintToData, 1)
-
-                const mintToIx = new web3.TransactionInstruction({
-                    keys: [
-                        {
-                            pubkey: token.mint.publicKey,
-                            isSigner: false,
-                            isWritable: true
-                        },
-                        {
-                            pubkey: ataPubkey,
-                            isSigner: false,
-                            isWritable: true
-                        },
-                        {
-                            pubkey: owner.publicKey,
-                            isSigner: true,
-                            isWritable: false
-                        }
-                    ],
-                    programId: programId,
-                    data: mintToData
-                })
-
-                const mintToTx = new web3.Transaction({
-                    feePayer: owner.publicKey,
-                    recentBlockhash: testCtx.latestBlockhash()
-                }).add(mintToIx)
-
-                mintToTx.sign(owner)
-                await connection.sendTransaction(mintToTx, [owner])
-            }
         }
     }
 }
