@@ -336,6 +336,64 @@ async function initTokenOwner(
     }
 }
 
+async function createMint(
+    testCtx: LiteSVM,
+    connection: web3.Connection,
+    owner: web3.Keypair,
+    mint: web3.Keypair,
+    programId: web3.PublicKey,
+    rentSysvar: web3.PublicKey,
+    rent: number
+): Promise<void> {
+    // SPL Token mint account size is 82 bytes
+    const MINT_SIZE = 82
+
+    // Create mint account
+    const createMintAccountIx = web3.SystemProgram.createAccount({
+        fromPubkey: owner.publicKey,
+        newAccountPubkey: mint.publicKey,
+        space: MINT_SIZE,
+        lamports: rent,
+        programId: programId
+    })
+
+    // Initialize mint instruction
+    // SPL Token program uses bincode serialization for the enum variant:
+    // TokenInstruction::InitializeMint { decimals, mint_authority, freeze_authority }
+    // Format: [variant: u8, decimals: u8, mint_authority: [u8; 32], freeze_authority_option: u8, freeze_authority: [u8; 32] if Some]
+    const initMintData = Buffer.alloc(67)
+    let offset = 0
+    initMintData.writeUInt8(0, offset++) // InitializeMint variant (0)
+    initMintData.writeUInt8(9, offset++) // decimals
+    owner.publicKey.toBuffer().copy(initMintData, offset) // mint_authority (32 bytes)
+    offset += 32
+    initMintData.writeUInt8(1, offset++) // freeze_authority option flag (1 = Some)
+    owner.publicKey.toBuffer().copy(initMintData, offset) // freeze_authority pubkey (32 bytes)
+
+    const initMintIx = new web3.TransactionInstruction({
+        keys: [
+            {
+                pubkey: mint.publicKey,
+                isSigner: true,
+                isWritable: true
+            },
+            {pubkey: rentSysvar, isSigner: false, isWritable: false}
+        ],
+        programId: programId,
+        data: initMintData
+    })
+
+    const createMintTx = new web3.Transaction({
+        feePayer: owner.publicKey,
+        recentBlockhash: testCtx.latestBlockhash()
+    })
+        .add(createMintAccountIx)
+        .add(initMintIx)
+
+    createMintTx.sign(owner, mint)
+    await connection.sendTransaction(createMintTx, [owner, mint])
+}
+
 async function initTokens(
     testCtx: LiteSVM,
     owner: web3.Keypair,
@@ -363,50 +421,15 @@ async function initTokens(
     for (const token of tokens) {
         const programId = token.tokenProgram || defaultTokenProgramId
 
-        // Create mint account
-        const createMintAccountIx = web3.SystemProgram.createAccount({
-            fromPubkey: owner.publicKey,
-            newAccountPubkey: token.mint.publicKey,
-            space: MINT_SIZE,
-            lamports: rent,
-            programId: programId
-        })
-
-        // Initialize mint instruction
-        // SPL Token program uses bincode serialization for the enum variant:
-        // TokenInstruction::InitializeMint { decimals, mint_authority, freeze_authority }
-        // Format: [variant: u8, decimals: u8, mint_authority: [u8; 32], freeze_authority_option: u8, freeze_authority: [u8; 32] if Some]
-        const initMintData = Buffer.alloc(67)
-        let offset = 0
-        initMintData.writeUInt8(0, offset++) // InitializeMint variant (0)
-        initMintData.writeUInt8(9, offset++) // decimals
-        owner.publicKey.toBuffer().copy(initMintData, offset) // mint_authority (32 bytes)
-        offset += 32
-        initMintData.writeUInt8(1, offset++) // freeze_authority option flag (1 = Some)
-        owner.publicKey.toBuffer().copy(initMintData, offset) // freeze_authority pubkey (32 bytes)
-
-        const initMintIx = new web3.TransactionInstruction({
-            keys: [
-                {
-                    pubkey: token.mint.publicKey,
-                    isSigner: true,
-                    isWritable: true
-                },
-                {pubkey: rentSysvar, isSigner: false, isWritable: false}
-            ],
-            programId: programId,
-            data: initMintData
-        })
-
-        const createMintTx = new web3.Transaction({
-            feePayer: owner.publicKey,
-            recentBlockhash: testCtx.latestBlockhash()
-        })
-            .add(createMintAccountIx)
-            .add(initMintIx)
-
-        createMintTx.sign(owner, token.mint)
-        await connection.sendTransaction(createMintTx, [owner, token.mint])
+        await createMint(
+            testCtx,
+            connection,
+            owner,
+            token.mint,
+            programId,
+            rentSysvar,
+            rent
+        )
 
         for (const user of token.owners) {
             await initTokenOwner(
