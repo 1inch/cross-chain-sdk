@@ -4,8 +4,8 @@ import {web3} from '@coral-xyz/anchor'
 import bs58 from 'bs58'
 
 import {Buffer} from 'buffer'
-import {SolanaAddress} from '../../src/domains/index.js'
-import {getAta} from '../../src/utils/index.js'
+import {SolanaAddress} from '../../src/domains'
+import {getAta} from '../../src/utils'
 
 export class TestConnection {
     constructor(private readonly testCtx: LiteSVM) {}
