@@ -18,6 +18,9 @@ export type SolanaNodeConfig = {
     //
 }
 
+// SPL Token mint account size is 82 bytes
+const MINT_SIZE = 82
+
 export type ReadySolanaNode = {
     chainId: NetworkEnum.SOLANA
     connection: TestConnection
@@ -230,7 +233,6 @@ async function initTokenOwner(
     associatedTokenProgramId: web3.PublicKey,
     user: {address: web3.PublicKey; amount: number}
 ): Promise<void> {
-    // Get or create associated token account
     const ataAddress = getAta(
         SolanaAddress.fromPublicKey(user.address),
         SolanaAddress.fromPublicKey(mintPublicKey),
@@ -238,13 +240,9 @@ async function initTokenOwner(
     )
 
     const ataPubkey = new web3.PublicKey(ataAddress.toBuffer())
-
-    // Check if ATA exists
     const ataInfo = await connection.getAccountInfo(ataPubkey)
 
     if (!ataInfo) {
-        // Create associated token account instruction
-        // Instruction discriminator: 0 (Create)
         const createAtaData = Buffer.alloc(0)
 
         const createAtaIx = new web3.TransactionInstruction({
@@ -295,9 +293,6 @@ async function initTokenOwner(
 
     // Mint tokens if amount > 0
     if (user.amount > 0) {
-        // MintTo instruction
-        // Instruction discriminator: 7 (MintTo)
-        // Data: amount (8 bytes, little-endian)
         const mintToData = Buffer.alloc(9)
         mintToData.writeUInt8(7, 0) // MintTo instruction
         const amountBuffer = Buffer.allocUnsafe(8)
@@ -341,14 +336,14 @@ async function createMint(
     connection: web3.Connection,
     owner: web3.Keypair,
     mint: web3.Keypair,
-    programId: web3.PublicKey,
-    rentSysvar: web3.PublicKey,
-    rent: number
+    programId: web3.PublicKey
 ): Promise<void> {
-    // SPL Token mint account size is 82 bytes
-    const MINT_SIZE = 82
+    const rentSysvar = new web3.PublicKey(
+        SolanaAddress.SYSVAR_RENT_ID.toBuffer()
+    )
 
-    // Create mint account
+    const rent = await connection.getMinimumBalanceForRentExemption(MINT_SIZE)
+
     const createMintAccountIx = web3.SystemProgram.createAccount({
         fromPubkey: owner.publicKey,
         newAccountPubkey: mint.publicKey,
@@ -410,26 +405,11 @@ async function initTokens(
     const associatedTokenProgramId = new web3.PublicKey(
         SolanaAddress.ASSOCIATED_TOKEN_PROGRAM_ID.toBuffer()
     )
-    const rentSysvar = new web3.PublicKey(
-        SolanaAddress.SYSVAR_RENT_ID.toBuffer()
-    )
-
-    // SPL Token mint account size is 82 bytes
-    const MINT_SIZE = 82
-    const rent = await connection.getMinimumBalanceForRentExemption(MINT_SIZE)
 
     for (const token of tokens) {
         const programId = token.tokenProgram || defaultTokenProgramId
 
-        await createMint(
-            testCtx,
-            connection,
-            owner,
-            token.mint,
-            programId,
-            rentSysvar,
-            rent
-        )
+        await createMint(testCtx, connection, owner, token.mint, programId)
 
         for (const user of token.owners) {
             await initTokenOwner(
