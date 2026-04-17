@@ -1,0 +1,20 @@
+{
+	"folders": [
+		{
+			"path": "../../../../../sdks"
+		},
+		{
+			"path": "../../../../../limit-order-sdk"
+		},
+		{
+			"path": "../../../../../aqua-protocol"
+		},
+		{
+			"path": "../../../../../swap-vm-private"
+		},
+		{
+			"path": "../../../../../swap-vm"
+		}
+	],
+	"settings": {}
+}
