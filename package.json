@@ -40,6 +40,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:integration": "jest -c jest.integration.config.js",
+    "test:integrationCI": "jest -c jest.integration.config.js --maxWorkers=1",
     "changelog:generate": "changelog generate -a",
     "qa:fix": "pnpm build && pnpm format && pnpm lint && pnpm lint:types && pnpm test"
   },

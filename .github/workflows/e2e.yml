@@ -1,0 +1,48 @@
+name: E2E Integration Tests
+
+# Runs on every PR as a non-blocking check.
+
+on:
+  pull_request:
+
+jobs:
+  e2e:
+    name: Integration / E2E Tests
+    runs-on: self-hosted
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+
+      - name: Install Dependencies
+        run: pnpm install
+
+      - name: Build contracts
+        run: pnpm build:contracts:evm
+
+      - name: E2E tests
+        env:
+          FORK_URL: ${{ secrets.FORK_URL }}
+        run: pnpm run test:integrationCI
