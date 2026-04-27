@@ -15,7 +15,14 @@ Object.assign(requireExtensions.configs, {
         },
         rules: {
             'require-extensions/require-extensions': 'error',
-            'require-extensions/require-index': 'error'
+            'require-extensions/require-index': 'error',
+            '@typescript-eslint/no-unused-vars': [
+                'error',
+                {
+                    argsIgnorePattern: '^_',
+                    caughtErrorsIgnorePattern: '^_'
+                }
+            ]
         }
     }
 })

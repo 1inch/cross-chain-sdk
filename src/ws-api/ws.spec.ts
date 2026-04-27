@@ -377,7 +377,7 @@ describe(__filename, () => {
             wsSdk.onOpen(() => {
                 try {
                     wsSdk.rpc.getActiveOrders({page: -1})
-                } catch (error) {
+                } catch (_error) {
                     wsSdk.close()
                     wss.close()
                     done()
@@ -482,7 +482,7 @@ describe(__filename, () => {
             wsSdk.onOpen(() => {
                 try {
                     wsSdk.rpc.getSecrets({page: -1})
-                } catch (error) {
+                } catch (_error) {
                     wsSdk.close()
                     wss.close()
                     done()
