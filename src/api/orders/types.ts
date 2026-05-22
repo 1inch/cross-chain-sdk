@@ -87,7 +87,8 @@ export enum OrderStatus {
     Expired = 'expired',
     Cancelled = 'cancelled',
     Refunding = 'refunding',
-    Refunded = 'refunded'
+    Refunded = 'refunded',
+    Unpublished = 'unpublished'
 }
 
 export type Fill = {
