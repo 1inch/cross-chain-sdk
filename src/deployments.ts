@@ -21,7 +21,9 @@ export const TRUE_ERC20 = {
     [NetworkEnum.ZKSYNC]: ZKTrueERC20,
     [NetworkEnum.LINEA]: TrueERC20,
     [NetworkEnum.SONIC]: TrueERC20,
-    [NetworkEnum.UNICHAIN]: TrueERC20
+    [NetworkEnum.UNICHAIN]: TrueERC20,
+    // TODO(PT9-763): not deployed on Robinhood yet, verify after deployment
+    [NetworkEnum.ROBINHOOD]: TrueERC20
 }
 
 const ESCROW_FACTORY_ADDRESS = EvmAddress.fromString(
@@ -56,7 +58,9 @@ export const ESCROW_SRC_IMPLEMENTATION = {
     [NetworkEnum.ZKSYNC]: ESCROW_ZK_SRC_IMPLEMENTATION_ADDRESS,
     [NetworkEnum.LINEA]: ESCROW_SRC_IMPLEMENTATION_ADDRESS,
     [NetworkEnum.SONIC]: ESCROW_SRC_IMPLEMENTATION_ADDRESS,
-    [NetworkEnum.UNICHAIN]: ESCROW_SRC_IMPLEMENTATION_ADDRESS
+    [NetworkEnum.UNICHAIN]: ESCROW_SRC_IMPLEMENTATION_ADDRESS,
+    // TODO(PT9-763): not deployed on Robinhood yet, verify after deployment
+    [NetworkEnum.ROBINHOOD]: ESCROW_SRC_IMPLEMENTATION_ADDRESS
 }
 
 export const ESCROW_DST_IMPLEMENTATION = {
@@ -72,7 +76,9 @@ export const ESCROW_DST_IMPLEMENTATION = {
     [NetworkEnum.ZKSYNC]: ESCROW_ZK_DST_IMPLEMENTATION_ADDRESS,
     [NetworkEnum.LINEA]: ESCROW_DST_IMPLEMENTATION_ADDRESS,
     [NetworkEnum.SONIC]: ESCROW_DST_IMPLEMENTATION_ADDRESS,
-    [NetworkEnum.UNICHAIN]: ESCROW_DST_IMPLEMENTATION_ADDRESS
+    [NetworkEnum.UNICHAIN]: ESCROW_DST_IMPLEMENTATION_ADDRESS,
+    // TODO(PT9-763): not deployed on Robinhood yet, verify after deployment
+    [NetworkEnum.ROBINHOOD]: ESCROW_DST_IMPLEMENTATION_ADDRESS
 }
 
 export const ESCROW_FACTORY = {
@@ -88,5 +94,7 @@ export const ESCROW_FACTORY = {
     [NetworkEnum.ZKSYNC]: ESCROW_ZK_FACTORY_ADDRESS,
     [NetworkEnum.LINEA]: ESCROW_FACTORY_ADDRESS,
     [NetworkEnum.SONIC]: ESCROW_FACTORY_ADDRESS,
-    [NetworkEnum.UNICHAIN]: ESCROW_FACTORY_ADDRESS
+    [NetworkEnum.UNICHAIN]: ESCROW_FACTORY_ADDRESS,
+    // TODO(PT9-763): not deployed on Robinhood yet, verify after deployment
+    [NetworkEnum.ROBINHOOD]: ESCROW_FACTORY_ADDRESS
 }

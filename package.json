@@ -45,8 +45,8 @@
   },
   "dependencies": {
     "@1inch/byte-utils": "3.1.7",
-    "@1inch/fusion-sdk": "2.4.8",
-    "@1inch/limit-order-sdk": "5.3.0",
+    "@1inch/fusion-sdk": "2.4.10",
+    "@1inch/limit-order-sdk": "5.3.1",
     "@coral-xyz/anchor": "0.32.1",
     "@openzeppelin/merkle-tree": "1.0.8",
     "@types/bn.js": "5.2.0",
