@@ -161,7 +161,7 @@ importers:
 packages:
 
   '@1inch/byte-utils@3.0.0':
-    resolution: {integrity: sha512-CuX4E0z/pzo9hKGzFsMi3vPVgHRRh14ZwNEZ5TY1svnKF8PjxWx3t0CjXCW4dyqKGe6TKAzgYqzzxrMrWPDy5Q==, tarball: https://npm.pkg.github.com/download/@1inch/byte-utils/3.0.0/1c573a3e72586540ea6f542099cd18da978118df}
+    resolution: {integrity: sha512-CuX4E0z/pzo9hKGzFsMi3vPVgHRRh14ZwNEZ5TY1svnKF8PjxWx3t0CjXCW4dyqKGe6TKAzgYqzzxrMrWPDy5Q==}
     engines: {node: '>=18.16.0'}
     peerDependencies:
       assert: ^2.0.0
@@ -195,7 +195,7 @@ packages:
       typescript-eslint: ^8.0.0
 
   '@1inch/fusion-sdk@2.4.10':
-    resolution: {integrity: sha512-zGRKAfHQKKf0zjuqq11QC7shh1PCnwfFJ7g8PJZqT2vheqvveERRkf4I0sCLitPoPDK91xb4+wR3clmEV0HuQw==, tarball: https://npm.pkg.github.com/download/@1inch/fusion-sdk/2.4.10/73763062a7ad0be482fe78200b9a62cddb8ff6a7}
+    resolution: {integrity: sha512-zGRKAfHQKKf0zjuqq11QC7shh1PCnwfFJ7g8PJZqT2vheqvveERRkf4I0sCLitPoPDK91xb4+wR3clmEV0HuQw==}
     peerDependencies:
       assert: ^2.0.0
       axios: '>=1 <2'
@@ -206,7 +206,7 @@ packages:
         optional: true
 
   '@1inch/limit-order-sdk@5.3.1':
-    resolution: {integrity: sha512-STEKaWd+/0xcy13RYsASUdkGI79IflMIZWzakaesy1wHjaPMnkXuqHm0wS0WOUYIlqZK0CwtcCLXK+NO7ZBQGw==, tarball: https://npm.pkg.github.com/download/@1inch/limit-order-sdk/5.3.1/61d59d42f51abcf9a77e69b02756ef1a5aeb1df0}
+    resolution: {integrity: sha512-STEKaWd+/0xcy13RYsASUdkGI79IflMIZWzakaesy1wHjaPMnkXuqHm0wS0WOUYIlqZK0CwtcCLXK+NO7ZBQGw==}
     engines: {node: '>=20.9.0'}
     peerDependencies:
       assert: ^2.0.0
