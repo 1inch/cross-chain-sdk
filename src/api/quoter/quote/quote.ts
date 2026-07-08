@@ -100,7 +100,7 @@ export class Quote<
             response.volume,
             response.autoK,
             response.nativeOrderFactoryAddress &&
-            response.nativeOrderImplAddress
+                response.nativeOrderImplAddress
                 ? new ProxyFactory(
                       new Address(response.nativeOrderFactoryAddress),
                       new Address(response.nativeOrderImplAddress)
