@@ -1,0 +1,9 @@
+{
+  "install": "pnpm install --frozen-lockfile && git submodule update --init --recursive contracts/lib/cross-chain-swap && (command -v forge >/dev/null 2>&1 || (curl -fsSL https://foundry.paradigm.xyz | bash && \"$HOME/.foundry/bin/foundryup\")) && PATH=\"$HOME/.foundry/bin:$PATH\" forge build && (command -v docker >/dev/null 2>&1 || (sudo apt-get update -qq && sudo apt-get install -y -qq docker.io))",
+  "terminals": [
+    {
+      "name": "dockerd",
+      "command": "sudo dockerd --storage-driver=vfs --group ubuntu"
+    }
+  ]
+}
