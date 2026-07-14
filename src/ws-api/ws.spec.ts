@@ -1,3 +1,4 @@
+import {vi} from 'vitest'
 import {WebSocket, WebSocketServer} from 'ws'
 import {
     GetAllowMethodsRpcEvent,
@@ -25,12 +26,12 @@ import {castUrl} from './url.js'
 import {OrderType} from '../api/index.js'
 import {NetworkEnum} from '../chains.js'
 
-jest.setTimeout(5 * 60 * 1000)
+vi.setConfig({testTimeout: 5 * 60 * 1000})
 
 // eslint-disable-next-line max-lines-per-function
 describe(__filename, () => {
     describe('base', () => {
-        it('should be possible to subscribe to message', (done) => {
+        it('should be possible to subscribe to message', () => new Promise<void>((resolve) => {
             const message = {id: 1}
             const {wss, url} = createWebsocketServerMock([message])
 
@@ -43,11 +44,11 @@ describe(__filename, () => {
                 expect(data).toEqual(message)
                 wsSdk.close()
                 wss.close()
-                done()
+                resolve()
             })
-        })
+        }))
 
-        it('should be possible to subscribe to open connection', (done) => {
+        it('should be possible to subscribe to open connection', () => new Promise<void>((resolve) => {
             const message = {id: 1}
             const {wss, url} = createWebsocketServerMock([message])
 
@@ -59,11 +60,11 @@ describe(__filename, () => {
             wsSdk.onOpen(() => {
                 wsSdk.close()
                 wss.close()
-                done()
+                resolve()
             })
-        })
+        }))
 
-        it('this is pointed to underlying websocket', (done) => {
+        it('this is pointed to underlying websocket', () => new Promise<void>((resolve) => {
             const message = {id: 1}
             const {wss, url} = createWebsocketServerMock([message])
 
@@ -76,12 +77,12 @@ describe(__filename, () => {
                 expect(this).toBeInstanceOf(WebSocket)
                 this.close()
                 wss.close()
-                done()
+                resolve()
             })
-        })
+        }))
 
         // TODO repair waiting a lot of time ....
-        xit('should be possible to subscribe to error', (done) => {
+        xit('should be possible to subscribe to error', () => new Promise<void>((resolve) => {
             const wsSdk = new WebSocketApi({
                 url: 'ws://localhost:2345'
             })
@@ -89,11 +90,11 @@ describe(__filename, () => {
             wsSdk.on(WebSocketEvent.Error, (error) => {
                 expect(error.message).toContain('ECONNREFUSED')
                 wsSdk.close()
-                done()
+                resolve()
             })
-        })
+        }))
 
-        it('should be possible to initialize in lazy mode', (done) => {
+        it('should be possible to initialize in lazy mode', () => new Promise<void>((resolve) => {
             const message = {id: 1}
             const port = getPort()
 
@@ -123,9 +124,9 @@ describe(__filename, () => {
 
                 wsSdk.close()
                 wss.close()
-                done()
+                resolve()
             })
-        })
+        }))
 
         it('should be safe to call methods on uninitialized ws', () => {
             const wsSdk = new WebSocketApi({
@@ -136,7 +137,7 @@ describe(__filename, () => {
             expect(() => wsSdk.send({id: 1})).toThrow()
         })
 
-        it('should be possible to initialize not in lazy mode', (done) => {
+        it('should be possible to initialize not in lazy mode', () => new Promise<void>((resolve) => {
             const message = {id: 1}
             const port = getPort()
 
@@ -161,11 +162,11 @@ describe(__filename, () => {
 
                 wsSdk.close()
                 wss.close()
-                done()
+                resolve()
             })
-        })
+        }))
 
-        it('should be possible to pass provider instead of config', (done) => {
+        it('should be possible to pass provider instead of config', () => new Promise<void>((resolve) => {
             const message = {id: 1}
 
             const {wss, url} = createWebsocketServerMock([message])
@@ -185,11 +186,11 @@ describe(__filename, () => {
 
                 wsSdk.close()
                 wss.close()
-                done()
+                resolve()
             })
-        })
+        }))
 
-        it('should be possible to initialize with new method', (done) => {
+        it('should be possible to initialize with new method', () => new Promise<void>((resolve) => {
             const message = {id: 1}
             const port = getPort()
 
@@ -221,11 +222,11 @@ describe(__filename, () => {
 
                 wsSdk.close()
                 wss.close()
-                done()
+                resolve()
             })
-        })
+        }))
 
-        it('connection can be closed and you can listen to close event', (done) => {
+        it('connection can be closed and you can listen to close event', () => new Promise<void>((resolve) => {
             const message = {id: 1}
             const {wss, url} = createWebsocketServerMock([message])
 
@@ -236,17 +237,17 @@ describe(__filename, () => {
 
             wsSdk.onClose(() => {
                 wss.close()
-                done()
+                resolve()
             })
 
             wsSdk.onOpen(() => {
                 wsSdk.close()
             })
-        })
+        }))
     })
 
     describe('rpc', () => {
-        it('can ping pong ', (done) => {
+        it('can ping pong ', () => new Promise<void>((resolve) => {
             const response: PingRpcEvent = {
                 method: RpcMethod.Ping,
                 result: 'pong'
@@ -272,11 +273,11 @@ describe(__filename, () => {
                 expect(data).toEqual(response.result)
                 wsSdk.close()
                 wss.close()
-                done()
+                resolve()
             })
-        })
+        }))
 
-        it('can retrieve allowed rpc methods ', (done) => {
+        it('can retrieve allowed rpc methods ', () => new Promise<void>((resolve) => {
             const response: GetAllowMethodsRpcEvent = {
                 method: RpcMethod.GetAllowedMethods,
                 result: [
@@ -306,11 +307,11 @@ describe(__filename, () => {
                 expect(data).toEqual(response.result)
                 wsSdk.close()
                 wss.close()
-                done()
+                resolve()
             })
-        })
+        }))
 
-        it('getActiveOrders success', (done) => {
+        it('getActiveOrders success', () => new Promise<void>((resolve) => {
             const response: GetActiveOrdersRpcEvent = {
                 method: RpcMethod.GetActiveOrders,
                 result: {
@@ -344,11 +345,11 @@ describe(__filename, () => {
                 expect(data).toEqual(response.result)
                 wsSdk.close()
                 wss.close()
-                done()
+                resolve()
             })
-        })
+        }))
 
-        it('getActiveOrders throws error', (done) => {
+        it('getActiveOrders throws error', () => new Promise<void>((resolve) => {
             const response: GetActiveOrdersRpcEvent = {
                 method: RpcMethod.GetActiveOrders,
                 result: {
@@ -380,12 +381,12 @@ describe(__filename, () => {
                 } catch (_error) {
                     wsSdk.close()
                     wss.close()
-                    done()
+                    resolve()
                 }
             })
-        })
+        }))
 
-        it('getSecrets success', (done) => {
+        it('getSecrets success', () => new Promise<void>((resolve) => {
             const response: GetSecretsRpcEvent = {
                 method: RpcMethod.GetSecrets,
                 result: {
@@ -455,11 +456,11 @@ describe(__filename, () => {
                 expect(data).toEqual(response.result)
                 wsSdk.close()
                 wss.close()
-                done()
+                resolve()
             })
-        })
+        }))
 
-        it('getSecrets throws error', (done) => {
+        it('getSecrets throws error', () => new Promise<void>((resolve) => {
             const response: GetSecretsRpcEvent = {
                 method: RpcMethod.GetSecrets,
                 result: {
@@ -485,14 +486,14 @@ describe(__filename, () => {
                 } catch (_error) {
                     wsSdk.close()
                     wss.close()
-                    done()
+                    resolve()
                 }
             })
-        })
+        }))
     })
 
     describe('order', () => {
-        it('can subscribe to order events', (done) => {
+        it('can subscribe to order events', () => new Promise<void>((resolve) => {
             const message1: OrderCreatedEvent = {
                 event: EventType.OrderCreated,
                 result: {
@@ -558,12 +559,12 @@ describe(__filename, () => {
                     expect(resArray).toEqual(messages)
                     wsSdk.close()
                     wss.close()
-                    done()
+                    resolve()
                 }
             })
-        })
+        }))
 
-        it('can subscribe to order created events', (done) => {
+        it('can subscribe to order created events', () => new Promise<void>((resolve) => {
             const message1: OrderCreatedEvent = {
                 event: EventType.OrderCreated,
                 result: {
@@ -630,12 +631,12 @@ describe(__filename, () => {
                     expect(resArray).toEqual(expectedMessages)
                     wsSdk.close()
                     wss.close()
-                    done()
+                    resolve()
                 }
             })
-        })
+        }))
 
-        it('can subscribe to order invalid events', (done) => {
+        it('can subscribe to order invalid events', () => new Promise<void>((resolve) => {
             const message1: OrderCreatedEvent = {
                 event: EventType.OrderCreated,
                 result: {
@@ -702,12 +703,12 @@ describe(__filename, () => {
                     expect(resArray).toEqual(expectedMessages)
                     wsSdk.close()
                     wss.close()
-                    done()
+                    resolve()
                 }
             })
-        })
+        }))
 
-        it('can subscribe to order_balance_change events', (done) => {
+        it('can subscribe to order_balance_change events', () => new Promise<void>((resolve) => {
             const message1: OrderCreatedEvent = {
                 event: EventType.OrderCreated,
                 result: {
@@ -768,12 +769,12 @@ describe(__filename, () => {
                     expect(resArray).toEqual(expectedMessages)
                     wsSdk.close()
                     wss.close()
-                    done()
+                    resolve()
                 }
             })
-        })
+        }))
 
-        it('can subscribe to order_allowance_change events', (done) => {
+        it('can subscribe to order_allowance_change events', () => new Promise<void>((resolve) => {
             const message1: OrderCreatedEvent = {
                 event: EventType.OrderCreated,
                 result: {
@@ -834,12 +835,12 @@ describe(__filename, () => {
                     expect(resArray).toEqual(expectedMessages)
                     wsSdk.close()
                     wss.close()
-                    done()
+                    resolve()
                 }
             })
-        })
+        }))
 
-        it('can subscribe to order filled events', (done) => {
+        it('can subscribe to order filled events', () => new Promise<void>((resolve) => {
             const message1: OrderCreatedEvent = {
                 event: EventType.OrderCreated,
                 result: {
@@ -906,12 +907,12 @@ describe(__filename, () => {
                     expect(resArray).toEqual(expectedMessages)
                     wsSdk.close()
                     wss.close()
-                    done()
+                    resolve()
                 }
             })
-        })
+        }))
 
-        it('can subscribe to order filled partially events', (done) => {
+        it('can subscribe to order filled partially events', () => new Promise<void>((resolve) => {
             const message1: OrderCreatedEvent = {
                 event: EventType.OrderCreated,
                 result: {
@@ -979,12 +980,12 @@ describe(__filename, () => {
                     expect(resArray).toEqual(expectedMessages)
                     wsSdk.close()
                     wss.close()
-                    done()
+                    resolve()
                 }
             })
-        })
+        }))
 
-        it('can subscribe to order cancelled events', (done) => {
+        it('can subscribe to order cancelled events', () => new Promise<void>((resolve) => {
             const message1: OrderCreatedEvent = {
                 event: EventType.OrderCreated,
                 result: {
@@ -1054,12 +1055,12 @@ describe(__filename, () => {
                     expect(resArray).toEqual(expectedMessages)
                     wsSdk.close()
                     wss.close()
-                    done()
+                    resolve()
                 }
             })
-        })
+        }))
 
-        it('can subscribe to order secret shared events', (done) => {
+        it('can subscribe to order secret shared events', () => new Promise<void>((resolve) => {
             const message1: OrderCreatedEvent = {
                 event: EventType.OrderCreated,
                 result: {
@@ -1154,10 +1155,10 @@ describe(__filename, () => {
                     expect(resArray).toEqual(expectedMessages)
                     wsSdk.close()
                     wss.close()
-                    done()
+                    resolve()
                 }
             })
-        })
+        }))
     })
 })
 

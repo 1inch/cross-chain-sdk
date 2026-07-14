@@ -11,7 +11,8 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "removeComments": false,
-    "baseUrl": "./src"
+    "baseUrl": "./src",
+    "types": ["vitest/globals", "node"]
   },
   "include": ["./src/**/*.ts", "./src/**/*.json"]
 }

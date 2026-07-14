@@ -1,4 +1,5 @@
 import {instance, mock} from 'ts-mockito'
+import {vi} from 'vitest'
 import {
     HttpProviderConnector,
     Web3Like,
@@ -28,10 +29,10 @@ import {now} from '../utils/index.js'
 
 function createHttpProviderFake<T>(mock: T): HttpProviderConnector {
     return {
-        get: jest.fn().mockImplementationOnce(() => {
+        get: vi.fn().mockImplementationOnce(() => {
             return Promise.resolve(mock)
         }),
-        post: jest.fn().mockImplementation(() => {
+        post: vi.fn().mockImplementation(() => {
             return Promise.resolve(null)
         })
     }
@@ -299,7 +300,7 @@ describe(__filename, () => {
                 blockchainProvider: web3ProviderConnector
             })
 
-            jest.spyOn(sdk.api, 'getCancellableOrders').mockResolvedValue(
+            vi.spyOn(sdk.api, 'getCancellableOrders').mockResolvedValue(
                 mockApiResponse
             )
 
@@ -367,7 +368,7 @@ describe(__filename, () => {
                 blockchainProvider: web3ProviderConnector
             })
 
-            jest.spyOn(sdk.api, 'getCancellableOrders').mockResolvedValue(
+            vi.spyOn(sdk.api, 'getCancellableOrders').mockResolvedValue(
                 mockApiResponse
             )
 
@@ -442,8 +443,8 @@ describe(__filename, () => {
                 blockchainProvider: web3ProviderConnector
             })
 
-            jest.spyOn(sdk.api, 'submitOrder').mockResolvedValue(undefined)
-            jest.spyOn(
+            vi.spyOn(sdk.api, 'submitOrder').mockResolvedValue(undefined)
+            vi.spyOn(
                 web3ProviderConnector,
                 'signTypedData'
             ).mockResolvedValue('0xsignature')
@@ -528,7 +529,7 @@ describe(__filename, () => {
                 blockchainProvider: web3ProviderConnector
             })
 
-            jest.spyOn(sdk.api, 'submitOrder').mockResolvedValue(undefined)
+            vi.spyOn(sdk.api, 'submitOrder').mockResolvedValue(undefined)
 
             const factoryAddress = EvmAddress.fromBigInt(1n)
             const maker = EvmAddress.fromString(
