@@ -82,7 +82,7 @@ describe(__filename, () => {
         }))
 
         // TODO repair waiting a lot of time ....
-        xit('should be possible to subscribe to error', () => new Promise<void>((resolve) => {
+        it.skip('should be possible to subscribe to error', () => new Promise<void>((resolve) => {
             const wsSdk = new WebSocketApi({
                 url: 'ws://localhost:2345'
             })
