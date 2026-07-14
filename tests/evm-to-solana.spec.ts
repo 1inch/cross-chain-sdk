@@ -25,8 +25,10 @@ import {EscrowFactoryFacade} from '../src/contracts/evm/escrow-factory-facade.js
 import {bufferFromHex} from '../src/utils/bytes.js'
 import {now} from '../src/utils/index.js'
 
+// Jest option `advanceTimers` is named `shouldAdvanceTime` in Vitest;
+// the Jest name is silently ignored and the suite hangs on real timers
 vi.useFakeTimers({
-    advanceTimers: true
+    shouldAdvanceTime: true
 })
 
 describe('EVM to Solana', () => {

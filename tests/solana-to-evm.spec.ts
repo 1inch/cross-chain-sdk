@@ -23,8 +23,10 @@ import {DstImmutablesComplement} from '../src/domains/immutables/index.js'
 import {EscrowFactoryFacade} from '../src/contracts/evm/escrow-factory-facade.js'
 import {now} from '../src/utils/index.js'
 
+// Jest option `advanceTimers` is named `shouldAdvanceTime` in Vitest;
+// the Jest name is silently ignored and the suite hangs on real timers
 vi.useFakeTimers({
-    advanceTimers: true
+    shouldAdvanceTime: true
 })
 
 describe('Solana to EVM', () => {
