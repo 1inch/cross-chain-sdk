@@ -444,10 +444,9 @@ describe(__filename, () => {
             })
 
             vi.spyOn(sdk.api, 'submitOrder').mockResolvedValue(undefined)
-            vi.spyOn(
-                web3ProviderConnector,
-                'signTypedData'
-            ).mockResolvedValue('0xsignature')
+            vi.spyOn(web3ProviderConnector, 'signTypedData').mockResolvedValue(
+                '0xsignature'
+            )
 
             const factoryAddress = EvmAddress.fromBigInt(1n)
             const orderData = {

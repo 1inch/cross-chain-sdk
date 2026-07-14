@@ -17,17 +17,13 @@ const config = defineConfig({
         }
     },
     resolve: {
-        alias: [
-            {find: /^(.+)\.js$/, replacement: '$1'}
-        ],
-        preserveSymlinks: false
-    },
-    optimizeDeps: {
-        include: ['bn.js', 'bignumber.js', '@solana/web3.js']
+        // Mirrors Jest's moduleNameMapper: strip the ESM '.js' extension from
+        // relative imports only, so bare specifiers like 'bn.js' stay intact
+        alias: [{find: /^(\.{1,2}\/.*)\.js$/, replacement: '$1'}]
     },
     server: {
         deps: {
-            inline: [/@1inch\/.*/, /axios/, /bn\.js/, /bignumber\.js/, /@solana/]
+            inline: [/@1inch\/.*/]
         }
     },
     plugins: [
