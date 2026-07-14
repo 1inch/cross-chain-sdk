@@ -414,7 +414,7 @@ describe(__filename, () => {
                 blockchainProvider: web3ProviderConnector
             })
 
-            jest.spyOn(sdk.api, 'getCancellableOrders').mockResolvedValue(
+            vi.spyOn(sdk.api, 'getCancellableOrders').mockResolvedValue(
                 mockResponse
             )
 
