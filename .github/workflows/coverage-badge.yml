@@ -1,0 +1,59 @@
+name: Coverage badge
+
+on:
+  push:
+    branches:
+      - master
+
+  # Runs on PRs only when the coverage tooling itself changes, to validate it.
+  pull_request:
+    paths:
+      - '.github/workflows/coverage-badge.yml'
+      - 'scripts/generate-coverage-badge.mjs'
+
+  workflow_dispatch:
+
+concurrency:
+  group: coverage-badge-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  coverage-badge:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install Dependencies
+        run: pnpm install
+
+      - name: Run unit tests with coverage
+        run: pnpm test:cov
+
+      - name: Generate coverage badge
+        run: node scripts/generate-coverage-badge.mjs
+
+      # The badge lives on the orphan `badges` branch so the README can embed it
+      # via https://github.com/${{ github.repository }}/raw/badges/coverage-badge.svg
+      - name: Publish badge to badges branch
+        if: github.event_name != 'pull_request'
+        run: |
+          cd coverage-badge
+          git init -q -b badges
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add coverage-badge.svg
+          git commit -q -m "chore: update coverage badge for ${GITHUB_SHA}"
+          git push -q --force "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" badges
