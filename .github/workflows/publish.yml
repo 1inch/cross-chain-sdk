@@ -41,11 +41,12 @@ jobs:
       - name: Publish 🚀
         run: |
           VERSION=$(node -p "require('../package.json').version")
+          # npm rejects dist-tags that are valid semver ranges, so 'v1' cannot be used
           if [[ "$VERSION" == *"-rc"* ]]; then
-            pnpm publish --no-git-checks --access=public --tag v1
+            pnpm publish --no-git-checks --access=public --tag v1-next
           else
-            pnpm publish --no-git-checks --access=public --tag v1
-          fi        
+            pnpm publish --no-git-checks --access=public --tag v1-latest
+          fi
         working-directory: dist
 
   publish-to-github:
@@ -81,9 +82,10 @@ jobs:
       - name: Publish 🚀
         run: |
           VERSION=$(node -p "require('../package.json').version")
+          # npm rejects dist-tags that are valid semver ranges, so 'v1' cannot be used
           if [[ "$VERSION" == *"-rc"* ]]; then
-            pnpm publish --no-git-checks --tag v1
+            pnpm publish --no-git-checks --tag v1-next
           else
-            pnpm publish --no-git-checks --tag v1
+            pnpm publish --no-git-checks --tag v1-latest
           fi
         working-directory: dist

@@ -7,6 +7,10 @@ const TrueERC20 = EvmAddress.fromString(
 const ZKTrueERC20 = EvmAddress.fromString(
     '0xd66097c27eb8dee404bac235737932260edc6f3b'
 )
+// Robinhood chain uses its own CREATE3 deployer, so addresses differ from other chains
+const RobinhoodTrueERC20 = EvmAddress.fromString(
+    '0x40c0b7e8018cca1eb8d913b75b1b20cfd89b8d5b'
+)
 
 export const TRUE_ERC20 = {
     [NetworkEnum.ETHEREUM]: TrueERC20,
@@ -21,7 +25,8 @@ export const TRUE_ERC20 = {
     [NetworkEnum.ZKSYNC]: ZKTrueERC20,
     [NetworkEnum.LINEA]: TrueERC20,
     [NetworkEnum.SONIC]: TrueERC20,
-    [NetworkEnum.UNICHAIN]: TrueERC20
+    [NetworkEnum.UNICHAIN]: TrueERC20,
+    [NetworkEnum.ROBINHOOD]: RobinhoodTrueERC20
 }
 
 const ESCROW_FACTORY_ADDRESS = EvmAddress.fromString(
@@ -42,6 +47,16 @@ const ESCROW_DST_IMPLEMENTATION_ADDRESS = EvmAddress.fromString(
 const ESCROW_ZK_DST_IMPLEMENTATION_ADDRESS = EvmAddress.fromString(
     '0xdc4ccc2fc2475d0ed3fddd563c44f2bf6a3900c9'
 )
+// Robinhood chain uses its own CREATE3 deployer, so addresses differ from other chains
+const ESCROW_RH_FACTORY_ADDRESS = EvmAddress.fromString(
+    '0xa02b9cc95094bb27d1d041b9fbf09f65a366f7b3'
+)
+const ESCROW_RH_SRC_IMPLEMENTATION_ADDRESS = EvmAddress.fromString(
+    '0xb077a4326f1e875c21d74028a1499eafcee43bf3'
+)
+const ESCROW_RH_DST_IMPLEMENTATION_ADDRESS = EvmAddress.fromString(
+    '0x104f09ea1f9c09662635ad581d0bef8b15d16f4f'
+)
 
 export const ESCROW_SRC_IMPLEMENTATION = {
     [NetworkEnum.ETHEREUM]: ESCROW_SRC_IMPLEMENTATION_ADDRESS,
@@ -56,7 +71,8 @@ export const ESCROW_SRC_IMPLEMENTATION = {
     [NetworkEnum.ZKSYNC]: ESCROW_ZK_SRC_IMPLEMENTATION_ADDRESS,
     [NetworkEnum.LINEA]: ESCROW_SRC_IMPLEMENTATION_ADDRESS,
     [NetworkEnum.SONIC]: ESCROW_SRC_IMPLEMENTATION_ADDRESS,
-    [NetworkEnum.UNICHAIN]: ESCROW_SRC_IMPLEMENTATION_ADDRESS
+    [NetworkEnum.UNICHAIN]: ESCROW_SRC_IMPLEMENTATION_ADDRESS,
+    [NetworkEnum.ROBINHOOD]: ESCROW_RH_SRC_IMPLEMENTATION_ADDRESS
 }
 
 export const ESCROW_DST_IMPLEMENTATION = {
@@ -72,7 +88,8 @@ export const ESCROW_DST_IMPLEMENTATION = {
     [NetworkEnum.ZKSYNC]: ESCROW_ZK_DST_IMPLEMENTATION_ADDRESS,
     [NetworkEnum.LINEA]: ESCROW_DST_IMPLEMENTATION_ADDRESS,
     [NetworkEnum.SONIC]: ESCROW_DST_IMPLEMENTATION_ADDRESS,
-    [NetworkEnum.UNICHAIN]: ESCROW_DST_IMPLEMENTATION_ADDRESS
+    [NetworkEnum.UNICHAIN]: ESCROW_DST_IMPLEMENTATION_ADDRESS,
+    [NetworkEnum.ROBINHOOD]: ESCROW_RH_DST_IMPLEMENTATION_ADDRESS
 }
 
 export const ESCROW_FACTORY = {
@@ -88,5 +105,6 @@ export const ESCROW_FACTORY = {
     [NetworkEnum.ZKSYNC]: ESCROW_ZK_FACTORY_ADDRESS,
     [NetworkEnum.LINEA]: ESCROW_FACTORY_ADDRESS,
     [NetworkEnum.SONIC]: ESCROW_FACTORY_ADDRESS,
-    [NetworkEnum.UNICHAIN]: ESCROW_FACTORY_ADDRESS
+    [NetworkEnum.UNICHAIN]: ESCROW_FACTORY_ADDRESS,
+    [NetworkEnum.ROBINHOOD]: ESCROW_RH_FACTORY_ADDRESS
 }

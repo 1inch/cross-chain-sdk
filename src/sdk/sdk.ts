@@ -447,7 +447,8 @@ export class SDK {
                             o.order.extra.resolverCancellationConfig
                                 .maxCancellationPremium
                         ),
-                        o.order.extra.resolverCancellationConfig.cancellationAuctionDuration
+                        o.order.extra.resolverCancellationConfig
+                            .cancellationAuctionDuration
                     ),
                     isAssetNative: o.order.extra.srcAssetIsNative
                 }
