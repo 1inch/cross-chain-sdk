@@ -46,7 +46,7 @@
     "dependencies": {
         "@1inch/byte-utils": "3.1.0",
         "@1inch/fusion-sdk": "2.1.12-rc.1",
-        "@1inch/limit-order-sdk": "5.2.2",
+        "@1inch/limit-order-sdk": "5.3.1",
         "@coral-xyz/anchor": "0.31.1",
         "@openzeppelin/merkle-tree": "1.0.7",
         "@types/bn.js": "5.2.0",
@@ -108,6 +108,7 @@
     },
     "pnpm": {
         "overrides": {
+            "@1inch/limit-order-sdk@<5.3.1": "5.3.1",
             "cross-spawn@>=7.0.0 <7.0.5": ">=7.0.5",
             "elliptic@<=6.6.0": ">=6.6.1",
             "protobufjs@<7.6.1": ">=7.6.1",

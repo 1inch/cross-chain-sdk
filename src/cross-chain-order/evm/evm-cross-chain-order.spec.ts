@@ -194,6 +194,70 @@ describe('EvmCrossChainOrder', () => {
         ).toEqual(order)
     })
 
+    it('Should use chain specific limit order protocol as verifying contract', () => {
+        const factoryAddress = Address.fromBigInt(1n)
+        const orderData: EvmCrossChainOrderInfo = {
+            maker: Address.fromBigInt(2n),
+            makerAsset: EvmAddress.fromString(
+                '0xdac17f958d2ee523a2206206994597c13d831ec7'
+            ),
+            takerAsset: EvmAddress.fromString(
+                '0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9'
+            ),
+            makingAmount: 100_000000n,
+            takingAmount: 90_000000n
+        }
+
+        const createOrder = (srcChainId: EvmChain): EvmCrossChainOrder =>
+            EvmCrossChainOrder.new(
+                factoryAddress,
+                orderData,
+                {
+                    hashLock: HashLock.forSingleFill(getRandomBytes32()),
+                    srcChainId,
+                    dstChainId: NetworkEnum.ARBITRUM,
+                    srcSafetyDeposit: 1000n,
+                    dstSafetyDeposit: 1000n,
+                    timeLocks: TimeLocks.new({
+                        srcWithdrawal: 1n,
+                        srcPublicWithdrawal: 2n,
+                        srcCancellation: 3n,
+                        srcPublicCancellation: 4n,
+                        dstWithdrawal: 1n,
+                        dstPublicWithdrawal: 2n,
+                        dstCancellation: 3n
+                    })
+                },
+                {
+                    auction: new AuctionDetails({
+                        startTime: BigInt(now()),
+                        duration: 180n,
+                        points: [],
+                        initialRateBump: 100_000
+                    }),
+                    whitelist: [
+                        {address: Address.fromBigInt(100n), allowFrom: 0n}
+                    ]
+                },
+                {
+                    nonce: 1n
+                }
+            )
+
+        // Robinhood chain has its own LOP deployment (non canonical address)
+        const robinhoodOrder = createOrder(NetworkEnum.ROBINHOOD)
+        expect(
+            robinhoodOrder.getTypedData(NetworkEnum.ROBINHOOD).domain
+                .verifyingContract
+        ).toEqual('0x5a705de8982235a7fa45bb83dcacf03a211389c7')
+
+        const ethereumOrder = createOrder(NetworkEnum.ETHEREUM)
+        expect(
+            ethereumOrder.getTypedData(NetworkEnum.ETHEREUM).domain
+                .verifyingContract
+        ).toEqual('0x111111125421ca6dc452d289314280a0f8842a65')
+    })
+
     it('should throw error for not supported chain', () => {
         const factoryAddress = Address.fromBigInt(1n)
         const orderData: EvmCrossChainOrderInfo = {
