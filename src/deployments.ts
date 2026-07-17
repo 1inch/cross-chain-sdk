@@ -5,7 +5,6 @@ import {
 import {EvmChain, NetworkEnum} from './chains.js'
 import {EvmAddress} from './domains/addresses/index.js'
 
-// fusion-sdk@2.1.x lacks Robinhood chain in its CHAIN_TO_WRAPPER map
 export const CHAIN_TO_WRAPPER: Record<EvmChain, Address> = {
     ...FUSION_CHAIN_TO_WRAPPER,
     [NetworkEnum.ROBINHOOD]: new Address(
