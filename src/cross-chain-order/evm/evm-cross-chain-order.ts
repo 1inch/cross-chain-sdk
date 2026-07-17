@@ -8,8 +8,7 @@ import {
     LimitOrderV4Struct,
     MakerTraits,
     SettlementPostInteractionData,
-    ZX,
-    NetworkEnum
+    ZX
 } from '@1inch/fusion-sdk'
 import {ProxyFactory} from '@1inch/limit-order-sdk'
 import assert from 'assert'
@@ -31,7 +30,12 @@ import {
 } from '../../domains/addresses/index.js'
 import {BaseOrder} from '../base-order.js'
 import {TRUE_ERC20} from '../../deployments.js'
-import {isEvm, isSupportedChain, SupportedChain} from '../../chains.js'
+import {
+    EvmChain,
+    isEvm,
+    isSupportedChain,
+    SupportedChain
+} from '../../chains.js'
 import {HashLock} from '../../domains/hash-lock/index.js'
 import {TimeLocks} from '../../domains/time-locks/index.js'
 import {bufferFromHex} from '../../utils/bytes.js'
@@ -254,7 +258,7 @@ export class EvmCrossChainOrder extends BaseOrder<
         const _orderInfo = {
             ...orderInfo,
             makerAsset: EvmAddress.fromString(
-                CHAIN_TO_WRAPPER[chainId as NetworkEnum].toString()
+                CHAIN_TO_WRAPPER[chainId as EvmChain].toString()
             ),
             receiver:
                 orderInfo.receiver && !orderInfo.receiver.isZero()
