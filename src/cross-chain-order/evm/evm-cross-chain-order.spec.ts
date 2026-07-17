@@ -1,4 +1,8 @@
-import {Extension, Address as FusionAddress} from '@1inch/fusion-sdk'
+import {
+    Extension,
+    Address as FusionAddress,
+    CHAIN_TO_WRAPPER
+} from '@1inch/fusion-sdk'
 import {ProxyFactory} from '@1inch/limit-order-sdk'
 import {UINT_256_MAX} from '@1inch/byte-utils'
 import {EvmCrossChainOrder} from './evm-cross-chain-order.js'
@@ -15,7 +19,6 @@ import {HashLock} from '../../domains/hash-lock/index.js'
 import {TimeLocks} from '../../domains/time-locks/index.js'
 import {getRandomBytes32} from '../../test-utils/get-random-bytes-32.js'
 import {NetworkEnum, EvmChain, SupportedChain} from '../../chains.js'
-import {CHAIN_TO_WRAPPER} from '../../deployments.js'
 
 describe('EvmCrossChainOrder', () => {
     it('Should encode/decode raw order', () => {

@@ -5,7 +5,6 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  '@1inch/limit-order-sdk@<5.3.1': 5.3.1
   cross-spawn@>=7.0.0 <7.0.5: '>=7.0.5'
   elliptic@<=6.6.0: '>=6.6.1'
   protobufjs@<7.6.1: '>=7.6.1'
@@ -31,8 +30,8 @@ importers:
         specifier: 3.1.0
         version: 3.1.0(assert@2.1.0)
       '@1inch/fusion-sdk':
-        specifier: 2.1.12-rc.1
-        version: 2.1.12-rc.1(assert@2.1.0)(axios@1.16.0)(bufferutil@4.1.0)(utf-8-validate@5.0.10)
+        specifier: 2.1.13-rc.0
+        version: 2.1.13-rc.0(assert@2.1.0)(axios@1.16.0)(bufferutil@4.1.0)(utf-8-validate@5.0.10)
       '@1inch/limit-order-sdk':
         specifier: 5.3.1
         version: 5.3.1(assert@2.1.0)(axios@1.16.0)(bufferutil@4.1.0)(utf-8-validate@5.0.10)
@@ -209,8 +208,8 @@ packages:
       prettier: ^3.3.2
       typescript: ^5.5.2
 
-  '@1inch/fusion-sdk@2.1.12-rc.1':
-    resolution: {integrity: sha512-giFA1Ts447G9uAA9ze2tX5czz/orYLiYSANnw2VMUpwqRJF9faPHH8rAlqqMs65wZT92iztfPus8hgRa9V8UiQ==}
+  '@1inch/fusion-sdk@2.1.13-rc.0':
+    resolution: {integrity: sha512-FfX85CaSeDID08fpV3aGNZlYoSTS2QR1JGRXnjCI1Kp1DAo6tuCQoEJB9EJTYmsOnNYZPT+KgK1EdU9fdkd9HA==}
     peerDependencies:
       assert: ^2.0.0
       axios: '>=1 <2'
@@ -3621,7 +3620,7 @@ snapshots:
       semver: 7.7.4
       typescript: 5.9.3
 
-  '@1inch/fusion-sdk@2.1.12-rc.1(assert@2.1.0)(axios@1.16.0)(bufferutil@4.1.0)(utf-8-validate@5.0.10)':
+  '@1inch/fusion-sdk@2.1.13-rc.0(assert@2.1.0)(axios@1.16.0)(bufferutil@4.1.0)(utf-8-validate@5.0.10)':
     dependencies:
       '@1inch/byte-utils': 3.1.0(assert@2.1.0)
       '@1inch/limit-order-sdk': 5.3.1(assert@2.1.0)(axios@1.16.0)(bufferutil@4.1.0)(utf-8-validate@5.0.10)

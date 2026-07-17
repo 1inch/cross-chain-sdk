@@ -1,16 +1,5 @@
-import {
-    Address,
-    CHAIN_TO_WRAPPER as FUSION_CHAIN_TO_WRAPPER
-} from '@1inch/fusion-sdk'
-import {EvmChain, NetworkEnum} from './chains.js'
+import {NetworkEnum} from './chains.js'
 import {EvmAddress} from './domains/addresses/index.js'
-
-export const CHAIN_TO_WRAPPER: Record<EvmChain, Address> = {
-    ...FUSION_CHAIN_TO_WRAPPER,
-    [NetworkEnum.ROBINHOOD]: new Address(
-        '0x0bd7d308f8e1639fab988df18a8011f41eacad73'
-    )
-}
 
 const TrueERC20 = EvmAddress.fromString(
     '0xda0000d4000015a526378bb6fafc650cea5966f8'

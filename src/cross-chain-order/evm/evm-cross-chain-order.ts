@@ -1,5 +1,6 @@
 import {
     AuctionCalculator,
+    CHAIN_TO_WRAPPER,
     FusionOrder,
     EIP712TypedData,
     Extension,
@@ -28,7 +29,7 @@ import {
     EvmAddress
 } from '../../domains/addresses/index.js'
 import {BaseOrder} from '../base-order.js'
-import {CHAIN_TO_WRAPPER, TRUE_ERC20} from '../../deployments.js'
+import {TRUE_ERC20} from '../../deployments.js'
 import {
     EvmChain,
     isEvm,
