@@ -1,8 +1,4 @@
-import {
-    Extension,
-    Address as FusionAddress,
-    CHAIN_TO_WRAPPER
-} from '@1inch/fusion-sdk'
+import {Extension, Address as FusionAddress} from '@1inch/fusion-sdk'
 import {ProxyFactory} from '@1inch/limit-order-sdk'
 import {UINT_256_MAX} from '@1inch/byte-utils'
 import {EvmCrossChainOrder} from './evm-cross-chain-order.js'
@@ -19,6 +15,7 @@ import {HashLock} from '../../domains/hash-lock/index.js'
 import {TimeLocks} from '../../domains/time-locks/index.js'
 import {getRandomBytes32} from '../../test-utils/get-random-bytes-32.js'
 import {NetworkEnum, EvmChain, SupportedChain} from '../../chains.js'
+import {CHAIN_TO_WRAPPER} from '../../deployments.js'
 
 describe('EvmCrossChainOrder', () => {
     it('Should encode/decode raw order', () => {
@@ -856,5 +853,86 @@ describe('EvmCrossChainOrder Native', () => {
             )
         )
         expect(order.dstChainId).toBe(NetworkEnum.SOLANA)
+    })
+
+    it('should create native order for Robinhood chain', () => {
+        const ethOrderFactory = new ProxyFactory(
+            FusionAddress.fromBigInt(1n),
+            FusionAddress.fromBigInt(2n)
+        )
+        const chainId = NetworkEnum.ROBINHOOD
+        const escrowFactory = EvmAddress.fromString(
+            '0xa02b9cc95094bb27d1d041b9fbf09f65a366f7b3'
+        )
+        const maker = EvmAddress.fromString(
+            '0x00000000219ab540356cbb839cbe05303d7705fa'
+        )
+        const takerAsset = EvmAddress.fromString(
+            '0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9'
+        )
+
+        const orderInfo = {
+            takerAsset,
+            makingAmount: 1000000000000000000n,
+            takingAmount: 1420000000n,
+            maker
+        }
+
+        const details = {
+            auction: new AuctionDetails({
+                duration: 180n,
+                startTime: 1673548149n,
+                initialRateBump: 50000,
+                points: [
+                    {
+                        coefficient: 20000,
+                        delay: 12
+                    }
+                ]
+            }),
+            whitelist: [
+                {
+                    address: EvmAddress.fromString(
+                        '0x00000000219ab540356cbb839cbe05303d7705fa'
+                    ),
+                    allowFrom: 0n
+                }
+            ]
+        }
+
+        const escrowParams = {
+            hashLock: HashLock.forSingleFill(getRandomBytes32()),
+            srcChainId: NetworkEnum.ROBINHOOD as EvmChain,
+            dstChainId: NetworkEnum.ETHEREUM as EvmChain,
+            srcSafetyDeposit: 1000000000000000000n,
+            dstSafetyDeposit: 1000000000000000000n,
+            timeLocks: TimeLocks.new({
+                srcWithdrawal: 1n,
+                srcPublicWithdrawal: 2n,
+                srcCancellation: 3n,
+                srcPublicCancellation: 4n,
+                dstWithdrawal: 1n,
+                dstPublicWithdrawal: 2n,
+                dstCancellation: 3n
+            })
+        }
+
+        const order = EvmCrossChainOrder.fromNative(
+            chainId,
+            ethOrderFactory,
+            escrowFactory,
+            orderInfo,
+            details,
+            escrowParams
+        )
+
+        // WETH on Robinhood chain
+        expect(order.makerAsset.toString()).toBe(
+            '0x0bd7d308f8e1639fab988df18a8011f41eacad73'
+        )
+        expect(order.makerAsset.toString()).toBe(
+            CHAIN_TO_WRAPPER[chainId].toString()
+        )
+        expect(order.takerAsset.toString()).toBe(takerAsset.toString())
     })
 })
