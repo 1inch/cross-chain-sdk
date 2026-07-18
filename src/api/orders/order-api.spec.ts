@@ -1,3 +1,4 @@
+import {vi} from 'vitest'
 import {HttpProviderConnector} from '@1inch/fusion-sdk'
 import {
     ActiveOrdersResponse,
@@ -25,10 +26,10 @@ import {ChainType} from '../../domains/index.js'
 
 function createHttpProviderFake<T>(mock: T): HttpProviderConnector {
     return {
-        get: jest.fn().mockImplementationOnce(() => {
+        get: vi.fn().mockImplementationOnce(() => {
             return Promise.resolve(mock)
         }),
-        post: jest.fn().mockImplementation(() => {
+        post: vi.fn().mockImplementation(() => {
             return Promise.resolve(null)
         })
     }

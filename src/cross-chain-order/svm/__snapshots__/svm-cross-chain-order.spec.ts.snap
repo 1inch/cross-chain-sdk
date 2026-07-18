@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`SVMCrossChainOrder should correct toJSON/fromJSON 1`] = `
+exports[`SVMCrossChainOrder > should correct toJSON/fromJSON 1`] = `
 {
   "details": {
     "auction": {

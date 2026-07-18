@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`SVM Escrow dst factory should generate cancelPrivate instruction 1`] = `
+exports[`SVM Escrow dst factory > should generate cancelPrivate instruction 1`] = `
 {
   "accounts": [
     {
@@ -44,7 +44,7 @@ exports[`SVM Escrow dst factory should generate cancelPrivate instruction 1`] = 
 }
 `;
 
-exports[`SVM Escrow dst factory should generate create escrow instruction 1`] = `
+exports[`SVM Escrow dst factory > should generate create escrow instruction 1`] = `
 {
   "accounts": [
     {
@@ -98,7 +98,7 @@ exports[`SVM Escrow dst factory should generate create escrow instruction 1`] = 
 }
 `;
 
-exports[`SVM Escrow dst factory should generate withdrawPublic instruction 1`] = `
+exports[`SVM Escrow dst factory > should generate withdrawPublic instruction 1`] = `
 {
   "accounts": [
     {
@@ -162,7 +162,7 @@ exports[`SVM Escrow dst factory should generate withdrawPublic instruction 1`] =
 }
 `;
 
-exports[`SVM Escrow dst factory should handle native token correctly in withdrawPublic 1`] = `
+exports[`SVM Escrow dst factory > should handle native token correctly in withdrawPublic 1`] = `
 {
   "accounts": [
     {

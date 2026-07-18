@@ -1,3 +1,4 @@
+import {vi} from 'vitest'
 import {HttpProviderConnector, NetworkEnum} from '@1inch/fusion-sdk'
 import {RelayerApi} from './relayer.api.js'
 import {RelayerRequestEvm, RelayerRequestSvm} from './relayer.request.js'
@@ -5,10 +6,10 @@ import {getRandomBytes32} from '../../test-utils/get-random-bytes-32.js'
 
 describe('Relayer API', () => {
     const httpProvider: HttpProviderConnector = {
-        get: jest.fn().mockImplementationOnce(() => {
+        get: vi.fn().mockImplementationOnce(() => {
             return Promise.resolve()
         }),
-        post: jest.fn().mockImplementation(() => {
+        post: vi.fn().mockImplementation(() => {
             return Promise.resolve()
         })
     }
