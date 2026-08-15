@@ -251,11 +251,23 @@ describe('EvmCrossChainOrder', () => {
                 .verifyingContract
         ).toEqual('0x5a705de8982235a7fa45bb83dcacf03a211389c7')
 
-        const ethereumOrder = createOrder(NetworkEnum.ETHEREUM)
+        // HyperEVM has its own LOP deployment (non canonical address)
+        const hyperevmOrder = createOrder(NetworkEnum.HYPEREVM)
         expect(
-            ethereumOrder.getTypedData(NetworkEnum.ETHEREUM).domain
+            hyperevmOrder.getTypedData(NetworkEnum.HYPEREVM).domain
                 .verifyingContract
-        ).toEqual('0x111111125421ca6dc452d289314280a0f8842a65')
+        ).toEqual('0x5281602adc446a94eb48d055f514a6d8d5bee176')
+
+        for (const chainId of [
+            NetworkEnum.ETHEREUM,
+            NetworkEnum.MONAD,
+            NetworkEnum.CRONOS
+        ] as const) {
+            const order = createOrder(chainId)
+            expect(
+                order.getTypedData(chainId).domain.verifyingContract
+            ).toEqual('0x111111125421ca6dc452d289314280a0f8842a65')
+        }
     })
 
     it('should throw error for not supported chain', () => {
@@ -938,4 +950,100 @@ describe('EvmCrossChainOrder Native', () => {
         )
         expect(order.takerAsset.toString()).toBe(takerAsset.toString())
     })
+
+    it.each([
+        [
+            'Monad',
+            NetworkEnum.MONAD,
+            '0x3bd359c1119da7da1d913d1c4d2b7c461115433a'
+        ],
+        [
+            'Cronos',
+            NetworkEnum.CRONOS,
+            '0x5c7f8a570d578ed84e63fdfa7b1ee72deae1ae23'
+        ],
+        [
+            'HyperEVM',
+            NetworkEnum.HYPEREVM,
+            '0x5555555555555555555555555555555555555555'
+        ]
+    ] as const)(
+        'should create native order for %s chain',
+        (_name, chainId, wrapper) => {
+            const ethOrderFactory = new ProxyFactory(
+                FusionAddress.fromBigInt(1n),
+                FusionAddress.fromBigInt(2n)
+            )
+            const escrowFactory = EvmAddress.fromString(
+                '0x9e010857ed5aaa4fca6d5404f7c7c54b1bbb8ad2'
+            )
+            const maker = EvmAddress.fromString(
+                '0x00000000219ab540356cbb839cbe05303d7705fa'
+            )
+            const takerAsset = EvmAddress.fromString(
+                '0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9'
+            )
+
+            const orderInfo = {
+                takerAsset,
+                makingAmount: 1000000000000000000n,
+                takingAmount: 1420000000n,
+                maker
+            }
+
+            const details = {
+                auction: new AuctionDetails({
+                    duration: 180n,
+                    startTime: 1673548149n,
+                    initialRateBump: 50000,
+                    points: [
+                        {
+                            coefficient: 20000,
+                            delay: 12
+                        }
+                    ]
+                }),
+                whitelist: [
+                    {
+                        address: EvmAddress.fromString(
+                            '0x00000000219ab540356cbb839cbe05303d7705fa'
+                        ),
+                        allowFrom: 0n
+                    }
+                ]
+            }
+
+            const escrowParams = {
+                hashLock: HashLock.forSingleFill(getRandomBytes32()),
+                srcChainId: chainId as EvmChain,
+                dstChainId: NetworkEnum.ETHEREUM as EvmChain,
+                srcSafetyDeposit: 1000000000000000000n,
+                dstSafetyDeposit: 1000000000000000000n,
+                timeLocks: TimeLocks.new({
+                    srcWithdrawal: 1n,
+                    srcPublicWithdrawal: 2n,
+                    srcCancellation: 3n,
+                    srcPublicCancellation: 4n,
+                    dstWithdrawal: 1n,
+                    dstPublicWithdrawal: 2n,
+                    dstCancellation: 3n
+                })
+            }
+
+            const order = EvmCrossChainOrder.fromNative(
+                chainId,
+                ethOrderFactory,
+                escrowFactory,
+                orderInfo,
+                details,
+                escrowParams
+            )
+
+            expect(order.makerAsset.toString()).toBe(wrapper)
+            expect(order.makerAsset.toString()).toBe(
+                CHAIN_TO_WRAPPER[chainId].toString()
+            )
+            expect(order.takerAsset.toString()).toBe(takerAsset.toString())
+        }
+    )
 })
