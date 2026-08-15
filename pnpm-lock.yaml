@@ -30,11 +30,11 @@ importers:
         specifier: 3.1.0
         version: 3.1.0(assert@2.1.0)
       '@1inch/fusion-sdk':
-        specifier: 2.1.13-rc.0
-        version: 2.1.13-rc.0(assert@2.1.0)(axios@1.16.0)(bufferutil@4.1.0)(utf-8-validate@5.0.10)
+        specifier: 2.1.13-rc.1
+        version: 2.1.13-rc.1(assert@2.1.0)(axios@1.16.0)(bufferutil@4.1.0)(utf-8-validate@5.0.10)
       '@1inch/limit-order-sdk':
-        specifier: 5.3.1
-        version: 5.3.1(assert@2.1.0)(axios@1.16.0)(bufferutil@4.1.0)(utf-8-validate@5.0.10)
+        specifier: 5.4.2-rc.0
+        version: 5.4.2-rc.0(assert@2.1.0)(axios@1.16.0)(bufferutil@4.1.0)(utf-8-validate@5.0.10)
       '@coral-xyz/anchor':
         specifier: 0.31.1
         version: 0.31.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)
@@ -208,8 +208,8 @@ packages:
       prettier: ^3.3.2
       typescript: ^5.5.2
 
-  '@1inch/fusion-sdk@2.1.13-rc.0':
-    resolution: {integrity: sha512-FfX85CaSeDID08fpV3aGNZlYoSTS2QR1JGRXnjCI1Kp1DAo6tuCQoEJB9EJTYmsOnNYZPT+KgK1EdU9fdkd9HA==}
+  '@1inch/fusion-sdk@2.1.13-rc.1':
+    resolution: {integrity: sha512-fy3nAradHGFDH/XZG7pEjGwansnaBel62YwDz2hcIfjyYsH9OPEPxhRHOn2IZ4OQBAB+zy8d4DJQDZwpZ0969A==}
     peerDependencies:
       assert: ^2.0.0
       axios: '>=1 <2'
@@ -219,8 +219,8 @@ packages:
       axios:
         optional: true
 
-  '@1inch/limit-order-sdk@5.3.1':
-    resolution: {integrity: sha512-STEKaWd+/0xcy13RYsASUdkGI79IflMIZWzakaesy1wHjaPMnkXuqHm0wS0WOUYIlqZK0CwtcCLXK+NO7ZBQGw==}
+  '@1inch/limit-order-sdk@5.4.2-rc.0':
+    resolution: {integrity: sha512-/T/GiHstkHrqTHOldWO4qka5eweP7s/FiQQxvUk8FQhTSWmhb7jLYwxU3CC/mQiAuzY5P6EAAQEfX1V4J2FAFg==}
     engines: {node: '>=20.9.0'}
     peerDependencies:
       assert: ^2.0.0
@@ -3620,10 +3620,10 @@ snapshots:
       semver: 7.7.4
       typescript: 5.9.3
 
-  '@1inch/fusion-sdk@2.1.13-rc.0(assert@2.1.0)(axios@1.16.0)(bufferutil@4.1.0)(utf-8-validate@5.0.10)':
+  '@1inch/fusion-sdk@2.1.13-rc.1(assert@2.1.0)(axios@1.16.0)(bufferutil@4.1.0)(utf-8-validate@5.0.10)':
     dependencies:
       '@1inch/byte-utils': 3.1.0(assert@2.1.0)
-      '@1inch/limit-order-sdk': 5.3.1(assert@2.1.0)(axios@1.16.0)(bufferutil@4.1.0)(utf-8-validate@5.0.10)
+      '@1inch/limit-order-sdk': 5.4.2-rc.0(assert@2.1.0)(axios@1.16.0)(bufferutil@4.1.0)(utf-8-validate@5.0.10)
       ethers: 6.13.1(bufferutil@4.1.0)(utf-8-validate@5.0.10)
       tslib: 2.6.3
       ws: 8.21.0(bufferutil@4.1.0)(utf-8-validate@5.0.10)
@@ -3634,7 +3634,7 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@1inch/limit-order-sdk@5.3.1(assert@2.1.0)(axios@1.16.0)(bufferutil@4.1.0)(utf-8-validate@5.0.10)':
+  '@1inch/limit-order-sdk@5.4.2-rc.0(assert@2.1.0)(axios@1.16.0)(bufferutil@4.1.0)(utf-8-validate@5.0.10)':
     dependencies:
       '@1inch/byte-utils': 3.0.0(assert@2.1.0)
       ethers: 6.16.0(bufferutil@4.1.0)(utf-8-validate@5.0.10)
