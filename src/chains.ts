@@ -15,6 +15,9 @@ export enum NetworkEnum {
     SONIC = 146,
     UNICHAIN = 130,
     ROBINHOOD = 4663,
+    MONAD = 143,
+    CRONOS = 25,
+    HYPEREVM = 999,
     SOLANA = 501
 }
 
@@ -32,6 +35,9 @@ export const SupportedChains = [
     NetworkEnum.SONIC,
     NetworkEnum.UNICHAIN,
     NetworkEnum.ROBINHOOD,
+    NetworkEnum.MONAD,
+    NetworkEnum.CRONOS,
+    NetworkEnum.HYPEREVM,
     NetworkEnum.SOLANA
 ] as const
 
