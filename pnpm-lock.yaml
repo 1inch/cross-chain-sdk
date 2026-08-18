@@ -36,11 +36,11 @@ importers:
         specifier: 3.1.0
         version: 3.1.0(assert@2.1.0)
       '@1inch/fusion-sdk':
-        specifier: 2.1.13-rc.1
-        version: 2.1.13-rc.1(assert@2.1.0)(axios@1.18.1)(bufferutil@4.1.0)(utf-8-validate@5.0.10)
+        specifier: 2.1.13
+        version: 2.1.13(assert@2.1.0)(axios@1.18.1)(bufferutil@4.1.0)(utf-8-validate@5.0.10)
       '@1inch/limit-order-sdk':
-        specifier: 5.4.2-rc.0
-        version: 5.4.2-rc.0(assert@2.1.0)(axios@1.18.1)(bufferutil@4.1.0)(utf-8-validate@5.0.10)
+        specifier: 5.4.2
+        version: 5.4.2(assert@2.1.0)(axios@1.18.1)(bufferutil@4.1.0)(utf-8-validate@5.0.10)
       '@coral-xyz/anchor':
         specifier: 0.31.1
         version: 0.31.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)
@@ -214,8 +214,8 @@ packages:
       prettier: ^3.3.2
       typescript: ^5.5.2
 
-  '@1inch/fusion-sdk@2.1.13-rc.1':
-    resolution: {integrity: sha512-fy3nAradHGFDH/XZG7pEjGwansnaBel62YwDz2hcIfjyYsH9OPEPxhRHOn2IZ4OQBAB+zy8d4DJQDZwpZ0969A==}
+  '@1inch/fusion-sdk@2.1.13':
+    resolution: {integrity: sha512-IytD4J+viAZRKqks1S5kkmTX3habzNpTKZgejzGBnKrJ/69f9opZKKiKBxy7NMaIWKtkdWzSclcogRiv2O/iIg==}
     peerDependencies:
       assert: ^2.0.0
       axios: '>=1 <2'
@@ -225,8 +225,8 @@ packages:
       axios:
         optional: true
 
-  '@1inch/limit-order-sdk@5.4.2-rc.0':
-    resolution: {integrity: sha512-/T/GiHstkHrqTHOldWO4qka5eweP7s/FiQQxvUk8FQhTSWmhb7jLYwxU3CC/mQiAuzY5P6EAAQEfX1V4J2FAFg==}
+  '@1inch/limit-order-sdk@5.4.2':
+    resolution: {integrity: sha512-bsOhfeSZRTXXsKF1wpDEHO/P401MdojCBI8hUGf+gBZeipWpL+KIrCtAoRvm3O2DEWPg1cXHTSSVKHil5eMfkA==}
     engines: {node: '>=20.9.0'}
     peerDependencies:
       assert: ^2.0.0
@@ -1161,6 +1161,7 @@ packages:
 
   '@ungap/structured-clone@1.3.0':
     resolution: {integrity: sha512-WmoN8qaIAo7WTYWbAZuG8PYEhn5fkz7dZrqTBZ7dtt//lL2Gwms1IcnQ5yHqjDfX8Ft5j4YzDM23f87zBfDe9g==}
+    deprecated: Potential CWE-502 - Update to 1.3.1 or higher
 
   '@unrs/resolver-binding-android-arm-eabi@1.11.1':
     resolution: {integrity: sha512-ppLRUgHVaGRWUx0R0Ut06Mjo9gBaBkg3v/8AxusGLhsIotbBLuRk51rAzqLC8gq6NyyAojEXglNjzf6R948DNw==}
@@ -3513,10 +3514,12 @@ packages:
 
   uuid@10.0.0:
     resolution: {integrity: sha512-8XkAphELsDnEGrDxUOHB3RGvXz6TeuYSGEZBOjtTtPm2lwhGBjLgOzLHB63IUWfBpNucQjND6d3AOudO+H3RWQ==}
+    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
     hasBin: true
 
   uuid@8.3.2:
     resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
+    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
     hasBin: true
 
   v8-to-istanbul@9.3.0:
@@ -3644,10 +3647,10 @@ snapshots:
       semver: 7.7.4
       typescript: 5.9.3
 
-  '@1inch/fusion-sdk@2.1.13-rc.1(assert@2.1.0)(axios@1.18.1)(bufferutil@4.1.0)(utf-8-validate@5.0.10)':
+  '@1inch/fusion-sdk@2.1.13(assert@2.1.0)(axios@1.18.1)(bufferutil@4.1.0)(utf-8-validate@5.0.10)':
     dependencies:
       '@1inch/byte-utils': 3.1.0(assert@2.1.0)
-      '@1inch/limit-order-sdk': 5.4.2-rc.0(assert@2.1.0)(axios@1.18.1)(bufferutil@4.1.0)(utf-8-validate@5.0.10)
+      '@1inch/limit-order-sdk': 5.4.2(assert@2.1.0)(axios@1.18.1)(bufferutil@4.1.0)(utf-8-validate@5.0.10)
       ethers: 6.13.1(bufferutil@4.1.0)(utf-8-validate@5.0.10)
       tslib: 2.6.3
       ws: 8.21.0(bufferutil@4.1.0)(utf-8-validate@5.0.10)
@@ -3658,7 +3661,7 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@1inch/limit-order-sdk@5.4.2-rc.0(assert@2.1.0)(axios@1.18.1)(bufferutil@4.1.0)(utf-8-validate@5.0.10)':
+  '@1inch/limit-order-sdk@5.4.2(assert@2.1.0)(axios@1.18.1)(bufferutil@4.1.0)(utf-8-validate@5.0.10)':
     dependencies:
       '@1inch/byte-utils': 3.0.0(assert@2.1.0)
       ethers: 6.16.0(bufferutil@4.1.0)(utf-8-validate@5.0.10)
