@@ -110,7 +110,7 @@ async function startNode(
         .withCommand([
             `anvil -f ${forkUrl} --chain-id ${chainId} --mnemonic 'hat hat horse border print cancel subway heavy copy alert eternal mask' --host 0.0.0.0`
         ])
-        .withWaitStrategy(new LogWaitStrategy('Listening on 0.0.0.0:8545', 1))
+        .withWaitStrategy(new LogWaitStrategy('Listening on', 1))
         .withName(`anvil_cross_chain_tests_${chainId}_${randBigInt(100n)}`)
         .start()
 
