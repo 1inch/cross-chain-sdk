@@ -6,7 +6,8 @@
 module.exports = {
     clearMocks: true,
     collectCoverageFrom: ['**/*.(t|j)s'],
-    coverageDirectory: 'coverage',
+    // relative to rootDir ('src'), so reports land in <repo>/coverage (gitignored)
+    coverageDirectory: '../coverage',
     coveragePathIgnorePatterns: ['/node_modules/', 'dist', 'src/index.ts'],
     coverageProvider: 'v8',
     coverageReporters: ['json-summary', 'lcov'],

@@ -1,6 +1,8 @@
 # Cross Chain SDK
 Sdk for creating atomic swaps through 1inch
 
+[![Test coverage](https://github.com/1inch/cross-chain-sdk/raw/badges/coverage-badge.svg)](https://github.com/1inch/cross-chain-sdk/actions/workflows/coverage-badge.yml)
+
 ## Resources
 - [Dev portal](https://portal.1inch.dev/documentation/apis/swap/fusion-plus/introduction)
 
