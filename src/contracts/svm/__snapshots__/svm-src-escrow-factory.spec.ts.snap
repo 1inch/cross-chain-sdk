@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`SVM Escrow src factory should generate cancelOrderByResolver instruction 1`] = `
+exports[`SVM Escrow src factory > should generate cancelOrderByResolver instruction 1`] = `
 {
   "accounts": [
     {
@@ -54,7 +54,7 @@ exports[`SVM Escrow src factory should generate cancelOrderByResolver instructio
 }
 `;
 
-exports[`SVM Escrow src factory should generate cancelOwnOrder instruction 1`] = `
+exports[`SVM Escrow src factory > should generate cancelOwnOrder instruction 1`] = `
 {
   "accounts": [
     {
@@ -98,7 +98,7 @@ exports[`SVM Escrow src factory should generate cancelOwnOrder instruction 1`] =
 }
 `;
 
-exports[`SVM Escrow src factory should generate cancelPrivate instruction 1`] = `
+exports[`SVM Escrow src factory > should generate cancelPrivate instruction 1`] = `
 {
   "accounts": [
     {
@@ -147,7 +147,7 @@ exports[`SVM Escrow src factory should generate cancelPrivate instruction 1`] = 
 }
 `;
 
-exports[`SVM Escrow src factory should generate cancelPublic instruction 1`] = `
+exports[`SVM Escrow src factory > should generate cancelPublic instruction 1`] = `
 {
   "accounts": [
     {
@@ -206,7 +206,7 @@ exports[`SVM Escrow src factory should generate cancelPublic instruction 1`] = `
 }
 `;
 
-exports[`SVM Escrow src factory should generate create instruction from order 1`] = `
+exports[`SVM Escrow src factory > should generate create instruction from order 1`] = `
 {
   "accounts": [
     {
@@ -260,7 +260,7 @@ exports[`SVM Escrow src factory should generate create instruction from order 1`
 }
 `;
 
-exports[`SVM Escrow src factory should generate withdrawPublic instruction 1`] = `
+exports[`SVM Escrow src factory > should generate withdrawPublic instruction 1`] = `
 {
   "accounts": [
     {
@@ -314,7 +314,7 @@ exports[`SVM Escrow src factory should generate withdrawPublic instruction 1`] =
 }
 `;
 
-exports[`SVM Escrow src factory should parse create instruction 2 1`] = `
+exports[`SVM Escrow src factory > should parse create instruction 2 1`] = `
 {
   "dutchAuctionDataHash": "0xadbb6721b4fce525bf9d4665dc3c5f53b59dd965131d541ed5da6e393da9bb68",
   "escrowParams": {

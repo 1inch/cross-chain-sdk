@@ -1,3 +1,4 @@
+import {vi} from 'vitest'
 import {HttpProviderConnector, NetworkEnum} from '@1inch/fusion-sdk'
 import {Bps} from '@1inch/limit-order-sdk'
 import {QuoterApi} from './quoter.api.js'
@@ -12,10 +13,10 @@ describe('Quoter API', () => {
 
     beforeEach(() => {
         httpProvider = {
-            get: jest.fn().mockImplementationOnce(() => {
+            get: vi.fn().mockImplementationOnce(() => {
                 return Promise.resolve(ResponseMock)
             }),
-            post: jest.fn().mockImplementation(() => {
+            post: vi.fn().mockImplementation(() => {
                 return Promise.resolve(ResponseMock)
             })
         }

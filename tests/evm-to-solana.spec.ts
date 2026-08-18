@@ -1,5 +1,6 @@
 /* eslint-disable max-lines-per-function */
 /* eslint-disable no-console */
+import {vi} from 'vitest'
 import {Interface, parseUnits, parseEther, id} from 'ethers'
 import {Clock} from 'litesvm'
 import {UINT_40_MAX} from '@1inch/byte-utils'
@@ -24,9 +25,10 @@ import {EscrowFactoryFacade} from '../src/contracts/evm/escrow-factory-facade.js
 import {bufferFromHex} from '../src/utils/bytes.js'
 import {now} from '../src/utils/index.js'
 
-jest.setTimeout(1000 * 10 * 60)
-jest.useFakeTimers({
-    advanceTimers: true
+// Jest option `advanceTimers` is named `shouldAdvanceTime` in Vitest;
+// the Jest name is silently ignored and the suite hangs on real timers
+vi.useFakeTimers({
+    shouldAdvanceTime: true
 })
 
 describe('EVM to Solana', () => {
@@ -54,7 +56,7 @@ describe('EVM to Solana', () => {
             ]),
             dstChain.svm.setClock(newClock)
         ])
-        jest.advanceTimersByTime(duration * 1000)
+        vi.advanceTimersByTime(duration * 1000)
     }
 
     beforeAll(async () => {
