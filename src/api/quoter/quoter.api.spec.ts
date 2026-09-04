@@ -1,4 +1,4 @@
-import {HttpProviderConnector, NetworkEnum} from '@1inch/fusion-sdk'
+import {HttpProviderConnector} from '@1inch/fusion-sdk'
 import {Bps} from '@1inch/limit-order-sdk'
 import {QuoterApi} from './quoter.api.js'
 import {QuoterRequest} from './quoter.request.js'
@@ -6,6 +6,7 @@ import {Quote} from './quote/index.js'
 import {PresetEnum, QuoterResponse} from './types.js'
 import {QuoterCustomPresetRequest} from './quoter-custom-preset.request.js'
 import {EvmAddress} from '../../domains/index.js'
+import {NetworkEnum} from '../../chains.js'
 
 describe('Quoter API', () => {
     let httpProvider: HttpProviderConnector
@@ -233,5 +234,58 @@ describe('Quoter API', () => {
             'https://test.com/quoter/v1.2/quote/receive/?srcChain=1&dstChain=137&srcTokenAddress=0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2&dstTokenAddress=0x2791bca1f2de4661ed88a30c99a7a9449aa84174&amount=100000000000000000&walletAddress=0x00000000219ab540356cbb839cbe05303d7705fa&fee=1&feeReceiver=0x1234567890123456789012345678901234567890&source=0x6b175474e89094c44da98b954eedeac495271d0f',
             body.build()
         )
+    })
+
+    it('parses a Solana quote response', async () => {
+        const solanaParams = QuoterRequest.forSolana({
+            srcChain: NetworkEnum.SOLANA,
+            dstChain: NetworkEnum.ETHEREUM,
+            srcTokenAddress: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
+            dstTokenAddress: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+            amount: '1000000',
+            walletAddress: '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM'
+        })
+        const solanaResponse = {
+            ...ResponseMock,
+            srcEscrowFactory: '11111111111111111111111111111111'
+        }
+        httpProvider.get = jest.fn().mockResolvedValue(solanaResponse)
+        httpProvider.post = jest.fn().mockResolvedValue(solanaResponse)
+
+        const quoter = new QuoterApi(
+            {url: 'https://test.com/quoter'},
+            httpProvider
+        )
+        const quote = await quoter.getQuote(solanaParams)
+        expect(quote.isSolanaQuote()).toBe(true)
+        expect(quote.srcTokenAmount).toBe(100000000000000000n)
+
+        const body = QuoterCustomPresetRequest.new({
+            customPreset: {
+                auctionDuration: 180,
+                auctionStartAmount: '100000',
+                auctionEndAmount: '50000'
+            }
+        })
+        const custom = await quoter.getQuoteWithCustomPreset(solanaParams, body)
+        expect(custom.isSolanaQuote()).toBe(true)
+    })
+
+    it('rejects an invalid custom preset body', async () => {
+        const quoter = new QuoterApi(
+            {url: 'https://test.com/quoter'},
+            httpProvider
+        )
+        const body = QuoterCustomPresetRequest.new({
+            customPreset: {
+                auctionDuration: 180,
+                auctionStartAmount: 'not-a-number',
+                auctionEndAmount: '50000'
+            }
+        })
+
+        await expect(
+            quoter.getQuoteWithCustomPreset(params, body)
+        ).rejects.toThrow()
     })
 })
