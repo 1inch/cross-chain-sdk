@@ -11,8 +11,8 @@ const ZKTrueERC20 = EvmAddress.fromString(
 const RobinhoodTrueERC20 = EvmAddress.fromString(
     '0x40c0b7e8018cca1eb8d913b75b1b20cfd89b8d5b'
 )
-// Monad, Cronos and HyperEVM use a new deployer, so they share addresses which differ from other chains
-const MonadCronosHyperevmTrueERC20 = EvmAddress.fromString(
+// Monad, Cronos, HyperEVM and Arc use a new deployer, so they share addresses which differ from other chains
+const MonadCronosHyperevmArcTrueERC20 = EvmAddress.fromString(
     '0x175a30f81eade2d75b4d1d5fc750131877355d21'
 )
 
@@ -31,9 +31,10 @@ export const TRUE_ERC20 = {
     [NetworkEnum.SONIC]: TrueERC20,
     [NetworkEnum.UNICHAIN]: TrueERC20,
     [NetworkEnum.ROBINHOOD]: RobinhoodTrueERC20,
-    [NetworkEnum.MONAD]: MonadCronosHyperevmTrueERC20,
-    [NetworkEnum.CRONOS]: MonadCronosHyperevmTrueERC20,
-    [NetworkEnum.HYPEREVM]: MonadCronosHyperevmTrueERC20
+    [NetworkEnum.MONAD]: MonadCronosHyperevmArcTrueERC20,
+    [NetworkEnum.CRONOS]: MonadCronosHyperevmArcTrueERC20,
+    [NetworkEnum.HYPEREVM]: MonadCronosHyperevmArcTrueERC20,
+    [NetworkEnum.ARC]: MonadCronosHyperevmArcTrueERC20
 }
 
 const ESCROW_FACTORY_ADDRESS = EvmAddress.fromString(
@@ -64,14 +65,14 @@ const ESCROW_RH_SRC_IMPLEMENTATION_ADDRESS = EvmAddress.fromString(
 const ESCROW_RH_DST_IMPLEMENTATION_ADDRESS = EvmAddress.fromString(
     '0x3875faf11ccef1dca35d190bc41cd47895dc18b2'
 )
-// Monad, Cronos and HyperEVM use a new deployer, so they share addresses which differ from other chains
-const ESCROW_MCH_FACTORY_ADDRESS = EvmAddress.fromString(
+// Monad, Cronos, HyperEVM and Arc use a new deployer, so they share addresses which differ from other chains
+const ESCROW_MCHA_FACTORY_ADDRESS = EvmAddress.fromString(
     '0x8e6c3c2e2631de0a1d4fd46a15f79a1373486fa4'
 )
-const ESCROW_MCH_SRC_IMPLEMENTATION_ADDRESS = EvmAddress.fromString(
+const ESCROW_MCHA_SRC_IMPLEMENTATION_ADDRESS = EvmAddress.fromString(
     '0x25fb2e7a56db5a3f04be5e7a728977e889e62a3c'
 )
-const ESCROW_MCH_DST_IMPLEMENTATION_ADDRESS = EvmAddress.fromString(
+const ESCROW_MCHA_DST_IMPLEMENTATION_ADDRESS = EvmAddress.fromString(
     '0x715bb4091abccacef523a6069b4f0e2678a352f2'
 )
 
@@ -90,9 +91,10 @@ export const ESCROW_SRC_IMPLEMENTATION = {
     [NetworkEnum.SONIC]: ESCROW_SRC_IMPLEMENTATION_ADDRESS,
     [NetworkEnum.UNICHAIN]: ESCROW_SRC_IMPLEMENTATION_ADDRESS,
     [NetworkEnum.ROBINHOOD]: ESCROW_RH_SRC_IMPLEMENTATION_ADDRESS,
-    [NetworkEnum.MONAD]: ESCROW_MCH_SRC_IMPLEMENTATION_ADDRESS,
-    [NetworkEnum.CRONOS]: ESCROW_MCH_SRC_IMPLEMENTATION_ADDRESS,
-    [NetworkEnum.HYPEREVM]: ESCROW_MCH_SRC_IMPLEMENTATION_ADDRESS
+    [NetworkEnum.MONAD]: ESCROW_MCHA_SRC_IMPLEMENTATION_ADDRESS,
+    [NetworkEnum.CRONOS]: ESCROW_MCHA_SRC_IMPLEMENTATION_ADDRESS,
+    [NetworkEnum.HYPEREVM]: ESCROW_MCHA_SRC_IMPLEMENTATION_ADDRESS,
+    [NetworkEnum.ARC]: ESCROW_MCHA_SRC_IMPLEMENTATION_ADDRESS
 }
 
 export const ESCROW_DST_IMPLEMENTATION = {
@@ -110,9 +112,10 @@ export const ESCROW_DST_IMPLEMENTATION = {
     [NetworkEnum.SONIC]: ESCROW_DST_IMPLEMENTATION_ADDRESS,
     [NetworkEnum.UNICHAIN]: ESCROW_DST_IMPLEMENTATION_ADDRESS,
     [NetworkEnum.ROBINHOOD]: ESCROW_RH_DST_IMPLEMENTATION_ADDRESS,
-    [NetworkEnum.MONAD]: ESCROW_MCH_DST_IMPLEMENTATION_ADDRESS,
-    [NetworkEnum.CRONOS]: ESCROW_MCH_DST_IMPLEMENTATION_ADDRESS,
-    [NetworkEnum.HYPEREVM]: ESCROW_MCH_DST_IMPLEMENTATION_ADDRESS
+    [NetworkEnum.MONAD]: ESCROW_MCHA_DST_IMPLEMENTATION_ADDRESS,
+    [NetworkEnum.CRONOS]: ESCROW_MCHA_DST_IMPLEMENTATION_ADDRESS,
+    [NetworkEnum.HYPEREVM]: ESCROW_MCHA_DST_IMPLEMENTATION_ADDRESS,
+    [NetworkEnum.ARC]: ESCROW_MCHA_DST_IMPLEMENTATION_ADDRESS
 }
 
 export const ESCROW_FACTORY = {
@@ -130,7 +133,8 @@ export const ESCROW_FACTORY = {
     [NetworkEnum.SONIC]: ESCROW_FACTORY_ADDRESS,
     [NetworkEnum.UNICHAIN]: ESCROW_FACTORY_ADDRESS,
     [NetworkEnum.ROBINHOOD]: ESCROW_RH_FACTORY_ADDRESS,
-    [NetworkEnum.MONAD]: ESCROW_MCH_FACTORY_ADDRESS,
-    [NetworkEnum.CRONOS]: ESCROW_MCH_FACTORY_ADDRESS,
-    [NetworkEnum.HYPEREVM]: ESCROW_MCH_FACTORY_ADDRESS
+    [NetworkEnum.MONAD]: ESCROW_MCHA_FACTORY_ADDRESS,
+    [NetworkEnum.CRONOS]: ESCROW_MCHA_FACTORY_ADDRESS,
+    [NetworkEnum.HYPEREVM]: ESCROW_MCHA_FACTORY_ADDRESS,
+    [NetworkEnum.ARC]: ESCROW_MCHA_FACTORY_ADDRESS
 }
