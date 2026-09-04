@@ -322,6 +322,12 @@ describe('EvmCrossChainOrder', () => {
                 .verifyingContract
         ).toEqual('0x5281602adc446a94eb48d055f514a6d8d5bee176')
 
+        // Arc has its own LOP deployment (non canonical address)
+        const arcOrder = createOrder(NetworkEnum.ARC)
+        expect(
+            arcOrder.getTypedData(NetworkEnum.ARC).domain.verifyingContract
+        ).toEqual('0xe08cab0828a67291ec4af1fb3e7f867e206a6bda')
+
         for (const chainId of [
             NetworkEnum.ETHEREUM,
             NetworkEnum.MONAD,
@@ -949,7 +955,8 @@ describe('EvmCrossChainOrder Native', () => {
             'HyperEVM',
             NetworkEnum.HYPEREVM,
             '0x5555555555555555555555555555555555555555'
-        ]
+        ],
+        ['Arc', NetworkEnum.ARC, '0x1111161b5af064893d1a88e467293ecf660eeeee']
     ] as const)(
         'should create native order for %s chain',
         (_name, chainId, wrapper) => {
