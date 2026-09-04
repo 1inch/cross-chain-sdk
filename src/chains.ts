@@ -18,6 +18,7 @@ export enum NetworkEnum {
     MONAD = 143,
     CRONOS = 25,
     HYPEREVM = 999,
+    ARC = 5042,
     SOLANA = 501
 }
 
@@ -38,6 +39,7 @@ export const SupportedChains = [
     NetworkEnum.MONAD,
     NetworkEnum.CRONOS,
     NetworkEnum.HYPEREVM,
+    NetworkEnum.ARC,
     NetworkEnum.SOLANA
 ] as const
 
