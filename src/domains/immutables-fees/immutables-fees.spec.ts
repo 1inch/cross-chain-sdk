@@ -41,4 +41,17 @@ describe('FeeParameters', () => {
         // 0x + 128 bytes (256 hex chars)
         expect(encoded.length).toBe(2 + 256)
     })
+
+    it('round-trips through JSON', () => {
+        const fees = ImmutableFees.decode(CONTRACT_FEE_PARAMETERS)
+        const restored = ImmutableFees.fromJSON(fees.toJSON())
+
+        expect(restored.resolverFeeAmount).toBe(fees.resolverFeeAmount)
+        expect(restored.integratorFeeAmount).toBe(fees.integratorFeeAmount)
+        expect(
+            restored.resolverFeeRecipient.equal(fees.resolverFeeRecipient)
+        ).toBe(true)
+        expect(restored.isZero()).toBe(false)
+        expect(ImmutableFees.ZERO.isZero()).toBe(true)
+    })
 })

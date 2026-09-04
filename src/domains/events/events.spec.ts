@@ -1,5 +1,11 @@
+import {Interface} from 'ethers'
 import {SrcEscrowCreatedEvent} from './src-escrow-created-event.js'
 import {DstEscrowCreatedEvent} from './dst-escrow-created-event.js'
+import {EscrowWithdrawalEvent} from './escrow-withdrawal-event.js'
+import {FundsRescuedEvent} from './funds-rescued-event.js'
+import {EscrowCancelledEvent} from './escrow-cancelled-event.js'
+import {EvmAddress} from '../addresses/index.js'
+import {ESCROW_FACTORY_ABI} from '../../abi/escrow-factory-abi.js'
 
 describe('SrcEscrowCreatedEvent', () => {
     it('should decode real event data without fees', () => {
@@ -149,5 +155,48 @@ describe('DstEscrowCreatedEvent', () => {
         expect(event.taker.toString().toLowerCase()).toBe(
             expectedTaker.toLowerCase()
         )
+    })
+})
+
+describe('EscrowWithdrawalEvent', () => {
+    it('decodes a withdrawal secret from log data', () => {
+        const secret =
+            '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+        const iface = new Interface(ESCROW_FACTORY_ABI)
+        const encoded = iface.encodeEventLog('EscrowWithdrawal', [secret])
+        const event = EscrowWithdrawalEvent.fromData(encoded.data)
+
+        expect(event.secret).toBe(secret)
+        expect(EscrowWithdrawalEvent.TOPIC).toMatch(/^0x[0-9a-f]{64}$/)
+    })
+})
+
+describe('FundsRescuedEvent', () => {
+    it('decodes token, amount and escrow address from log data', () => {
+        const token = '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
+        const amount = 123456n
+        const escrow = EvmAddress.fromString(
+            '0x1111111111111111111111111111111111111111'
+        )
+        const iface = new Interface(ESCROW_FACTORY_ABI)
+        const encoded = iface.encodeEventLog('FundsRescued', [token, amount])
+        const event = FundsRescuedEvent.fromData(encoded.data, escrow)
+
+        expect(event.token.toString().toLowerCase()).toBe(token)
+        expect(event.amount).toBe(amount)
+        expect(event.escrowAddress.equal(escrow)).toBe(true)
+        expect(FundsRescuedEvent.TOPIC).toMatch(/^0x[0-9a-f]{64}$/)
+    })
+})
+
+describe('EscrowCancelledEvent', () => {
+    it('stores the escrow address and topic', () => {
+        const escrow = EvmAddress.fromString(
+            '0x2222222222222222222222222222222222222222'
+        )
+        const event = new EscrowCancelledEvent(escrow)
+
+        expect(event.escrowAddress.equal(escrow)).toBe(true)
+        expect(EscrowCancelledEvent.TOPIC).toMatch(/^0x[0-9a-f]{64}$/)
     })
 })

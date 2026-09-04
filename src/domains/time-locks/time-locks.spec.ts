@@ -151,4 +151,26 @@ describe('TimeLocks', () => {
 
         expect(fromOffsets).toStrictEqual(fromDurations)
     })
+
+    it('compares src/dst time locks and computes rescue start', () => {
+        const timeLock = TimeLocks.new({
+            srcWithdrawal: 1n,
+            srcPublicWithdrawal: 2n,
+            srcCancellation: 3n,
+            srcPublicCancellation: 4n,
+            dstWithdrawal: 1n,
+            dstPublicWithdrawal: 2n,
+            dstCancellation: 3n
+        })
+        const deployedAt = 1_700_000_000n
+        const src = timeLock.toSrcTimeLocks(deployedAt)
+        const dst = timeLock.toDstTimeLocks(deployedAt)
+
+        expect(src.equal(src)).toBe(true)
+        expect(src.equal(timeLock.toSrcTimeLocks(deployedAt + 1n))).toBe(false)
+        expect(dst.equal(dst)).toBe(true)
+        expect(dst.equal(timeLock.toDstTimeLocks(deployedAt + 1n))).toBe(false)
+        expect(src.getRescueStart()).toBe(deployedAt + 604800n)
+        expect(src.getRescueStart(10n)).toBe(deployedAt + 10n)
+    })
 })
