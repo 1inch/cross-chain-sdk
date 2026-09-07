@@ -1029,4 +1029,88 @@ describe('EvmCrossChainOrder Native', () => {
             expect(order.takerAsset.toString()).toBe(takerAsset.toString())
         }
     )
+
+    it('builds src immutables, taking amount and expiry from the order', () => {
+        const factoryAddress = Address.fromBigInt(1n)
+        const maker = Address.fromBigInt(2n)
+        const taker = Address.fromBigInt(9n)
+        const hashLock = HashLock.forSingleFill(getRandomBytes32())
+        const order = EvmCrossChainOrder.new(
+            factoryAddress,
+            {
+                maker,
+                makerAsset: EvmAddress.fromString(
+                    '0xdac17f958d2ee523a2206206994597c13d831ec7'
+                ),
+                takerAsset: EvmAddress.fromString(
+                    '0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9'
+                ),
+                makingAmount: 100_000000n,
+                takingAmount: 90_000000n
+            },
+            {
+                hashLock,
+                srcChainId: NetworkEnum.ETHEREUM,
+                dstChainId: NetworkEnum.ARBITRUM,
+                srcSafetyDeposit: 1000n,
+                dstSafetyDeposit: 1000n,
+                timeLocks: TimeLocks.new({
+                    srcWithdrawal: 1n,
+                    srcPublicWithdrawal: 2n,
+                    srcCancellation: 3n,
+                    srcPublicCancellation: 4n,
+                    dstWithdrawal: 1n,
+                    dstPublicWithdrawal: 2n,
+                    dstCancellation: 3n
+                })
+            },
+            {
+                auction: new AuctionDetails({
+                    startTime: BigInt(now()),
+                    duration: 180n,
+                    points: [],
+                    initialRateBump: 100_000
+                }),
+                whitelist: [{address: Address.fromBigInt(100n), allowFrom: 0n}]
+            },
+            {nonce: 1n}
+        )
+
+        const immutables = order.toSrcImmutables(
+            NetworkEnum.ETHEREUM,
+            taker,
+            order.makingAmount
+        )
+        expect(immutables.amount).toBe(order.makingAmount)
+        expect(immutables.maker.equal(maker)).toBe(true)
+        expect(immutables.taker.equal(taker)).toBe(true)
+        expect(immutables.hashLock.eq(hashLock)).toBe(true)
+
+        expect(() =>
+            order.toSrcImmutables(
+                NetworkEnum.ETHEREUM,
+                taker,
+                order.makingAmount / 2n
+            )
+        ).toThrow(/partial fill/)
+
+        expect(order.isExpiredAt(order.deadline + 1n)).toBe(true)
+        expect(order.isExpiredAt(order.deadline - 1n)).toBe(false)
+
+        const taking = order.calcTakingAmount(
+            order.makingAmount,
+            order.auctionStartTime
+        )
+        expect(taking).toBeGreaterThan(0n)
+
+        expect(order.timeLocks).toBeDefined()
+        expect(order.salt).toBeGreaterThanOrEqual(0n)
+        expect(order.deadline).toBeGreaterThan(order.auctionStartTime)
+        expect(order.auctionEndTime).toBeGreaterThan(order.auctionStartTime)
+        expect(order.toJSON()).toEqual(order.build())
+        expect(order.getOrderHashBuffer(NetworkEnum.ETHEREUM).length).toBe(32)
+        expect(order.getTypedData(NetworkEnum.ETHEREUM).domain).toBeDefined()
+        expect(order.getCalculator()).toBeDefined()
+        expect(order.isExclusivityPeriod(order.auctionStartTime)).toBeDefined()
+    })
 })

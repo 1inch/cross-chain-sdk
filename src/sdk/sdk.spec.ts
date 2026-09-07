@@ -21,6 +21,7 @@ import {
 import {ApiVersion} from '../api/orders/index.js'
 import {ResolverCancellationConfig} from '../cross-chain-order/index.js'
 import {EvmCrossChainOrder} from '../cross-chain-order/evm/index.js'
+import {SvmCrossChainOrder} from '../cross-chain-order/svm/index.js'
 import {AuctionDetails} from '../domains/auction-details/index.js'
 import {TimeLocks} from '../domains/time-locks/index.js'
 import {getRandomBytes32} from '../test-utils/get-random-bytes-32.js'
@@ -604,6 +605,427 @@ describe(__filename, () => {
             expect(result.signature).toBeDefined()
             expect(result.order).toBeDefined()
             expect(result.orderHash).toBeDefined()
+        })
+    })
+
+    describe('quote and order read paths', () => {
+        const quoteResponse: QuoterResponse = {
+            quoteId: '27d54fa5-9e57-47dc-af27-8ed150a7ca75',
+            srcTokenAmount: '100000000000000000',
+            dstTokenAmount: '256915982',
+            autoK: 1,
+            presets: {
+                fast: {
+                    auctionDuration: 180,
+                    startAuctionIn: 24,
+                    initialRateBump: 84909,
+                    auctionStartAmount: '257797497',
+                    startAmount: '256915967',
+                    auctionEndAmount: '255626994',
+                    exclusiveResolver: null,
+                    costInDstToken: '881530',
+                    points: [],
+                    allowPartialFills: false,
+                    allowMultipleFills: false,
+                    gasCost: {gasBumpEstimate: 0, gasPriceEstimate: '0'},
+                    secretsCount: 1
+                },
+                medium: {
+                    auctionDuration: 360,
+                    startAuctionIn: 24,
+                    initialRateBump: 84909,
+                    auctionStartAmount: '257797497',
+                    startAmount: '256915967',
+                    auctionEndAmount: '255626994',
+                    exclusiveResolver: null,
+                    costInDstToken: '881530',
+                    points: [],
+                    allowPartialFills: false,
+                    allowMultipleFills: false,
+                    gasCost: {gasBumpEstimate: 0, gasPriceEstimate: '0'},
+                    secretsCount: 1
+                },
+                slow: {
+                    auctionDuration: 600,
+                    startAuctionIn: 24,
+                    initialRateBump: 84909,
+                    auctionStartAmount: '257797497',
+                    startAmount: '256915967',
+                    auctionEndAmount: '255626994',
+                    exclusiveResolver: null,
+                    costInDstToken: '881530',
+                    points: [],
+                    allowPartialFills: false,
+                    allowMultipleFills: false,
+                    gasCost: {gasBumpEstimate: 0, gasPriceEstimate: '0'},
+                    secretsCount: 1
+                }
+            },
+            timeLocks: {
+                srcWithdrawal: 36,
+                srcPublicWithdrawal: 336,
+                srcCancellation: 492,
+                srcPublicCancellation: 612,
+                dstWithdrawal: 180,
+                dstPublicWithdrawal: 300,
+                dstCancellation: 420
+            },
+            srcEscrowFactory: '0x0000000000000000000000000000000000000001',
+            dstEscrowFactory: '0x0000000000000000000000000000000000000002',
+            srcSafetyDeposit: '141752059440000',
+            dstSafetyDeposit: '20474999822640000',
+            whitelist: ['0x7246999fd1bab15b4ac7d1a23c3abeed63c51b86'],
+            recommendedPreset: PresetEnum.fast,
+            prices: {usd: {srcToken: '1', dstToken: '1'}},
+            volume: {usd: {srcToken: '1', dstToken: '1'}}
+        }
+
+        it('getQuote and getQuoteWithCustomPreset for EVM and Solana', async () => {
+            const httpProvider = {
+                get: jest.fn().mockResolvedValue(quoteResponse),
+                post: jest.fn().mockResolvedValue(quoteResponse)
+            }
+            const sdk = new SDK({url, httpProvider})
+
+            const evmQuote = await sdk.getQuote({
+                srcChainId: NetworkEnum.ETHEREUM,
+                dstChainId: NetworkEnum.POLYGON,
+                srcTokenAddress: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+                dstTokenAddress: '0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
+                amount: '100000000000000000',
+                walletAddress: '0x00000000219ab540356cbb839cbe05303d7705fa',
+                enableEstimate: true,
+                source: 'sdk'
+            })
+            expect(evmQuote.quoteId).toBe(quoteResponse.quoteId)
+
+            httpProvider.get = jest.fn().mockResolvedValue({
+                ...quoteResponse,
+                srcEscrowFactory: '11111111111111111111111111111111'
+            })
+            const solanaQuote = await sdk.getQuote({
+                srcChainId: NetworkEnum.SOLANA,
+                dstChainId: NetworkEnum.ETHEREUM,
+                srcTokenAddress: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
+                dstTokenAddress: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+                amount: '1000000',
+                walletAddress: '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM'
+            })
+            expect(solanaQuote.isSolanaQuote()).toBe(true)
+
+            const custom = await sdk.getQuoteWithCustomPreset(
+                {
+                    srcChainId: NetworkEnum.ETHEREUM,
+                    dstChainId: NetworkEnum.POLYGON,
+                    srcTokenAddress:
+                        '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+                    dstTokenAddress:
+                        '0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
+                    amount: '100000000000000000',
+                    walletAddress: '0x00000000219ab540356cbb839cbe05303d7705fa'
+                },
+                {
+                    customPreset: {
+                        auctionDuration: 180,
+                        auctionStartAmount: '100000',
+                        auctionEndAmount: '50000'
+                    }
+                }
+            )
+            expect(custom.quoteId).toBe(quoteResponse.quoteId)
+
+            httpProvider.post = jest.fn().mockResolvedValue({
+                ...quoteResponse,
+                srcEscrowFactory: '11111111111111111111111111111111'
+            })
+            const solanaCustom = await sdk.getQuoteWithCustomPreset(
+                {
+                    srcChainId: NetworkEnum.SOLANA,
+                    dstChainId: NetworkEnum.ETHEREUM,
+                    srcTokenAddress:
+                        'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
+                    dstTokenAddress:
+                        '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+                    amount: '1000000',
+                    walletAddress:
+                        '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM'
+                },
+                {
+                    customPreset: {
+                        auctionDuration: 180,
+                        auctionStartAmount: '100000',
+                        auctionEndAmount: '50000'
+                    }
+                }
+            )
+            expect(solanaCustom.isSolanaQuote()).toBe(true)
+        })
+
+        it('delegates order status helpers and submitSecret', async () => {
+            const httpProvider = createHttpProviderFake({items: []})
+            const sdk = new SDK({url, httpProvider})
+
+            jest.spyOn(sdk.api, 'getActiveOrders').mockResolvedValue({
+                items: [],
+                meta: {
+                    totalItems: 0,
+                    currentPage: 1,
+                    totalPages: 0,
+                    itemsPerPage: 10
+                }
+            } as never)
+            jest.spyOn(sdk.api, 'getOrderStatus').mockResolvedValue({} as never)
+            jest.spyOn(sdk.api, 'getOrdersByMaker').mockResolvedValue({
+                items: [],
+                meta: {
+                    totalItems: 0,
+                    currentPage: 1,
+                    totalPages: 0,
+                    itemsPerPage: 10
+                }
+            } as never)
+            jest.spyOn(
+                sdk.api,
+                'getReadyToAcceptSecretFills'
+            ).mockResolvedValue({fills: []} as never)
+            jest.spyOn(
+                sdk.api,
+                'getReadyToExecutePublicActions'
+            ).mockResolvedValue({actions: []} as never)
+            jest.spyOn(sdk.api, 'getPublishedSecrets').mockResolvedValue(
+                {} as never
+            )
+            jest.spyOn(sdk.api, 'submitSecret').mockResolvedValue(undefined)
+
+            await sdk.getActiveOrders({page: 1, limit: 10})
+            await sdk.getOrderStatus('0xhash')
+            await sdk.getOrdersByMaker({
+                address: '0x00000000219ab540356cbb839cbe05303d7705fa'
+            })
+            await sdk.getReadyToAcceptSecretFills('0xhash')
+            await sdk.getReadyToExecutePublicActions()
+            await sdk.getPublishedSecrets('0xhash')
+            await sdk.submitSecret('0xhash', '0xsecret')
+
+            expect(sdk.api.submitSecret).toHaveBeenCalledWith(
+                '0xhash',
+                '0xsecret'
+            )
+        })
+
+        it('createOrder requires a quoteId and can place an EVM order', async () => {
+            const httpProvider = createHttpProviderFake(undefined)
+            const sdk = new SDK({
+                url,
+                httpProvider,
+                blockchainProvider: web3ProviderConnector
+            })
+            jest.spyOn(sdk.api, 'submitOrder').mockResolvedValue(undefined)
+            jest.spyOn(
+                web3ProviderConnector,
+                'signTypedData'
+            ).mockResolvedValue('0xsignature')
+
+            const params = QuoterRequest.forEVM({
+                srcChain: NetworkEnum.ETHEREUM,
+                dstChain: NetworkEnum.POLYGON,
+                srcTokenAddress: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+                dstTokenAddress: '0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
+                amount: '100000000000000000',
+                walletAddress: '0x00000000219ab540356cbb839cbe05303d7705fa'
+            })
+            const quote = Quote.fromEVMQuote(params, quoteResponse)
+            const secret = getRandomBytes32()
+            const hashLock = HashLock.forSingleFill(secret)
+
+            expect(() =>
+                sdk.createOrder(
+                    Quote.fromEVMQuote(params, {
+                        ...quoteResponse,
+                        quoteId: null
+                    }),
+                    {hashLock, secretHashes: [secret], walletAddress: '0x0'}
+                )
+            ).toThrow(/enableEstimate/)
+
+            const prepared = sdk.createOrder(quote, {
+                hashLock,
+                secretHashes: [secret],
+                walletAddress: '0x00000000219ab540356cbb839cbe05303d7705fa',
+                receiver: '0x5555555555555555555555555555555555555555'
+            })
+            expect(prepared.quoteId).toBe(quoteResponse.quoteId)
+            expect(prepared.hash).toMatch(/^0x/)
+            expect(prepared.order).toBeInstanceOf(EvmCrossChainOrder)
+
+            const placed = await sdk.placeOrder(quote, {
+                hashLock,
+                secretHashes: [secret],
+                walletAddress: '0x00000000219ab540356cbb839cbe05303d7705fa'
+            })
+            expect(placed.quoteId).toBe(quoteResponse.quoteId)
+        })
+
+        it('createOrder builds a Solana order when the quote is SVM', () => {
+            const httpProvider = createHttpProviderFake(undefined)
+            const sdk = new SDK({url, httpProvider})
+            const params = QuoterRequest.forSolana({
+                srcChain: NetworkEnum.SOLANA,
+                dstChain: NetworkEnum.ETHEREUM,
+                srcTokenAddress: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
+                dstTokenAddress: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+                amount: '1000000',
+                walletAddress: '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM'
+            })
+            const quote = Quote.fromSolanaQuote(params, {
+                ...quoteResponse,
+                srcEscrowFactory: '11111111111111111111111111111111',
+                srcTokenAmount: '1000000'
+            })
+            const secret = getRandomBytes32()
+
+            const prepared = sdk.createOrder(quote, {
+                hashLock: HashLock.forSingleFill(secret),
+                secretHashes: [secret],
+                walletAddress: '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM',
+                receiver: '0x5555555555555555555555555555555555555555'
+            })
+
+            expect(prepared.order).not.toBeInstanceOf(EvmCrossChainOrder)
+            expect(prepared.hash).toBeDefined()
+        })
+
+        it('announceOrder submits an SVM order and rejects a secret-count mismatch', async () => {
+            const httpProvider = createHttpProviderFake(undefined)
+            const sdk = new SDK({url, httpProvider})
+            jest.spyOn(sdk.api, 'submitOrder').mockResolvedValue(undefined)
+
+            const params = QuoterRequest.forSolana({
+                srcChain: NetworkEnum.SOLANA,
+                dstChain: NetworkEnum.ETHEREUM,
+                srcTokenAddress: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
+                dstTokenAddress: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+                amount: '1000000',
+                walletAddress: '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM'
+            })
+            const quote = Quote.fromSolanaQuote(params, {
+                ...quoteResponse,
+                srcEscrowFactory: '11111111111111111111111111111111',
+                srcTokenAmount: '1000000'
+            })
+            const secret = getRandomBytes32()
+            const {order} = sdk.createOrder(quote, {
+                hashLock: HashLock.forSingleFill(secret),
+                secretHashes: [secret],
+                walletAddress: '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM',
+                receiver: '0x5555555555555555555555555555555555555555'
+            })
+
+            expect(order).not.toBeInstanceOf(EvmCrossChainOrder)
+            const hash = await sdk.announceOrder(
+                order as SvmCrossChainOrder,
+                'qid',
+                [secret]
+            )
+            expect(typeof hash).toBe('string')
+            expect(hash.length).toBeGreaterThan(0)
+
+            await expect(
+                sdk.announceOrder(order as SvmCrossChainOrder, 'qid', [
+                    secret,
+                    getRandomBytes32()
+                ])
+            ).rejects.toThrow(/secretHashes/)
+        })
+
+        it('signOrder requires a blockchain provider', async () => {
+            const sdk = new SDK({
+                url,
+                httpProvider: createHttpProviderFake(undefined)
+            })
+            const params = QuoterRequest.forEVM({
+                srcChain: NetworkEnum.ETHEREUM,
+                dstChain: NetworkEnum.POLYGON,
+                srcTokenAddress: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+                dstTokenAddress: '0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
+                amount: '100000000000000000',
+                walletAddress: '0x00000000219ab540356cbb839cbe05303d7705fa'
+            })
+            const quote = Quote.fromEVMQuote(params, quoteResponse)
+            const secret = getRandomBytes32()
+            const {order} = sdk.createOrder(quote, {
+                hashLock: HashLock.forSingleFill(secret),
+                secretHashes: [secret],
+                walletAddress: '0x00000000219ab540356cbb839cbe05303d7705fa'
+            })
+
+            await expect(
+                sdk.signOrder(order as EvmCrossChainOrder, NetworkEnum.ETHEREUM)
+            ).rejects.toThrow(/blockchainProvider/)
+        })
+
+        it('rejects submitOrder when multiple fills are disabled and extra secrets are passed', async () => {
+            const httpProvider = createHttpProviderFake(undefined)
+            const sdk = new SDK({
+                url,
+                httpProvider,
+                blockchainProvider: web3ProviderConnector
+            })
+            jest.spyOn(
+                web3ProviderConnector,
+                'signTypedData'
+            ).mockResolvedValue('0xsignature')
+
+            const factoryAddress = EvmAddress.fromBigInt(1n)
+            const order = EvmCrossChainOrder.new(
+                factoryAddress,
+                {
+                    maker: EvmAddress.fromBigInt(2n),
+                    makerAsset: EvmAddress.fromString(
+                        '0xdac17f958d2ee523a2206206994597c13d831ec7'
+                    ),
+                    takerAsset: EvmAddress.fromString(
+                        '0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9'
+                    ),
+                    makingAmount: 100_000000n,
+                    takingAmount: 90_000000n
+                },
+                {
+                    hashLock: HashLock.forSingleFill(getRandomBytes32()),
+                    srcChainId: NetworkEnum.ETHEREUM,
+                    dstChainId: NetworkEnum.ARBITRUM,
+                    srcSafetyDeposit: 1000n,
+                    dstSafetyDeposit: 1000n,
+                    timeLocks: TimeLocks.new({
+                        srcWithdrawal: 1n,
+                        srcPublicWithdrawal: 2n,
+                        srcCancellation: 3n,
+                        srcPublicCancellation: 4n,
+                        dstWithdrawal: 1n,
+                        dstPublicWithdrawal: 2n,
+                        dstCancellation: 3n
+                    })
+                },
+                {
+                    auction: new AuctionDetails({
+                        startTime: BigInt(now()),
+                        duration: 180n,
+                        points: [],
+                        initialRateBump: 100_000
+                    }),
+                    whitelist: [
+                        {address: EvmAddress.fromBigInt(100n), allowFrom: 0n}
+                    ]
+                },
+                {allowMultipleFills: false, nonce: 1n}
+            )
+
+            await expect(
+                sdk.submitOrder(NetworkEnum.ETHEREUM, order, 'qid', [
+                    getRandomBytes32(),
+                    getRandomBytes32()
+                ])
+            ).rejects.toThrow(/secretHashes/)
         })
     })
 })
