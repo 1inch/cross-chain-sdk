@@ -18,7 +18,7 @@ import {HashLock} from '../src/domains/hash-lock/index.js'
 import {EscrowFactoryFacade} from '../src/contracts/evm/escrow-factory-facade.js'
 import {DstImmutablesComplement, ImmutableFees} from '../src/domains/index.js'
 
-jest.setTimeout(1000 * 10 * 60)
+vi.setConfig({testTimeout: 1000 * 10 * 60})
 
 describe('EVM to EVM', () => {
     let srcChain: ReadyEvmFork

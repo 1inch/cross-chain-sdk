@@ -24,8 +24,8 @@ import {EscrowFactoryFacade} from '../src/contracts/evm/escrow-factory-facade.js
 import {bufferFromHex} from '../src/utils/bytes.js'
 import {now} from '../src/utils/index.js'
 
-jest.setTimeout(1000 * 10 * 60)
-jest.useFakeTimers({
+vi.setConfig({testTimeout: 1000 * 10 * 60})
+vi.useFakeTimers({
     advanceTimers: true
 })
 
@@ -54,7 +54,7 @@ describe('EVM to Solana', () => {
             ]),
             dstChain.svm.setClock(newClock)
         ])
-        jest.advanceTimersByTime(duration * 1000)
+        vi.advanceTimersByTime(duration * 1000)
     }
 
     beforeAll(async () => {

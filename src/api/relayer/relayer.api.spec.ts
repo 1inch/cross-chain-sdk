@@ -5,10 +5,10 @@ import {getRandomBytes32} from '../../test-utils/get-random-bytes-32.js'
 
 describe('Relayer API', () => {
     const httpProvider: HttpProviderConnector = {
-        get: jest.fn().mockImplementationOnce(() => {
+        get: vi.fn().mockImplementationOnce(() => {
             return Promise.resolve()
         }),
-        post: jest.fn().mockImplementation(() => {
+        post: vi.fn().mockImplementation(() => {
             return Promise.resolve()
         })
     }
