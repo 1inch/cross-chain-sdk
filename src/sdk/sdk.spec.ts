@@ -29,10 +29,10 @@ import {now} from '../utils/index.js'
 
 function createHttpProviderFake<T>(mock: T): HttpProviderConnector {
     return {
-        get: jest.fn().mockImplementationOnce(() => {
+        get: vi.fn().mockImplementationOnce(() => {
             return Promise.resolve(mock)
         }),
-        post: jest.fn().mockImplementation(() => {
+        post: vi.fn().mockImplementation(() => {
             return Promise.resolve(null)
         })
     }
@@ -300,7 +300,7 @@ describe(__filename, () => {
                 blockchainProvider: web3ProviderConnector
             })
 
-            jest.spyOn(sdk.api, 'getCancellableOrders').mockResolvedValue(
+            vi.spyOn(sdk.api, 'getCancellableOrders').mockResolvedValue(
                 mockApiResponse
             )
 
@@ -368,7 +368,7 @@ describe(__filename, () => {
                 blockchainProvider: web3ProviderConnector
             })
 
-            jest.spyOn(sdk.api, 'getCancellableOrders').mockResolvedValue(
+            vi.spyOn(sdk.api, 'getCancellableOrders').mockResolvedValue(
                 mockApiResponse
             )
 
@@ -414,7 +414,7 @@ describe(__filename, () => {
                 blockchainProvider: web3ProviderConnector
             })
 
-            jest.spyOn(sdk.api, 'getCancellableOrders').mockResolvedValue(
+            vi.spyOn(sdk.api, 'getCancellableOrders').mockResolvedValue(
                 mockResponse
             )
 
@@ -443,11 +443,10 @@ describe(__filename, () => {
                 blockchainProvider: web3ProviderConnector
             })
 
-            jest.spyOn(sdk.api, 'submitOrder').mockResolvedValue(undefined)
-            jest.spyOn(
-                web3ProviderConnector,
-                'signTypedData'
-            ).mockResolvedValue('0xsignature')
+            vi.spyOn(sdk.api, 'submitOrder').mockResolvedValue(undefined)
+            vi.spyOn(web3ProviderConnector, 'signTypedData').mockResolvedValue(
+                '0xsignature'
+            )
 
             const factoryAddress = EvmAddress.fromBigInt(1n)
             const orderData = {
@@ -529,7 +528,7 @@ describe(__filename, () => {
                 blockchainProvider: web3ProviderConnector
             })
 
-            jest.spyOn(sdk.api, 'submitOrder').mockResolvedValue(undefined)
+            vi.spyOn(sdk.api, 'submitOrder').mockResolvedValue(undefined)
 
             const factoryAddress = EvmAddress.fromBigInt(1n)
             const maker = EvmAddress.fromString(
@@ -682,8 +681,8 @@ describe(__filename, () => {
 
         it('getQuote and getQuoteWithCustomPreset for EVM and Solana', async () => {
             const httpProvider = {
-                get: jest.fn().mockResolvedValue(quoteResponse),
-                post: jest.fn().mockResolvedValue(quoteResponse)
+                get: vi.fn().mockResolvedValue(quoteResponse),
+                post: vi.fn().mockResolvedValue(quoteResponse)
             }
             const sdk = new SDK({url, httpProvider})
 
@@ -699,7 +698,7 @@ describe(__filename, () => {
             })
             expect(evmQuote.quoteId).toBe(quoteResponse.quoteId)
 
-            httpProvider.get = jest.fn().mockResolvedValue({
+            httpProvider.get = vi.fn().mockResolvedValue({
                 ...quoteResponse,
                 srcEscrowFactory: '11111111111111111111111111111111'
             })
@@ -734,7 +733,7 @@ describe(__filename, () => {
             )
             expect(custom.quoteId).toBe(quoteResponse.quoteId)
 
-            httpProvider.post = jest.fn().mockResolvedValue({
+            httpProvider.post = vi.fn().mockResolvedValue({
                 ...quoteResponse,
                 srcEscrowFactory: '11111111111111111111111111111111'
             })
@@ -765,7 +764,7 @@ describe(__filename, () => {
             const httpProvider = createHttpProviderFake({items: []})
             const sdk = new SDK({url, httpProvider})
 
-            jest.spyOn(sdk.api, 'getActiveOrders').mockResolvedValue({
+            vi.spyOn(sdk.api, 'getActiveOrders').mockResolvedValue({
                 items: [],
                 meta: {
                     totalItems: 0,
@@ -774,8 +773,8 @@ describe(__filename, () => {
                     itemsPerPage: 10
                 }
             } as never)
-            jest.spyOn(sdk.api, 'getOrderStatus').mockResolvedValue({} as never)
-            jest.spyOn(sdk.api, 'getOrdersByMaker').mockResolvedValue({
+            vi.spyOn(sdk.api, 'getOrderStatus').mockResolvedValue({} as never)
+            vi.spyOn(sdk.api, 'getOrdersByMaker').mockResolvedValue({
                 items: [],
                 meta: {
                     totalItems: 0,
@@ -784,18 +783,17 @@ describe(__filename, () => {
                     itemsPerPage: 10
                 }
             } as never)
-            jest.spyOn(
-                sdk.api,
-                'getReadyToAcceptSecretFills'
-            ).mockResolvedValue({fills: []} as never)
-            jest.spyOn(
+            vi.spyOn(sdk.api, 'getReadyToAcceptSecretFills').mockResolvedValue({
+                fills: []
+            } as never)
+            vi.spyOn(
                 sdk.api,
                 'getReadyToExecutePublicActions'
             ).mockResolvedValue({actions: []} as never)
-            jest.spyOn(sdk.api, 'getPublishedSecrets').mockResolvedValue(
+            vi.spyOn(sdk.api, 'getPublishedSecrets').mockResolvedValue(
                 {} as never
             )
-            jest.spyOn(sdk.api, 'submitSecret').mockResolvedValue(undefined)
+            vi.spyOn(sdk.api, 'submitSecret').mockResolvedValue(undefined)
 
             await sdk.getActiveOrders({page: 1, limit: 10})
             await sdk.getOrderStatus('0xhash')
@@ -820,11 +818,10 @@ describe(__filename, () => {
                 httpProvider,
                 blockchainProvider: web3ProviderConnector
             })
-            jest.spyOn(sdk.api, 'submitOrder').mockResolvedValue(undefined)
-            jest.spyOn(
-                web3ProviderConnector,
-                'signTypedData'
-            ).mockResolvedValue('0xsignature')
+            vi.spyOn(sdk.api, 'submitOrder').mockResolvedValue(undefined)
+            vi.spyOn(web3ProviderConnector, 'signTypedData').mockResolvedValue(
+                '0xsignature'
+            )
 
             const params = QuoterRequest.forEVM({
                 srcChain: NetworkEnum.ETHEREUM,
@@ -898,7 +895,7 @@ describe(__filename, () => {
         it('announceOrder submits an SVM order and rejects a secret-count mismatch', async () => {
             const httpProvider = createHttpProviderFake(undefined)
             const sdk = new SDK({url, httpProvider})
-            jest.spyOn(sdk.api, 'submitOrder').mockResolvedValue(undefined)
+            vi.spyOn(sdk.api, 'submitOrder').mockResolvedValue(undefined)
 
             const params = QuoterRequest.forSolana({
                 srcChain: NetworkEnum.SOLANA,
@@ -971,10 +968,9 @@ describe(__filename, () => {
                 httpProvider,
                 blockchainProvider: web3ProviderConnector
             })
-            jest.spyOn(
-                web3ProviderConnector,
-                'signTypedData'
-            ).mockResolvedValue('0xsignature')
+            vi.spyOn(web3ProviderConnector, 'signTypedData').mockResolvedValue(
+                '0xsignature'
+            )
 
             const factoryAddress = EvmAddress.fromBigInt(1n)
             const order = EvmCrossChainOrder.new(

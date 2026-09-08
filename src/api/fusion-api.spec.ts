@@ -1,15 +1,18 @@
+import {Mock} from 'vitest'
 import {HttpProviderConnector} from '@1inch/fusion-sdk'
 import {FusionApi} from './fusion-api.js'
 import {QuoterRequest} from './quoter/quoter.request.js'
 import {QuoterCustomPresetRequest} from './quoter/quoter-custom-preset.request.js'
 import {PresetEnum, QuoterResponse} from './quoter/types.js'
-import {NetworkEnum} from '../chains.js'
-import {ChainType} from '../domains/index.js'
-import {ActiveOrdersRequest} from './orders/orders.request.js'
-import {OrderStatusRequest} from './orders/orders.request.js'
-import {OrdersByMakerRequest} from './orders/orders.request.js'
+import {
+    ActiveOrdersRequest,
+    OrderStatusRequest,
+    OrdersByMakerRequest
+} from './orders/orders.request.js'
 import {PaginationRequest} from './pagination.js'
 import {RelayerRequestEvm} from './relayer/relayer.request.js'
+import {ChainType} from '../domains/index.js'
+import {NetworkEnum} from '../chains.js'
 
 function quoteResponse(): QuoterResponse {
     return {
@@ -90,8 +93,8 @@ describe('FusionApi', () => {
 
     beforeEach(() => {
         http = {
-            get: jest.fn().mockResolvedValue(quoteResponse()),
-            post: jest.fn().mockResolvedValue(undefined)
+            get: vi.fn().mockResolvedValue(quoteResponse()),
+            post: vi.fn().mockResolvedValue(undefined)
         }
         api = new FusionApi({
             url: 'https://test.com',
@@ -120,13 +123,13 @@ describe('FusionApi', () => {
                 auctionEndAmount: '50000'
             }
         })
-        http.post = jest.fn().mockResolvedValue(quoteResponse())
+        http.post = vi.fn().mockResolvedValue(quoteResponse())
         const custom = await api.getQuoteWithCustomPreset(params, body)
         expect(custom.quoteId).toBe('qid')
     })
 
     it('order read methods delegate to the orders API', async () => {
-        http.get = jest.fn().mockResolvedValue({items: [], meta: {}})
+        http.get = vi.fn().mockResolvedValue({items: [], meta: {}})
 
         await api.getActiveOrders(new ActiveOrdersRequest())
         await api.getOrderStatus(new OrderStatusRequest({orderHash: '0x1'}))
@@ -143,9 +146,7 @@ describe('FusionApi', () => {
             new PaginationRequest(1, 10)
         )
 
-        expect(
-            (http.get as jest.Mock).mock.calls.length
-        ).toBeGreaterThanOrEqual(7)
+        expect((http.get as Mock).mock.calls.length).toBeGreaterThanOrEqual(7)
     })
 
     it('submit methods delegate to the relayer API', async () => {
@@ -164,12 +165,13 @@ describe('FusionApi', () => {
                 },
                 signature: '0xsig',
                 quoteId: 'qid',
-                extension: '0x'
+                extension: '0x',
+                secretHashes: undefined
             })
         )
         await api.submitOrderBatch([])
         await api.submitSecret('0xhash', '0xsecret')
 
-        expect((http.post as jest.Mock).mock.calls.length).toBe(3)
+        expect((http.post as Mock).mock.calls.length).toBe(3)
     })
 })

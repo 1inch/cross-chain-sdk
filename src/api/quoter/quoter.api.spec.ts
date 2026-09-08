@@ -13,10 +13,10 @@ describe('Quoter API', () => {
 
     beforeEach(() => {
         httpProvider = {
-            get: jest.fn().mockImplementationOnce(() => {
+            get: vi.fn().mockImplementationOnce(() => {
                 return Promise.resolve(ResponseMock)
             }),
-            post: jest.fn().mockImplementation(() => {
+            post: vi.fn().mockImplementation(() => {
                 return Promise.resolve(ResponseMock)
             })
         }
@@ -249,8 +249,8 @@ describe('Quoter API', () => {
             ...ResponseMock,
             srcEscrowFactory: '11111111111111111111111111111111'
         }
-        httpProvider.get = jest.fn().mockResolvedValue(solanaResponse)
-        httpProvider.post = jest.fn().mockResolvedValue(solanaResponse)
+        httpProvider.get = vi.fn().mockResolvedValue(solanaResponse)
+        httpProvider.post = vi.fn().mockResolvedValue(solanaResponse)
 
         const quoter = new QuoterApi(
             {url: 'https://test.com/quoter'},

@@ -1,5 +1,5 @@
 import {Quote} from './quote.js'
-import {NetworkEnum} from '../../../chains.js'
+import {EvmChain, NetworkEnum, SolanaChain} from '../../../chains.js'
 import {QuoterRequest} from '../quoter.request.js'
 import {PresetEnum, QuoterResponse} from '../types.js'
 import {EvmAddress, HashLock, SolanaAddress} from '../../../domains/index.js'
@@ -10,7 +10,9 @@ import {SvmCrossChainOrder} from '../../../cross-chain-order/svm/index.js'
 const EXCLUSIVE = '0x7246999fd1bab15b4ac7d1a23c3abeed63c51b86'
 const OTHER_RESOLVER = '0x1111111111111111111111111111111111111111'
 
-function preset(overrides: Record<string, unknown> = {}) {
+function preset(
+    overrides: Record<string, unknown> = {}
+): QuoterResponse['presets']['fast'] {
     return {
         auctionDuration: 180,
         startAuctionIn: 24,
@@ -68,7 +70,7 @@ function evmResponse(overrides: Partial<QuoterResponse> = {}): QuoterResponse {
     }
 }
 
-function evmRequest() {
+function evmRequest(): QuoterRequest<EvmChain> {
     return QuoterRequest.forEVM({
         srcChain: NetworkEnum.ETHEREUM,
         dstChain: NetworkEnum.POLYGON,
@@ -80,7 +82,7 @@ function evmRequest() {
     })
 }
 
-function solanaRequest() {
+function solanaRequest(): QuoterRequest<SolanaChain> {
     return QuoterRequest.forSolana({
         srcChain: NetworkEnum.SOLANA,
         dstChain: NetworkEnum.ETHEREUM,

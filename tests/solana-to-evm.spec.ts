@@ -22,8 +22,8 @@ import {DstImmutablesComplement} from '../src/domains/immutables/index.js'
 import {EscrowFactoryFacade} from '../src/contracts/evm/escrow-factory-facade.js'
 import {now} from '../src/utils/index.js'
 
-jest.setTimeout(1000 * 10 * 60)
-jest.useFakeTimers({
+vi.setConfig({testTimeout: 1000 * 10 * 60})
+vi.useFakeTimers({
     advanceTimers: true
 })
 
@@ -52,7 +52,7 @@ describe('Solana to EVM', () => {
                 dstBlock!.timestamp + duration
             ])
         ])
-        jest.advanceTimersByTime(duration * 1000)
+        vi.advanceTimersByTime(duration * 1000)
     }
 
     beforeAll(async () => {
