@@ -5,7 +5,12 @@
 
 module.exports = {
     clearMocks: true,
-    collectCoverageFrom: ['**/*.(t|j)s'],
+    collectCoverageFrom: [
+        '**/*.(t|j)s',
+        '!**/*.spec.ts',
+        '!**/*.test.ts',
+        '!**/test-utils/**'
+    ],
     coverageDirectory: 'coverage',
     coveragePathIgnorePatterns: ['/node_modules/', 'dist', 'src/index.ts'],
     coverageProvider: 'v8',
