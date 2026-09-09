@@ -3,13 +3,15 @@ import {FusionApi} from './fusion-api.js'
 import {QuoterRequest} from './quoter/quoter.request.js'
 import {QuoterCustomPresetRequest} from './quoter/quoter-custom-preset.request.js'
 import {PresetEnum, QuoterResponse} from './quoter/types.js'
-import {NetworkEnum} from '../chains.js'
-import {ChainType} from '../domains/index.js'
-import {ActiveOrdersRequest} from './orders/orders.request.js'
-import {OrderStatusRequest} from './orders/orders.request.js'
-import {OrdersByMakerRequest} from './orders/orders.request.js'
+import {
+    ActiveOrdersRequest,
+    OrderStatusRequest,
+    OrdersByMakerRequest
+} from './orders/orders.request.js'
 import {PaginationRequest} from './pagination.js'
 import {RelayerRequestEvm} from './relayer/relayer.request.js'
+import {NetworkEnum} from '../chains.js'
+import {ChainType} from '../domains/index.js'
 
 function quoteResponse(): QuoterResponse {
     return {
@@ -164,7 +166,8 @@ describe('FusionApi', () => {
                 },
                 signature: '0xsig',
                 quoteId: 'qid',
-                extension: '0x'
+                extension: '0x',
+                secretHashes: undefined
             })
         )
         await api.submitOrderBatch([])

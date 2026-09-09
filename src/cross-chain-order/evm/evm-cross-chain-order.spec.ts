@@ -1101,8 +1101,8 @@ describe('EvmCrossChainOrder Native', () => {
             )
         ).toThrow(/partial fill/)
 
-        expect(order.isExpiredAt(order.deadline + 1n)).toBe(true)
-        expect(order.isExpiredAt(order.deadline - 1n)).toBe(false)
+        expect(order.isExpiredAt(Number(order.deadline) + 1)).toBe(true)
+        expect(order.isExpiredAt(Number(order.deadline) - 1)).toBe(false)
 
         const taking = order.calcTakingAmount(
             order.makingAmount,
