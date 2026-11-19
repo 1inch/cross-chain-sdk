@@ -2,7 +2,7 @@
 Sdk for creating atomic swaps through 1inch
 
 ## Resources
-- [Dev portal](https://portal.1inch.dev/documentation/apis/swap/fusion-plus/introduction)
+- [Dev portal](https://business.1inch.com/portal/documentation/apis/swap/cross-chain-swap/introduction)
 
 ## Docs
 - [WebSocket](https://github.com/1inch/cross-chain-sdk/tree/master/src/ws-api)
@@ -431,7 +431,7 @@ import { randomBytes } from 'node:crypto'
 import { setTimeout } from 'node:timers/promises'
 
 const authKey = process.env.DEV_PORTAL_API_TOKEN
-assert(authKey, 'please provide auth key in DEV_PORTAL_API_TOKEN env. You can grab it at https://portal.1inch.dev')
+assert(authKey, 'please provide auth key in DEV_PORTAL_API_TOKEN env. You can grab it at https://business.1inch.com/portal')
 
 const signerPrivateKey = process.env.SOLANA_PRIVATE_KEY
 assert(signerPrivateKey, 'please provide solana private key of the maker wallet in SOLANA_PRIVATE_KEY')
@@ -581,7 +581,7 @@ import { setTimeout } from 'node:timers/promises'
 import 'dotenv/config'
 
 const authKey = process.env.DEV_PORTAL_API_TOKEN
-assert(authKey, 'please provide auth key in DEV_PORTAL_API_TOKEN env. You can grab it at https://portal.1inch.dev')
+assert(authKey, 'please provide auth key in DEV_PORTAL_API_TOKEN env. You can grab it at https://business.1inch.com/portal')
 
 const signerPrivateKey = process.env.EVM_PRIVATE_KEY
 assert(signerPrivateKey, 'please provide evm private key of the maker wallet in EVM_PRIVATE_KEY env')
